@@ -7,9 +7,12 @@ cd "$(dirname "$0")"
 # every published artifact is identifiable across dev/staging/prod.
 node -e "
 const fs = require('fs');
-const v = JSON.parse(fs.readFileSync('version.json','utf8'));
-const [maj, min] = v.version.split('.').map(Number);
- v.version = maj + '.' + (min + 1) + '.0';
+let v = { version: '1.1.0', builtAt: null };
+try { v = JSON.parse(fs.readFileSync('version.json','utf8')); } catch {}
+let [maj, min] = (v.version || '1.1.0').split('.').map(Number);
+maj = Math.max(1, maj || 1); min = Math.max(1, (min || 0) + 1);
+const build = Math.floor(Date.now() / 86400000) % 10000;
+v.version = [maj, min, build].join('.');
 v.builtAt = new Date().toISOString();
 fs.writeFileSync('version.json', JSON.stringify(v, null, 2) + '\n');
 fs.writeFileSync('version.txt', v.version + '\n');
