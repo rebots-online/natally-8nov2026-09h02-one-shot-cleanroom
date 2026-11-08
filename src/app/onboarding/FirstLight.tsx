@@ -293,15 +293,6 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
    {phase === 'reveal' && chart && (
     <section className="onboarding reveal" aria-live="polite">
      <div className="onboarding-card reveal-card">
-      <div className="reveal-chart" data-chart-callout-boundary data-chart-inset="true">
-       {wheel ? (
-        <Astrolabe3D chart={wheel} isSpinning={false} resetTrigger={0} />
-       ) : (
-        <div className="chart-loading" role="status">
-         Casting the wheel…
-        </div>
-       )}
-      </div>
       <p className="welcome-kicker">First light</p>
       <h2>{chart.input.name ? `First light, ${chart.input.name}.` : 'First light.'}</h2>
       <p className="reveal-line">{revealLine(chart)}</p>
