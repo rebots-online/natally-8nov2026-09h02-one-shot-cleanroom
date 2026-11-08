@@ -151,18 +151,21 @@ const BEATS: readonly { key: ChartBodyKey | null; heading: string; body: string 
   },
 ];
 
-const CREDIT_PACKS: readonly { usd: number; line: string }[] = [
+const CREDIT_PACKS: readonly { usd: number; line: string; cta: (cr: string) => string }[] = [
   {
     usd: 5,
     line: 'A first reading — the whole wheel walked, and your opening questions properly answered.',
+    cta: cr => `Start with ${cr}`,
   },
   {
     usd: 10,
     line: 'Room to go deeper — timing, transits, and the follow-ups that actually matter.',
+    cta: () => 'Keep the reading going',
   },
   {
     usd: 25,
     line: 'The whole sky — a standing conversation whenever a season turns.',
+    cta: () => 'Take the whole sky',
   },
 ];
 
@@ -459,7 +462,7 @@ export default function Landing() {
                 {formatCr(pack.usd * 1_000_000, perUsd)} of conversation
               </p>
               <p>{pack.line}</p>
-              <a href="/app.html">Open Natally →</a>
+              <a href="/app.html">{pack.cta(formatCr(pack.usd * 1_000_000, perUsd))}</a>
             </article>
           ))}
           <article className="offer souvenir">
