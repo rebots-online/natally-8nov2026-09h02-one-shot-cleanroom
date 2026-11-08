@@ -149,6 +149,11 @@ export default function App() {
               src="/natally-mascot.webp"
               alt="Natally, the atelier astrologer"
             />
+            <h1>Natally</h1>
+            <p className="card-intro">
+              An astrologer who keeps an atelier for your chart. Sign in and she’ll cast it
+              with you, then talk it over — planets, houses, and all.
+            </p>
             {auth.unavailable ? (
               <p className="note warn">
                 Sign-in isn’t available on this deployment — Firebase isn’t configured.
