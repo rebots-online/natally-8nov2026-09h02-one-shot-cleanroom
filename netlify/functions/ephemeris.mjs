@@ -11,10 +11,13 @@
 //   POST /ephemeris/houses     → {julianDay, cusps[12], ascmc[10]}
 //
 // Auth (positions + houses only): headers `X-Nonce` + `X-Response`, where
-// X-Response is a base64 ECDSA-P256/SHA256 signature over the exact X-Nonce
-// bytes, verified with node:crypto.verify against the challenge pubkey.
-// Both DER (Node crypto.sign) and ieee-p1363 (WebCrypto subtle.sign)
-// signature encodings are accepted. Nonce freshness is NOT enforced — the
+// X-Response is a base64 ECDSA-P256/SHA256 signature over the nonce,
+// verified with node:crypto.verify against the challenge pubkey. The signed
+// input is accepted in BOTH canonical forms: the exact X-Nonce STRING bytes
+// (utf-8) and, when the nonce is the 64-char hex value issued by /challenge,
+// its HEX-DECODED 32 bytes (Buffer.from(nonce,'hex') — the deployed client's
+// form). Signature encodings accepted: DER (Node crypto.sign) and
+// ieee-p1363 (WebCrypto subtle.sign). Nonce freshness is NOT enforced — the
 // function is stateless (no challenge store), so any correctly-signed nonce
 // value verifies until the key rotates.
 //
@@ -245,14 +248,21 @@ async function loadKeyState() {
 }
 
 function verifySignature(publicKey, nonce, signatureB64) {
-  const data = Buffer.from(nonce, 'utf8');
   const sig = Buffer.from(signatureB64, 'base64');
   if (sig.length === 0) return false;
+  // Signed-input forms: the raw nonce string (utf-8) and, for hex nonces
+  // (e.g. the 64-char value from /challenge), the decoded bytes.
+  const inputs = [Buffer.from(nonce, 'utf8')];
+  if (nonce.length >= 2 && nonce.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(nonce)) {
+    inputs.push(Buffer.from(nonce, 'hex'));
+  }
   // DER: Node crypto.sign default. ieee-p1363: WebCrypto/browser ECDSA.
-  for (const dsaEncoding of ['der', 'ieee-p1363']) {
-    try {
-      if (crypto.verify('sha256', data, { key: publicKey, dsaEncoding }, sig)) return true;
-    } catch { /* signature not valid for this encoding */ }
+  for (const data of inputs) {
+    for (const dsaEncoding of ['der', 'ieee-p1363']) {
+      try {
+        if (crypto.verify('sha256', data, { key: publicKey, dsaEncoding }, sig)) return true;
+      } catch { /* signature not valid for this input/encoding */ }
+    }
   }
   return false;
 }
