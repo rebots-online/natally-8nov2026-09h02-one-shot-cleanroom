@@ -641,3 +641,32 @@ div[id^='threejs-container'] {
   width: var(--inset-dock-size);
   height: var(--inset-dock-size);
 }
+
+/* ---------- Composition and presence (ARCHITECTURE) ---------- */
+
+/* One compact header line: brand, greeting, actions — no wrapping rows. */
+.app-header {
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding-block: 6px;
+}
+.app-brand {
+  font-size: 24px;
+}
+.app-greeting {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30vw;
+}
+
+/* The stage gets the screen: no dead band below it, and the stage is
+   capped so the conversation — her words and the ready input — is on
+   screen from her first spoken word, not below the fold. */
+.app-frame {
+  padding-bottom: 12px;
+}
+.app-stage .reading-stage {
+  max-width: min(100%, max(420px, calc((100dvh - 310px) * 1.6)));
+  margin-inline: auto;
+}
