@@ -24,6 +24,8 @@ import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabe
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import { getLesson } from '../content/lessons';
 import { ReadingStage } from '../atelier-original/components/ReadingStage';
+import { Inset } from './stage/Inset';
+import { useStageVisualHeight } from './stage/stageMetrics';
 import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
 import type { PresentationState, PresentationView } from '../atelier-original/services/presentation';
 import { ChatPanel } from './chat/ChatPanel';
@@ -75,6 +77,8 @@ export default function App() {
   const [chart, setChart] = useState<NatalChart | null>(null);
   const [hoveredKey, setHoveredKey] = useState<ChartBodyKey | null>(null);
   const [view, setView] = useState<PresentationView>('atelier');
+  const stageRootRef = useRef<HTMLDivElement | null>(null);
+  const stageVisualHeight = useStageVisualHeight(stageRootRef);
   const [paused, setPaused] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [souvenirOpen, setSouvenirOpen] = useState(false);
@@ -328,7 +332,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className="app-stage">
+        <div className="app-stage stage-inset-root" ref={stageRootRef}>
           <ReadingStage
             accountUid={auth.uid}
             presentation={presentation}
@@ -336,21 +340,7 @@ export default function App() {
             paused={paused}
             onPause={setPaused}
             onView={setView}
-            chart={
-              astrolabe ? (
-                <Astrolabe3D
-                  chart={astrolabe}
-                  isSpinning={false}
-                  resetTrigger={0}
-                  selectedPlanetName={hoveredKey}
-                  onSelectPlanet={explainPlanet}
-                />
-              ) : (
-                <div className="chart-loading" role="status">
-                  Casting the wheel…
-                </div>
-              )
-            }
+            chart={null}
             conversation={
               <>
                 <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} />
@@ -371,6 +361,36 @@ export default function App() {
               </>
             }
           />
+          {/* The clean-room inset (ARCHITECTURE §Chart inset): the chart
+              floats over the stage here, in place of the verbatim stage's
+              own chart pane; when the chart is focused the wheel fills the
+              visual area and Natally becomes the floating pane. */}
+          <div
+            className="stage-inset-layer"
+            data-mode={view === 'chart' ? 'fill' : 'float'}
+          >
+            <Inset
+              storageKey={`natally.inset.v1:${auth.uid}`}
+              label="Your wheel"
+              focused={view === 'chart'}
+              fillHeight={stageVisualHeight}
+              targets={presentation.focusTargets}
+            >
+              {astrolabe ? (
+                <Astrolabe3D
+                  chart={astrolabe}
+                  isSpinning={false}
+                  resetTrigger={0}
+                  selectedPlanetName={hoveredKey}
+                  onSelectPlanet={explainPlanet}
+                />
+              ) : (
+                <div className="chart-loading" role="status">
+                  Casting the wheel…
+                </div>
+              )}
+            </Inset>
+          </div>
         </div>
       </div>
 

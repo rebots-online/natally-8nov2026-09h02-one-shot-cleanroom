@@ -1,0 +1,173 @@
+/* The dockable, resizable chart inset (DOCS/ARCHITECTURE.md §Chart inset).
+   Palette and type follow src/shared/tokens.css like app-shell.css. */
+
+/* The app stage becomes the positioning context for the inset layer. */
+.stage-inset-root {
+  position: relative;
+}
+
+/* Full-stage layer that carries the inset. It never eats stage pointer
+   events itself; the inset (and the fill-mode chart) re-enable them. */
+.stage-inset-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Below the room pane (z:1) while the chart is focused, so Natally's
+     verbatim inset floats above the full wheel; the floating inset is
+     lifted above everything in [data-mode='float'] below. */
+  z-index: 0;
+}
+
+.stage-inset-layer[data-mode='float'] {
+  z-index: 40;
+}
+
+/* The clean-room inset replaces the verbatim stage's own chart pane: the
+   chart always renders inside our inset/fill layer instead. Scoped to our
+   stage root so no other ReadingStage usage is affected. */
+.stage-inset-root .reading-stage__chart,
+.stage-inset-root .reading-stage__inset-handle {
+  display: none !important;
+}
+
+/* ---------- The floating inset ---------- */
+
+.chart-inset {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--plum-line);
+  border-radius: 12px;
+  background: rgba(6, 7, 17, 0.92);
+  box-shadow: 0 14px 38px rgba(3, 2, 8, 0.55);
+  overflow: hidden;
+  touch-action: none;
+  transition: box-shadow 160ms ease;
+}
+
+.chart-inset:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.chart-inset[data-dragging='true'] {
+  box-shadow: 0 22px 52px rgba(3, 2, 8, 0.7);
+  cursor: grabbing;
+}
+
+/* Drag bar: the whole strip grabs the inset; the label names the pane. */
+.chart-inset__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 10px;
+  background: rgba(25, 18, 31, 0.94);
+  border-bottom: 1px solid var(--plum-line);
+  cursor: grab;
+  user-select: none;
+}
+
+.chart-inset[data-dragging='true'] .chart-inset__bar {
+  cursor: grabbing;
+}
+
+.chart-inset__gripdots {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 12px;
+  background-image: radial-gradient(var(--parchment-muted) 1.1px, transparent 1.3px);
+  background-size: 5px 5px;
+  opacity: 0.75;
+}
+
+.chart-inset__label {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--parchment-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Targets she is highlighting while she speaks. */
+.chart-inset__targets {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.chart-inset__target {
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px 3px;
+  border-radius: 999px;
+  border: 1px solid var(--brass);
+  color: var(--brass-bright);
+  background: rgba(215, 182, 119, 0.12);
+  white-space: nowrap;
+}
+
+/* The visible corner grip: resize by dragging, 20–60% of stage width. */
+.chart-inset__resizer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  color: var(--brass);
+  opacity: 0.9;
+  background: linear-gradient(
+    135deg,
+    transparent 0 55%,
+    rgba(215, 182, 119, 0.22) 55% 100%
+  );
+}
+
+.chart-inset__resizer::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background:
+    linear-gradient(45deg, transparent 44%, currentColor 44% 56%, transparent 56%),
+    linear-gradient(45deg, transparent 64%, currentColor 64% 76%, transparent 76%);
+}
+
+.chart-inset__content {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Focused (chart view): the wheel fills the stage visual ---------- */
+
+.chart-inset-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  pointer-events: auto;
+  border: 1px solid var(--plum-line);
+  border-radius: 12px;
+  background: rgba(6, 7, 17, 0.96);
+  overflow: hidden;
+}
+
+.chart-inset-fill .chart-inset__content {
+  position: absolute;
+  inset: 0;
+}
+
+/* Small-stage behaviour: keep the minimum inset usable at 344px. */
+@media (max-width: 480px) {
+  .chart-inset__label {
+    display: none;
+  }
+}
