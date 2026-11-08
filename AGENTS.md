@@ -25,3 +25,14 @@
 7. Staging-domain deploys only until a real purchase works end-to-end.
 8. Do not look, do not check, do not remove: write what is correct,
    idempotently.
+
+12. Every change is committed with a meaningful message and pushed the
+    moment it is made — one change per commit, never batched, never left
+    in the working tree.
+13. `build_all.sh` is the only build entry. Its first step deploys the web
+    build to both dated hosts (rule 11); native packages (Linux, Windows
+    via cross-compilation, Android) build only after that deploy succeeds.
+    Do not run it to package a version with known open defects. Every
+    invocation increments the version (MAJOR.MINOR.BUILD, MINOR +1, BUILD =
+    epoch days % 10000) before anything is built; the same version is stamped
+    on web and every native artifact. No manual version numbers.
