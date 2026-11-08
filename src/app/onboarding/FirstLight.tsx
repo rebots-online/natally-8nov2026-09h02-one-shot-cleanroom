@@ -20,6 +20,7 @@ import type { Voice, VoiceState } from '../../voice';
 import { loadGazetteer } from '../../services/gazetteer';
 import type { IntakeDraft } from '../../services/onboarding';
 import { getPreloadedVoice } from '../../services/supertonicTts';
+import { withPerformanceEvents } from '../voicePerformance';
 import OriginalFirstLight from '../../onboarding-original/FirstLight';
 import './onboarding.css';
 
@@ -34,7 +35,7 @@ function signOf(longitude: number): ZodiacSign {
 }
 
 const GREETING =
-  'Welcome to the atelier. I am Natally. Tell me when and where you were born, and we will cast your first chart together.';
+  "Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table. Oh, and the stuff on my shelves? Grabbable. All of it. I only side-eye a little.";
 
 /** The one-line reveal reading: the real luminaries and ascendant. */
 function revealLine(chart: NatalChart): string {
@@ -44,11 +45,43 @@ function revealLine(chart: NatalChart): string {
   const name = chart.input.name ? `, ${chart.input.name}` : '';
   return (
     `First light${name}: Sun in ${sun ?? '…'}, Moon in ${moon ?? '…'}, ${rising} rising — ` +
-    'warmth with weather behind it, and a door that opens easily. This wheel is yours; shall we walk it?'
+    "okay so that's main-character warmth, secretly-soft insides, and a door that opens onto adventure? Unfair, actually. This wheel is yours — want to walk it together?"
   );
 }
 
 type Phase = 'welcome' | 'intake' | 'casting' | 'reveal';
+
+/** Partial-intake stash: a submitted draft survives reloads/back so the
+ * flow never dead-ends; cleared once the chart lands. */
+const DRAFT_STASH = 'natally.firstlight.draft.v1';
+
+function stashDraft(draft: IntakeDraft): void {
+  try {
+    sessionStorage.setItem(DRAFT_STASH, JSON.stringify(draft));
+  } catch {
+    // Storage unavailable: the in-memory flow still works.
+  }
+}
+
+function unstashDraft(): IntakeDraft | null {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_STASH);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    return parsed as IntakeDraft;
+  } catch {
+    return null;
+  }
+}
+
+function clearStashedDraft(): void {
+  try {
+    sessionStorage.removeItem(DRAFT_STASH);
+  } catch {
+    // Nothing to clear.
+  }
+}
 
 export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChart) => void }) {
   const [phase, setPhase] = useState<Phase>('welcome');
@@ -61,16 +94,22 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
     speaking: false,
     error: null,
   });
-
-  // The shared voice controller (same instance the intake's preload seam
-  // warmed on mount) speaks for the whole flow.
-  const voiceRef = useRef<Voice | null>(null);
-  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
-  const voice = voiceRef.current;
+  // True only while a real computation is in flight. A bfcache/back
+  // restore can resurrect a 'casting' phase whose promise died with the
+  // page — that stale state must fall back to the intake (whose answers
+  // the restore also preserved), never wedge.
+  const castInFlight = useRef(false);
+  const resumed = useRef(false);
 
   // The line Natally should be speaking right now; updated as phases change
   // so the FIRST user gesture both admits audio and speaks it.
   const currentLine = useRef(GREETING);
+
+  // The shared voice controller (same instance the intake's preload seam
+  // warmed on mount) speaks for the whole flow, mouth and captions follow.
+  const voiceRef = useRef<Voice | null>(null);
+  if (voiceRef.current === null) voiceRef.current = withPerformanceEvents(getPreloadedVoice());
+  const voice = voiceRef.current;
 
   useEffect(() => voice.onState(setVoiceState), [voice]);
 
@@ -101,6 +140,22 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
     return () => window.clearInterval(timer);
   }, [phase]);
 
+  // Back/forward recovery: a bfcache restore can resurrect a 'casting'
+  // phase whose computation died with the previous page. Any 'casting'
+  // state without a live computation falls back to the intake — answers
+  // survive the restore, so the customer resumes exactly where they were.
+  useEffect(() => {
+    const recover = () => {
+      if (!castInFlight.current) setPhase(current => (current === 'casting' ? 'intake' : current));
+    };
+    window.addEventListener('pageshow', recover);
+    document.addEventListener('visibilitychange', recover);
+    return () => {
+      window.removeEventListener('pageshow', recover);
+      document.removeEventListener('visibilitychange', recover);
+    };
+  }, []);
+
   // At the reveal, the current line becomes the reading (spoken at once when
   // audio is admitted, or on the next gesture when it is not).
   useEffect(() => {
@@ -119,6 +174,8 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
 
   const onCreate = async (draft: IntakeDraft) => {
     setError(null);
+    stashDraft(draft);
+    castInFlight.current = true;
     setPhase('casting');
     try {
       const place = loadGazetteer().find(entry => entry.id === draft.placeId);
@@ -140,6 +197,7 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
         natalChart(birth),
         computeAstrolabeChart(birth),
       ]);
+      clearStashedDraft();
       setChart(computed);
       setWheel(wheel);
       setPhase('reveal');
@@ -150,8 +208,20 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
           : 'Casting failed — please check your answers and try again.',
       );
       setPhase('intake');
+    } finally {
+      castInFlight.current = false;
     }
   };
+
+  // Reload/back recovery: a submitted-but-uncompleted draft is stashed;
+  // recompute it idempotently (same input, same wheel) so the journey
+  // resumes at the reveal instead of a dead end.
+  useEffect(() => {
+    if (resumed.current) return;
+    resumed.current = true;
+    const draft = unstashDraft();
+    if (draft) void onCreate(draft);
+  }, []);
 
   const enterAtelier = () => {
     if (!chart) return;
@@ -224,7 +294,7 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
       {phase === 'reveal' && chart && (
         <section className="onboarding reveal" aria-live="polite">
           <div className="onboarding-card reveal-card">
-            <div className="reveal-chart">
+            <div className="reveal-chart" data-chart-callout-boundary data-chart-inset="true">
               {wheel ? (
                 <Astrolabe3D chart={wheel} isSpinning={false} resetTrigger={0} />
               ) : (
