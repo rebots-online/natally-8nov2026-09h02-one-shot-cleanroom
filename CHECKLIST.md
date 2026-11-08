@@ -25,3 +25,23 @@ frozen contracts. ⬜ · 🔧 · ✅ · 🛑. Acceptance: section complete, `tsc
 Integration: repo-wide `tsc --noEmit` clean; `bash build_all.sh` green
 (dist-web/, 534 ms). Every task's commit pushed to origin
 (~/github/natally-cleanroom-origin.git).
+
+## Active repair swarm — rubric-bound, not yet accepted
+
+| Task | Exclusive ownership | Required outcomes | State |
+| --- | --- | --- | --- |
+| AUDIO | `src/voice/**` and the two copied voiceService adapters named in ARCHITECTURE | R1: one speech owner, supersession without cancelling same-turn chunks, no stale mouth/karaoke events | In progress |
+| PRESENTATION | Copied landing controller/CSS/renderer/content and landing document chrome named in ARCHITECTURE | R2: return to Natally between explanations; R3: wheel structure visible; R4: aspect hover/click; R5: compact readable header; R6: immersion-breaking lines absent | In progress |
+| INTEGRATION | Parent-owned commits, canonical build invocation, dual staging publication and recording | R7: meaningful atomic commits and confirmed pushes; same version on both dated hosts; one continuous rubric recording | Pending both slices |
+
+The historical green markers above are implementation records, not proof
+that the current product passes this rubric. Acceptance remains pending
+the continuous recording; no operator audition or test suite is a substitute.
+
+## Native build request — active
+
+| Task | Scope | Observable outcome |
+| --- | --- | --- |
+| NATIVE-BOOTSTRAP | Native host, generated Android sources, original icons, CLI dependency and build-only credential pointers | Current rewrite has reproducible Tauri packaging with original identity/signing; no dependency on the old checkout |
+| NATIVE-COORDINATOR | `build_all.sh`, `scripts/build-environment.mjs`, `scripts/build-native.mjs` | One version; web dual-publish first and fail-fast; full Linux/Windows/Android matrix follows |
+| NATIVE-ARTIFACTS | `dist/natally-v<version>/**` | Linux AppImage/deb/rpm, Windows executable/NSIS, Android signed APK/AAB/symbol ZIP; exact produced/missing status and SHA-256 inventory |
