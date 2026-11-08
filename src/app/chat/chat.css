@@ -200,3 +200,12 @@
   color: var(--parchment-muted, #b9a996);
   cursor: default;
 }
+
+/* Truthful note while her voice waits for the admitting gesture. */
+.chat-voicenote {
+  margin: 0 1.1rem 0.6rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--brass-bright, #d7b677);
+  text-align: center;
+}

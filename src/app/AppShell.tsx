@@ -1,24 +1,28 @@
-// App shell for /app.html (DOCS/ARCHITECTURE.md §Surfaces). State machine:
+// App shell for /app.html (DOCS/ARCHITECTURE.md §Surfaces + §First reveal
+// and speech-driven presentation). State machine:
 //   signed-out (onAuthChange)  → Google sign-in card over the verbatim
 //                                atelier scene (src/atelier-original)
 //   signed-in without a chart  → first-light onboarding: welcome, the
 //                                verbatim FirstLight intake, an honest
-//                                casting moment, then the chart reveal
-//                                (src/app/onboarding hands the chart back)
-//   signed-in with a chart     → the verbatim ReadingStage: the original
-//                                atelier (hero-scale Natally, breakable
-//                                trinkets, armillary) with our AstroChart
-//                                as the draggable inset and ChatPanel in
-//                                the conversation slot. The chart is kept
-//                                per-customer in localStorage so a reload
-//                                doesn't demand re-entering birth data.
+//                                casting moment — casting hands the chart
+//                                straight to this stage (no separate wheel)
+//   signed-in with a chart     → the verbatim ReadingStage (hero-scale
+//                                Natally, breakable trinkets, armillary)
+//                                with the chart in our clean-room inset
+//                                and ChatPanel in the conversation slot.
+// The stage opens with Natally reading the chart aloud as her first chat
+// message (gesture-gated audio, truthful note when not admitted); her
+// hidden cues drive highlight → focus → un-highlight and the chart⇄inset
+// swap as her voice reaches them; a manual view choice stops automatic
+// view cues. The chart is kept per-customer in localStorage so a reload
+// doesn't demand re-entering birth data.
 
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { authUnavailable, googleSignIn, onAuthChange } from '../platform/firebase';
 import type { BirthInput, ChartBodyKey, NatalChart } from '../shared/types';
 import { composeLiveReading } from '../chart/liveReading';
-import type { Voice } from '../voice';
+import type { KaraokeDetail, Voice } from '../voice';
 import { getPreloadedVoice } from '../services/supertonicTts';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
@@ -27,7 +31,18 @@ import { ReadingStage } from '../atelier-original/components/ReadingStage';
 import { Inset } from './stage/Inset';
 import { useStageVisualHeight } from './stage/stageMetrics';
 import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
-import type { PresentationState, PresentationView } from '../atelier-original/services/presentation';
+import type { PresentationView as StageView } from '../atelier-original/services/presentation';
+import {
+  initialPresentation,
+  presentationReducer,
+  type PresentationState,
+  type PresentationView,
+} from './presentation/state';
+import { createPlayback, type PlaybackDriver } from './presentation/playback';
+import { parseReply, type Cue } from './presentation/cues';
+import { openingReading } from './presentation/opening';
+import { chartTargets } from './chat/context';
+import type { ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
 import VersionBadge from './VersionBadge';
@@ -76,7 +91,7 @@ export default function App() {
   const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
   const [chart, setChart] = useState<NatalChart | null>(null);
   const [hoveredKey, setHoveredKey] = useState<ChartBodyKey | null>(null);
-  const [view, setView] = useState<PresentationView>('atelier');
+  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
   const stageRootRef = useRef<HTMLDivElement | null>(null);
   const stageVisualHeight = useStageVisualHeight(stageRootRef);
   const [paused, setPaused] = useState(false);
@@ -91,6 +106,131 @@ export default function App() {
   // spot when a body is clicked in the wheel.
   const [liveReading, setLiveReading] = useState<{ planet: string; text: string | null } | null>(null);
   const skyForChart = useRef<Promise<NatalChartResult> | null>(null);
+
+  // Her voice, warmed by the onboarding's preload seam.
+  const voiceRef = useRef<Voice | null>(null);
+  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
+  const voice = voiceRef.current;
+
+  const chartKey =
+    chart === null
+      ? ''
+      : `${chart.input.dateIso}|${chart.input.place.label}|${chart.input.timeIso ?? 'unknown'}`;
+
+  // A new chart on the table resets the stage.
+  useEffect(() => {
+    if (chartKey !== '') dispatch({ type: 'chart', key: chartKey });
+  }, [chartKey]);
+
+  // The opening reading: her first chat message, spoken as the stage opens.
+  const opening = useMemo(() => (chart === null ? null : openingReading(chart)), [chart]);
+  const openingClean = useMemo(() => {
+    if (chart === null || opening === null) return null;
+    return parseReply(opening, chartTargets(chart)).text;
+  }, [chart, opening]);
+
+  // Cues cross as her voice reaches them: the driver applies each one, the
+  // karaoke word boundaries set the frontier, speech's end flushes the rest.
+  const sawCueViewRef = useRef(false);
+  const driverRef = useRef<PlaybackDriver | null>(null);
+  if (driverRef.current === null) {
+    driverRef.current = createPlayback((cue: Cue) => {
+      if (cue.action.type === 'view') {
+        sawCueViewRef.current = true;
+        dispatch({ type: 'view', view: cue.action.view });
+      } else if (cue.action.type === 'focus') {
+        dispatch({ type: 'focus', targets: cue.action.targets });
+      } else {
+        dispatch({ type: 'clear' });
+      }
+    });
+  }
+
+  const handleReplyEvent = (event: ReplyEvent) => {
+    const driver = driverRef.current;
+    if (driver === null) return;
+    if (event.phase === 'begin') driver.begin(voice.admitted);
+    else if (event.phase === 'delta') driver.update(event.text, event.cues);
+    else if (event.phase === 'final') driver.end();
+    else driver.finish();
+  };
+
+  // Her spoken word boundaries advance the cues.
+  useEffect(() => {
+    const onKaraoke = (event: Event) => {
+      const detail = (event as CustomEvent<KaraokeDetail>).detail;
+      if (detail !== undefined) {
+        driverRef.current?.spoken({
+          line: detail.line,
+          wordIndex: detail.wordIndex,
+          wordCount: detail.wordCount,
+        });
+      }
+    };
+    window.addEventListener('natally-karaoke', onKaraoke);
+    return () => window.removeEventListener('natally-karaoke', onKaraoke);
+  }, []);
+
+  // When her speech ends, whatever it never reached is applied now.
+  const speakingRef = useRef(false);
+  useEffect(
+    () =>
+      voice.onState(state => {
+        if (speakingRef.current && !state.speaking) driverRef.current?.finish();
+        speakingRef.current = state.speaking;
+      }),
+    [voice],
+  );
+
+  // Gesture-gated opening speech: browsers keep audio silent until a real
+  // pointer/key gesture admits it; already-admitted sessions speak at once.
+  const openingSpokenRef = useRef(false);
+  useEffect(() => {
+    openingSpokenRef.current = false;
+    sawCueViewRef.current = false;
+  }, [chartKey]);
+  useEffect(() => {
+    if (openingClean === null || voice.admitted || openingSpokenRef.current) return;
+    const admit = () => {
+      if (openingSpokenRef.current) return;
+      openingSpokenRef.current = true;
+      voice.admit();
+      voice.speakStream(openingClean, { flush: true });
+    };
+    window.addEventListener('pointerdown', admit, { once: true });
+    window.addEventListener('keydown', admit, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', admit);
+      window.removeEventListener('keydown', admit);
+    };
+  }, [openingClean, voice]);
+  useEffect(() => {
+    if (openingClean !== null && voice.admitted && !openingSpokenRef.current) {
+      openingSpokenRef.current = true;
+      voice.speakStream(openingClean, { flush: true });
+    }
+  }, [openingClean, voice]);
+
+  // First-load inversion (a stage too small for both panes): the chart
+  // takes focus and Natally becomes the inset, until she or the customer
+  // drives the stage themselves.
+  const handleAutoInvert = (invert: boolean) => {
+    if (sawCueViewRef.current) return;
+    dispatch({ type: 'view', view: invert ? 'chart' : 'atelier' });
+  };
+
+  // A manual view choice (the stage's own controls) always wins.
+  const handleStageView = (next: StageView) => {
+    if (next === 'chart' || next === 'atelier') {
+      sawCueViewRef.current = true;
+      dispatch({ type: 'view', view: next, manual: true });
+    }
+  };
+
+  const chatStage = useMemo(
+    () => ({ voice, opening, onReply: handleReplyEvent }),
+    [voice, opening],
+  );
 
   // Today's sky for the click readings: the same verbatim pipeline cast for
   // this moment at the customer's birth place, computed at most once per
@@ -126,10 +266,6 @@ export default function App() {
   // Clicks in the wheel get a bespoke reading: authored lesson + today's
   // sky computed on the spot, spoken in her voice (mouth follows via the
   // performance bridge).
-  const voiceRef = useRef<Voice | null>(null);
-  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
-  const voice = voiceRef.current;
-
   const explainPlanet = (name: string | null) => {
     const key = (name as ChartBodyKey | null) ?? null;
     setHoveredKey(key);
@@ -295,16 +431,7 @@ export default function App() {
   }
 
   const lesson = getLesson(hoveredKey ?? 'general');
-  const presentation: PresentationState = {
-    chartKey: `${chart.input.dateIso}|${chart.input.place.label}|${chart.input.timeIso ?? 'unknown'}`,
-    selectedTargets: [],
-    focusTargets: [],
-    view,
-    panel: 'conversation',
-    follow: true,
-    sequence: 0,
-    lastReceipt: null,
-  };
+  const view = presentation.view;
 
   return (
     <div className="app-main">
@@ -339,11 +466,11 @@ export default function App() {
             phase="idle"
             paused={paused}
             onPause={setPaused}
-            onView={setView}
+            onView={handleStageView}
             chart={null}
             conversation={
               <>
-                <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} />
+                <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} stage={chatStage} />
                 <section className="lesson-card" aria-live="polite">
                   <p className="lesson-kicker">
                     {liveReading

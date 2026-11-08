@@ -4,7 +4,7 @@
 // They are removed from display and speech; each keeps the exact offset in
 // the cleaned text where it takes effect.
 
-import type { PresentationView } from '../../atelier-original/services/presentation';
+import type { PresentationView } from './state';
 
 export type CueAction =
  | { type: 'focus'; targets: string[] }

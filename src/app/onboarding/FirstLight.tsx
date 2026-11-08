@@ -3,19 +3,16 @@
 // as <FirstLight onSitDown={setChart} />. The five-question intake itself is
 // the VERBATIM src/onboarding-original/FirstLight.tsx; everything here is
 // glue around it — the atelier scene, the welcome stage, the honest casting
-// moment while the ephemeris computes, the reveal of the real chart with a
-// warm one-line reading, and Natally's voice (gesture-gated, with a truthful
-// notice whenever audio is not admitted).
+// moment while the ephemeris computes, and Natally's voice (gesture-gated,
+// with a truthful notice whenever audio is not admitted).
 //
-// Completion hands the computed NatalChart to the shell (onSitDown), which
-// persists it per-customer and mounts the atelier layout — chart panel plus
-// the chat that reads from the same chart state.
+// Casting completes → the chart is handed straight to the app stage
+// (onSitDown): no separate wheel is ever drawn over Natally; the only chart
+// on screen is the stage's, where she reads it aloud as her first message.
 import { useEffect, useRef, useState } from 'react';
 import { natalChart } from '../../astro/chart';
-import { computeAstrolabeChart, type NatalChartResult } from '../../chart/astrolabeInput';
-import { Astrolabe3D } from '../../atelier-original/components/Astrolabe3D';
 import { AtelierScene } from '../../atelier-original/components/atelier/AtelierScene';
-import type { NatalChart, ZodiacSign } from '../../shared/types';
+import type { NatalChart } from '../../shared/types';
 import type { Voice, VoiceState } from '../../voice';
 import { loadGazetteer } from '../../services/gazetteer';
 import type { IntakeDraft } from '../../services/onboarding';
@@ -23,32 +20,10 @@ import { getPreloadedVoice } from '../../services/supertonicTts';
 import OriginalFirstLight from '../../onboarding-original/FirstLight';
 import './onboarding.css';
 
-const SIGNS: readonly ZodiacSign[] = [
- 'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
- 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
-];
-
-/** Tropical sign of an ecliptic longitude in degrees. */
-function signOf(longitude: number): ZodiacSign {
- return SIGNS[Math.floor((((longitude % 360) + 360) % 360) / 30)];
-}
-
 const GREETING =
  "Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table. Oh, and the stuff on my shelves? Grabbable. All of it. I only side-eye a little.";
 
-/** The one-line reveal reading: the real luminaries and ascendant. */
-function revealLine(chart: NatalChart): string {
- const sun = chart.bodies.find(body => body.key === 'Sun')?.sign;
- const moon = chart.bodies.find(body => body.key === 'Moon')?.sign;
- const rising = signOf(chart.ascendant.longitude);
- const name = chart.input.name ? `, ${chart.input.name}` : '';
- return (
-  `First light${name}: Sun in ${sun ?? '…'}, Moon in ${moon ?? '…'}, ${rising} rising — ` +
-  "okay so that's main-character warmth, secretly-soft insides, and a door that opens onto adventure? Unfair, actually. This wheel is yours — want to walk it together?"
- );
-}
-
-type Phase = 'welcome' | 'intake' | 'casting' | 'reveal';
+type Phase = 'welcome' | 'intake' | 'casting';
 
 /** Partial-intake stash: a submitted draft survives reloads/back so the
  * flow never dead-ends; cleared once the chart lands. */
@@ -84,8 +59,6 @@ function clearStashedDraft(): void {
 
 export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChart) => void }) {
  const [phase, setPhase] = useState<Phase>('welcome');
- const [chart, setChart] = useState<NatalChart | null>(null);
- const [wheel, setWheel] = useState<NatalChartResult | null>(null);
  const [error, setError] = useState<string | null>(null);
  const [castSeconds, setCastSeconds] = useState(0);
  const [voiceState, setVoiceState] = useState<VoiceState>({
@@ -155,18 +128,6 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
   };
  }, []);
 
- // At the reveal, the current line becomes the reading (spoken at once when
- // audio is admitted, or on the next gesture when it is not).
- useEffect(() => {
-  if (phase === 'reveal' && chart) {
-   const line = revealLine(chart);
-   currentLine.current = line;
-   if (voice.admitted) {
-    voice.stop();
-    voice.speakStream(line, { flush: true });
-   }
-  }
- }, [phase, chart, voice]);
 
  // Never leave speech running when the flow goes away.
  useEffect(() => () => voice.stop(), [voice]);
@@ -208,21 +169,15 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
   }
  };
 
- // Reload/back recovery: a submitted-but-uncompleted draft is stashed;
- // recompute it idempotently (same input, same wheel) so the journey
- // resumes at the reveal instead of a dead end.
- useEffect(() => {
-  if (resumed.current) return;
-  resumed.current = true;
-  const draft = unstashDraft();
-  if (draft) void onCreate(draft);
- }, []);
-
- const enterAtelier = () => {
-  if (!chart) return;
-  voice.stop();
-  onSitDown(chart);
- };
+// Reload/back recovery: a submitted-but-uncompleted draft is stashed;
+// recompute it idempotently (same input, same wheel) so the journey
+// resumes at the hand-off instead of a dead end.
+useEffect(() => {
+ if (resumed.current) return;
+ resumed.current = true;
+ const draft = unstashDraft();
+ if (draft) void onCreate(draft);
+}, []);
 
  if (phase === 'welcome') {
   return (
@@ -282,20 +237,6 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
       <p className="casting-elapsed" aria-hidden="true">
        {castSeconds}s
       </p>
-     </div>
-    </section>
-   )}
-
-   {phase === 'reveal' && chart && (
-    <section className="onboarding reveal" aria-live="polite">
-     <div className="onboarding-card reveal-card">
-      <p className="welcome-kicker">First light</p>
-      <h2>{chart.input.name ? `First light, ${chart.input.name}.` : 'First light.'}</h2>
-      <p className="reveal-line">{revealLine(chart)}</p>
-      <button type="button" className="btn primary wide" onClick={enterAtelier}>
-       Talk with Natally
-      </button>
-      <VoiceNote state={voiceState} />
      </div>
     </section>
    )}

@@ -1,12 +1,15 @@
 // React state for a conversation with Natally (DOCS/ARCHITECTURE.md
-// §Surfaces /app.html). send() appends the user turn, streams the reply
-// into the last message live, and converts typed inference failures into
-// banner state. Persona questions ("who are you…") get her authored
-// backstory answer instead of a billed completion; quiet moments after a
-// completed turn get, at most once between user turns, a spontaneous
-// story from the backstage shelf. useAllowance() keeps the ledger
-// envelope fresh: on mount, after every completed turn, and on a slow
-// poll.
+// §Surfaces /app.html + §First reveal and speech-driven presentation).
+// send() appends the user turn, streams the reply into the last message
+// live, and converts typed inference failures into banner state. Every
+// reply passes through the presentation-cue parser: what is shown and
+// spoken is the cleaned text, and the cues travel to the stage through
+// onReply so highlight and view track her voice. Persona questions get her
+// authored backstory answer instead of a billed completion; quiet moments
+// after a completed turn get, at most once between user turns, a
+// spontaneous story from the backstage shelf. The stage can seed the
+// conversation with her opening reading of the chart. useAllowance()
+// keeps the ledger envelope fresh.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { nextSpontaneousStory } from '../../content/backstory';
@@ -19,7 +22,9 @@ import {
 } from '../../platform/firebase';
 import { formatCr } from '../../shared/credits';
 import type { AllowanceEnvelope, ChatMessage, NatalChart } from '../../shared/types';
-import { backstoryAnswerFor } from './context';
+import type { Voice } from '../../voice';
+import { parseReply, type Cue } from '../presentation/cues';
+import { backstoryAnswerFor, chartTargets } from './context';
 import {
   BillingNotConfiguredError,
   ChatNetworkError,
@@ -42,69 +47,25 @@ const ALLOWANCE_POLL_MS = 60_000;
 const SPONTANEOUS_IDLE_MS = 60_000;
 
 export interface AllowanceView {
-  /** Last known server-signed envelope; null when never fetched/signed out. */
   envelope: AllowanceEnvelope | null;
-  /** formatCr() of the envelope's allowance, or '' while unknown. */
   balanceCr: string;
-  /** True when auth said nobody is signed in (or auth is unavailable). */
-  signedOut: boolean;
-  /** Re-read the ledger now (used after each completed turn). */
   refresh: () => void;
 }
 
-/** Poll the billing ledger and expose the envelope plus its Cr balance. */
-export function useAllowance(): AllowanceView {
-  const [envelope, setEnvelope] = useState<AllowanceEnvelope | null>(null);
-  const [signedOut, setSignedOut] = useState(false);
-  const [tick, setTick] = useState(0);
+/** One streamed reply's presentation progress, cue by cue. */
+export type ReplyEvent =
+  | { phase: 'begin' }
+  | { phase: 'delta'; text: string; cues: Cue[] }
+  | { phase: 'final' }
+  | { phase: 'failed' };
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const fetched = await getAccess(await idToken());
-        if (!cancelled) {
-          setEnvelope(fetched);
-          setSignedOut(false);
-        }
-      } catch (error) {
-        if (cancelled) return;
-        if (
-          error instanceof NotSignedInError ||
-          error instanceof AuthUnavailableError
-        ) {
-          setSignedOut(true);
-          setEnvelope(null);
-          return;
-        }
-        // Transport failure: keep the last known envelope; the poll retries.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [tick]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setTick((n) => n + 1), ALLOWANCE_POLL_MS);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  const refresh = useCallback(() => setTick((n) => n + 1), []);
-
-  return {
-    envelope,
-    balanceCr: envelope === null ? '' : formatCr(envelope.allowanceUsdMicros, creditDisplayPerUsd()),
-    signedOut,
-    refresh,
-  };
-}
-
-function newId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  return `m${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+export interface ChatStage {
+  /** Her voice; streamed and authored replies are spoken through it. */
+  voice: Voice;
+  /** Authored first message: her opening reading of the chart (with cues). */
+  opening: string | null;
+  /** Presentation progress of every reply, for the stage to drive. */
+  onReply: (event: ReplyEvent) => void;
 }
 
 export interface UseChat {
@@ -115,8 +76,12 @@ export interface UseChat {
   allowance: AllowanceView;
 }
 
+function newId(): string {
+  return `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
 /** One streaming conversation bound to a computed natal chart. */
-export function useChat(chart: NatalChart): UseChat {
+export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<ChatError | null>(null);
@@ -128,6 +93,9 @@ export function useChat(chart: NatalChart): UseChat {
   const idleTimerRef = useRef<number | undefined>(undefined);
   // Never two stories without a user turn between them.
   const storyAllowedRef = useRef(true);
+  // Latest stage bundle (voice, opening, onReply) without rebinding send.
+  const stageRef = useRef<ChatStage | undefined>(stage);
+  stageRef.current = stage;
 
   const updateMessages = useCallback((next: ChatMessage[]) => {
     messagesRef.current = next;
@@ -143,9 +111,11 @@ export function useChat(chart: NatalChart): UseChat {
   const fireIdleStory = useCallback(() => {
     if (streamingRef.current || !storyAllowedRef.current) return;
     storyAllowedRef.current = false;
+    const story = nextSpontaneousStory();
+    stageRef.current?.voice.speakStream(story, { flush: true });
     updateMessages([
       ...messagesRef.current,
-      { id: newId(), role: 'natally', text: nextSpontaneousStory(), at: Date.now() },
+      { id: newId(), role: 'natally', text: story, at: Date.now() },
     ]);
   }, [updateMessages]);
 
@@ -157,6 +127,23 @@ export function useChat(chart: NatalChart): UseChat {
   // A live user question always outranks a queued story; unmount kills it.
   useEffect(() => clearIdleStory, [clearIdleStory]);
 
+  // The stage opens with her reading the chart aloud as her first chat
+  // message (unless a conversation is already running). The shell owns the
+  // speech (gesture-gated); here the message lands and its cues reach the
+  // stage through onReply.
+  useEffect(() => {
+    const opening = stageRef.current?.opening;
+    if (opening === null || opening === undefined) return;
+    if (messagesRef.current.length > 0) return;
+    const parsed = parseReply(opening, chartTargets(chart));
+    updateMessages([
+      { id: newId(), role: 'natally', text: parsed.text, at: Date.now() },
+    ]);
+    stageRef.current?.onReply({ phase: 'begin' });
+    stageRef.current?.onReply({ phase: 'delta', text: parsed.text, cues: parsed.cues });
+    stageRef.current?.onReply({ phase: 'final' });
+  }, [chart, updateMessages]);
+
   const send = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
@@ -165,6 +152,8 @@ export function useChat(chart: NatalChart): UseChat {
       clearIdleStory();
       storyAllowedRef.current = true;
       setError(null);
+      // A new turn supersedes whatever she was saying.
+      stageRef.current?.voice.stop();
 
       const userMessage: ChatMessage = {
         id: newId(),
@@ -185,6 +174,7 @@ export function useChat(chart: NatalChart): UseChat {
           ...history,
           { id: newId(), role: 'natally', text: authored.answer, at: Date.now() },
         ]);
+        stageRef.current?.voice.speakStream(authored.answer, { flush: true });
         armIdleStory();
         return;
       }
@@ -197,18 +187,33 @@ export function useChat(chart: NatalChart): UseChat {
         ...history,
         { id: replyId, role: 'natally', text: '', at: Date.now() },
       ]);
+      stageRef.current?.onReply({ phase: 'begin' });
 
       let failed = false;
       try {
-        let reply = '';
+        const inventory = chartTargets(chart);
+        let raw = '';
+        let spoken = 0;
         for await (const delta of streamChat({ history, chart })) {
-          reply += delta;
+          raw += delta;
+          const parsed = parseReply(raw, inventory);
+          // Feed the voice the cleaned delta; held-back cue fragments make
+          // the cleaned text pause, never shrink below what was spoken.
+          if (parsed.text.length >= spoken) {
+            stageRef.current?.voice.speakStream(parsed.text.slice(spoken));
+            spoken = parsed.text.length;
+          } else {
+            spoken = parsed.text.length;
+          }
+          stageRef.current?.onReply({ phase: 'delta', text: parsed.text, cues: parsed.cues });
           updateMessages(
-            messagesRef.current.map((message) =>
-              message.id === replyId ? { ...message, text: reply } : message,
+            messagesRef.current.map(message =>
+              message.id === replyId ? { ...message, text: parsed.text } : message,
             ),
           );
         }
+        stageRef.current?.voice.speakStream('', { flush: true });
+        stageRef.current?.onReply({ phase: 'final' });
       } catch (cause) {
         failed = true;
         const typed: ChatError =
@@ -222,10 +227,13 @@ export function useChat(chart: NatalChart): UseChat {
                 cause instanceof Error ? cause.message : 'stream failed',
               );
         setError(typed);
+        // Speak what honestly arrived, and let the stage settle the cues.
+        stageRef.current?.voice.speakStream('', { flush: true });
+        stageRef.current?.onReply({ phase: 'failed' });
         // Keep the user's words; drop the reply only if nothing streamed.
         updateMessages(
           messagesRef.current.filter(
-            (message) => message.id !== replyId || message.text !== '',
+            message => message.id !== replyId || message.text !== '',
           ),
         );
       } finally {
@@ -239,4 +247,31 @@ export function useChat(chart: NatalChart): UseChat {
   );
 
   return { messages, send, streaming, error, allowance };
+}
+
+/** Poll the billing ledger and expose the envelope plus its Cr balance. */
+export function useAllowance(): AllowanceView {
+  const [envelope, setEnvelope] = useState<AllowanceEnvelope | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      setEnvelope(await getAccess(await idToken()));
+    } catch {
+      // Banner state is owned by the failing turn, not the poll.
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), ALLOWANCE_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [refresh]);
+
+  return {
+    envelope,
+    balanceCr: envelope === null || envelope.state === 'none'
+      ? ''
+      : formatCr(envelope.allowanceUsdMicros * creditDisplayPerUsd() * 1e-6),
+    refresh: () => void refresh(),
+  };
 }
