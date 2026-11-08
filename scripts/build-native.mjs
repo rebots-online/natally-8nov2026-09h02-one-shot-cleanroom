@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFileSync, openSync, closeSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFileSync, openSync, closeSync, rmSync } from 'node:fs';
 import { resolve, join, basename, extname } from 'node:path';
 import { homedir } from 'node:os';
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
@@ -117,6 +117,37 @@ if (process.argv[2] === 'prepare') {
     stage(join(targets, 'x86_64-pc-windows-msvc/release/natally-ai-studio.exe'), 'windows-x64.exe', 'windows-executable');
     stageBundles(join(targets, 'x86_64-pc-windows-msvc/release/bundle/nsis'), ['.exe'], 'windows-x64-installer');
   });
+  await target('windows-msi', async () => {
+    // wixl packages the staged Windows executable into a per-machine MSI on
+    // Linux (ARCHITECTURE.md "Windows MSI (Store)"). Ubuntu ships wixl as its
+    // own package, Debian inside msitools, so request both and fall back.
+    if (spawnSync('wixl', ['--version']).error) {
+      let install = await run('msitools', 'sudo', ['apt-get', 'install', '-y', 'msitools', 'wixl']);
+      if (install.code !== 0) install = await run('msitools', 'sudo', ['apt-get', 'install', '-y', 'msitools']);
+      if (install.code !== 0) throw Error(`msitools/wixl install failed (${install.code}); see ${install.log || install.message}`);
+    }
+    const config = readJson('src-tauri/tauri.conf.json');
+    const upgradeCode = config.bundle?.windows?.wix?.upgradeCode;
+    if (!upgradeCode) throw Error('tauri.conf.json bundle.windows.wix.upgradeCode missing for MSI');
+    const manufacturer = /authors\s*=\s*\[\s*"([^"]+)"/.exec(readFileSync('src-tauri/Cargo.toml', 'utf8'))?.[1];
+    if (!manufacturer) throw Error('src-tauri/Cargo.toml authors missing for MSI manufacturer');
+    const [major, minor, build] = version.split('.').map(Number);
+    const output = join(targets, 'msi', `${prefix}-windows-x64.msi`);
+    mkdirSync(join(targets, 'msi'), { recursive: true });
+    // wixl can exit 0 without writing its output (e.g. missing parent dir);
+    // drop any stale file so stage() can only ever see this run's product.
+    rmSync(output, { force: true });
+    return run('windows-msi', 'wixl', ['-a', 'x64', '-o', output,
+      '-D', `ProductName=${config.productName}`,
+      '-D', `ProductVersion=${major}.${minor}.${build}.0`,
+      '-D', `UpgradeCode=${upgradeCode}`,
+      '-D', `Manufacturer=${manufacturer}`,
+      '-D', `ExeSource=${join(destination, `${prefix}-windows-x64.exe`)}`,
+      '-D', `IconSource=${resolve('src-tauri/icons/icon.ico')}`,
+      'src-tauri/msi/natally.wxs']);
+  }, () => {
+    stage(join(targets, 'msi', `${prefix}-windows-x64.msi`), 'windows-x64.msi', 'windows-msi');
+  });
   await target('android', () => run('android', 'npx', ['--no-install', 'tauri', 'android', 'build', '--target', 'aarch64', '--apk', '--aab']), async () => {
     const output = 'src-tauri/gen/android/app/build/outputs';
     // Gradle stamps the current version into artifact names (build.gradle.kts
@@ -157,9 +188,8 @@ if (process.argv[2] === 'prepare') {
       manifest.artifacts.push({ kind: 'android-symbols', path: archive.slice(root.length + 1), bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') });
     }
   });
-  manifest.targets['windows-store'] = { state: 'not-built', reason: 'MSI/MSIX Store packaging requires the Windows host; this invocation is Linux' };
   manifest.finishedAt = new Date().toISOString();
-  manifest.complete = ['linux', 'windows', 'android'].every(name => manifest.targets[name]?.state === 'packaged');
+  manifest.complete = ['linux', 'windows', 'windows-msi', 'android'].every(name => manifest.targets[name]?.state === 'packaged');
   save();
   console.log(JSON.stringify({ version, complete: manifest.complete, targets: manifest.targets, inventory: inventoryPath }, null, 2));
   process.exitCode = manifest.complete ? 0 : 1;
