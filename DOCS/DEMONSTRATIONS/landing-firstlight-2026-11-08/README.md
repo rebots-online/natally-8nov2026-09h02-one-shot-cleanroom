@@ -19,6 +19,12 @@ bottom-right throughout.
 
 ## Remaining to close the rubric
 
+## Post-recording correction (v1.5.765, commit 22b4f4d)
+
+The legal pages' unsubstituted `__APP_NAME_HTML__`/`$ROCHE` tokens were fixed
+after this recording; served terms/privacy now carry zero placeholder tokens
+(verified by observed grep on both hosts).
+
 F-journeys need the operator's Google account in the recording browser; L5
 needs a console-capturing pass. Version badge verified in DOM
 (`p.version-badge`, text `v1.3.765`) and in body text during recording.
