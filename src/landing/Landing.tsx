@@ -172,16 +172,15 @@ const CREDIT_PACKS: readonly { usd: number; line: string; cta: (cr: string) => s
 const SOUVENIR_USD = 30;
 
 export default function Landing() {
-  // Inset choreography: whether the sticky chart panel is shown, and which
-  // explanation beat is currently in the reading band of the viewport.
-  const [chartShown, setChartShown] = useState(false);
+  // Inset choreography: the chart panel is present from load — the first
+  // impression is Natally in her room WITH the wheel beside her (frozen
+  // design) — and the explanation beats drive its focus and zoom.
   const [beat, setBeat] = useState(-1);
   // The example wheel, computed once with the original renderer's pipeline.
   const [example, setExample] = useState<NatalChartResult | null>(null);
   // Inset drag: the panel is repositionable within a clamped range.
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dragState = useRef<{ id: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
-  const explainRef = useRef<HTMLElement | null>(null);
   const beatRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
@@ -197,24 +196,6 @@ export default function Landing() {
     return () => {
       live = false;
     };
-  }, []);
-
-  // Swap moment: as the explanation section enters the viewport (while the
-  // hero scene is still on screen), the draggable inset chart appears over
-  // the atelier. Scrolling back up dismisses it again.
-  useEffect(() => {
-    const explain = explainRef.current;
-    if (!explain) return;
-    const observer = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) {
-          setChartShown(entry.isIntersecting);
-        }
-      },
-      { rootMargin: '0px 0px -30% 0px', threshold: 0 },
-    );
-    observer.observe(explain);
-    return () => observer.disconnect();
   }, []);
 
 
@@ -329,11 +310,8 @@ export default function Landing() {
             style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
           >
             <aside
-              className={`inset-panel${chartShown ? ' is-shown' : ''}${
-                chartShown && activeBody !== null ? ' inset-panel--zoom' : ''
-              }`}
+              className={`inset-panel is-shown${activeBody !== null ? ' inset-panel--zoom' : ''}`}
               aria-label="Example natal chart panel"
-              aria-hidden={!chartShown}
             >
               <div
                 className="inset-grip"
@@ -367,7 +345,7 @@ export default function Landing() {
           </div>
         </div>
 
-        <section className="section explain" id="example" ref={explainRef}>
+        <section className="section explain" id="example">
           <p className="eyebrow">How she reads</p>
           <h2>A chart, read like a map</h2>
           <p className="lede">

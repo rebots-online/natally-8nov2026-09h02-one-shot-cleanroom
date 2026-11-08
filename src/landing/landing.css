@@ -269,7 +269,7 @@
    them, so page scrolling and scene play stay untouched. */
 .inset-rail {
   position: absolute;
-  top: 0;
+  top: clamp(3.4rem, 8vh, 5.5rem);
   right: clamp(0.8rem, 3.5vw, 3.5rem);
   bottom: 0;
   z-index: 4;
