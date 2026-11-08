@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Per-machine Windows MSI for Natally, built on Linux with wixl after the
+  cross-compiled Windows executable is staged (ARCHITECTURE.md "Windows MSI
+  (Store)"). Every identity value arrives as a wixl preprocessor define from
+  scripts/build-native.mjs so tauri.conf.json and version.json stay the single
+  sources of truth; this file carries no version or code of its own:
+
+    ProductName    tauri.conf.json productName ("Natally")
+    ProductVersion version.json as MAJOR.MINOR.BUILD.0
+    UpgradeCode    tauri.conf.json bundle.windows.wix.upgradeCode
+    Manufacturer   src-tauri/Cargo.toml authors identity
+    ExeSource      staged natally-v<version>-windows-x64.exe
+    IconSource     mascot icon.ico from src-tauri/icons
+
+  Component GUIDs below are stable across releases on purpose: changing them
+  would orphan installed components during MajorUpgrade refreshes.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
+    <Package InstallerVersion="200" Compressed="yes" Description="$(var.ProductName) $(var.ProductVersion) per-machine installer" Comments="$(var.ProductName) personal astrology and exploration" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed. Setup will now exit." />
+    <Media Id="1" Cabinet="natally.cab" EmbedCab="yes" />
+    <Icon Id="Natally.ico" SourceFile="$(var.IconSource)" />
+    <Property Id="ALLUSERS" Value="1" />
+    <Property Id="ARPPRODUCTICON" Value="Natally.ico" />
+    <Feature Id="Main" Level="1" Title="$(var.ProductName)" Description="$(var.ProductName) application and Start-menu shortcut" Absent="disallow">
+      <ComponentRef Id="NatallyExecutable" />
+      <ComponentRef Id="NatallyStartMenuShortcut" />
+    </Feature>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="APPLICATIONFOLDER" Name="$(var.ProductName)">
+          <Component Id="NatallyExecutable" Guid="bb8c6c4a-438a-4fea-ad24-1256b4e79687">
+            <File Id="NatallyExe" Source="$(var.ExeSource)" Name="natally.exe" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Component Id="NatallyStartMenuShortcut" Guid="33040b7f-fb81-48df-95e7-0255a5609188">
+          <Shortcut Id="NatallyStartMenuShortcut" Name="$(var.ProductName)" Description="$(var.ProductName)" Target="[APPLICATIONFOLDER]natally.exe" WorkingDirectory="APPLICATIONFOLDER" Icon="Natally.ico" />
+          <RegistryValue Root="HKLM" Key="Software\$(var.Manufacturer)\$(var.ProductName)" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </Directory>
+  </Product>
+</Wix>
