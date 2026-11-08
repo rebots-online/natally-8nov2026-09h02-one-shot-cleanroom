@@ -506,6 +506,7 @@ export default function App() {
               focused={view === 'chart'}
               fillHeight={stageVisualHeight}
               targets={presentation.focusTargets}
+              bodyCount={chart.bodies.length}
               onAutoInvert={handleAutoInvert}
             >
               {astrolabe ? (

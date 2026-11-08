@@ -546,7 +546,7 @@ const MarketingExperience: React.FC = () => {
               view) it fills the stage; the room pane floats instead. */}
           {displayedChart && <div className="stage-inset-layer" data-mode={view === 'chart' ? 'fill' : 'float'}>
             <Inset storageKey={`${APP_NAMESPACE}.marketing.inset.v1.${roomUid}`} label={ownedChart ? 'Your wheel' : 'Aurelia\u2019s wheel'}
-              focused={view === 'chart'}>
+              focused={view === 'chart'} bodyCount={displayedChart.natalBodies.length}>
               <div ref={chartRef} className="marketing-frame__content" data-chart-callout-boundary data-chart-inset={view !== 'chart'}>
                 <Astrolabe3D chart={displayedChart} isSpinning={!reducedMotion && documentVisible && inView} resetTrigger={0}
                   selectedComponents={selectedComponents} highlightedComponents={lesson?.targets || []} onToggleComponent={explain}
