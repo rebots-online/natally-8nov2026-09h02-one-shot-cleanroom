@@ -592,7 +592,8 @@ const MarketingExperience: React.FC = () => {
       <div className="marketing-frame__text">
         {view==='chart' && <p className="marketing-frame__instruction">Click on a planet, house, sign, or aspect to hear its interpretation in astrology.</p>}
         {caption && <p className="marketing-frame__caption">{caption}</p>}
-        {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Example chart — Aurelia, an anonymous example born 8 Nov 1997, 7:05 PM, Toronto. It is not your chart. <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
+        {/* Operator directive 2026-11-08: no meta copy anywhere — the example chart is scene dressing on her wall, labelled like any chart in her room; the original's "It is not your chart." disclaimer is retired. */}
+        {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Aurelia · born 8 Nov 1997, 7:05 PM · Whole Sign · Toronto <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
         {!ownedChart && <div className="marketing-frame__intake" role="status">
           <p>{phase.kind === 'signed-out' ? 'Sign in to explore your own calculated chart.'
             : phase.kind === 'no-intake' ? 'Create your own natal chart to explore its placements here.'
