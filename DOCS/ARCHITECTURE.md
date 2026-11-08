@@ -72,16 +72,12 @@ for birth place → coordinates/timezone. Frozen chart types in
 
 ## Release
 
-Canonical `build_all.sh` (web-only). Datestamped staging domain deploys until
-a real purchase works; production cutover is the operator's.
-
-## Current repair contract — parallel ownership
-
-| Task | Entities and owned locations | End-state contract |
-| --- | --- | --- |
-| AUDIO | `src/voice/**`; voice controller adapters in `src/landing-original/services/voiceService.ts` and `src/atelier-original/services/voiceService.ts` | One audible speech owner across the copied landing, atelier and shared engine. Explicit replacement cancels old playback, stale synthesis and old mouth/karaoke callbacks. Incremental chunks within the same turn remain appendable. Existing public speech signatures stay intact. |
-| PRESENTATION | `src/landing-original/marketing.tsx`, `marketing.css`, copied landing renderer and authored lesson/closing content; `landing.html`, `index.html` | Automatic chart explanations yield focus back to Natally between explanations; manual choices take precedence over stale completion. Wheel structure stays bright. Aspect chords expose identity and selection. Header is compact and legible; experience speech stays in-world. |
-| INTEGRATION | `build_all.sh` invocation and dated staging publication; demonstration artifacts | Integrate finished slices without racing their edits. Canonical version generation only; dual publish the identical build to the dated robin.mba and surge.sh hosts. One continuous rubric recording is the acceptance evidence. |
+Canonical `build_all.sh` only. Every run stamps a new version
+(`version.json`/`version.txt`, shown bottom-right on every surface), deploys
+the web build first to both production hosts — natally-8nov2026.robin.mba and
+natally-8nov2026.surge.sh — then builds the native matrix (Linux, Windows via
+cross-compilation, Android). natally.robin.mba is cut over only by the
+operator.
 
 ## Native packaging
 
@@ -115,7 +111,7 @@ current rewrite's dist-web/app.html is the bundled native entry.
 
 | Entity | Location | Contract |
 | --- | --- | --- |
-| Inset (app) | `src/atelier-original/components/ReadingStage.tsx` + `.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. Never covers Natally's face on first load (default dock bottom-right). |
+| Inset (app) | `src/app/stage/Inset.tsx` + `inset.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. Never covers Natally's face on first load (default dock bottom-right). |
 | Inset (landing) | `src/landing-original/marketing.tsx` + `marketing.css` | Same behaviour for the landing's example chart inset: draggable, dockable, resizable 20–60%, persisted for the guest. |
 
 ## Landing demo chart (unpaid example)
