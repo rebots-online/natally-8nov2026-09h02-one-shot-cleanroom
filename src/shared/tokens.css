@@ -1,0 +1,44 @@
+/* Natally shared design tokens and base styles.
+   Palette: deep plum background, brass accent, parchment text.
+   Playfair Display ships from /public/fonts (OFL licensed). */
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Deep plum background family */
+  --plum-deep: #1c1122; /* below everything: page wash, recessed wells */
+  --plum: #2a1a33; /* primary background */
+  --plum-raised: #362141; /* raised panels and cards */
+  --plum-line: #422a50; /* hairlines and borders */
+
+  /* Brass accent family */
+  --brass: #c9a45c; /* primary accent */
+  --brass-bright: #d9b878; /* highlights, focus, hover */
+  --brass-dim: #6f5a35; /* quiet rules and disabled chrome */
+
+  /* Parchment text family */
+  --parchment: #f3ead8; /* primary text */
+  --parchment-muted: #b9a996; /* secondary text */
+
+  /* Type */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: Georgia, 'Times New Roman', serif;
+}
+
+body {
+  margin: 0;
+  background: var(--plum);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
