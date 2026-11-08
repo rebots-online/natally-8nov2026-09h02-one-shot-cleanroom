@@ -90,3 +90,14 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | Build credential resolver | `scripts/build-environment.mjs` | Signing defaults declared in .env.example, actual pointers resolved through installed KStore client into child-process environment only |
 | Native packaging coordinator | `scripts/build-native.mjs` | Sync native metadata to stamped version; run all supported native targets; stage artifacts and SHA-256 inventory; nonzero exit for any missing/failed requested target |
 | Native host | `src-tauri/**` | Preserved original identity and native bridges; app.html bundle; Android full debug symbols and production keystore signing |
+
+## First reveal and speech-driven presentation
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Reveal handoff | `src/app/onboarding/FirstLight.tsx` | Casting completes → hand the chart to the stage at once. No separate wheel is ever drawn over Natally; the only chart on screen is the stage's. |
+| Opening reading | `src/app/AppShell.tsx` | The stage opens with Natally reading the chart aloud immediately (gesture-gated audio; truthful note when not admitted). The reading is her first chat message; chat is live beneath it. |
+| Presentation cues | `src/app/presentation/cues.ts` | Her replies carry hidden cues `[[view:chart]]`, `[[view:atelier]]`, `[[chart:TARGET;…]]`, `[[chart:clear]]` at the passage they govern. Parsed out of display and speech with exact text offsets; unknown targets are dropped. |
+| Presentation state | `src/app/presentation/state.ts` | Reducer over `PresentationState`: focus/clear set the highlighted targets; view swaps chart⇄inset (chart focused → Natally becomes the inset). A manual view choice turns `follow` off, and automatic view cues then stop. |
+| Playback drive | `src/app/presentation/playback.ts` | The voice engine's word boundary offsets advance through the cues; each crossed cue is applied, so highlight → scroll → focus → un-highlight track what she is saying. Without audio, cues apply at text-stream offsets. |
+| Cue prompting | `src/app/chat/context.ts` | System prompt instructs her to emit those cues as she narrates: chart view for geometry, atelier view for reflection, clear between emphases; includes this chart's exact target inventory. |
