@@ -13,5 +13,3 @@ export const version: string = stamp.version;
 /** ISO build timestamp; null until a release build stamps it. */
 export const builtAt: string | null = stamp.builtAt ?? null;
 
-/** Single-name alias for the version string. */
-export const APP_VERSION: string = version;

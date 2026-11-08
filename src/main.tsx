@@ -1,35 +1,40 @@
-// Entry dispatcher for app.html. This bundle may also be loaded on a
+// Entry dispatcher for app.html. The same bundle may also be loaded on a
 // landing document (any pathname containing "landing"); there the landing
-// root is dynamically imported and rendered instead of the app shell.
+// entry module is dynamically imported instead — it default-exports the
+// landing root and self-mounts into #root, so importing it is the render.
 
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './app/AppShell';
 import { registerServiceWorker } from './platform/pwa';
 
-function rootContainer(): HTMLElement {
-  const el = document.getElementById('root');
-  if (!el) throw new Error('Natally entry: #root element not found.');
-  return el;
-}
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Natally entry: #root element not found.');
 
-const rootElement = rootContainer();
-/**
- * Renders the landing page by dynamically importing src/landing/main.tsx.
- * Dynamic import is required: a static one would merge the landing tree into
- * the app entry chunk, and this path only runs on landing documents — a
- * runtime-selected module, not a build-time dependency of the app shell.
- * The landing entry is the frozen sibling contract: it default-exports the
- * root and self-mounts into #root when present, so loading the module is
- * the render; rendering again here would double-mount the container.
- */
-export async function renderLanding(): Promise<void> {
-  await import('./landing/main');
+function reportLoadFailure(surface: string, error: unknown): void {
+  console.error(`Natally entry: failed to load ${surface}.`, error);
 }
 
 if (location.pathname.includes('landing')) {
-  void renderLanding();
+  // Dynamic import keeps the landing tree out of the app entry chunk;
+  // rendering the landing again here would double-mount #root.
+  void import('./landing/main').catch(error => {
+    reportLoadFailure('the landing', error);
+  });
 } else {
-  createRoot(rootElement).render(<App />);
+  // The app shell contract is still landing; a dynamic import keeps this
+  // entry independent of it and code-splits the shell out of the entry
+  // chunk. The shell default-exports the app root.
+  void import('./app/AppShell')
+    .then(({ default: AppShell }) => {
+      createRoot(rootElement).render(
+        <StrictMode>
+          <AppShell />
+        </StrictMode>,
+      );
+    })
+    .catch(error => {
+      reportLoadFailure('the app shell', error);
+    });
 }
 
 // Opportunistic, non-blocking: a no-op (false) wherever no /sw.js is served.
