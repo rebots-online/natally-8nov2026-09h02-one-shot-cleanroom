@@ -45,3 +45,11 @@ the continuous recording; no operator audition or test suite is a substitute.
 | NATIVE-BOOTSTRAP | Native host, generated Android sources, original icons, CLI dependency and build-only credential pointers | Current rewrite has reproducible Tauri packaging with original identity/signing; no dependency on the old checkout |
 | NATIVE-COORDINATOR | `build_all.sh`, `scripts/build-environment.mjs`, `scripts/build-native.mjs` | One version; web dual-publish first and fail-fast; full Linux/Windows/Android matrix follows |
 | NATIVE-ARTIFACTS | `dist/natally-v<version>/**` | Linux AppImage/deb/rpm, Windows executable/NSIS, Android signed APK/AAB/symbol ZIP; exact produced/missing status and SHA-256 inventory |
+
+## INSET — dockable, resizable chart inset (ARCHITECTURE.md §Chart inset)
+
+| ID | Task | Owned files (exclusive) | Status |
+| --- | --- | --- | --- |
+| INSET-1 | New clean-room inset component written from ARCHITECTURE.md §Chart inset only: the unfocused pane floats over the stage from first load, default docked bottom-right clear of Natally's face; drag across the full stage, docks to the nearest edge/corner on release; corner grip resizes 20–60% of stage width keeping aspect; Alt+arrow keys resize, arrows move; position and size persisted per account. Used by the app stage in place of the current inset positioning. | `src/app/stage/Inset.tsx`, `src/app/stage/inset.css`, the inset wiring in `src/app/AppShell.tsx` | not started |
+
+Acceptance: observed in the dev browser at 344, 500 and 1440 px — visible on load, dragged to each side, docked, resized to both limits, reload keeps position and size. One commit + push per change; deploy via build_all.sh; bottom-right version confirms the deploy.
