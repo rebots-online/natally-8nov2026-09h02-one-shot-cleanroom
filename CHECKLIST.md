@@ -51,5 +51,12 @@ the continuous recording; no operator audition or test suite is a substitute.
 | ID | Task | Owned files (exclusive) | Status |
 | --- | --- | --- | --- |
 | INSET-1 | New clean-room inset component written from ARCHITECTURE.md §Chart inset only: the unfocused pane floats over the stage from first load, default docked bottom-right clear of Natally's face; drag across the full stage, docks to the nearest edge/corner on release; corner grip resizes 20–60% of stage width keeping aspect; Alt+arrow keys resize, arrows move; position and size persisted per account. Used by the app stage in place of the current inset positioning. | `src/app/stage/Inset.tsx`, `src/app/stage/inset.css`, the inset wiring in `src/app/AppShell.tsx` | not started |
+| INSET-2 | Same owner as INSET-1 (one construct, one agent). ARCHITECTURE.md §First reveal and speech-driven presentation: casting hands the chart straight to the stage; she reads the chart aloud at once as her first chat message; her hidden cues drive highlight → focus → un-highlight and the chart⇄inset swap as her voice reaches them; a manual view choice stops automatic view cues. | `src/app/presentation/**`, `src/app/chat/**`, `src/app/stage/**`, `src/app/AppShell.tsx`, `src/app/onboarding/FirstLight.tsx` | not started |
 
 Acceptance: observed in the dev browser at 344, 500 and 1440 px — visible on load, dragged to each side, docked, resized to both limits, reload keeps position and size. One commit + push per change; deploy via build_all.sh; bottom-right version confirms the deploy.
+
+## BILL — purchase flow (ARCHITECTURE.md §Billing — Chargebee, Purchase prompting)
+
+| ID | Task | Owned files (exclusive) | Status |
+| --- | --- | --- | --- |
+| BILL-1 | Full Chargebee purchase flow per §Billing: no-allowance turn → Natally's in-world ask + top-up sheet opens (3 packs + US$30 souvenir) → Chargebee checkout → allowance refresh → resend. Missing client or server configuration fails visibly, naming the missing setting; never silent, never fake success. Exposes the top-up sheet and purchase API only; INSET owns ChatPanel/AppShell wiring (it opens the sheet on a no-allowance error). | `src/commerce/**`, `src/app/TopUpSheet.tsx`, `netlify/functions/chargebee.mjs`, `billing/**` | not started |
