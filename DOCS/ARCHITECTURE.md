@@ -111,7 +111,7 @@ current rewrite's dist-web/app.html is the bundled native entry.
 
 | Entity | Location | Contract |
 | --- | --- | --- |
-| Inset (app) | `src/app/stage/Inset.tsx` + `inset.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. Never covers Natally's face on first load (default dock bottom-right). |
+| Inset (app) | `src/app/stage/Inset.tsx` + `inset.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. First-load placement (no saved position) is computed on the actual screen: measure Natally's rendered face rectangle in the stage (scene coordinates 780–1270 × 380–760 of 2048 × 1280, mapped through the scene's rendered scale and crop) and choose the dock corner whose inset rectangle, at the largest size in 20–60% that fits, does not intersect that face rectangle; if none fits at 20%, the inset docks below the stage area. Recomputed on resize until the customer moves it. |
 | Inset (landing) | `src/landing-original/marketing.tsx` + `marketing.css` | Same behaviour for the landing's example chart inset: draggable, dockable, resizable 20–60%, persisted for the guest. |
 
 ## Landing demo chart (unpaid example)
