@@ -1,21 +1,22 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Natally",
-  "version": "1.57.2426",
+  "version": "1.20.765",
   "identifier": "mba.robin.natally",
   "build": {
-    "beforeBuildCommand": "node scripts/build-web.mjs",
+    "beforeBuildCommand": "",
     "frontendDist": "../dist-web",
-    "devUrl": "http://localhost:49418"
+    "devUrl": "http://localhost:37841"
   },
   "app": {
     "windows": [
       {
-        "title": "Natally v1.57.2426",
+        "title": "Natally v1.20.765",
         "width": 1280,
         "height": 800,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "url": "app.html"
       }
     ],
     "security": {
@@ -34,11 +35,11 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug",
-      "versionCode": 100057
+      "versionCode": 100200765
     },
     "windows": {
       "wix": {
-        "version": "1.0.57.2426",
+        "version": "1.20.765.0",
         "upgradeCode": "3e5cab2c-d121-4e0a-a428-9a81141827f9"
       }
     },
