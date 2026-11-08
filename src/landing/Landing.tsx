@@ -173,15 +173,29 @@ const SOUVENIR_USD = 30;
 
 export default function Landing() {
   // Inset choreography: the chart panel is present from load — the first
-  // impression is Natally in her room WITH the wheel beside her (frozen
-  // design) — and the explanation beats drive its focus and zoom.
+  // impression is Natally in her room WITH the slowly rotating toroidal
+  // wheel beside her (frozen design) — and the explanation beats drive its
+  // focus and zoom.
   const [beat, setBeat] = useState(-1);
   // The example wheel, computed once with the original renderer's pipeline.
   const [example, setExample] = useState<NatalChartResult | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(
+    () =>
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
   // Inset drag: the panel is repositionable within a clamped range.
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dragState = useRef<{ id: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const beatRefs = useRef<(HTMLElement | null)[]>([]);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(query.matches);
+    query.addEventListener?.('change', update);
+    return () => query.removeEventListener?.('change', update);
+  }, []);
 
   useEffect(() => {
     let live = true;
@@ -329,10 +343,14 @@ export default function Landing() {
                 {example ? (
                   <Astrolabe3D
                     chart={example}
-                    isSpinning={false}
+                    isSpinning={!reducedMotion}
                     resetTrigger={0}
                     highlightedComponents={activeBody ? [activeBody] : []}
                     focusSequence={beat}
+                    reducedMotion={reducedMotion}
+                    motionPaused={reducedMotion}
+                    visible
+                    layoutKey="atelier"
                   />
                 ) : (
                   <div className="inset-loading" role="status">
