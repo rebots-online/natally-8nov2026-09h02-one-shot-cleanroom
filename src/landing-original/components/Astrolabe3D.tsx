@@ -1042,6 +1042,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     earthRing.position.set(0, 0.05, 0);
     earthRing.userData.focused = earthSphere.userData.focused;
     earthRing.userData.structureFrame = true; // gold divider: never dims
+    dynamicGroup.add(earthRing);
 
     // Floating Billboard Label above Earth Center
     const isEarthSelected = activeSelections.includes('Earth') || activeSelections.includes('Earth (Geocentric Origin)');
@@ -1081,6 +1082,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       tick.rotation.y = -cuspRad;
       tick.userData.focused = activeSelections.includes(sign.name);
       tick.userData.structureFrame = true; // gold zodiac divider: never dims
+      dynamicGroup.add(tick);
 
       const centerRad = lonToRad(sign.lon + 15);
       const zx = Math.cos(centerRad) * R_TORUS_TRACK;
@@ -1090,6 +1092,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const zSprite = createGlyphSprite(sign.glyph, '', '#f5d77f', 0.32, isSelected);
       zSprite.userData.targetId = sign.name;
       zSprite.userData.structureFrame = true; // zodiac structure: never dims
+      zSprite.position.set(zx, Y_SUPERIMPOSED + 0.1, zz);
       dynamicGroup.add(zSprite);
 
       const hitMesh = new THREE.Mesh(
@@ -1133,6 +1136,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const spokeLine = new THREE.Line(spokeGeo, spokeMat);
       spokeLine.userData.focused = isSelected;
       spokeLine.userData.structureFrame = true; // wheel dividers: never dim
+      dynamicGroup.add(spokeLine);
 
       // Cusp Badge
       const badgeR = R_TORUS_TRACK - R_TORUS_TUBE - 0.12;
