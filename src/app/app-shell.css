@@ -357,17 +357,21 @@ li[aria-selected='true'] > .suggest-option {
   font-family: var(--font-display);
 }
 
-/* Version stamp (bottom-right, all surfaces). */
+/* Version stamp: always bottom-right of the window, above every layer
+   (scene, overlays, sheets, dialogs), legible on any background. */
 .version-badge {
   position: fixed;
-  right: 14px;
-  bottom: 10px;
-  z-index: 60;
+  right: max(10px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 2147483647;
   margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--parchment-muted);
-  opacity: 0.7;
+  padding: 3px 8px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 6px;
+  background: rgba(20, 13, 33, 0.88);
+  color: #f5e6c8;
+  font: 11px/1.4 Consolas, 'Courier New', monospace;
+  letter-spacing: 0.04em;
   pointer-events: none;
 }
 
