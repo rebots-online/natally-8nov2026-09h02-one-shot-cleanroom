@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "width": 1586,
+  "height": 992,
+  "coordinateWidth": 2048,
+  "coordinateHeight": 1280,
+  "assets": [
+    {
+      "file": "room.webp",
+      "bytes": 277480,
+      "sha256": "dfedbddc9e098a1a5eff1ad2055978a4581fda235892e15c42b6ddf8e5265b5a",
+      "role": "Shaded composite scene"
+    },
+    {
+      "file": "poster.webp",
+      "bytes": 138536,
+      "sha256": "75a9c52d28b1a038021aff6cef74e2ef4631f10ef698464e3379df7631f6f75b",
+      "role": "Independent static fallback"
+    },
+    {
+      "file": "puppet-cleanplate.webp",
+      "width": 1585,
+      "height": 992,
+      "bytes": 266970,
+      "sha256": "eae79357aefb93eceb20bac08938914b424b1f7bf8030fd4440699032a5b53db",
+      "role": "Image-generated head/forearm clean plate for original-art puppet rig"
+    }
+  ]
+}

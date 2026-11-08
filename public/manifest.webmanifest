@@ -1,0 +1,14 @@
+{
+  "id": "",
+  "scope": "/",
+  "name": "",
+  "short_name": "",
+  "start_url": "/?app=1",
+  "display": "standalone",
+  "background_color": "#18161b",
+  "theme_color": "#c9aa60",
+  "icons": [
+    {"src": "/branding/192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/branding/512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

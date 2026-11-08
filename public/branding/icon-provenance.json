@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-10-26",
+  "method": "Built-in image_gen edit of original Natally mascot",
+  "reference": "public/natally-mascot.webp",
+  "sourceMaster": "public/branding/natally-icon-master.png",
+  "sourceSha256": "1fae657a3774070920efca5fe9d664dad1af48090cc31e909d122f5e530d377c",
+  "composition": "Original Natally identity; natal chart on viewer right beside head, approximately one quarter of icon",
+  "prompt": "Preserve metallic silver face, amber eyes, purple celestial turban; chart to viewer right beside head; one square app/favicon icon; dark observatory plum and brass; no text or substitute character.",
+  "alphaCorners": true,
+  "guideLayer": {
+    "path": "public/branding/natally-guide.png",
+    "sha256": "a1a7238ab7b764975f4d2374347b997e1c55388c597ceade1626b147d8dd1af5",
+    "prompt": "Exact Natally character in three-quarter guide pose, pointing to viewer right; transparent cutout, no chart, no background. Chart composed independently for tap and Android opening animation."
+  },
+  "cornerEdit": "Remove only pixels outside the rounded gold frame; preserve all interior artwork and use alpha-transparent outer corners."
+}

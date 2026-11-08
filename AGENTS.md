@@ -1,0 +1,17 @@
+# Clean-room one-shot Natally rewrite — rules
+
+1. Clean room: implement from DOCS/ARCHITECTURE.md and public API knowledge
+   only. Never read source of `natally-ai-studio` or any `abandoned-*` repo.
+2. Media assets imported byte-for-byte from the original `public/**` are the
+   only reuse; no code reuse.
+3. Billing: Chargebee. Credentials resolve at runtime via `kstore://`
+   pointers; `.env` stays pointer-only; unconfigured billing errors
+   truthfully — never a dummy flow.
+4. No placeholder functionality, mock customer experiences, dummy payments,
+   or invented customer data.
+5. No greps; no verification runs by the orchestrator; coders locate only
+   what they edit within owned files.
+6. Commit and push after every completed task (provisional, walkable back).
+7. Staging-domain deploys only until a real purchase works end-to-end.
+8. Do not look, do not check, do not remove: write what is correct,
+   idempotently.
