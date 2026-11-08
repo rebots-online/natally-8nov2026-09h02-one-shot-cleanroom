@@ -357,6 +357,20 @@ li[aria-selected='true'] > .suggest-option {
   font-family: var(--font-display);
 }
 
+/* Version stamp (bottom-right, all surfaces). */
+.version-badge {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  z-index: 60;
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--parchment-muted);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .btn.small {
   font-size: 13px;
   padding: 5px 11px;

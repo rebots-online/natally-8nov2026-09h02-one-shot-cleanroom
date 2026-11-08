@@ -25,6 +25,7 @@ import { AtelierScene } from '../atelier-original/components/atelier/AtelierScen
 import type { PresentationState, PresentationView } from '../atelier-original/services/presentation';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
+import VersionBadge from './VersionBadge';
 import TopUpSheet from './TopUpSheet';
 import './app-shell.css';
 
@@ -157,6 +158,7 @@ export default function App() {
     return (
       <div className="app-splash" role="status">
         Opening the atelier…
+        <VersionBadge />
       </div>
     );
   }
@@ -200,12 +202,18 @@ export default function App() {
             )}
           </div>
         </div>
+        <VersionBadge />
       </>
     );
   }
 
   if (chart === null) {
-    return <FirstLight onSitDown={setChart} />;
+    return (
+      <>
+        <FirstLight onSitDown={setChart} />
+        <VersionBadge />
+      </>
+    );
   }
 
   const lesson = getLesson(hoveredKey ?? 'general');
@@ -293,6 +301,7 @@ export default function App() {
           <SouvenirDialog chart={chart} onClose={() => setSouvenirOpen(false)} />
         </Suspense>
       )}
+      <VersionBadge />
     </div>
   );
 }

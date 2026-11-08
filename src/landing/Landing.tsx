@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
+import VersionBadge from '../app/VersionBadge';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { formatCr } from '../shared/credits';
 import { creditDisplayPerUsd } from '../platform/env';
@@ -288,28 +289,31 @@ export default function Landing() {
           <div className="hero-scene-shade" />
         </div>
 
-        <section className="hero">
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <p className="eyebrow">A small atelier, open all hours</p>
-              <h1>
-                Natally — your <em>astrologer</em>, not a horoscope mill
-              </h1>
-              <p className="subhead">
-                Tell her your birth date, time, and place. Natally computes your{' '}
-                <strong>actual natal chart</strong> and then sits down with you to
-                read it — placement by placement, in plain language, with no doom
-                in sight. She is a companion who knows the sky, not a vending
-                machine of sun-sign slogans.
-              </p>
-              <div className="hero-actions">
-                <a className="cta-primary" href="#example">
-                  Watch her read a chart
-                </a>
-                <a className="cta-secondary" href="/app.html">
-                  Open Natally
-                </a>
-              </div>
+        {/* The first screen is the stage itself — Natally at hero scale in
+            her interactive room, unobstructed (frozen design: copy lives
+            below the stage, never over her). */}
+        <section className="hero" aria-label="Natally in her atelier" />
+
+        <section className="section meet" id="meet">
+          <div className="copy-panel">
+            <p className="eyebrow">A small atelier, open all hours</p>
+            <h1>
+              Natally — your <em>astrologer</em>, not a horoscope mill
+            </h1>
+            <p className="subhead">
+              Tell her your birth date, time, and place. Natally computes your{' '}
+              <strong>actual natal chart</strong> and then sits down with you to
+              read it — placement by placement, in plain language, with no doom
+              in sight. She is a companion who knows the sky, not a vending
+              machine of sun-sign slogans.
+            </p>
+            <div className="hero-actions">
+              <a className="cta-primary" href="/app.html">
+                Create your natal chart ✦
+              </a>
+              <a className="cta-secondary" href="#example">
+                Watch her read a chart
+              </a>
             </div>
           </div>
         </section>
@@ -490,6 +494,8 @@ export default function Landing() {
           <span className="footer-copyright">© 2026 Natally</span>
         </div>
       </footer>
+
+      <VersionBadge />
     </div>
   );
 }
