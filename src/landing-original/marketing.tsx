@@ -1,0 +1,635 @@
+import { signOutBilling } from './services/billingApi';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createPortal } from 'react-dom';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { Astrolabe3D } from './components/Astrolabe3D';
+import { AtelierScene } from './components/atelier/AtelierScene';
+import { AtelierAmbience } from './components/atelier/AtelierAmbience';
+import { AccountBillingDialog, type AccountCreditsState as CreditsState } from './components/AccountBillingDialog';
+import { auth } from './services/firebase';
+import { initializeInteractionAnalytics, updateInteractionContext, trackInteraction, beginInteractionEpisode, chartAnalyticsTarget, type InteractionInputMethod } from './services/interactionAnalytics';
+import { readCreditBalance, formatReadingAllowance } from './services/billingApi';
+import { fetchUserIntake, loadNatalIntake } from './services/onboarding';
+import { requiresFreshOnboarding } from './services/natallyHistory';
+import { calculateNatalChart, type NatalChartInput, type NatalChartResult } from './services/ephemeris';
+import { chartTargetLabel, chartTargets } from './services/chartTargets';
+import { getAuthoredChartExplanation, getAuthoredUpsellClose, type AuthoredExplanation } from './services/authoredChartExplanations';
+import { createAuthoredEducationSession, readEducationInviteSettings, type AuthoredEducationSession } from './services/authoredEducationSession';
+import { nextAuthoredNudge, readNudgeSettings, type NudgeSession } from './services/authoredNudges';
+import { HISTORY_ERASURE_EVENT, isNatallyHistoryErasing, type HistoryErasureNotice } from './services/historyLifecycle';
+import { loadVoiceSettings, speakNatallyText, isSpeechBusy, SPEECH_ACTIVITY_EVENT } from './services/voiceService';
+import './marketing.css';
+
+type Phase =
+  | { kind: 'resolving' }
+  | { kind: 'signed-out' }
+  | { kind: 'no-intake' }
+  | { kind: 'loading'; uid: string; intake: NatalChartInput }
+  | { kind: 'ready'; uid: string; intake: NatalChartInput; chart: NatalChartResult }
+  | { kind: 'error'; message: string };
+type View = 'atelier' | 'chart';
+type SpeechState = 'idle' | 'preparing' | 'speaking' | 'error';
+type ChartNarration = { ownerUid:string; generation:number; controller:AbortController; targets:readonly string[] };
+const rootLanding = window.location.pathname === '/' || window.location.pathname === '/index.html';
+const appEntry = (offer?: 'conversation') => {
+  const destination = new URL(window.location.href);
+  destination.pathname = '/app.html';
+  destination.searchParams.set('app','1');
+  destination.searchParams.delete('offer');destination.searchParams.delete('offers');destination.searchParams.delete('restore');
+  if (offer) destination.searchParams.set('offer',offer);
+  return destination.href;
+};
+type InsetPosition = {x:number;y:number};
+const boundedInset = (position:InsetPosition):InsetPosition => ({x:Math.max(0,Math.min(1,position.x)),y:Math.max(0,Math.min(1,position.y))});
+const GUEST_ROOM = '__marketing_guest__';
+const envString = (key: string, fallback: string): string => {
+  const value = import.meta.env[key];
+  return typeof value === 'string' && value ? value : fallback;
+};
+const APP_PATH = envString('VITE_APP_PATH', '/app.html');
+const APP_NAMESPACE = envString('VITE_APP_NAMESPACE', 'natally');
+const EXAMPLE_CHART_INPUT: NatalChartInput = {
+  name: 'Aurelia (example)', birthDate: '1997-11-08', birthTime: '19:05',
+  placeName: 'Toronto, ON, Canada', latitude: 43.6532, longitude: -79.3832,
+  timezoneOffset: -5, houseSystem: 'W',
+};
+const STORY_SECTIONS = ['meet-natally', 'your-chart', 'reading-aloud', 'talk-with-natally'];
+const nudgeSettings = readNudgeSettings(import.meta.env);
+const educationInviteSettings = readEducationInviteSettings(import.meta.env);
+const WELCOME = 'Come in. You can explore my room, move the little things on my shelves, and see what catches your eye. With your own chart here, choose a planet, sign, house or relationship and I will explain it.';
+
+const MarketingExperience: React.FC = () => {
+  const [phase, setPhase] = useState<Phase>({ kind: 'resolving' });
+  const [ownerUid, setOwnerUid] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [authResolved, setAuthResolved] = useState(false);
+  const [accountError, setAccountError] = useState<string | null>(null);
+  const [accountDialogUid, setAccountDialogUid] = useState<string | null>(null);
+  const [credits, setCredits] = useState<CreditsState>({kind:'idle'});
+  const [inset,setInset] = useState<InsetPosition>({x:0,y:1});
+  const [dragging,setDragging] = useState(false);
+  const [activeSection, setActiveSection] = useState(STORY_SECTIONS[0]);
+  const [manualView, setManualView] = useState<View | null>(null);
+  const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
+  const [lesson, setLesson] = useState<AuthoredExplanation | null>(null);
+  const [lessonChartActive, setLessonChartActive] = useState(false);
+  const [aside, setAside] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(nudgeSettings.notice);
+  const [voiceSettings, setVoiceSettings] = useState(loadVoiceSettings);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [speechState, setSpeechState] = useState<SpeechState>('idle');
+  const [chartNarration, setChartNarration] = useState<ChartNarration | null>(null);
+  const [exampleChart, setExampleChart] = useState<NatalChartResult | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [documentVisible, setDocumentVisible] = useState(() => document.visibilityState === 'visible');
+  const [inView, setInView] = useState(false);
+  const frameRef = useRef<HTMLElement | null>(null);
+  const roomRef = useRef<HTMLDivElement | null>(null);
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const insetRef = useRef(inset);
+  const dragRef = useRef<{pointer:number;clientX:number;clientY:number;x:number;y:number;rangeX:number;rangeY:number}|null>(null);
+  const creditGeneration = useRef(0);
+  const generationRef = useRef(0);
+  const mountedRef = useRef(true);
+  const ownerRef = useRef<string | null>(null);
+  const voiceRef = useRef<AbortController | null>(null);
+  const voiceAllowedRef = useRef(false);
+  const nudgeSessionRef = useRef<NudgeSession>({ candidates:new Map(), presented:new Set(), recent:[] });
+  const nudgeControl = useRef<{ refresh: () => void } | null>(null);
+  const lastSpoken = useRef(WELCOME);
+  const speechBusyRef = useRef(false);
+  const lessonSpeechRef = useRef(0);
+  const educationSession = useRef<AuthoredEducationSession | null>(null);
+  const exampleChartPromiseRef = useRef<Promise<NatalChartResult> | null>(null);
+  const selectorInput = useRef<InteractionInputMethod>('unknown');
+  const analyticsPrevious = useRef<{owner:string|null;section:string;manual:View|null;speech:SpeechState;account:string|null;narrating:boolean} | null>(null);
+
+  const roomUid = ownerUid || GUEST_ROOM;
+  const ownedChart = phase.kind === 'ready' && phase.uid === ownerUid && auth.currentUser?.uid === ownerUid ? phase.chart : null;
+  const displayedChart = ownedChart ?? exampleChart;
+  const automaticView: View = activeSection === 'your-chart' || activeSection === 'reading-aloud' ? 'chart' : 'atelier';
+  const narratingChart = chartNarration && chartNarration.targets.length > 0 && chartNarration.ownerUid === ownerUid &&
+    chartNarration.generation === generationRef.current && voiceRef.current === chartNarration.controller &&
+    !chartNarration.controller.signal.aborted && inView && documentVisible && !document.hidden &&
+    (speechState === 'preparing' || speechState === 'speaking');
+  const view: View = displayedChart ? manualView || (lessonChartActive ? 'chart' : automaticView) : 'atelier';
+  const analyticsAccess = credits.kind==='ready' && credits.uid===ownerUid && auth.currentUser?.uid===ownerUid && credits.balance>0 ? 'available' : 'unknown';
+  useEffect(() => {
+    if (!authResolved || (rootLanding && auth.currentUser)) return;
+    try { initializeInteractionAnalytics('marketing'); }
+    catch { console.error('Interaction analytics initialization failed (VITE_GA_MEASUREMENT_ID).'); }
+  }, [authResolved]);
+  useEffect(() => {
+    const previous = analyticsPrevious.current;
+    let source: 'user_action'|'automatic_scroll_swap'|'narration'|'lifecycle' = 'lifecycle';
+    if (previous && previous.owner === ownerUid) {
+      if (previous.account !== accountDialogUid || (manualView !== null && previous.manual !== manualView)) source = 'user_action';
+      else if (previous.section !== activeSection || (previous.manual !== null && manualView === null)) source = 'automatic_scroll_swap';
+      else if (previous.speech !== speechState || previous.narrating || narratingChart) source = 'narration';
+    }
+    updateInteractionContext({scene:authResolved ? view : 'none',panel:accountDialogUid ? 'account' : 'world',
+      visible:authResolved && inView && documentVisible,listening:speechState === 'speaking',source,paid_access_state:analyticsAccess});
+    analyticsPrevious.current = {owner:ownerUid,section:activeSection,manual:manualView,speech:speechState,account:accountDialogUid,narrating:!!narratingChart};
+  }, [authResolved,view,ownerUid,activeSection,manualView,speechState,accountDialogUid,inView,documentVisible,narratingChart,analyticsAccess]);
+  useEffect(() => {
+    const keyboard = (event:KeyboardEvent) => { if (event.key === 'Tab') selectorInput.current = 'keyboard'; };
+    const pointer = (event:PointerEvent) => { selectorInput.current = event.pointerType === 'touch' ? 'touch' : 'pointer'; };
+    document.addEventListener('keydown',keyboard,true);document.addEventListener('pointerdown',pointer,true);
+    return () => { document.removeEventListener('keydown',keyboard,true);document.removeEventListener('pointerdown',pointer,true);
+      updateInteractionContext({scene:'none',visible:false,listening:false,paid_access_state:'unknown',source:'lifecycle'}); };
+  }, []);
+  const insetKey = `${APP_NAMESPACE}.marketing.inset-position.${roomUid}`;
+  const placeInset = (position:InsetPosition,save=true) => {
+    const next = boundedInset(position);insetRef.current=next;setInset(next);
+    if (save) try { localStorage.setItem(insetKey,JSON.stringify(next)); } catch { /* Movement remains available for this visit. */ }
+  };
+  useEffect(() => {
+    dragRef.current=null;setDragging(false);
+    try {
+      const saved=JSON.parse(localStorage.getItem(insetKey)||'null');
+      placeInset(saved && Number.isFinite(saved.x) && Number.isFinite(saved.y) ? saved : {x:0,y:1},false);
+    } catch { placeInset({x:0,y:1},false); }
+  },[insetKey]);
+  useEffect(() => {
+    const avoid = (event:Event) => {
+      const detail=(event as CustomEvent<{x:number;y:number;bounds?:{left:number;top:number;right:number;bottom:number}}>).detail;
+      const stage=stageRef.current;
+      if (!stage || stage.dataset.view!=='atelier' || !Number.isFinite(detail?.x) || !Number.isFinite(detail?.y) || dragRef.current) return;
+      const pane=stage.querySelector<HTMLElement>('.marketing-frame__pane[data-active="false"]:not([hidden])');
+      const handle=stage.querySelector<HTMLElement>('.marketing-frame__inset-handle');
+      const composition=roomRef.current?.querySelector<HTMLElement>('.atelier-scene__composition');
+      if (!pane || !handle || !composition) return;
+      const rect=stage.getBoundingClientRect(),room=composition.getBoundingClientRect(),card=pane.getBoundingClientRect(),bar=handle.getBoundingClientRect();
+      if (!rect.width || !rect.height || !room.width || !room.height) return;
+      const bounds=detail.bounds || {left:detail.x-100,right:detail.x+100,top:detail.y-80,bottom:detail.y+80};
+      const protectedRect={left:room.left+bounds.left/2048*room.width-8,right:room.left+bounds.right/2048*room.width+8,top:room.top+bounds.top/1280*room.height-8,bottom:room.top+bounds.bottom/1280*room.height+8};
+      const overlap=(box:{left:number;right:number;top:number;bottom:number})=>Math.max(0,Math.min(box.right,protectedRect.right)-Math.max(box.left,protectedRect.left))*Math.max(0,Math.min(box.bottom,protectedRect.bottom)-Math.max(box.top,protectedRect.top));
+      if (!overlap({left:Math.min(card.left,bar.left),right:Math.max(card.right,bar.right),top:Math.min(card.top,bar.top),bottom:Math.max(card.bottom,bar.bottom)})) return;
+      const candidates=[{x:0,y:0},{x:1,y:0},{x:0,y:1},{x:1,y:1}].map(position=>{
+        const left=rect.left+10+position.x*Math.max(0,rect.width-card.width-20),top=rect.top+10+position.y*Math.max(0,rect.height-card.height-bar.height-20);
+        return {position,area:overlap({left,right:left+Math.max(card.width,bar.width),top,bottom:top+card.height+bar.height}),distance:Math.hypot(position.x-insetRef.current.x,position.y-insetRef.current.y)};
+      }).sort((a,b)=>a.area-b.area||a.distance-b.distance);
+      // If every corner overlaps, the cookie popup measures the remaining side
+      // column after this move and reflows its actual controls into that space.
+      placeInset(candidates[0].position);
+    };
+    window.addEventListener('natally-atelier-shelf-focus',avoid);
+    return () => window.removeEventListener('natally-atelier-shelf-focus',avoid);
+  },[insetKey]);
+  const endInsetDrag = (event:React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragRef.current || dragRef.current.pointer!==event.pointerId) return;
+    dragRef.current=null;setDragging(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    placeInset(insetRef.current);
+  };
+  const insetStyle={'--marketing-inset-left':`calc(${inset.x*68}% + ${10-inset.x*20}px)`,'--marketing-inset-top':`calc(${inset.y*68}% + ${10-inset.y*20}px - var(--marketing-inset-handle-height) * ${inset.y})`} as React.CSSProperties;
+  const loadCredits = useCallback(async (uid:string) => {
+    const generation=++creditGeneration.current;
+    if (auth.currentUser?.uid!==uid) return;
+    setCredits({kind:'loading',uid});
+    try {
+      const balance=await readCreditBalance();
+      if (!mountedRef.current || creditGeneration.current!==generation || auth.currentUser?.uid!==uid || ownerRef.current!==uid) return;
+      if (balance.ownerUid!==uid) throw new Error('Credits did not match your account.');
+      setCredits({kind:'ready',uid,balance:balance.balance});
+    } catch {
+      if (mountedRef.current && creditGeneration.current===generation && auth.currentUser?.uid===uid && ownerRef.current===uid) setCredits({kind:'error',uid,message:'Your credits could not be loaded. Please retry.'});
+    }
+  },[]);
+  useEffect(() => {
+    creditGeneration.current++;setCredits({kind:'idle'});
+    if (!user || !authResolved) return;
+    const refresh=() => { if (!document.hidden && auth.currentUser?.uid===user.uid) void loadCredits(user.uid); };
+    refresh();window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);window.addEventListener('natally:purchase-access-changed',refresh);
+    return () => { creditGeneration.current++;window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);window.removeEventListener('natally:purchase-access-changed',refresh); };
+  },[user?.uid,authResolved,loadCredits]);
+  const isCurrentOwner = () => mountedRef.current && (auth.currentUser?.uid || null) === ownerRef.current &&
+    !isNatallyHistoryErasing(ownerRef.current);
+  const abortOwnedVoice = () => {
+    const current = voiceRef.current;
+    voiceRef.current = null;
+    current?.abort();
+    speechBusyRef.current = false;
+    setSpeechState('idle');setChartNarration(null);
+  };
+  const stopVoice = () => {
+    voiceAllowedRef.current = false;setVoiceEnabled(false);
+    lessonSpeechRef.current++;setLessonChartActive(false);
+    abortOwnedVoice();nudgeControl.current?.refresh();
+  };
+
+  const speak = async (text: string, explicit = false, narrationTargets:readonly string[] = [], entryPoint:'voice'|'replay'|'chart_object'|'placement_select' = 'voice', idle = false, onAdmitted?: () => void): Promise<boolean> => {
+    if (!isCurrentOwner() || document.hidden || !inView) return false;
+    if (idle && isSpeechBusy()) return false;
+    if (explicit) {
+      voiceAllowedRef.current = true;setVoiceEnabled(true);
+    }
+    if (!voiceAllowedRef.current || (!voiceSettings.readingAloud && !explicit)) return false;
+    abortOwnedVoice();
+    const controller = new AbortController();
+    const owner = ownerRef.current, generation = generationRef.current;
+    voiceRef.current = controller;speechBusyRef.current = true;
+    setChartNarration(owner && ownedChart && narrationTargets.length > 0 ? {ownerUid:owner,generation,controller,targets:[...narrationTargets]} : null);
+    lastSpoken.current = text;setSpeechState('preparing');
+    nudgeControl.current?.refresh();
+    const current = () => mountedRef.current && !controller.signal.aborted && voiceRef.current === controller &&
+      ownerRef.current === owner && generationRef.current === generation && isCurrentOwner() && !document.hidden;
+    let finishPlayback: ReturnType<typeof beginInteractionEpisode> | null = null;
+    const endPlayback = (outcome:'completed'|'cancelled') => { finishPlayback?.(outcome);finishPlayback=null; };
+    controller.signal.addEventListener('abort',() => endPlayback('cancelled'),{once:true});
+    const settings = { ...voiceSettings, readingAloud:true };
+    if (explicit && !voiceSettings.readingAloud) setVoiceSettings(settings);
+    try {
+      const complete = await speakNatallyText(text,settings,
+        () => { if (current()) { if (!finishPlayback) finishPlayback=beginInteractionEpisode('voice_playback',{entry_point:entryPoint,response_mode:'no_response'});setSpeechState('speaking'); } },
+        () => { if (current()) { speechBusyRef.current = false;setSpeechState('idle');setChartNarration(null); } },
+        undefined,
+        { idle,onAdmitted,signal:controller.signal,onPreparing:preparing => { if (current()) setSpeechState(preparing ? 'preparing' : 'speaking'); } });
+      if (!current()) return false;
+      voiceRef.current = null;speechBusyRef.current = false;
+      endPlayback(complete ? 'completed' : 'cancelled');
+      setSpeechState(complete ? 'idle' : 'error');setChartNarration(null);
+      return complete;
+    } catch {
+      endPlayback('cancelled');
+      if (current()) { trackInteraction('voice_playback',{status:'failed',entry_point:entryPoint,response_mode:'no_response'});speechBusyRef.current = false;setSpeechState('error');setChartNarration(null); }
+      return false;
+    } finally {
+      endPlayback('cancelled');
+      if (voiceRef.current === controller) { voiceRef.current = null;speechBusyRef.current = false; }
+      nudgeControl.current?.refresh();
+    }
+  };
+
+  // A1: the landing example chart is pure local ephemeris computation — one
+  // calculation per visitor session, cached in a ref; never network/auth/inference.
+  const loadExampleChart = useCallback(async (): Promise<NatalChartResult> => {
+    let computation = exampleChartPromiseRef.current;
+    if (!computation) {
+      computation = calculateNatalChart(EXAMPLE_CHART_INPUT);
+      exampleChartPromiseRef.current = computation;
+    }
+    return computation;
+  }, []);
+
+  const load = useCallback((uid: string | null) => {
+    const generation = ++generationRef.current;
+    const room = uid || GUEST_ROOM;
+    if (educationSession.current?.ownerUid!==room) educationSession.current=createAuthoredEducationSession(room,educationInviteSettings);
+    voiceAllowedRef.current = false;setVoiceEnabled(false);
+    const currentVoice = voiceRef.current;voiceRef.current = null;currentVoice?.abort();
+    speechBusyRef.current = false;setSpeechState('idle');setChartNarration(null);
+    setLesson(null);setAside(null);setSelectedComponents([]);setManualView(null);
+    lessonSpeechRef.current++;setLessonChartActive(false);
+    lastSpoken.current = WELCOME;
+    setNotice(nudgeSettings.notice);
+    setPhase(uid ? { kind:'resolving' } : { kind:'signed-out' });
+    nudgeSessionRef.current = { candidates:new Map(),presented:new Set(),recent:[] };
+    const isCurrent = () => mountedRef.current && generationRef.current === generation &&
+      auth.currentUser?.uid === uid && !isNatallyHistoryErasing(uid);
+    if (!uid) return;
+    if (isNatallyHistoryErasing(uid)) { setPhase({kind:'no-intake'});return; }
+    try { if (requiresFreshOnboarding(uid)) { setPhase({kind:'no-intake'});return; } }
+    catch { setPhase({kind:'error',message:'Your saved chart status could not be read. Please retry.'});return; }
+    void (async () => {
+      try {
+        const local = loadNatalIntake(uid);
+        let localReady = false;
+        if (local) {
+          setPhase({kind:'loading',uid,intake:local});
+          try {
+            const chart = await calculateNatalChart(local);
+            if (!isCurrent()) return;
+            setPhase({kind:'ready',uid,intake:local,chart});localReady = true;
+          } catch { if (!isCurrent()) return; }
+        }
+        try {
+          const remote = await fetchUserIntake(uid);
+          if (!isCurrent()) return;
+          if (!remote) {
+            if (!localReady) setPhase(local ? {kind:'error',message:'Your saved intake is invalid.'} : {kind:'no-intake'});
+            return;
+          }
+          if (localReady && JSON.stringify(remote) === JSON.stringify(local)) return;
+          if (!localReady) setPhase({kind:'loading',uid,intake:remote});
+          const chart = await calculateNatalChart(remote);
+          if (isCurrent()) {
+            const currentVoice = voiceRef.current;voiceRef.current = null;currentVoice?.abort();
+            speechBusyRef.current = false;setSpeechState('idle');setChartNarration(null);setLesson(null);setSelectedComponents([]);
+            lessonSpeechRef.current++;setLessonChartActive(false);
+            setPhase({kind:'ready',uid,intake:remote,chart});
+          }
+        } catch { if (isCurrent() && !localReady) setPhase({kind:'error',message:'Your chart could not be loaded.'}); }
+      } catch { if (isCurrent()) setPhase({kind:'error',message:'Your saved intake could not be read.'}); }
+    })();
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    const unsubscribe = onAuthStateChanged(auth,(user: User | null) => {
+      setAccountDialogUid(null);
+      if (user && rootLanding) { window.location.replace(appEntry());return; }
+      setUser(user);setAuthResolved(true);setAccountError(null);
+      creditGeneration.current++;setCredits({kind:'idle'});
+      ownerRef.current = user?.uid || null;setOwnerUid(ownerRef.current);load(ownerRef.current);
+    },error => {
+      setAccountDialogUid(null);
+      setUser(null);setAuthResolved(false);setAccountError(error.message || 'Your sign-in state could not be determined.');
+      creditGeneration.current++;setCredits({kind:'idle'});
+      ownerRef.current = null;setOwnerUid(null);load(null);
+      setPhase({kind:'error',message:error.message || 'Sign-in state could not be determined. Please retry.'});
+    });
+    const erasure = (event: Event) => {
+      const detail = (event as CustomEvent<HistoryErasureNotice>).detail;
+      if (detail.accountUid !== ownerRef.current) return;
+      load(ownerRef.current);
+      if (detail.phase === 'erasing') setPhase({kind:'no-intake'});
+    };
+    window.addEventListener(HISTORY_ERASURE_EVENT,erasure);
+    return () => {
+      mountedRef.current = false;generationRef.current++;
+      educationSession.current=null;
+      const current = voiceRef.current;voiceRef.current = null;current?.abort();
+      unsubscribe();window.removeEventListener(HISTORY_ERASURE_EVENT,erasure);
+    };
+  }, [load]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const preference = () => setReducedMotion(media.matches);
+    const visibility = () => {
+      setDocumentVisible(!document.hidden);
+      if (document.hidden) stopVoice();
+    };
+    media.addEventListener('change',preference);
+    document.addEventListener('visibilitychange',visibility);
+    return () => { media.removeEventListener('change',preference);document.removeEventListener('visibilitychange',visibility); };
+  }, []);
+
+  useEffect(() => { setManualView(null); }, [activeSection]);
+  useEffect(() => {
+    if (phase.kind !== 'signed-out' && phase.kind !== 'no-intake') return;
+    let cancelled = false;
+    void loadExampleChart().then(chart => {
+      if (!cancelled && mountedRef.current) setExampleChart(chart);
+    }, () => { /* The example stays absent; the intake guidance already tells the truth. */ });
+    return () => { cancelled = true; };
+  }, [phase.kind, loadExampleChart]);
+  useEffect(() => {
+    const header=document.querySelector<HTMLElement>('.site-head');
+    if (!header) return;
+    const measure=() => document.documentElement.style.setProperty('--marketing-header-height',header.getBoundingClientRect().height+'px');
+    const observer=new ResizeObserver(measure);observer.observe(header);measure();
+    return () => observer.disconnect();
+  },[]);
+  useEffect(() => {
+    roomRef.current?.toggleAttribute('inert',view !== 'atelier');
+    chartRef.current?.removeAttribute('inert');
+  }, [view,ownedChart]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const observer = new IntersectionObserver(entries => setInView(entries.some(entry => entry.isIntersecting)),{threshold:.08});
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => { if (!inView) stopVoice(); }, [inView]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    const story = frame?.closest<HTMLElement>('.marketing-story');
+    if (!frame || !story) return;
+    let raf = 0, position = 0, velocity = 0, target = 0, previousY = window.scrollY, previousAt = performance.now();
+    const updateSection = () => {
+      const narrow = window.matchMedia('(max-width: 820px)').matches;
+      const bottom = narrow ? frame.getBoundingClientRect().bottom : 0;
+      const line = narrow ? Math.min(window.innerHeight - 32,bottom + Math.max(24,(window.innerHeight - bottom) * .3)) : window.innerHeight * .42;
+      const sections = STORY_SECTIONS.map(id => ({id,rect:document.getElementById(id)?.getBoundingClientRect()})).filter(entry => entry.rect);
+      const crossing = sections.find(entry => entry.rect!.top <= line && entry.rect!.bottom > line);
+      const nearest = crossing || sections.reduce((best,entry) => Math.abs(entry.rect!.top - line) < Math.abs(best.rect!.top - line) ? entry : best,sections[0]);
+      if (nearest) setActiveSection(nearest.id);
+      story.style.setProperty('--marketing-frame-height',frame.offsetHeight + 'px');
+    };
+    const settle = () => {
+      raf = 0;updateSection();
+      if (reducedMotion || document.hidden) { position = velocity = target = 0; }
+      else {
+        target *= .78;
+        velocity = (velocity + (target - position) * .14) * .72;
+        position = Math.max(-9,Math.min(9,position + velocity));
+      }
+      frame.style.setProperty('--marketing-spring-y',position.toFixed(3) + 'px');
+      frame.style.setProperty('--marketing-spring-angle',(position * .07).toFixed(3) + 'deg');
+      if (Math.abs(position) + Math.abs(velocity) + Math.abs(target) > .025) raf = requestAnimationFrame(settle);
+      else { frame.style.setProperty('--marketing-spring-y','0px');frame.style.setProperty('--marketing-spring-angle','0deg'); }
+    };
+    const scroll = () => {
+      const now = performance.now(), delta = window.scrollY - previousY;
+      target = reducedMotion ? 0 : Math.max(-7,Math.min(7,delta / Math.max(16,now - previousAt) * 2));
+      previousY = window.scrollY;previousAt = now;
+      if (!raf) raf = requestAnimationFrame(settle);
+    };
+    const observer = new IntersectionObserver(updateSection,{threshold:[0,.15,.4,.7,1]});
+    STORY_SECTIONS.forEach(id => { const section = document.getElementById(id);if (section) observer.observe(section); });
+    window.addEventListener('scroll',scroll,{passive:true});window.addEventListener('resize',scroll);
+    document.addEventListener('visibilitychange',scroll);
+    updateSection();
+    return () => {
+      cancelAnimationFrame(raf);observer.disconnect();
+      window.removeEventListener('scroll',scroll);window.removeEventListener('resize',scroll);
+      document.removeEventListener('visibilitychange',scroll);
+      frame.style.setProperty('--marketing-spring-y','0px');frame.style.setProperty('--marketing-spring-angle','0deg');
+    };
+  }, [reducedMotion]);
+
+  const runtime = useRef<{ eligible:() => boolean;speak:typeof speak }>({ eligible:() => false,speak });
+  runtime.current = { eligible:() => isCurrentOwner() && voiceAllowedRef.current && voiceSettings.readingAloud &&
+    inView && documentVisible && view === 'atelier' && !isSpeechBusy() && !speechBusyRef.current && speechState === 'idle',speak };
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null, epoch = 0, resolving = false, disposed = false;
+    const clear = () => { if (timer !== null) { clearTimeout(timer);timer = null; } };
+    const refresh = () => {
+      if (disposed || !runtime.current.eligible()) { epoch++;resolving = false;clear();return; }
+      if (!nudgeSettings.enabled || timer !== null || resolving) return;
+      timer = setTimeout(() => {
+        timer = null;if (!runtime.current.eligible()) { refresh();return; }
+        resolving = true;const attempt = ++epoch, generation = generationRef.current, session = nudgeSessionRef.current;
+        const current = () => !disposed && attempt === epoch && generation === generationRef.current && runtime.current.eligible();
+        void nextAuthoredNudge(roomUid,session,current,(nudge,rememberAdmission) => {
+          if (!current()) return Promise.resolve(false);
+          setNotice(nudge.notice);
+          if (!nudge.soul.character) return Promise.resolve(false);
+          return runtime.current.speak(nudge.text,false,[],'voice',true,() => {
+            rememberAdmission(isCurrentOwner);setNotice(nudge.notice);
+            session.presented.add(nudge.id);session.recent = [...session.recent,nudge.id].slice(-2);
+            setAside(nudge.text);
+          });
+        }).catch(error => { if (current()) setNotice(error instanceof Error ? error.message : 'This story could not be remembered.'); })
+          .finally(() => { if (attempt === epoch) { resolving = false;refresh(); } });
+      },(nudgeSettings.minSeconds + Math.random() * (nudgeSettings.maxSeconds - nudgeSettings.minSeconds)) * 1000);
+    };
+    const control = {refresh};nudgeControl.current = control;
+    window.addEventListener(SPEECH_ACTIVITY_EVENT,refresh);refresh();
+    return () => { disposed = true;epoch++;clear();window.removeEventListener(SPEECH_ACTIVITY_EVENT,refresh);if (nudgeControl.current === control) nudgeControl.current = null; };
+  }, [roomUid]);
+  useEffect(() => { nudgeControl.current?.refresh(); }, [view,voiceEnabled,voiceSettings.readingAloud,inView,documentVisible,speechState,phase]);
+
+  const explain = (target: string, isMulti = false, entryPoint:'chart_object'|'placement_select' = 'chart_object') => {
+    const chart = displayedChart;
+    if (!chart || !isCurrentOwner()) return;
+    const session=educationSession.current, owner=ownerRef.current, generation=generationRef.current;
+    if (!session || session.ownerUid!==roomUid) return;
+    const close=getAuthoredUpsellClose(chart,'default');
+    const prepared=session.prepare(crypto.randomUUID(),framing=>getAuthoredChartExplanation(chart,target,framing));
+    if (!prepared) return;
+    const committed=session.commit(prepared,()=>educationSession.current===session && generationRef.current===generation &&
+      ownerRef.current===owner && isCurrentOwner() && !document.hidden,nextLesson=>{
+      const finishAnswer=beginInteractionEpisode('education_answer',{activity_kind:'education',response_mode:'authored_free',entry_point:entryPoint,...chartAnalyticsTarget(target)});
+      setLesson({...nextLesson,text:nextLesson.text+'\n\n'+close});setLessonChartActive(true);setAside(null);
+      setSelectedComponents(previous => isMulti ? Array.from(new Set([...previous,...nextLesson.targets])) : nextLesson.targets);
+      finishAnswer();
+    });
+    if (!committed) return;
+    const nextLesson=prepared.answer, speech=++lessonSpeechRef.current;
+    if (voiceSettings.readingAloud) void (async () => {
+      try { await speak(nextLesson.text+'\n\n'+close,true,nextLesson.targets,entryPoint); }
+      finally { if (lessonSpeechRef.current===speech) setLessonChartActive(false); }
+    })();
+    else abortOwnedVoice();
+  };
+  const targets = useMemo(() => displayedChart ? chartTargets(displayedChart) : [],[displayedChart]);
+  const caption = ownedChart ? ownedChart.input.name + ' · born ' + ownedChart.input.birthDate + ', ' +
+    (ownedChart.input.birthTimeUnknown ? 'birth time not stated · Whole Sign' : ownedChart.input.birthTime + ' · ' + (ownedChart.input.houseSystem === 'P' ? 'Placidus' : 'Whole Sign')) +
+    ' · ' + ownedChart.input.placeName : null;
+  const exampleCaptionShown = !ownedChart && !!exampleChart && (phase.kind === 'signed-out' || phase.kind === 'no-intake');
+  const onVoice = () => {
+    trackInteraction('interface_action',{entry_point:'voice_control',action:voiceEnabled?'stop':'start',activity_kind:'navigation',response_mode:'no_response',input_method:'unknown'});
+    if (voiceEnabled) {
+      stopVoice();setVoiceSettings(previous => ({...previous,readingAloud:false}));
+    } else {
+      const text = aside || lesson?.text || WELCOME;
+      if (!aside && !lesson) setAside(text);
+      void speak(text,true,!aside && lesson ? lesson.targets : []);
+    }
+  };
+
+  const accountMount=document.getElementById('marketing-account-root');
+  const matchingCredits=credits.kind!=='idle' && credits.uid===user?.uid && auth.currentUser?.uid===user?.uid ? credits : null;
+  const signOutAccount=async () => {
+    setAccountError(null);
+    try { await signOutBilling(); }
+    catch (error) { setAccountError(error instanceof Error?error.message:'Sign out could not finish. Please retry.'); }
+  };
+  return <>
+    {accountMount && createPortal(<div className="marketing-account">
+      {!authResolved ? <span role="status">{accountError || 'Checking sign-in…'}{accountError && <button type="button" onClick={() => window.location.reload()}>Retry</button>}</span> : user ? <>
+        <details className="marketing-account__profile"><summary>Profile</summary><div className="marketing-account__menu">
+          <span>{user.displayName || user.email || 'Your account'}</span>
+          <button type="button" onClick={event => { trackInteraction('interface_action',{entry_point:'account',action:'open',activity_kind:'navigation',response_mode:'no_response',input_method:'unknown'});event.currentTarget.focus();setAccountDialogUid(user.uid); }}>Account &amp; billing</button>
+          <a href={appEntry()}>Open my atelier</a><button type="button" onClick={() => void signOutAccount()}>Sign out</button>
+        </div></details>
+        <button type="button" className="marketing-account__credits" aria-haspopup="dialog" aria-expanded={accountDialogUid===user.uid}
+          aria-label={matchingCredits?.kind==='ready' ? `${formatReadingAllowance(matchingCredits.balance)} remaining. Open Account and billing.` : 'Open Account and billing'}
+          title={matchingCredits?.kind==='error' ? matchingCredits.message : undefined}
+          onClick={event => {event.currentTarget.focus();setAccountDialogUid(user.uid);}}>
+          <span aria-live="polite">{matchingCredits?.kind==='ready' ? formatReadingAllowance(matchingCredits.balance) : matchingCredits?.kind==='error' ? 'Unavailable' : 'Checking…'}</span>
+        </button>
+        {matchingCredits?.kind==='error' && <button type="button" aria-label="Retry balance" onClick={() => void loadCredits(user.uid)}>Retry</button>}
+        <a className="signin" href={appEntry('conversation')} data-entry="top-up">Top Up</a>
+        {accountError && <span role="alert">{accountError}</span>}
+      </> : <a className="signin" href={appEntry()} data-entry="sign-in" data-od-id="nav-sign-in">Sign In</a>}
+    </div>,accountMount)}
+    {user && accountDialogUid===user.uid && auth.currentUser?.uid===user.uid && <AccountBillingDialog key={user.uid} user={user}
+      credits={matchingCredits} onRefreshCredits={loadCredits} topUpHref={appEntry('conversation')} onClose={() => {trackInteraction('interface_action',{entry_point:'account',action:'close',activity_kind:'navigation',response_mode:'no_response',input_method:'unknown'});setAccountDialogUid(null);}} />}
+    <section ref={frameRef} className="marketing-frame" aria-label="Explore Natally's room and your chart">
+    <div className="marketing-frame__spring">
+      <div ref={stageRef} className="marketing-frame__stage" style={insetStyle} data-view={view} data-dragging={dragging} data-reduced-motion={reducedMotion}>
+        <div className="marketing-frame__pane marketing-frame__room" data-active={view === 'atelier'}>
+          <div ref={roomRef} className="marketing-frame__content" aria-hidden={view !== 'atelier'}>
+            <AtelierScene key={roomUid} accountUid={roomUid} phase={speechState === 'speaking' ? 'speaking' : speechState === 'preparing' ? 'thinking' : 'idle'}
+              motionEnabled={!reducedMotion && documentVisible && inView} sceneVisible={inView && documentVisible} />
+          </div>
+          {view !== 'atelier' && <button type="button" className="marketing-frame__foreground" aria-label="Bring Natally's room into focus" onClick={() => setManualView('atelier')} />}
+        </div>
+        <div className="marketing-frame__pane marketing-frame__chart" data-active={view === 'chart'} data-chart-callout-boundary data-chart-inset={view !== 'chart'} hidden={!displayedChart}>
+          <div ref={chartRef} className="marketing-frame__content">
+            {displayedChart && <Astrolabe3D chart={displayedChart} isSpinning={!reducedMotion && documentVisible && inView} resetTrigger={0}
+              selectedComponents={selectedComponents} highlightedComponents={lesson?.targets || []} onToggleComponent={explain}
+              reducedMotion={reducedMotion} motionPaused={reducedMotion || !documentVisible || !inView} visible={inView && documentVisible}
+              showAnnotations={view === 'chart'} layoutKey={view} onActivate={view==='atelier' ? () => setManualView('chart') : undefined} />}
+          </div>
+        </div>
+        {displayedChart && <button type="button" className="marketing-frame__inset-handle" aria-label="Move inset card" title="Drag to move the inset. Arrow keys move; Home docks top left; End docks bottom right."
+          onPointerDown={event => {
+            if (event.button!==0 || !stageRef.current) return;
+            const rect=stageRef.current.getBoundingClientRect(),handleHeight=event.currentTarget.getBoundingClientRect().height;event.preventDefault();event.currentTarget.focus();event.currentTarget.setPointerCapture(event.pointerId);
+            dragRef.current={pointer:event.pointerId,clientX:event.clientX,clientY:event.clientY,...insetRef.current,rangeX:Math.max(1,rect.width*.68-20),rangeY:Math.max(1,rect.height*.68-handleHeight-20)};setDragging(true);
+          }}
+          onPointerMove={event => { const start=dragRef.current;if (!start || start.pointer!==event.pointerId) return;placeInset({x:start.x+(event.clientX-start.clientX)/start.rangeX,y:start.y+(event.clientY-start.clientY)/start.rangeY},false); }}
+          onPointerUp={endInsetDrag} onPointerCancel={endInsetDrag} onLostPointerCapture={event => { if (dragRef.current?.pointer===event.pointerId) endInsetDrag(event); }}
+          onKeyDown={event => {
+            const step=event.shiftKey?.1:.025,directions:Record<string,[number,number]>={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
+            if (directions[event.key]) { event.preventDefault();const [x,y]=directions[event.key];placeInset({x:insetRef.current.x+x,y:insetRef.current.y+y}); }
+            else if (event.key==='Home' || event.key==='End') { event.preventDefault();placeInset(event.key==='Home'?{x:0,y:0}:{x:1,y:1}); }
+          }}>⠿ <span>Move {view==='atelier'?'chart':'Natally'}</span></button>}
+      </div>
+      <div className="marketing-frame__controls">
+        <button type="button" aria-label={voiceEnabled ? 'Sound Off — turn off Natally’s voice' : 'Sound On — turn on Natally’s voice'} aria-pressed={voiceEnabled} onClick={onVoice}>{voiceEnabled ? 'Sound Off 🔇' : 'Sound On 🔊'}</button>
+        {displayedChart && <label className="marketing-frame__target"><span className="marketing-frame__target-label">Explore a placement</span>
+          <select value={lesson?.targets[0] || ''}
+            onKeyDown={() => { selectorInput.current='keyboard'; }}
+            onFocus={event => { const target=chartAnalyticsTarget(event.currentTarget.value);if (target && selectorInput.current==='keyboard') trackInteraction('chart_item_focus',{...target,entry_point:'placement_select',input_method:'keyboard',activity_kind:'education',response_mode:'no_response'}); }}
+            onChange={event => { if (event.target.value) { const target=chartAnalyticsTarget(event.target.value);if (target) trackInteraction('chart_item_select',{...target,entry_point:'placement_select',input_method:selectorInput.current,activity_kind:'education',response_mode:'no_response'});explain(event.target.value,false,'placement_select'); } selectorInput.current='unknown'; }}>
+            <option value="">Choose a planet, sign, house or aspect</option>
+            {targets.map(target => <option key={target} value={target}>{chartTargetLabel(target)}</option>)}
+          </select>
+        </label>}
+      </div>
+      {inView && documentVisible && <AtelierAmbience view={view} phase={speechState === 'speaking' ? 'speaking' : 'idle'} />}
+      <div className="marketing-frame__text">
+        {view==='chart' && <p className="marketing-frame__instruction">Click on a planet, house, sign, or aspect to hear its interpretation in astrology.</p>}
+        {caption && <p className="marketing-frame__caption">{caption}</p>}
+        {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Example chart — Aurelia, an anonymous example born 8 Nov 1997, 7:05 PM, Toronto. It is not your chart. <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
+        {!ownedChart && <div className="marketing-frame__intake" role="status">
+          <p>{phase.kind === 'signed-out' ? 'Sign in to explore your own calculated chart.'
+            : phase.kind === 'no-intake' ? 'Create your own natal chart to explore its placements here.'
+            : phase.kind === 'error' ? phase.message
+            : phase.kind === 'loading' ? 'Calculating your saved natal chart…' : 'Checking for your saved chart…'}</p>
+          {phase.kind === 'error' && <button type="button" onClick={() => { const uid = auth.currentUser?.uid || null;ownerRef.current = uid;setOwnerUid(uid);load(uid); }}>Retry chart</button>}
+        </div>}
+        {(lesson || aside) && <div className="marketing-frame__lesson" tabIndex={0} aria-label="Natally's complete explanation">
+          {lesson && <><h3>{lesson.title}</h3><p>{lesson.text}</p></>}
+          {aside && <p>{aside}</p>}
+        </div>}
+        {(lesson || aside) && <button type="button" className="marketing-frame__replay" onClick={() => void speak(aside || lesson?.text || lastSpoken.current,true,!aside && lesson ? lesson.targets : [],'replay')}>{speechState === 'error' ? 'Retry voice' : 'Replay'}</button>}
+        <p className="marketing-frame__status" role="status">{speechState === 'preparing' ? 'Preparing Natally’s voice…' : speechState === 'speaking' ? 'Natally is speaking' : speechState === 'error' ? (voiceEnabled ? 'Voice could not play. Your text is here; choose Retry voice, or switch Sound Off then Sound On to retry.' : 'Voice could not play. Your text is here; choose Retry voice or Sound On to retry.') : ''}</p>
+        {notice && <p className="marketing-frame__notice" role="status">{notice}</p>}
+      </div>
+    </div>
+  </section></>;
+};
+
+// Rubric 6: the landing document ships its version badge hidden; populate it
+// from the build's natally-version meta so every entry path shows the build.
+{
+  let badge = document.querySelector<HTMLElement>('[data-natally-version-badge]');
+  const version = document.querySelector<HTMLMetaElement>('meta[name="natally-version"]')?.content;
+  if (!badge && version) {
+    badge = document.createElement('div');
+    badge.className = 'version-badge';
+    badge.setAttribute('data-natally-version-badge', '');
+    badge.setAttribute('aria-label', 'Build version');
+    document.body.appendChild(badge);
+  }
+  if (badge && version) { badge.textContent = version; badge.hidden = false; }
+}
+const mount = document.getElementById('marketing-experience-root');
+const entryParams=new URLSearchParams(window.location.search);
+const entryOffer=entryParams.get('offer');
+if ('__TAURI_INTERNALS__' in window || entryParams.get('app')==='1' || entryOffer==='reading' || entryOffer==='conversation') {
+  const destination=new URL(window.location.href);destination.pathname='/app.html';window.location.replace(destination.href);
+} else if (mount) createRoot(mount).render(<MarketingExperience />);
+

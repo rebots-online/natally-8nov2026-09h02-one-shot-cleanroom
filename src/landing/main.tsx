@@ -1,19 +1,15 @@
-// Landing entry. Runs standalone when landing.html loads this module
-// directly, and stays importable by the app shell's router: the component is
-// the default export, and the mount is guarded on a #root being present.
+// Landing entry: renders the VERBATIM original marketing implementation
+// (src/landing-original/marketing.tsx, operator-authorized port). The
+// module self-mounts into #marketing-experience-root and redirects to
+// /app.html for app-entry query params, so this entry only guarantees the
+// mount node exists and loads the port.
 
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import Landing from './Landing';
-import './landing.css';
+import '../shared/tokens.css';
 
-export default Landing;
-
-const rootElement = document.getElementById('root');
-if (rootElement) {
-  createRoot(rootElement).render(
-    <StrictMode>
-      <Landing />
-    </StrictMode>,
-  );
+if (!document.getElementById('marketing-experience-root')) {
+  const host = document.createElement('div');
+  host.id = 'marketing-experience-root';
+  document.body.appendChild(host);
 }
+
+void import('../landing-original/marketing');

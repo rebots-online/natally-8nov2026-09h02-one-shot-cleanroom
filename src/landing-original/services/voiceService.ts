@@ -1,0 +1,1 @@
+../../atelier-original/services/voiceService.ts
