@@ -2,9 +2,11 @@
 // formatCr at the deployment's credit display rate. A zero balance is never
 // shown as a number — the sheet simply reads "Top up". Credit packs and the
 // souvenir are wired to the real purchase calls (Chargebee checkout runs
-// inside them); when the deployment has no Chargebee site configured the
-// sheet says so and disables purchasing rather than faking a flow. A
-// completed purchase refreshes the access envelope.
+// inside them). The offers always render; when configuration is missing the
+// sheet fails visibly and specifically instead — naming the missing setting,
+// whether client-side (VITE_CHARGEBEE_SITE) or from the server's
+// billing_not_configured detail — and never charges anything. A completed
+// purchase refreshes the access envelope.
 
 import { useCallback, useEffect, useState } from 'react';
 import { BillingNotConfiguredError, getAccess } from '../commerce/billingApi';
@@ -17,6 +19,17 @@ import type { AllowanceEnvelope } from '../shared/types';
 
 interface TopUpSheetProps {
   onClose: () => void;
+}
+
+/** Human sentence for a failed access load, naming what is missing. */
+function describeLoadError(error: unknown): string {
+  if (error instanceof BillingNotConfiguredError) {
+    return error.detail
+      ? `The billing service is not configured — ${error.detail}. Balance and purchases are unavailable.`
+      : 'The billing service is not configured. Balance and purchases are unavailable.';
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return 'Your balance could not be reached right now.';
 }
 
 export default function TopUpSheet({ onClose }: TopUpSheetProps) {
@@ -32,11 +45,7 @@ export default function TopUpSheet({ onClose }: TopUpSheetProps) {
     try {
       setAccess(await getAccess(await idToken()));
     } catch (error) {
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : 'Your balance could not be reached right now.',
-      );
+      setLoadError(describeLoadError(error));
     }
   }, []);
 
@@ -72,7 +81,11 @@ export default function TopUpSheet({ onClose }: TopUpSheetProps) {
       if (error instanceof CheckoutClosedError) {
         setNotice('Checkout closed before payment — nothing was charged.');
       } else if (error instanceof BillingNotConfiguredError) {
-        setNotice('Billing is not configured on this deployment — nothing was charged.');
+        setNotice(
+          error.detail
+            ? `Checkout is not configured — ${error.detail}. Nothing was charged.`
+            : 'Checkout is not configured on this deployment — nothing was charged.',
+        );
       } else {
         setNotice(
           error instanceof Error
@@ -112,8 +125,8 @@ export default function TopUpSheet({ onClose }: TopUpSheetProps) {
 
         {!billingConfigured && (
           <p className="note warn">
-            Billing isn’t configured on this deployment (no Chargebee site), so purchases
-            can’t run yet. Nothing will be charged.
+            Checkout is not configured on this build — VITE_CHARGEBEE_SITE is not set,
+            so the Chargebee payment window cannot open. Nothing will be charged.
           </p>
         )}
 
@@ -125,33 +138,33 @@ export default function TopUpSheet({ onClose }: TopUpSheetProps) {
           <p className="note status" role="status">
             Checking your balance…
           </p>
-        ) : (
-          <div className="packs">
-            {PACKS.map(usd => (
-              <button
-                key={usd}
-                type="button"
-                className="pack"
-                disabled={!billingConfigured || busy !== null}
-                onClick={() => void purchase('credits', usd)}
-              >
-                <span className="usd">US${usd}</span>
-                <span className="what">{formatCr(Math.round(usd * 1_000_000), displayPerUsd)}</span>
-                {busy === `credits:${usd}` ? '…' : ''}
-              </button>
-            ))}
+        ) : null}
+
+        <div className="packs">
+          {PACKS.map(usd => (
             <button
+              key={usd}
               type="button"
-              className="pack wide"
+              className="pack"
               disabled={!billingConfigured || busy !== null}
-              onClick={() => void purchase('souvenir', SOUVENIR)}
+              onClick={() => void purchase('credits', usd)}
             >
-              <span className="usd">US${SOUVENIR}</span>
-              <span className="what">Natal report keepsake</span>
-              {busy === `souvenir:${SOUVENIR}` ? '…' : ''}
+              <span className="usd">US${usd}</span>
+              <span className="what">{formatCr(Math.round(usd * 1_000_000), displayPerUsd)}</span>
+              {busy === `credits:${usd}` ? '…' : ''}
             </button>
-          </div>
-        )}
+          ))}
+          <button
+            type="button"
+            className="pack wide"
+            disabled={!billingConfigured || busy !== null}
+            onClick={() => void purchase('souvenir', SOUVENIR)}
+          >
+            <span className="usd">US${SOUVENIR}</span>
+            <span className="what">Natal report keepsake</span>
+            {busy === `souvenir:${SOUVENIR}` ? '…' : ''}
+          </button>
+        </div>
 
         {notice && (
           <p className="note status" role="status">
