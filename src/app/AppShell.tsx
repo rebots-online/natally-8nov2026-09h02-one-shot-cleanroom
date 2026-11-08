@@ -233,6 +233,17 @@ export default function App() {
         <div className="scene-mount" aria-hidden="true">
           <AtelierScene phase="idle" motionEnabled accountUid={null} />
         </div>
+
+        <header className="app-header app-header--front">
+          <h1 className="app-brand">
+            Natally <span className="app-brand-sub">· the atelier</span>
+          </h1>
+          <div className="app-header-actions">
+            <a className="topbar-link" href="/">
+              Back to the landing ↗
+            </a>
+          </div>
+        </header>
         <div className="app-intake">
           <div className="card">
             <img

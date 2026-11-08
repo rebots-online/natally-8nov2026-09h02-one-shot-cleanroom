@@ -584,3 +584,27 @@ div[id^='threejs-container'] {
   width: 100%;
   height: 100%;
 }
+
+/* Header presence on the front (sign-in) screen, over the scene. */
+.app-header--front {
+  position: relative;
+  z-index: 2;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1.1rem clamp(1.2rem, 4vw, 3rem) 0;
+}
+
+.topbar-link {
+  font-size: 0.95rem;
+  color: var(--brass-bright);
+  background: rgb(28 17 34 / 0.72);
+  border: 1px solid var(--plum-line);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+}
+
+.app-brand {
+  font-size: clamp(1.7rem, 3.4vw, 2.1rem);
+}
