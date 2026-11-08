@@ -117,3 +117,10 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | --- | --- | --- |
 | Inset (app) | `src/atelier-original/components/ReadingStage.tsx` + `.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. Never covers Natally's face on first load (default dock bottom-right). |
 | Inset (landing) | `src/landing-original/marketing.tsx` + `marketing.css` | Same behaviour for the landing's example chart inset: draggable, dockable, resizable 20–60%, persisted for the guest. |
+
+## Landing demo chart (unpaid example)
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Demo birth data | landing example chart | 14 June 1993, 14:30, Toronto (43.6532 N, 79.3832 W, America/Toronto). Chosen by measurement over 1975–2005: ten planets across 9 signs, largest empty arc 57°, 29 aspects spread around the wheel. (The previous 8 Nov 1997 19:05 sample packed every planet into one 148° strip with a 212° empty arc.) |
+| Casual discovery | landing inset wheel | Bodies, signs, houses and aspect lines are spread so an idle mouse-over anywhere on the wheel lands on something; each hit shows its tooltip/highlight. |
