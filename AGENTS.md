@@ -7,6 +7,11 @@
 3. Billing: Chargebee. Credentials resolve at runtime via `kstore://`
    pointers; `.env` stays pointer-only; unconfigured billing errors
    truthfully — never a dummy flow.
+
+10. Rubric before architecting; screencast-demonstrated proof: every feature
+    gets a preauthored observation rubric (DOCS/RUBRIC-*.md) BEFORE design or
+    code; acceptance is a recorded screencast against every rubric checkpoint
+    (DOCS/DEMONSTRATIONS/). Static inspection and lint never substitute.
 4. No placeholder functionality, mock customer experiences, dummy payments,
    or invented customer data.
 5. No greps; no verification runs by the orchestrator; coders locate only
