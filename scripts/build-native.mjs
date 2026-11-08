@@ -119,9 +119,16 @@ if (process.argv[2] === 'prepare') {
   });
   await target('android', () => run('android', 'npx', ['--no-install', 'tauri', 'android', 'build', '--target', 'aarch64', '--apk', '--aab']), async () => {
     const output = 'src-tauri/gen/android/app/build/outputs';
-    const apks = files(join(output, 'apk')).filter(p => p.endsWith('.apk') && !p.includes('unsigned') && !p.includes('debug'));
-    const aabs = files(join(output, 'bundle')).filter(p => p.endsWith('.aab') && !p.includes('debug'));
-    if (apks.length !== 1 || aabs.length !== 1) throw Error('Android release APK/AAB were not uniquely produced');
+    // Gradle stamps the current version into artifact names (build.gradle.kts
+    // archivesName "natally-ai-studio-v" + version from version.txt), so
+    // versioned leftovers from earlier invocations accumulate beside this
+    // run's outputs instead of being overwritten (v1.24.765 failed with four
+    // release AABs from v1.20/v1.22/v1.23/v1.24). Collect only the current
+    // stamped version's artifacts.
+    const stamp = `v${version}-`;
+    const apks = files(join(output, 'apk')).filter(p => p.endsWith('.apk') && !p.includes('unsigned') && !p.includes('debug') && basename(p).includes(stamp));
+    const aabs = files(join(output, 'bundle')).filter(p => p.endsWith('.aab') && !p.includes('debug') && basename(p).includes(stamp));
+    if (apks.length !== 1 || aabs.length !== 1) throw Error(`Android release APK/AAB were not uniquely produced for v${version}; found: ${[...apks, ...aabs].map(p => basename(p)).join(', ') || 'none'}`);
     const toolsRoot = join(androidHome, 'build-tools');
     const versions = readdirSync(toolsRoot).sort((a, b) => b.localeCompare(a, 'en', { numeric: true }));
     const tool = versions.map(v => join(toolsRoot, v)).find(d => existsSync(join(d, 'apksigner')) && existsSync(join(d, 'zipalign')));
@@ -134,7 +141,7 @@ if (process.argv[2] === 'prepare') {
     execFileSync('jarsigner', ['-verify', aabs[0]], { stdio: 'ignore' });
     stage(apks[0], 'android-arm64.apk', 'android-apk');
     stage(aabs[0], 'android-arm64.aab', 'android-aab');
-    const symbols = files(join(output, 'native-debug-symbols')).filter(p => p.endsWith('.zip') && p.includes('release'));
+    const symbols = files(join(output, 'native-debug-symbols')).filter(p => p.endsWith('.zip') && p.includes('release') && basename(p).includes(stamp));
     if (symbols.length === 1) stage(symbols[0], 'android-arm64-native-debug-symbols.zip', 'android-symbols');
     else {
       const ndks = readdirSync(join(androidHome, 'ndk')).sort((a, b) => b.localeCompare(a, 'en', { numeric: true }));
