@@ -11,16 +11,28 @@ export interface AstroChartProps {
   chart: NatalChart;
   /** Fires with the hovered body's key, or null when nothing is hovered. */
   onHoverBody?: (key: ChartBodyKey | null) => void;
+  /**
+   * Guided-reading focus: this body stays lit while its siblings dim (the
+   * wheel itself never dims). null/undefined restores all bodies.
+   */
+  readonly activeBody?: ChartBodyKey | null;
 }
 
-export function AstroChart({ chart, onHoverBody }: AstroChartProps) {
+export function AstroChart({ chart, onHoverBody, activeBody = null }: AstroChartProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const hoverCallbackRef = useRef<AstroChartProps['onHoverBody']>(undefined);
+  const sceneRef = useRef<ChartScene | null>(null);
+  const activeBodyRef = useRef<AstroChartProps['activeBody']>(activeBody);
 
   useEffect(() => {
     hoverCallbackRef.current = onHoverBody;
   }, [onHoverBody]);
+
+  useEffect(() => {
+    activeBodyRef.current = activeBody;
+    sceneRef.current?.setActiveBody(activeBody);
+  }, [activeBody]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -34,6 +46,8 @@ export function AstroChart({ chart, onHoverBody }: AstroChartProps) {
       // WebGL unavailable: leave the canvas blank rather than crash the app.
       return;
     }
+    sceneRef.current = scene;
+    scene.setActiveBody(activeBodyRef.current ?? null);
 
     scene.resize(host.clientWidth, host.clientHeight);
     const resizeObserver = new ResizeObserver(entries => {
@@ -133,6 +147,7 @@ export function AstroChart({ chart, onHoverBody }: AstroChartProps) {
     canvas.addEventListener('wheel', onWheel, { passive: false });
 
     return () => {
+      sceneRef.current = null;
       labelsWanted = false;
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();

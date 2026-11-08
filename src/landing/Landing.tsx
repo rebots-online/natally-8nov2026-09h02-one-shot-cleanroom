@@ -1,9 +1,12 @@
-// The landing surface: hero, example chart, how-it-works, offers, footer.
-// All copy is authored here; prices mirror the configured billing offers
-// (credit packs US$5/10/25, souvenir US$30) and credits display through the
-// shared Cr formatter at the configured display rate.
+// The landing surface: full-bleed atelier hero, sticky inset panel that
+// carries the animated cut-out mascot and then swaps to the focused example
+// chart while the explanation beats scroll, offers at the configured prices,
+// and the footer. Prices mirror the configured billing offers (credit packs
+// US$5/10/25, souvenir US$30); credits display through the shared Cr
+// formatter at the configured display rate.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import { AstroChart } from '../chart/AstroChart';
 import { getLesson } from '../content/lessons';
 import { formatCr } from '../shared/credits';
@@ -41,6 +44,42 @@ const EXAMPLE_CHART: NatalChart = {
       sign: 'Leo',
       house: 5,
     },
+    {
+      key: 'Venus',
+      position: { longitude: 120.5, latitude: 0.6, speed: 1.1 },
+      sign: 'Leo',
+      house: 8,
+    },
+    {
+      key: 'Mars',
+      position: { longitude: 205.0, latitude: -0.4, speed: 0.66 },
+      sign: 'Libra',
+      house: 11,
+    },
+    {
+      key: 'Jupiter',
+      position: { longitude: 355.0, latitude: 0.9, speed: 0.2 },
+      sign: 'Pisces',
+      house: 4,
+    },
+    {
+      key: 'Saturn',
+      position: { longitude: 285.0, latitude: 1.4, speed: 0.12 },
+      sign: 'Capricorn',
+      house: 2,
+    },
+    {
+      key: 'Ascendant',
+      position: { longitude: 252.9 },
+      sign: 'Sagittarius',
+      house: 1,
+    },
+    {
+      key: 'Midheaven',
+      position: { longitude: 162.9 },
+      sign: 'Virgo',
+      house: 10,
+    },
   ],
   houses: [
     { house: 1, position: { longitude: 252.9 } },
@@ -58,7 +97,13 @@ const EXAMPLE_CHART: NatalChart = {
   ],
   ascendant: { longitude: 252.9 },
   midheaven: { longitude: 162.9 },
-  aspects: [{ a: 'Sun', b: 'Mercury', kind: 'conjunction', orb: 6 }],
+  aspects: [
+    { a: 'Sun', b: 'Mercury', kind: 'conjunction', orb: 6 },
+    { a: 'Sun', b: 'Ascendant', kind: 'trine', orb: 4.5 },
+    { a: 'Moon', b: 'Ascendant', kind: 'square', orb: 1.7 },
+    { a: 'Venus', b: 'Mars', kind: 'square', orb: 5.5 },
+    { a: 'Venus', b: 'Jupiter', kind: 'trine', orb: 5.5 },
+  ],
 };
 
 const ORDINALS = [
@@ -76,8 +121,33 @@ const ORDINALS = [
   '12th',
 ] as const;
 
-/** The lesson excerpts shown beside the example wheel. */
-const EXAMPLE_LESSONS: readonly ChartBodyKey[] = ['Sun', 'Moon', 'Ascendant'];
+/**
+ * The explanation beats. The first three each focus one body of the example
+ * chart (the sticky inset highlights it while its siblings dim); the last
+ * beat pulls back to the whole, undimmed wheel.
+ */
+const BEATS: readonly { key: ChartBodyKey | null; heading: string; body: string }[] = [
+  {
+    key: 'Sun',
+    heading: 'The Sun — where your light gathers',
+    body: 'Vitality, pride, the thing you cannot help shining at. In this example sky the Sun sits in Leo, in the fifth house of play and performance: warmth that genuinely wants an audience.',
+  },
+  {
+    key: 'Moon',
+    heading: 'The Moon — your inner weather',
+    body: 'The Moon is the tide under your day — mood, memory, what safety feels like. Here it floats in Pisces, in the eighth house: feeling that runs deep and picks up every current in the room.',
+  },
+  {
+    key: 'Ascendant',
+    heading: 'The Ascendant — the door you open',
+    body: 'Not a planet but a point: the sign rising on the eastern horizon at your first breath. Sagittarius rising opens onto wonder — the doorway between you and every room you walk into.',
+  },
+  {
+    key: null,
+    heading: 'And the wheel that holds them all',
+    body: 'Twelve houses, and the chords between them — conversations the planets are having with each other. Notice the structure never dims while each light takes its turn; that is exactly how Natally reads a chart. The map stays, the attention moves.',
+  },
+];
 
 const CREDIT_PACKS: readonly { usd: number; line: string }[] = [
   {
@@ -96,12 +166,128 @@ const CREDIT_PACKS: readonly { usd: number; line: string }[] = [
 
 const SOUVENIR_USD = 30;
 
+/** Full-bleed room scene with the poster as the graceful fallback. */
+function AtelierScene() {
+  const [failed, setFailed] = useState(false);
+  return (
+    <img
+      className="hero-scene-img"
+      src={failed ? '/atelier/poster.webp' : '/atelier/room.webp'}
+      alt=""
+      onError={() => setFailed(true)}
+      decoding="async"
+      draggable={false}
+    />
+  );
+}
+
 export default function Landing() {
   const [hovered, setHovered] = useState<ChartBodyKey | null>(null);
+  // Inset choreography: which face the sticky panel shows, and which
+  // explanation beat is currently in the reading band of the viewport.
+  const [insetStage, setInsetStage] = useState<'mascot' | 'chart'>('mascot');
+  const [beat, setBeat] = useState(-1);
+  // Inset drag: the panel is repositionable within a clamped range.
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const dragState = useRef<{ id: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const explainRef = useRef<HTMLElement | null>(null);
+  const beatRefs = useRef<(HTMLElement | null)[]>([]);
+  const reducedMotion = useRef(
+    typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+
+  // Swap moment: as the explanation section enters the viewport (while the
+  // hero scene is still on screen), the inset trades the mascot for the
+  // focused example chart. Scrolling back up trades it back.
+  useEffect(() => {
+    const explain = explainRef.current;
+    if (!explain) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          setInsetStage(entry.isIntersecting ? 'chart' : 'mascot');
+        }
+      },
+      { rootMargin: '0px 0px -30% 0px', threshold: 0 },
+    );
+    observer.observe(explain);
+    return () => observer.disconnect();
+  }, []);
+
+  // Beat focus: whichever explanation block crosses the reading band drives
+  // the chart's activeBody; the last beat (whole wheel) restores all bodies.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setBeat(Number((entry.target as HTMLElement).dataset.beat ?? -1));
+          }
+        }
+      },
+      { rootMargin: '-42% 0px -42% 0px', threshold: 0 },
+    );
+    for (const element of beatRefs.current) if (element) observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const activeBeat = beat >= 0 && beat < BEATS.length ? BEATS[beat] : undefined;
+  const activeBody = activeBeat?.key ?? null;
+  const activeBodyDetail = activeBody
+    ? EXAMPLE_CHART.bodies.find(candidate => candidate.key === activeBody)
+    : undefined;
   const hoveredBody = hovered
-    ? EXAMPLE_CHART.bodies.find((body) => body.key === hovered)
+    ? EXAMPLE_CHART.bodies.find(body => body.key === hovered)
     : undefined;
   const perUsd = creditDisplayPerUsd();
+
+  // Hero parallax: the scene answers the pointer. Skipped entirely under
+  // prefers-reduced-motion (the CSS also freezes the layers in place).
+  const onHeroPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (reducedMotion.current) return;
+    const hero = event.currentTarget;
+    const x = (event.clientX / window.innerWidth) * 2 - 1;
+    const y = (event.clientY / window.innerHeight) * 2 - 1;
+    hero.style.setProperty('--px', x.toFixed(3));
+    hero.style.setProperty('--py', y.toFixed(3));
+  };
+  const onHeroPointerLeave = (event: ReactPointerEvent<HTMLElement>) => {
+    event.currentTarget.style.setProperty('--px', '0');
+    event.currentTarget.style.setProperty('--py', '0');
+  };
+
+  // Inset drag: pointer-grab the grip strip to reposition the panel; a
+  // double-click on the grip returns it home.
+  const onGripPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragState.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      baseX: dragOffset.x,
+      baseY: dragOffset.y,
+    };
+  };
+  const onGripPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragState.current;
+    if (!drag || event.pointerId !== drag.id) return;
+    const clamp = (value: number, limit: number) => Math.min(Math.max(value, -limit), limit);
+    setDragOffset({
+      x: clamp(drag.baseX + event.clientX - drag.startX, 220),
+      y: clamp(drag.baseY + event.clientY - drag.startY, 160),
+    });
+  };
+  const endDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragState.current?.id === event.pointerId) dragState.current = null;
+  };
+
+  const caption = hoveredBody
+    ? `${getLesson(hoveredBody.key).title} — ${hoveredBody.sign}, ${ORDINALS[hoveredBody.house - 1]} house`
+    : activeBodyDetail
+      ? `${activeBodyDetail.key === 'Ascendant' ? 'Ascendant' : activeBodyDetail.key} in ${activeBodyDetail.sign}, ${ORDINALS[activeBodyDetail.house - 1]} house`
+      : 'Sun in Leo, Moon in Pisces, Sagittarius rising.';
 
   return (
     <div className="landing">
@@ -114,84 +300,127 @@ export default function Landing() {
         </a>
       </header>
 
-      <section className="hero">
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <p className="eyebrow">A small atelier, open all hours</p>
-            <h1>
-              Natally — your <em>astrologer</em>, not a horoscope mill
-            </h1>
-            <p className="subhead">
-              Tell her your birth date, time, and place. Natally computes your{' '}
-              <strong>actual natal chart</strong> and then sits down with you to
-              read it — placement by placement, in plain language, with no doom
-              in sight. She is a companion who knows the sky, not a vending
-              machine of sun-sign slogans.
-            </p>
-            <div className="hero-actions">
-              <a className="cta-primary" href="/app.html">
-                Open Natally
-              </a>
-              <a className="cta-secondary" href="#example">
-                See an example chart
-              </a>
+      <div className="hero-stage">
+        <section
+          className="hero"
+          style={{ '--px': 0, '--py': 0 } as CSSProperties}
+          onPointerMove={onHeroPointerMove}
+          onPointerLeave={onHeroPointerLeave}
+        >
+          <div className="hero-scene" aria-hidden="true">
+            <AtelierScene />
+            <div className="hero-scene-shade" />
+          </div>
+          <div className="hero-inner">
+            <div className="hero-copy">
+              <p className="eyebrow">A small atelier, open all hours</p>
+              <h1>
+                Natally — your <em>astrologer</em>, not a horoscope mill
+              </h1>
+              <p className="subhead">
+                Tell her your birth date, time, and place. Natally computes your{' '}
+                <strong>actual natal chart</strong> and then sits down with you to
+                read it — placement by placement, in plain language, with no doom
+                in sight. She is a companion who knows the sky, not a vending
+                machine of sun-sign slogans.
+              </p>
+              <div className="hero-actions">
+                <a className="cta-primary" href="/app.html">
+                  Open Natally
+                </a>
+                <a className="cta-secondary" href="#example">
+                  Watch her read a chart
+                </a>
+              </div>
             </div>
           </div>
-          <div className="hero-mascot">
-            <img
-              src="/natally-mascot.webp"
-              alt="Natally, a small brass fortune-teller automaton in a starry turban"
-              width={400}
-              height={400}
-            />
-          </div>
-        </div>
-      </section>
 
-      <section className="section" id="example">
-        <p className="eyebrow">Example chart</p>
-        <h2>A chart, read like a map</h2>
-        <p className="lede">
-          Here is an example wheel — a summer-evening sky over Paris — carrying
-          the placements a first reading usually opens with. Run your pointer
-          over it, and meet it through a few lines from Natally&rsquo;s own
-          lessons.
-        </p>
-        <div className="example-grid">
-          <div>
-            <div className="chart-stage">
-              <AstroChart chart={EXAMPLE_CHART} onHoverBody={setHovered} />
+        </section>
+
+          <div className="inset-rail">
+            <div
+              className="inset-drag"
+              style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
+            >
+              <aside
+                className={`inset-panel${insetStage === 'chart' ? ' inset-panel--chart' : ''}${
+                  insetStage === 'chart' && activeBody !== null ? ' inset-panel--zoom' : ''
+                }`}
+                aria-label="Atelier companion panel"
+              >
+                <div
+                  className="inset-grip"
+                  role="separator"
+                  aria-label="Drag to move the panel (double-click to reset)"
+                  onPointerDown={onGripPointerDown}
+                  onPointerMove={onGripPointerMove}
+                  onPointerUp={endDrag}
+                  onPointerCancel={endDrag}
+                  onDoubleClick={() => setDragOffset({ x: 0, y: 0 })}
+                >
+                  <span className="inset-grip-dots" aria-hidden="true" />
+                </div>
+                <div className="inset-swap">
+                  <div
+                    className={`inset-face inset-face--mascot${insetStage === 'mascot' ? ' is-on' : ''}`}
+                    aria-hidden={insetStage !== 'mascot'}
+                  >
+                    <img
+                      className="inset-mascot"
+                      src="/atelier/puppet-cleanplate.webp"
+                      alt=""
+                      draggable={false}
+                    />
+                    <p className="inset-tag">Natally, at your service</p>
+                  </div>
+                  <div
+                    className={`inset-face inset-face--chart${insetStage === 'chart' ? ' is-on' : ''}`}
+                    aria-hidden={insetStage !== 'chart'}
+                  >
+                    <div className="inset-chart">
+                      <AstroChart chart={EXAMPLE_CHART} activeBody={activeBody} onHoverBody={setHovered} />
+                    </div>
+                    <p className="inset-tag inset-tag--chart">{caption}</p>
+                  </div>
+                </div>
+              </aside>
             </div>
-            <p className="chart-caption">
-              {hoveredBody ? (
-                <>
-                  <strong>{getLesson(hoveredBody.key).title}</strong> —{' '}
-                  {hoveredBody.sign}, {ORDINALS[hoveredBody.house - 1]} house
-                </>
-              ) : (
-                'Sun in Leo, Moon in Pisces, Sagittarius rising.'
-              )}
-            </p>
           </div>
-          <div className="lessons">
-            {EXAMPLE_LESSONS.map((key) => {
-              const lesson = getLesson(key);
-              return (
-                <article className="lesson-card" key={key}>
-                  <h3>{lesson.title}</h3>
-                  <p>{lesson.what}</p>
-                  <p className="question">{lesson.question}</p>
-                </article>
-              );
-            })}
+
+        <section className="section explain" id="example" ref={explainRef}>
+          <p className="eyebrow">How she reads</p>
+          <h2>A chart, read like a map</h2>
+          <p className="lede">
+            The panel beside you has traded the mascot for a real wheel — a
+            summer-evening sky over Paris, cast with the same Swiss Ephemeris
+            your own chart will use. Drag the wheel to turn it; then watch each
+            light take its turn as she walks you through.
+          </p>
+          <div className="explain-beats">
+            {BEATS.map((entry, index) => (
+              <article
+                key={entry.heading}
+                className={`explain-beat${beat === index ? ' is-current' : ''}`}
+                data-beat={index}
+                ref={element => {
+                  beatRefs.current[index] = element;
+                }}
+              >
+                <span className="explain-beat-step" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <h3>{entry.heading}</h3>
+                <p>{entry.body}</p>
+              </article>
+            ))}
           </div>
-        </div>
-        <p className="example-note">
-          Example wheel for illustration. Yours is computed from your birth data
-          alone, on your own device, with the Swiss Ephemeris — and read with
-          you, never at you.
-        </p>
-      </section>
+          <p className="example-note">
+            Example wheel for illustration. Yours is computed from your birth data
+            alone, on your own device, with the Swiss Ephemeris — and read with
+            you, never at you.
+          </p>
+        </section>
+      </div>
 
       <section className="section" id="how-it-works">
         <p className="eyebrow">How it works</p>
@@ -246,7 +475,7 @@ export default function Landing() {
           the reading you love can be bound into a keepsake.
         </p>
         <div className="offers">
-          {CREDIT_PACKS.map((pack) => (
+          {CREDIT_PACKS.map(pack => (
             <article className="offer" key={pack.usd}>
               <p className="offer-price">${pack.usd}</p>
               <p className="offer-unit">

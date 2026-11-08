@@ -7,6 +7,7 @@
   min-height: 100vh;
   background: var(--plum);
   color: var(--parchment);
+  scroll-behavior: smooth;
 }
 
 .landing a {
@@ -51,35 +52,69 @@
   border-bottom-color: var(--brass);
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero stage: full-bleed atelier scene + sticky inset ---------- */
+
+.hero-stage {
+  position: relative;
+}
 
 .hero {
+  --px: 0;
+  --py: 0;
   position: relative;
-  min-height: min(94vh, 52rem);
+  min-height: min(94vh, 54rem);
   display: grid;
   align-items: center;
+  background: var(--plum-deep);
+  overflow: hidden;
+}
+
+.hero-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* The real room art, full-bleed; the poster swap happens in AtelierScene.
+   The layer is oversized so pointer parallax never exposes an edge. */
+.hero-scene-img {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  object-fit: cover;
+  object-position: center 38%;
+  transform: translate3d(calc(var(--px) * -14px), calc(var(--py) * -10px), 0);
+  transition: transform 240ms ease-out;
+  user-select: none;
+}
+
+.hero-scene-shade {
+  position: absolute;
+  inset: 0;
   background:
     linear-gradient(
       100deg,
-      rgb(28 17 34 / 0.93) 0%,
-      rgb(28 17 34 / 0.82) 34%,
-      rgb(28 17 34 / 0.42) 68%,
-      rgb(28 17 34 / 0.18) 100%
+      rgb(28 17 34 / 0.92) 0%,
+      rgb(28 17 34 / 0.78) 34%,
+      rgb(28 17 34 / 0.36) 66%,
+      rgb(28 17 34 / 0.16) 100%
     ),
-    url('/atelier/room.webp') center 38% / cover no-repeat,
-    var(--plum-deep);
+    linear-gradient(rgb(42 26 51 / 0) 78%, var(--plum) 100%);
 }
 
 .hero-inner {
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  align-items: center;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
   max-width: 68rem;
+  width: 100%;
   margin: 0 auto;
   padding: clamp(7rem, 16vh, 10rem) clamp(1.2rem, 4vw, 3rem) clamp(3rem, 8vh, 5rem);
+}
+
+.hero-copy {
+  max-width: 40rem;
 }
 
 .hero-copy .eyebrow {
@@ -155,16 +190,209 @@
   border-bottom-color: var(--brass);
 }
 
-.hero-mascot {
+/* ---------- Sticky inset panel ---------- */
+
+/* The rail spans hero + explanation, so the panel stays pinned while the
+   beats scroll beside it. It ignores pointer events; the panel re-enables
+   them, so page scrolling and text selection stay untouched. */
+.inset-rail {
+  position: absolute;
+  top: 0;
+  right: clamp(0.8rem, 3.5vw, 3.5rem);
+  bottom: 0;
+  z-index: 4;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  pointer-events: none;
 }
 
-.hero-mascot img {
-  width: clamp(11rem, 22vw, 17rem);
+.inset-drag {
+  position: sticky;
+  top: clamp(5rem, 13vh, 8.5rem);
+  pointer-events: auto;
+}
+
+.inset-panel {
+  width: clamp(14.5rem, 23vw, 20.5rem);
+  border: 1px solid var(--plum-line);
+  border-radius: 16px;
+  background: rgb(28 17 34 / 0.5);
+  backdrop-filter: blur(9px);
+  box-shadow: 0 1.4rem 3rem rgb(0 0 0 / 0.42);
+  transition: background 500ms ease, box-shadow 500ms ease;
+}
+
+.inset-panel--chart {
+  background: rgb(28 17 34 / 0.78);
+  box-shadow:
+    0 1.4rem 3rem rgb(0 0 0 / 0.5),
+    0 0 2.4rem rgb(201 164 92 / 0.18);
+}
+
+.inset-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.7rem;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 16px 16px 0 0;
+}
+
+.inset-grip:active {
+  cursor: grabbing;
+}
+
+.inset-grip-dots {
+  width: 2rem;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--plum-line);
+  box-shadow: 0 -6px 0 var(--plum-line), 0 6px 0 var(--plum-line);
+}
+
+.inset-swap {
+  position: relative;
+  aspect-ratio: 1 / 1.06;
+  margin: 0 0.45rem 0.45rem;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Zoom moment: while a single body is in focus the whole inset leans in. */
+.inset-panel--zoom .inset-swap {
+  transform: scale(1.16);
+}
+
+.inset-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.94);
+  pointer-events: none;
+  transition:
+    opacity 620ms ease,
+    transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.inset-face.is-on {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* The mascot is the real cut-out plate — crisp cut-out edges intentional. */
+.inset-mascot {
+  width: 86%;
   height: auto;
-  filter: drop-shadow(0 1.6rem 2.6rem rgb(0 0 0 / 0.55))
-    drop-shadow(0 0 1.6rem rgb(201 164 92 / 0.22));
+  animation: mascot-bob 5.6s ease-in-out infinite;
+  filter: drop-shadow(0 1.4rem 2.4rem rgb(0 0 0 / 0.55))
+    drop-shadow(0 0 1.6rem rgb(201 164 92 / 0.2));
+}
+
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.6deg);
+  }
+  50% {
+    transform: translate3d(0, -13px, 0) rotate(0.8deg);
+  }
+}
+
+.inset-chart {
+  position: absolute;
+  inset: 2% 2% 11%;
+}
+
+.inset-tag {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--parchment-muted);
+}
+
+.inset-tag--chart {
+  color: var(--brass-bright);
+}
+
+/* ---------- Explanation beats ---------- */
+
+.explain {
+  padding-right: clamp(1.2rem, 4vw, 3rem);
+}
+
+.explain .lede {
+  max-width: 40rem;
+}
+
+.explain-beats {
+  display: grid;
+  gap: clamp(2rem, 5vh, 3.5rem);
+  max-width: 38rem;
+}
+
+.explain-beat {
+  min-height: 58vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--plum-line);
+  transition: border-color 400ms ease;
+}
+
+.explain-beat.is-current {
+  border-left-color: var(--brass);
+}
+
+.explain-beat-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--brass-dim);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  color: var(--brass);
+}
+
+.explain-beat h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.45rem;
+  margin: 0 0 0.7rem;
+  color: var(--parchment-muted);
+  transition: color 400ms ease;
+}
+
+.explain-beat.is-current h3 {
+  color: var(--brass-bright);
+}
+
+.explain-beat p {
+  margin: 0;
+  color: var(--parchment-muted);
+}
+
+.example-note {
+  max-width: 38rem;
+  margin: 2.6rem 0 0;
+  font-size: 0.9rem;
+  color: var(--parchment-muted);
+  opacity: 0.85;
 }
 
 /* ---------- Shared section chrome ---------- */
@@ -197,80 +425,6 @@
   margin: 0 0 2.6rem;
 }
 
-/* ---------- Example chart ---------- */
-
-.example-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-  gap: clamp(1.5rem, 3.5vw, 3rem);
-  align-items: start;
-}
-
-.chart-stage {
-  width: min(26rem, 100%);
-  margin: 0 auto;
-  aspect-ratio: 1;
-  background: var(--plum-raised);
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  padding: clamp(0.6rem, 1.6vw, 1.1rem);
-}
-
-.chart-caption {
-  width: min(26rem, 100%);
-  margin: 0.9rem auto 0;
-  text-align: center;
-  font-size: 0.95rem;
-  color: var(--parchment-muted);
-  min-height: 1.6em;
-}
-
-.chart-caption strong {
-  color: var(--parchment);
-  font-weight: 400;
-}
-
-.lessons {
-  display: grid;
-  gap: 1rem;
-}
-
-.lesson-card {
-  background: var(--plum-raised);
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  padding: 1.15rem 1.3rem;
-}
-
-.lesson-card h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.12rem;
-  color: var(--brass-bright);
-  margin: 0 0 0.5rem;
-}
-
-.lesson-card p {
-  margin: 0;
-  font-size: 0.97rem;
-  color: var(--parchment-muted);
-}
-
-.lesson-card p.question {
-  margin-top: 0.6rem;
-  font-style: italic;
-  color: var(--parchment);
-}
-
-.example-note {
-  margin-top: 2.4rem;
-  font-size: 0.92rem;
-  color: var(--parchment-muted);
-  border-top: 1px solid var(--plum-line);
-  padding-top: 1.1rem;
-  max-width: 46rem;
-}
-
 /* ---------- How it works ---------- */
 
 .steps {
@@ -284,29 +438,33 @@
   background: var(--plum-raised);
   border: 1px solid var(--plum-line);
   border-radius: 14px;
-  padding: 1.5rem 1.4rem;
+  padding: 1.4rem 1.3rem 1.5rem;
 }
 
 .step .step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid var(--brass-dim);
+  border-radius: 999px;
   font-family: var(--font-display);
-  font-size: 2.3rem;
   color: var(--brass);
-  line-height: 1;
-  display: block;
-  margin-bottom: 0.7rem;
 }
 
 .step h3 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.16rem;
-  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  margin: 0 0 0.55rem;
 }
 
 .step p {
   margin: 0;
-  font-size: 0.97rem;
   color: var(--parchment-muted);
+  font-size: 0.96rem;
 }
 
 /* ---------- Offers ---------- */
@@ -328,37 +486,37 @@
 
 .offer.souvenir {
   border-color: var(--brass-dim);
-  background: linear-gradient(160deg, var(--plum-raised), var(--plum));
+  background:
+    linear-gradient(rgb(201 164 92 / 0.08), rgb(201 164 92 / 0.02)),
+    var(--plum-raised);
 }
 
 .offer .offer-price {
+  margin: 0 0 0.2rem;
   font-family: var(--font-display);
-  font-size: 2.15rem;
+  font-size: 2rem;
   color: var(--brass-bright);
-  line-height: 1;
-  margin: 0 0 0.3rem;
 }
 
 .offer .offer-unit {
-  font-size: 0.88rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0 0 0.8rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
   color: var(--brass);
-  margin: 0 0 0.9rem;
 }
 
 .offer p {
-  margin: 0 0 1.4rem;
-  font-size: 0.97rem;
+  margin: 0 0 1rem;
   color: var(--parchment-muted);
-  flex-grow: 1;
+  font-size: 0.96rem;
 }
 
 .offer a {
-  align-self: flex-start;
+  margin-top: auto;
   color: var(--brass-bright);
   font-size: 0.98rem;
   border-bottom: 1px solid var(--brass-dim);
+  align-self: flex-start;
   padding-bottom: 2px;
 }
 
@@ -369,32 +527,30 @@
 }
 
 .offers-fineprint {
-  margin-top: 2rem;
-  font-size: 0.9rem;
+  margin: 1.6rem 0 0;
+  font-size: 0.88rem;
   color: var(--parchment-muted);
+  opacity: 0.85;
 }
 
 /* ---------- Footer ---------- */
 
 .landing-footer {
   border-top: 1px solid var(--plum-line);
-  background: var(--plum-deep);
 }
 
 .footer-inner {
   max-width: 68rem;
   margin: 0 auto;
-  padding: 2.4rem clamp(1.2rem, 4vw, 3rem) 2.8rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.4rem 3rem;
-  align-items: baseline;
-  justify-content: space-between;
+  padding: clamp(2.4rem, 6vh, 4rem) clamp(1.2rem, 4vw, 3rem) 3rem;
+  display: grid;
+  gap: 1rem;
 }
 
 .footer-inner .wordmark {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  color: var(--parchment);
 }
 
 .footer-inner .wordmark em {
@@ -403,53 +559,56 @@
 }
 
 .footer-tag {
-  flex-basis: 100%;
   margin: 0;
-  font-size: 0.95rem;
+  max-width: 30rem;
   color: var(--parchment-muted);
-  max-width: 38rem;
+  font-size: 0.95rem;
 }
 
 .footer-links {
   display: flex;
-  gap: 1.6rem;
-  font-size: 0.95rem;
+  gap: 1.4rem;
 }
 
 .footer-links a {
+  font-size: 0.95rem;
   color: var(--parchment-muted);
-  border-bottom: 1px solid transparent;
-  padding-bottom: 2px;
 }
 
 .footer-links a:hover,
 .footer-links a:focus-visible {
   color: var(--brass-bright);
-  border-bottom-color: var(--brass);
 }
 
 .footer-copyright {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--parchment-muted);
+  opacity: 0.75;
 }
 
 /* ---------- Responsive ---------- */
 
 @media (max-width: 56rem) {
-  .hero-inner {
-    grid-template-columns: 1fr;
+  /* The inset stops floating and takes its place in the flow between the
+     hero and the explanation; the mascot→chart swap still runs. */
+  .inset-rail {
+    position: static;
+    justify-content: center;
+    padding: 0.6rem 1.2rem 0;
   }
 
-  .hero-mascot {
-    justify-content: flex-start;
+  .inset-drag {
+    position: static;
   }
 
-  .hero-mascot img {
-    width: clamp(8.5rem, 26vw, 11rem);
+  .inset-panel {
+    width: min(19rem, 84vw);
   }
 
-  .example-grid {
-    grid-template-columns: 1fr;
+  .explain-beat {
+    min-height: 0;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
 
   .steps {
@@ -460,10 +619,24 @@
 /* ---------- Motion preferences ---------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .landing {
+    scroll-behavior: auto;
+  }
+
   .landing *,
   .landing *::before,
   .landing *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  /* Hold the composed static composition: no parallax drift, no bounce. */
+  .hero-scene-img {
+    transform: none;
+  }
+
+  .inset-mascot {
+    animation: none;
   }
 }

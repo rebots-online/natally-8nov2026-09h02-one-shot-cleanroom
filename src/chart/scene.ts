@@ -16,6 +16,13 @@ export interface ChartScene {
   pickAt(ndcX: number, ndcY: number): ChartBodyKey | null;
   /** Move the hover halo onto a body, or hide it when key is null. */
   setHover(key: ChartBodyKey | null): void;
+  /**
+   * Focus one body for a guided reading: its marker and label stay lit (and
+   * carry the halo when nothing is hovered) while every other body dims and
+   * grows slightly. The wheel itself — zodiac ring, houses, chords — never
+   * dims. `null` restores all bodies.
+   */
+  setActiveBody(key: ChartBodyKey | null): void;
   /** Apply a pointer drag as screen-pixel deltas (rotate + tilt, clamped). */
   spinBy(dragDxPx: number, dragDyPx: number): void;
   /** Apply wheel travel (positive deltaY pulls back), clamped to range. */
@@ -392,6 +399,25 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
   const bodyMeshes: THREE.Mesh[] = [];
   const bodyPosition = new Map<ChartBodyKey, THREE.Vector3>();
   const bodySize = new Map<ChartBodyKey, number>();
+  // Per-body animated visuals for setActiveBody: each marker owns a cloned
+  // material so siblings can dim individually while the wheel stays lit.
+  const bodyVisuals = new Map<
+    ChartBodyKey,
+    {
+      marker: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
+      label: THREE.Sprite;
+      baseColor: THREE.Color;
+      baseEmissiveIntensity: number;
+      baseScale: number;
+      dim: number;
+      dimTarget: number;
+      emphasis: number;
+      emphasisTarget: number;
+    }
+  >();
+  const dimColor = new THREE.Color(PALETTE.plumDeep);
+  let activeBody: ChartBodyKey | null = null;
+  let hoverKey: ChartBodyKey | null = null;
 
   const sortedBodies = [...chart.bodies].sort(
     (a, b) => normLon(a.position.longitude) - normLon(b.position.longitude),
@@ -410,7 +436,8 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
             body.key === 'Midheaven'
           ? stoneMaterial
           : brassMaterial;
-    const marker = new THREE.Mesh(unitSphere, markerMaterial);
+    const marker = new THREE.Mesh(unitSphere, markerMaterial.clone());
+    marker.material.transparent = true;
     marker.scale.setScalar(size);
     marker.position.copy(position);
     marker.userData.key = body.key;
@@ -422,6 +449,17 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
     const label = makeTextSprite(() => drawBodyLabelCanvas(BODY_LABEL[body.key]), 1.35);
     label.position.set(position.x, position.y, position.z + size + 0.55);
     root.add(label);
+    bodyVisuals.set(body.key, {
+      marker,
+      label,
+      baseColor: marker.material.color.clone(),
+      baseEmissiveIntensity: marker.material.emissiveIntensity,
+      baseScale: size,
+      dim: 0,
+      dimTarget: 0,
+      emphasis: 0,
+      emphasisTarget: 0,
+    });
   }
 
   const hub = new THREE.Mesh(unitSphere, goldMaterial);
@@ -478,6 +516,20 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
   halo.visible = false;
   root.add(halo);
   let haloBase = 1;
+  // The halo follows the hovered body first, else the focused (active) body.
+  const placeHalo = (): void => {
+    const key = hoverKey ?? activeBody;
+    const position = key ? bodyPosition.get(key) : undefined;
+    const size = key ? bodySize.get(key) : undefined;
+    if (!key || !position || size === undefined) {
+      halo.visible = false;
+      return;
+    }
+    halo.position.set(position.x, position.y, position.z + 0.2);
+    haloBase = size * 5.2;
+    halo.scale.setScalar(haloBase);
+    halo.visible = true;
+  };
 
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
@@ -491,6 +543,23 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
         const pulse = 1 + 0.06 * Math.sin(elapsed * 4.2);
         halo.scale.setScalar(haloBase * pulse);
         halo.material.opacity = 0.7 + 0.2 * Math.sin(elapsed * 4.2);
+      }
+      // Ease each body toward its dim/emphasis target (see setActiveBody).
+      // The wheel itself is never touched here — only body markers and labels.
+      const ease = Math.min(1, deltaSeconds * 9);
+      for (const visual of bodyVisuals.values()) {
+        visual.dim += (visual.dimTarget - visual.dim) * ease;
+        visual.emphasis += (visual.emphasisTarget - visual.emphasis) * ease;
+        visual.marker.material.opacity = 1 - 0.78 * visual.dim;
+        visual.marker.material.color.lerpColors(
+          visual.baseColor,
+          dimColor,
+          visual.dim * 0.72,
+        );
+        visual.marker.material.emissiveIntensity =
+          visual.baseEmissiveIntensity * (1 - 0.85 * visual.dim);
+        visual.label.material.opacity = 1 - 0.88 * visual.dim;
+        visual.marker.scale.setScalar(visual.baseScale * (1 + 0.3 * visual.emphasis));
       }
       renderer.render(scene, camera);
     },
@@ -511,16 +580,18 @@ export function createChartScene(canvas: HTMLCanvasElement, chart: NatalChart): 
     },
 
     setHover(key: ChartBodyKey | null): void {
-      const position = key ? bodyPosition.get(key) : undefined;
-      const size = key ? bodySize.get(key) : undefined;
-      if (!key || !position || size === undefined) {
-        halo.visible = false;
-        return;
+      hoverKey = key;
+      placeHalo();
+    },
+
+    setActiveBody(key: ChartBodyKey | null): void {
+      if (activeBody === key) return;
+      activeBody = key;
+      for (const [bodyKey, visual] of bodyVisuals) {
+        visual.dimTarget = key === null || bodyKey === key ? 0 : 1;
+        visual.emphasisTarget = bodyKey === key ? 1 : 0;
       }
-      halo.position.set(position.x, position.y, position.z + 0.2);
-      haloBase = size * 5.2;
-      halo.scale.setScalar(haloBase);
-      halo.visible = true;
+      placeHalo();
     },
 
     spinBy(dragDxPx: number, dragDyPx: number): void {
