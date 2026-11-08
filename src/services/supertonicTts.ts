@@ -1,12 +1,11 @@
-// Supertonic voice preload for the first-light onboarding
-// (src/onboarding-original). The untouched components call
-// `scheduleSupertonicPreload()` on mount; in this repo the streaming-TTS
-// engine is src/voice, so "preload" truthfully means: construct the one
-// shared voice controller early (its worker spins up while the customer
-// reads the first prompt) and hand the same instance to whoever speaks.
-// Audio itself stays gesture-gated inside the engine — nothing plays until
-// `admit()` runs in a real user-gesture handler.
+// Voice preload seam for the first-light onboarding (src/onboarding-original
+// calls `scheduleSupertonicPreload()` on mount). The app speaks through one
+// engine — the original Supertonic voice (src/voice adapts it) — so preload
+// means: create the one shared controller and start the model worker while
+// the customer reads the first prompt. Audio itself stays gesture-gated:
+// nothing plays until `admit()` runs inside a real user gesture.
 
+import { initSupertonic } from '../atelier-original/services/supertonicTts';
 import { createVoice, type Voice } from '../voice';
 
 let preloaded: Voice | null = null;
@@ -17,7 +16,8 @@ export function getPreloadedVoice(): Voice {
   return preloaded;
 }
 
-/** Warm the streaming-TTS worker early; safe to call from an effect. */
+/** Warm the voice model early; safe to call from an effect. */
 export function scheduleSupertonicPreload(): void {
   getPreloadedVoice();
+  void initSupertonic().catch(() => { });
 }

@@ -20,7 +20,6 @@ import type { BirthInput, ChartBodyKey, NatalChart } from '../shared/types';
 import { composeLiveReading } from '../chart/liveReading';
 import type { Voice } from '../voice';
 import { getPreloadedVoice } from '../services/supertonicTts';
-import { withPerformanceEvents } from './voicePerformance';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import { getLesson } from '../content/lessons';
@@ -124,7 +123,7 @@ export default function App() {
   // sky computed on the spot, spoken in her voice (mouth follows via the
   // performance bridge).
   const voiceRef = useRef<Voice | null>(null);
-  if (voiceRef.current === null) voiceRef.current = withPerformanceEvents(getPreloadedVoice());
+  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
   const voice = voiceRef.current;
 
   const explainPlanet = (name: string | null) => {
@@ -174,10 +173,10 @@ export default function App() {
         setAuth(
           user
             ? {
-                status: 'signedIn',
-                uid: user.uid,
-                name: user.displayName ?? user.email ?? 'stargazer',
-              }
+              status: 'signedIn',
+              uid: user.uid,
+              name: user.displayName ?? user.email ?? 'stargazer',
+            }
             : { status: 'signedOut', unavailable: false },
         );
       });

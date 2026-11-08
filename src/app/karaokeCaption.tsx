@@ -1,10 +1,10 @@
 // Karaoke caption: the line Natally is speaking, its current word glowing
-// in brass, paced by the same schedule that drives her mouth (see
-// ./voicePerformance). Renders nothing until a line is under way; the
-// unadmitted truth is the caller's voice-note chip.
+// in brass, paced by the original voice engine's word boundaries — the same
+// audio-timed schedule that drives her mouth. Renders nothing until a line
+// is under way; the unadmitted truth is the caller's voice-note chip.
 
 import { useEffect, useState } from 'react';
-import type { KaraokeDetail } from './voicePerformance';
+import type { KaraokeDetail } from '../voice';
 
 interface KaraokeState extends KaraokeDetail {
   /** Epoch ms of the last event, so stale lines expire. */

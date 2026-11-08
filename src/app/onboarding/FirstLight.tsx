@@ -20,7 +20,6 @@ import type { Voice, VoiceState } from '../../voice';
 import { loadGazetteer } from '../../services/gazetteer';
 import type { IntakeDraft } from '../../services/onboarding';
 import { getPreloadedVoice } from '../../services/supertonicTts';
-import { withPerformanceEvents } from '../voicePerformance';
 import OriginalFirstLight from '../../onboarding-original/FirstLight';
 import './onboarding.css';
 
@@ -108,7 +107,7 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
  // The shared voice controller (same instance the intake's preload seam
  // warmed on mount) speaks for the whole flow, mouth and captions follow.
  const voiceRef = useRef<Voice | null>(null);
- if (voiceRef.current === null) voiceRef.current = withPerformanceEvents(getPreloadedVoice());
+ if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
  const voice = voiceRef.current;
 
  useEffect(() => voice.onState(setVoiceState), [voice]);
