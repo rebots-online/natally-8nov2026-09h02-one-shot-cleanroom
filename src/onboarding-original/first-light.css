@@ -1,0 +1,701 @@
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/playfair-display-latin.woff2") format("woff2");
+}
+
+.first-light {
+  --color-on-surface: #e1e3e4;
+  --color-on-surface-variant: #d0c5af;
+  --color-brand-gold: #d4af37;
+  --color-brand-glow: #7c3aed;
+  --font-serif: "Playfair Display", Georgia, serif;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  isolation: isolate;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  min-height: 100dvh;
+  padding: max(32px, env(safe-area-inset-top)) clamp(24px, 9vw, 160px)
+    max(100px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background: #111415;
+  color: var(--color-on-surface);
+}
+.first-light__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.first-light__aura {
+  position: absolute;
+  width: min(100vw, 900px);
+  aspect-ratio: 1;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--color-brand-glow), transparent 70%);
+  opacity: 0.3;
+  animation: first-light-aura 8s ease-in-out infinite;
+}
+.first-light__veins {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  opacity: 0.45;
+  animation: first-light-veins 8s ease-in-out infinite;
+}
+.first-light__star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--color-brand-gold);
+  opacity: 0.2;
+  animation: first-light-drift ease-in-out infinite alternate;
+}
+.first-light__content {
+  width: min(100%, 1100px);
+  margin: auto;
+}
+.first-light__prompt {
+  min-height: 2.5em;
+  margin: 0 0 24px;
+  font: 700 36px / 1.25 var(--font-serif);
+  overflow-wrap: anywhere;
+}
+.first-light__form {
+  width: 100%;
+}
+.first-light__answer {
+  position: relative;
+  padding: 8px 0;
+  cursor: text;
+  font: 400 60px / 1.2 var(--font-serif);
+}
+.first-light__field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: 2px solid rgb(212 175 55 / 35%);
+  border-radius: 0;
+  padding: 0 16px 6px 0;
+  margin: 0;
+  background: transparent;
+  color: #ede8dd;
+  font: inherit;
+  letter-spacing: inherit;
+  caret-color: transparent;
+}
+.first-light__field:focus {
+  outline: none;
+  border-bottom-color: var(--color-brand-gold);
+}
+.first-light__field:disabled {
+  opacity: 0.35;
+}
+.first-light__birth-date {
+  max-width: 420px;
+  color-scheme: dark;
+}
+.first-light__birth-date input,
+.first-light__birth-date select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid rgb(212 175 55 / 55%);
+  border-radius: 6px;
+  padding: 10px 6px;
+  background: #21192d;
+  color: #ede8dd;
+  font: 400 18px / 1.4 var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--color-brand-gold);
+  touch-action: manipulation;
+}
+.first-light__birth-date select {
+  appearance: auto;
+  cursor: pointer;
+}
+.first-light__birth-date input:focus,
+.first-light__birth-date select:focus {
+  outline: 2px solid var(--color-brand-gold);
+  outline-offset: 2px;
+}
+.first-light__birth-date [aria-invalid="true"] {
+  border-color: #f6bbbb;
+}
+.first-light__birth-date :disabled {
+  opacity: 0.35;
+}
+.first-light__birth-date .first-light__birth-typed {
+  font-size: clamp(22px, 5vw, 36px);
+}
+.first-light__birth-calendar {
+  min-width: 0;
+  margin: 16px 0 0;
+  padding: 10px;
+  border: 1px solid rgb(212 175 55 / 40%);
+  border-radius: 8px;
+  background: #21192d;
+  font: 400 16px / 1.3 system-ui, sans-serif;
+}
+.first-light__birth-calendar legend {
+  padding: 0 6px;
+}
+.first-light__birth-calendar-head {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1.4fr) 32px;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.first-light__birth-calendar button {
+  min-height: 44px;
+  min-width: 0;
+  padding: 4px 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #ede8dd;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.first-light__birth-calendar button:hover:not(:disabled),
+.first-light__birth-calendar button[aria-pressed="true"] {
+  background: #d4af37;
+  color: #111415;
+}
+.first-light__birth-calendar button:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: -2px;
+}
+.first-light__birth-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+}
+.first-light__birth-day-grid > span {
+  padding: 4px 0;
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+}
+.first-light__birth-year-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-top: 8px;
+}
+@media (max-height: 650px) {
+  .first-light {
+    padding-top: 16px;
+  }
+  .first-light__prompt {
+    min-height: 0;
+    margin-bottom: 12px;
+    font-size: 28px;
+  }
+}
+.first-light__mirror {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  overflow: hidden;
+  pointer-events: none;
+  font: inherit;
+  white-space: pre;
+}
+.first-light__mirror-text {
+  display: inline-block;
+  font: inherit;
+}
+.first-light__invisible {
+  color: transparent;
+}
+.first-light__placeholder {
+  color: rgb(225 227 228 / 20%);
+}
+.first-light__caret {
+  display: inline-block;
+  width: 10px;
+  height: 0.9em;
+  margin-left: 8px;
+  vertical-align: -0.12em;
+  border-radius: 3px;
+  background: var(--color-brand-gold);
+  box-shadow:
+    0 0 14px rgb(212 175 55 / 60%),
+    0 0 4px rgb(212 175 55 / 85%);
+  animation: first-light-blink 1.06s step-end infinite;
+}
+.first-light__mirror .first-light__caret {
+  position: absolute;
+}
+.first-light__answer[data-picker="true"] {
+  font-size: clamp(28px, 7vw, 60px);
+  padding-right: 24px;
+}
+.first-light__picker-caret {
+  position: absolute;
+  right: 0;
+  top: 0.2em;
+}
+/* Hybrid date/time entry: typed field (keyboard on Android) + 🗓️ calendar. */
+.first-light__typed {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.first-light__typed .first-light__field {
+  flex: 1;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.first-light__calendar-toggle {
+  border: 1px solid rgb(212 175 55 / 45%);
+  border-radius: 6px;
+  background: transparent;
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.first-light__calendar-toggle:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.first-light__calendar-toggle:focus-visible {
+  outline: 2px solid var(--color-brand-gold);
+  outline-offset: 3px;
+}
+.calendar-picker {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 8;
+  width: 292px;
+  padding: 12px;
+  border: 1px solid rgb(212 175 55 / 40%);
+  border-radius: 8px;
+  background: #16191b;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 60%);
+  font: 400 14px / 1.3 "Nunito Sans", system-ui, sans-serif;
+  color: #ede8dd;
+}
+.calendar-picker__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.calendar-picker__label {
+  flex: 1;
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+.calendar-picker__nav,
+.calendar-picker__close {
+  border: 0;
+  background: transparent;
+  color: var(--color-brand-gold);
+  font-size: 18px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.calendar-picker__close {
+  color: rgb(208 197 175 / 60%);
+  font-size: 13px;
+}
+.calendar-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.calendar-picker__weekday {
+  text-align: center;
+  font-size: 11px;
+  color: rgb(208 197 175 / 50%);
+  padding: 4px 0;
+}
+.calendar-picker__day {
+  border: 0;
+  background: transparent;
+  color: #ede8dd;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 7px 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.calendar-picker__day:hover {
+  background: rgb(212 175 55 / 15%);
+}
+.calendar-picker__day--selected {
+  background: var(--color-brand-gold);
+  color: #111415;
+  font-weight: 700;
+}
+.calendar-picker__day--out:disabled {
+  color: rgb(208 197 175 / 25%);
+  cursor: default;
+}
+/* Select-triplet date/time pickers: native wheels on Android, dropdowns on
+   desktop — always interactive, format fully ours (never locale-reversed). */
+.first-light__selects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 0 6px;
+  border-bottom: 2px solid rgb(212 175 55 / 35%);
+}
+.first-light__answer[data-picker="true"] .first-light__selects {
+  font-size: clamp(24px, 5vw, 44px);
+}
+.first-light__select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ede8dd;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 0 20px 0 0;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, rgb(212 175 55 / 80%) 50%),
+    linear-gradient(135deg, rgb(212 175 55 / 80%) 50%, transparent 50%);
+  background-position: right 4px top 0.55em, right 9px top 0.55em;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.first-light__select:focus {
+  outline: none;
+}
+.first-light__select:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.first-light__selects-hint {
+  margin-left: auto;
+  color: rgb(208 197 175 / 55%);
+  font: 400 13px / 1 ui-monospace, monospace;
+}
+.first-light__selects-colon {
+  color: #ede8dd;
+}
+.first-light__field::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.65;
+  width: 0.5em;
+}
+.first-light__unknown {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+  min-height: 44px;
+  font-size: 16px;
+  color: var(--color-on-surface-variant);
+}
+.first-light__unknown input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-brand-gold);
+}
+.first-light__actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 32px;
+}
+.first-light__actions button {
+  min-height: 44px;
+  padding: 8px 20px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-size: 16px;
+  cursor: pointer;
+}
+.first-light__actions .first-light__submit {
+  border-color: rgb(212 175 55 / 45%);
+  color: var(--color-brand-gold);
+}
+.first-light__actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.first-light__actions button:focus-visible {
+  outline: 2px solid var(--color-brand-gold);
+  outline-offset: 4px;
+}
+.first-light__error {
+  color: #f6bbbb;
+  font-size: 16px;
+  margin-top: 24px;
+}
+.first-light__field-error {
+  color: #f6bbbb;
+  font-size: 14px;
+  margin: 12px 0 0;
+}
+/* Geo picker: gazetteer combobox locking to known ephemeris coordinates. */
+.first-light__geo-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  max-height: 264px;
+  margin: 4px 0 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid rgb(212 175 55 / 35%);
+  border-radius: 4px;
+  background: #16191b;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
+  font: 400 16px / 1.4 "Nunito Sans", system-ui, sans-serif;
+}
+.first-light__geo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.first-light__geo-list li:first-child {
+  border-top: 0;
+}
+.first-light__geo-item--active {
+  background: rgb(212 175 55 / 14%);
+}
+.first-light__geo-name {
+  color: #ede8dd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.first-light__geo-coords {
+  color: rgb(208 197 175 / 65%);
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  white-space: nowrap;
+}
+.first-light__place-lock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  color: #9fd6a8;
+  font: 400 13px / 1.4 ui-monospace, monospace;
+}
+.first-light__place-lock--pending {
+  color: rgb(208 197 175 / 55%);
+}
+.first-light__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes first-light-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes first-light-aura {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+@keyframes first-light-veins {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+@keyframes first-light-drift {
+  from {
+    transform: translate(0, 0);
+    opacity: 0.15;
+  }
+  to {
+    transform: translate(8px, -6px);
+    opacity: 0.35;
+  }
+}
+@media (min-width: 768px) {
+  .first-light__prompt {
+    font-size: 48px;
+  }
+  .first-light__answer {
+    font-size: 96px;
+  }
+}
+@media (max-height: 500px) {
+  .first-light {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+  .first-light__prompt {
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .first-light *,
+  .first-light *::before,
+  .first-light *::after {
+    animation: none;
+  }
+}
+
+
+/* Sequential date entry: year typed → month names → day; hyphen shown literally. */
+.first-light__dateparts {
+  gap: 8px;
+}
+.first-light__datepart-year {
+  flex: 0 0 5.5ch;
+  letter-spacing: 0.08em;
+}
+.first-light__dateparts .first-light__select {
+  font-size: clamp(18px, 3.2vw, 30px);
+  padding-top: 0;
+  padding-bottom: 4px;
+  align-self: center;
+}
+
+/* Wheel semantics: tap the header, pick from a list — never type in a picker. */
+.calendar-picker__headbtn {
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.calendar-picker__headbtn:hover {
+  background: rgb(212 175 55 / 15%);
+}
+.calendar-picker__headbtn + .calendar-picker__headbtn {
+  margin-left: 4px;
+}
+.calendar-picker__list {
+  max-height: 264px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.calendar-picker__listitem {
+  border: 0;
+  background: transparent;
+  color: #ede8dd;
+  font: inherit;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.calendar-picker__listitem:hover {
+  background: rgb(212 175 55 / 15%);
+}
+.calendar-picker__listitem--active {
+  background: var(--color-brand-gold);
+  color: #111415;
+  font-weight: 700;
+}
+/* Typeable month combobox (datalist gives the dropdown too). */
+.first-light__datepart-month {
+  flex: 0 0 10ch;
+  letter-spacing: normal;
+}
+
+/* Hidden native time input: exists only so showPicker() can raise the
+   platform's standard clock (Android wheel / desktop clock face). */
+.first-light__native-time {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* Native date input: the platform's own segmented control (auto-advancing
+   segments, dropdown calendar, Android picker). color-scheme keeps the
+   native calendar icon visible on the dark field. */
+.first-light__datepart-native {
+  color-scheme: dark;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.first-light__reading-style {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+  max-width: 740px;
+  font: 400 16px / 1.5 system-ui, sans-serif;
+}
+.first-light__style-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid rgb(212 175 55 / 40%);
+  border-radius: 14px;
+  padding: 20px;
+  background: rgb(17 20 21 / 80%);
+  cursor: pointer;
+}
+.first-light__style-option[data-selected="true"] {
+  border-color: #ffe08a;
+  background: #302639;
+}
+.first-light__style-option:focus-within {
+  outline: 3px solid #ffe08a;
+  outline-offset: 4px;
+}
+.first-light__style-option input { margin-top: 5px; accent-color: #d4af37; width: 20px; height: 20px; flex-shrink: 0; }
+.first-light__style-option strong { display: block; font-size: 21px; color: #ffe08a; margin-bottom: 6px; }
+.first-light__style-option span span { display: block; color: #ede8dd; }
+.first-light__style-hint { margin: 4px 0; font-size: 14px; color: #d0c5af; }
