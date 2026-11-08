@@ -61,9 +61,11 @@ function errorResponse(err, req) {
           ? 502
           : 500;
   if (status >= 500) console.error('[billing]', err);
+  // 503 bodies name what is missing (BillingConfigError messages carry the
+  // env var name) so the client sheet can tell the customer truthfully.
   const body =
     status === 503
-      ? { error: 'billing not configured' }
+      ? { error: 'billing_not_configured', detail: err.message || 'billing not configured' }
       : { error: status === 500 ? 'internal error' : err.message || 'error' };
   return json(req, body, status);
 }
