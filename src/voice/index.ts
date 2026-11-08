@@ -15,6 +15,7 @@ import type { SpeakOptions, VoiceState } from './speech';
 export {
   VOICE_NOT_ADMITTED,
   SUPERTONIC_VOICES,
+  VOICE_CANDIDATES,
   DEFAULT_VOICE,
 } from './speech';
 export type { SpeakOptions, SupertonicVoice, VoiceState } from './speech';

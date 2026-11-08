@@ -36,10 +36,30 @@ export type SupertonicVoice = (typeof SUPERTONIC_VOICES)[number];
 
 /**
  * Voice used when `speakStream` is called without a `voice` option.
- * F5 (operator tuning 2026-11-08): the lightest, brightest feminine speaker
- * — soft kawaii energy per SOUL.md; F1/F3 read too deep and slow.
+ * F5 (operator tuning 2026-11-08): high, bright, kawaii register per
+ * SOUL.md — F1 read deep and slow.
  */
 export const DEFAULT_VOICE: SupertonicVoice = 'F5';
+
+/**
+ * Feminine speakers auditioned for the default role (F5 won), exported so
+ * the app can render a live audition UI later.
+ */
+export const VOICE_CANDIDATES = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
+
+/**
+ * TEMPORARY audition override (operator directive 2026-11-08, diagnostic
+ * aid): `?voice=F1..F5|M1..M5` in the URL selects the speaker for that
+ * session only, so each candidate can be auditioned live before the final
+ * pick is baked into DEFAULT_VOICE. Invalid values fall back silently.
+ */
+function sessionVoice(): SupertonicVoice {
+  if (typeof window === 'undefined') return DEFAULT_VOICE;
+  const requested = new URLSearchParams(window.location.search).get('voice');
+  return requested && (SUPERTONIC_VOICES as readonly string[]).includes(requested)
+    ? (requested as SupertonicVoice)
+    : DEFAULT_VOICE;
+}
 
 export interface SpeakOptions {
   /** Supertonic voice for the text in this call (per-sentence granularity). */
@@ -163,6 +183,8 @@ function forceChunk(buffer: string): { sentence: string | null; rest: string } {
 /* ------------------------------------------------------------------ */
 
 export function createSpeechEngine() {
+  /** Session speaker (`?voice=` audition override): fixed at creation. */
+  const session = sessionVoice();
   let admitted = false;
   let speaking = false;
   let error: string | null = null;
@@ -324,7 +346,7 @@ export function createSpeechEngine() {
   }
 
   function speakStream(text: string, opts: SpeakOptions = {}): void {
-    const voice = opts.voice ?? DEFAULT_VOICE;
+    const voice = opts.voice ?? session;
     if (!SUPERTONIC_VOICES.includes(voice)) {
       setError(
         `unknown voice '${voice}' (available: ${SUPERTONIC_VOICES.join(', ')})`,
