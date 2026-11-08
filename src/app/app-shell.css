@@ -1,0 +1,605 @@
+/* App-shell layout over the atelier scene (palette: src/shared/tokens.css). */
+
+/* ---------- Full-viewport layered atelier scene ---------- */
+
+.atelier-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--plum-deep);
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+ * Mascot layer: the shaded composite (room.webp) registered over its clean
+ * plate (puppet-cleanplate.webp) and masked to the puppet region the plate
+ * was generated for, so the figure floats gently over its own scene.
+ */
+.scene-mascot {
+  mask-image: radial-gradient(ellipse 27% 49% at 50% 46%, #000 62%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 27% 49% at 50% 46%, #000 62%, transparent 100%);
+  animation: mascot-float 7s ease-in-out infinite alternate;
+}
+
+@keyframes mascot-float {
+  from {
+    transform: translateY(-0.5%);
+  }
+  to {
+    transform: translateY(0.5%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-mascot {
+    animation: none;
+  }
+}
+
+/* Readability wash between the art and the working UI. */
+.scene-dim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(28, 17, 34, 0.42) 0%,
+    rgba(28, 17, 34, 0.62) 55%,
+    rgba(28, 17, 34, 0.78) 100%
+  );
+}
+
+/* Companion portrait card (corner). */
+.companion-card {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 10px 6px;
+  border: 1px solid var(--plum-line);
+  border-radius: 14px;
+  background: rgba(42, 26, 51, 0.85);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.companion-card img {
+  width: 74px;
+  height: 74px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.companion-card span {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--brass);
+}
+
+/* ---------- Splash ---------- */
+
+.app-splash {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--parchment-muted);
+}
+
+/* ---------- Centered cards (sign-in, birth intake) ---------- */
+
+.app-intake {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.card {
+  width: min(480px, 100%);
+  background: rgba(54, 33, 65, 0.92);
+  border: 1px solid var(--plum-line);
+  border-radius: 18px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.5);
+}
+
+.card h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--parchment);
+}
+
+.card-intro {
+  margin: 0;
+  text-align: center;
+  color: var(--parchment-muted);
+}
+
+.sign-in-portrait {
+  width: 110px;
+  height: 110px;
+  border-radius: 14px;
+  object-fit: cover;
+  align-self: center;
+  border: 1px solid var(--brass-dim);
+}
+
+/* ---------- Form fields ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.field input {
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--plum-line);
+  background: var(--plum-deep);
+  color: var(--parchment);
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 1px;
+  border-color: var(--brass);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--parchment-muted);
+}
+
+.note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.note.status {
+  color: var(--parchment-muted);
+  font-style: italic;
+}
+
+.note.warn {
+  color: var(--brass-bright);
+}
+
+.note.error {
+  color: #e5957f;
+}
+
+/* Resolved-place chip (the confirm step for the place search). */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 6px 8px 6px 13px;
+  border: 1px solid var(--brass);
+  border-radius: 999px;
+  background: rgba(201, 164, 92, 0.14);
+  font-size: 14px;
+}
+
+.chip-main {
+  color: var(--parchment);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-tz {
+  color: var(--parchment-muted);
+  white-space: nowrap;
+}
+
+.chip-tz::before {
+  content: '·';
+  margin-right: 8px;
+  color: var(--brass);
+}
+
+.chip-x {
+  border: none;
+  background: transparent;
+  color: var(--parchment-muted);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+
+.chip-x:hover {
+  color: var(--parchment);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* Gazetteer suggestions under the place field (searchPlace results). */
+.suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 216px;
+  overflow-y: auto;
+  border: 1px solid var(--plum-line);
+  border-radius: 10px;
+  background: var(--plum-deep);
+}
+
+.suggest-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--parchment);
+  font-family: var(--font-body);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggest-option:hover,
+.suggest-option:focus-visible,
+li[aria-selected='true'] > .suggest-option {
+  background: rgba(201, 164, 92, 0.16);
+  outline: none;
+}
+
+.suggest-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggest-tz {
+  color: var(--parchment-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--brass-dim);
+  background: transparent;
+  color: var(--parchment);
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--brass);
+  color: var(--brass-bright);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn.primary {
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--plum-deep);
+  font-weight: 600;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--brass-bright);
+  border-color: var(--brass-bright);
+  color: var(--plum-deep);
+}
+
+.btn.small {
+  font-size: 13px;
+  padding: 5px 11px;
+}
+
+.btn.ghost {
+  border-color: var(--plum-line);
+}
+
+.btn.wide {
+  width: 100%;
+}
+
+/* ---------- Main layout (with chart) ---------- */
+
+.app-main {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.app-frame {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px clamp(14px, 3.5vw, 32px) 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100dvh;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  color: var(--parchment);
+}
+
+.app-brand-sub {
+  font-size: 16px;
+  color: var(--parchment-muted);
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-greeting {
+  color: var(--parchment-muted);
+  font-style: italic;
+}
+
+.app-columns {
+  display: grid;
+  grid-template-columns: minmax(320px, 5fr) minmax(340px, 6fr);
+  gap: 18px;
+  align-items: start;
+  flex: 1;
+}
+
+.app-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.app-chat {
+  min-width: 0;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 960px) {
+  .app-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .app-chat {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 720px) {
+  .companion-card {
+    display: none;
+  }
+}
+
+/* ---------- Panels ---------- */
+
+.panel {
+  background: rgba(54, 33, 65, 0.88);
+  border: 1px solid var(--plum-line);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.chart-body {
+  min-height: 320px;
+}
+
+/* Lesson card under the chart. */
+.lesson-kicker {
+  margin: 0 0 5px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.lesson-card h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+}
+
+.lesson-body {
+  margin: 0;
+  color: var(--parchment-muted);
+}
+
+.lesson-question {
+  margin: 10px 0 0;
+  font-style: italic;
+  color: var(--brass-bright);
+}
+
+/* ---------- Top-up sheet ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(18, 10, 24, 0.68);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.sheet {
+  width: min(460px, 100%);
+  background: var(--plum-raised);
+  border: 1px solid var(--plum-line);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sheet-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.balance {
+  margin: 0;
+  color: var(--parchment-muted);
+}
+
+.balance strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--brass-bright);
+}
+
+.packs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 13px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--brass-dim);
+  background: transparent;
+  color: var(--parchment);
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.pack:hover:not(:disabled) {
+  border-color: var(--brass);
+}
+
+.pack:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pack .usd {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--brass-bright);
+}
+
+.pack .what {
+  font-size: 13px;
+  color: var(--parchment-muted);
+}
+
+.pack.wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
