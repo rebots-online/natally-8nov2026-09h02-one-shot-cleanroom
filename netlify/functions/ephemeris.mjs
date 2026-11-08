@@ -42,13 +42,23 @@
 // 405 wrong method; 500 {error:'ephemeris engine failure'} on wasm init or
 // calculation failure. CORS: any origin, GET/POST (+OPTIONS preflight).
 //
-// Engine lifecycle: the wasm engine is initialized lazily AT MOST ONCE per
-// invocation (init promise memoized across warm invocations of the same
-// instance; a failed init is forgotten so the next invocation can retry) and
-// every use is wrapped so failures map to 500, never crash the instance.
+// Engine lifecycle: swisseph-wasm is loaded LAZILY and only positions/houses
+// ever touch it (health/challenge are pure node:crypto and must never fail on
+// engine trouble). Init runs at most once per invocation, memoized across warm
+// invocations; a failed init is forgotten so the next invocation can retry.
+// The wrapper's default wasm/data resolution breaks under esbuild bundling,
+// so the Emscripten glue is driven directly with assets from the installed
+// package when resolvable on disk, else fetched (version-pinned) from jsDelivr
+// into a writable tmp dir — see the engine block below. Every engine failure
+// maps to 500; bundled ephemeris data covers ≈1800–2400 AD.
 
 import crypto from 'node:crypto';
-import SwissEph from 'swisseph-wasm';
+import { existsSync } from 'node:fs';
+import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 export const config = { path: '/ephemeris/*' };
 
@@ -80,18 +90,113 @@ class HttpError extends Error {
   }
 }
 
-// --- wasm engine: init at most once per invocation, memoize across warm calls ---
+// --- wasm engine: loaded lazily, at most one init per invocation ---
+// Bundler-proof loading: the swisseph-wasm wrapper class resolves its wasm and
+// ephemeris-data files relative to import.meta.url, which breaks when the
+// function is esbuild-bundled (assets are not next to the bundle). We bypass
+// the wrapper's init and drive the Emscripten glue factory directly:
+//   1. installed package resolvable on disk (unbundled deploy): import its
+//      glue by file URL and use its own wasm/data files;
+//   2. otherwise (bundled deploy, no node_modules): fetch the version-pinned
+//      glue/wasm/data trio from jsDelivr into a writable tmp dir and run the
+//      glue from there (it needs a real file URL for createRequire).
+const SWE_VERSION = '0.1.0'; // must match the swisseph-wasm dependency in package.json
+const SWE_CDN_BASE = `https://cdn.jsdelivr.net/npm/swisseph-wasm@${SWE_VERSION}/wasm/`;
+const SWE_ASSET_FILES = ['swisseph.js', 'swisseph.wasm', 'swisseph.data'];
+
+// Swiss Ephemeris ABI constants (stable public ids; swisseph-wasm 0.1.0 exposes
+// the same values as SE_* instance properties — pinned numerically because the
+// wrapper class instance is not constructed here).
+const SEFLG_SWIEPH = 2;
+const SEFLG_SPEED = 256;
+const SE_BODY_ID = {
+  Sun: 0, Moon: 1, Mercury: 2, Venus: 3, Mars: 4, Jupiter: 5, Saturn: 6,
+  Uranus: 7, Neptune: 8, Pluto: 9, trueNode: 11, Chiron: 15,
+};
+
 let enginePromise = null;
 function getEngine() {
   if (!enginePromise) {
-    enginePromise = (async () => {
-      const swe = new SwissEph();
-      await swe.initSwissEph();
-      return swe;
-    })();
-    enginePromise.catch(() => { enginePromise = null; }); // forget failed init → retry next invocation
+    enginePromise = initEngine().catch((err) => { enginePromise = null; throw err; }); // failed init → retry next invocation
   }
   return enginePromise;
+}
+
+async function stageCdnAssets(dir) {
+  await mkdir(dir, { recursive: true });
+  await Promise.all(SWE_ASSET_FILES.map(async (name) => {
+    const finalPath = join(dir, name);
+    if (existsSync(finalPath)) return;
+    const res = await fetch(SWE_CDN_BASE + name, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error(`fetching ${name} from CDN: HTTP ${res.status}`);
+    const tmpPath = join(dir, `${name}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`);
+    await writeFile(tmpPath, Buffer.from(await res.arrayBuffer()));
+    await rename(tmpPath, finalPath); // atomic within the dir; a concurrent instance overwrites harmlessly
+  }));
+  return dir;
+}
+
+async function initEngine() {
+  const require = createRequire(import.meta.url);
+  let glueUrl = null;
+  let assetDir = null;
+  try {
+    const pkgWasmDir = join(dirname(require.resolve('swisseph-wasm/package.json')), 'wasm');
+    if (SWE_ASSET_FILES.every((name) => existsSync(join(pkgWasmDir, name)))) {
+      glueUrl = pathToFileURL(join(pkgWasmDir, 'swisseph.js')).href;
+      assetDir = pkgWasmDir;
+    }
+  } catch { /* package not on disk (bundled deploy) → CDN fallback below */ }
+  if (!glueUrl) {
+    assetDir = await stageCdnAssets(join(tmpdir(), `natally-swisseph-${SWE_VERSION}`));
+    glueUrl = pathToFileURL(join(assetDir, 'swisseph.js')).href;
+  }
+  const factory = (await import(glueUrl)).default;
+  const module = await factory({ locateFile: (name) => join(assetDir, name) });
+  if (!module.HEAP32) module.HEAP32 = new Int32Array(module.HEAPF64.buffer);
+  module.ccall('swe_set_ephe_path', 'string', ['string'], ['sweph']); // data package mounts ephemeris files at /sweph
+  return {
+    calcUt: (julianDay, bodyId, flags) => sweCalcUt(module, julianDay, bodyId, flags),
+    houses: (julianDay, geoLat, geoLon, hsys) => sweHouses(module, julianDay, geoLat, geoLon, hsys),
+  };
+}
+
+// Thin C bridge over the Emscripten module, mirroring swisseph-wasm's own
+// calc_ut/houses methods (identical ccall signatures and buffer handling).
+function sweCalcUt(module, julianDay, bodyId, flags) {
+  const xxPtr = module._malloc(6 * 8);
+  const serrPtr = module._malloc(256);
+  try {
+    const retFlag = module.ccall(
+      'swe_calc_ut', 'number',
+      ['number', 'number', 'number', 'pointer', 'pointer'],
+      [julianDay, bodyId, flags, xxPtr, serrPtr],
+    );
+    if (retFlag < 0) throw new Error(`swe_calc_ut: ${module.UTF8ToString(serrPtr)}`);
+    return module.HEAPF64.slice(xxPtr / 8, xxPtr / 8 + 6); // [lon, lat, dist, lonSpeed, latSpeed, distSpeed]
+  } finally {
+    module._free(xxPtr);
+    module._free(serrPtr);
+  }
+}
+
+function sweHouses(module, julianDay, geoLat, geoLon, hsys) {
+  const cuspsPtr = module._malloc(13 * 8);
+  const ascmcPtr = module._malloc(10 * 8);
+  try {
+    module.ccall(
+      'swe_houses', 'number',
+      ['number', 'number', 'number', 'number', 'pointer', 'pointer'],
+      [julianDay, geoLat, geoLon, hsys.charCodeAt(0), cuspsPtr, ascmcPtr],
+    );
+    return {
+      cusps: new Float64Array(module.HEAPF64.buffer, cuspsPtr, 13).slice(), // index 0 unused
+      ascmc: new Float64Array(module.HEAPF64.buffer, ascmcPtr, 10).slice(), // [0]=Asc, [1]=MC
+    };
+  } finally {
+    module._free(cuspsPtr);
+    module._free(ascmcPtr);
+  }
 }
 
 // --- signing keypair: env P-256 key, else ephemeral per instance ---
@@ -113,7 +218,7 @@ function parsePrivateKey(raw) {
   }
 }
 
-function loadKeyState() {
+async function loadKeyState() {
   const raw = (process.env.EPHEMERIS_SIGNING_KEY || '').trim();
   if (raw) {
     let publicKey;
@@ -122,7 +227,7 @@ function loadKeyState() {
     } catch {
       throw new HttpError(500, 'invalid EPHEMERIS_SIGNING_KEY');
     }
-    if (publicKey.asymmetricDetails?.namedCurve !== 'prime256v1') {
+    if (publicKey.export({ format: 'jwk' }).crv !== 'P-256') {
       throw new HttpError(500, 'invalid EPHEMERIS_SIGNING_KEY');
     }
     return {
@@ -231,23 +336,6 @@ function finiteNumber(value, name) {
   return value;
 }
 
-function bodyIds(swe) {
-  return {
-    Sun: swe.SE_SUN,
-    Moon: swe.SE_MOON,
-    Mercury: swe.SE_MERCURY,
-    Venus: swe.SE_VENUS,
-    Mars: swe.SE_MARS,
-    Jupiter: swe.SE_JUPITER,
-    Saturn: swe.SE_SATURN,
-    Uranus: swe.SE_URANUS,
-    Neptune: swe.SE_NEPTUNE,
-    Pluto: swe.SE_PLUTO,
-    trueNode: swe.SE_TRUE_NODE,
-    Chiron: swe.SE_CHIRON,
-  };
-}
-
 // --- route handlers ---
 async function handleChallenge(request) {
   if (request.method !== 'GET') throw new HttpError(405, 'method not allowed');
@@ -261,12 +349,10 @@ async function handlePositions(request, ip) {
   const payload = await readJsonObject(request);
   const julianDay = resolveJulianDay(payload);
   const bodies = resolveBodies(payload.bodies);
-  const swe = await getEngine();
-  const ids = bodyIds(swe);
-  const flags = swe.SEFLG_SWIEPH | swe.SEFLG_SPEED;
-  // calc_ut → Float64Array(6): [longitude, latitude, distance, lonSpeed, latSpeed, distSpeed]
+  const engine = await getEngine();
+  const flags = SEFLG_SWIEPH | SEFLG_SPEED;
   const positions = bodies.map((key) => {
-    const xx = swe.calc_ut(julianDay, ids[key], flags);
+    const xx = engine.calcUt(julianDay, SE_BODY_ID[key], flags);
     return { key, longitude: xx[0], latitude: xx[1], distance: xx[2], speedLongitude: xx[3] };
   });
   return json(200, { julianDay, positions });
@@ -286,8 +372,8 @@ async function handleHouses(request, ip) {
     throw new HttpError(400, 'system must be one of P, K, R, C, E, A');
   }
   system = system.toUpperCase();
-  const swe = await getEngine();
-  const { cusps, ascmc } = swe.houses(julianDay, latitude, longitude, system);
+  const engine = await getEngine();
+  const { cusps, ascmc } = engine.houses(julianDay, latitude, longitude, system);
   return json(200, { julianDay, cusps: Array.from(cusps.slice(1, 13)), ascmc: Array.from(ascmc) });
 }
 
