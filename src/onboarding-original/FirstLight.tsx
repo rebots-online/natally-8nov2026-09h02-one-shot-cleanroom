@@ -1,11 +1,11 @@
 import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import type { GazetteerEntry } from '../../services/gazetteer';
-import type { IntakeDraft } from '../../services/onboarding';
+import type { GazetteerEntry } from '../services/gazetteer';
+import type { IntakeDraft } from '../services/onboarding';
 import './first-light.css';
-import { scheduleSupertonicPreload } from '../../services/supertonicTts';
-import { requestCurrentLocation, type CurrentLocation } from '../../services/transits';
-import { validateBirthDate } from '../../services/birthDate';
+import { scheduleSupertonicPreload } from '../services/supertonicTts';
+import { requestCurrentLocation, type CurrentLocation } from '../services/transits';
+import { validateBirthDate } from '../services/birthDate';
 import { BirthDateFields } from './BirthDateFields';
 
 export type { IntakeDraft };

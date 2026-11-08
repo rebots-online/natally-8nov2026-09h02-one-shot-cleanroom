@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { formatBirthDateInput, getBirthDateParts, getBirthMonthDays } from '../../services/birthDate';
+import { formatBirthDateInput, getBirthDateParts, getBirthMonthDays } from '../services/birthDate';
 
 export function BirthDateFields({ value, onChange, disabled, describedBy, invalid, maxDate }: {
   value: string;

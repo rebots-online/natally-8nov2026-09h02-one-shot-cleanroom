@@ -1,6 +1,9 @@
 // App shell for /app.html (DOCS/ARCHITECTURE.md §Surfaces). State machine:
 //   signed-out (onAuthChange)  → Google sign-in card over the atelier scene
-//   signed-in without a chart  → BirthForm
+//   signed-in without a chart  → FirstLight: the staged first-light welcome
+//                                (src/app/onboarding) around the original
+//                                onboarding intake, ending in the reveal and
+//                                a single button into the conversation
 //   signed-in with a chart     → atelier layout: AtelierBackdrop behind a
 //                                collapsible AstroChart panel, ChatPanel
 //                                (its onTopUp opens the TopUpSheet), a
@@ -19,7 +22,7 @@ import { authUnavailable, googleSignIn, onAuthChange } from '../platform/firebas
 import type { ChartBodyKey, NatalChart } from '../shared/types';
 import AtelierBackdrop from './AtelierBackdrop';
 import { ChatPanel } from './chat/ChatPanel';
-import BirthForm from './intake/BirthForm';
+import FirstLight from './onboarding/FirstLight';
 import TopUpSheet from './TopUpSheet';
 import './app-shell.css';
 
@@ -146,11 +149,6 @@ export default function App() {
               src="/natally-mascot.webp"
               alt="Natally, the atelier astrologer"
             />
-            <h1>Natally</h1>
-            <p className="card-intro">
-              An astrologer who keeps an atelier for your chart. Sign in and she’ll cast it
-              with you, then talk it over — planets, houses, and all.
-            </p>
             {auth.unavailable ? (
               <p className="note warn">
                 Sign-in isn’t available on this deployment — Firebase isn’t configured.
@@ -177,12 +175,7 @@ export default function App() {
   }
 
   if (chart === null) {
-    return (
-      <>
-        <AtelierBackdrop />
-        <BirthForm onChart={setChart} />
-      </>
-    );
+    return <FirstLight onSitDown={setChart} />;
   }
 
   const lesson = getLesson(hoveredKey ?? 'general');
