@@ -6,21 +6,22 @@ frozen contracts. ⬜ · 🔧 · ✅ · 🛑. Acceptance: section complete, `tsc
 
 | ID | Task | Owned files (exclusive) | Depends | Status |
 | --- | --- | --- | --- | --- |
-| W0 | SHELL | package.json, tsconfig.json, vite.config.ts, landing.html, app.html, .env.example, version.json, build_all.sh, .gitignore | — | ⬜ |
-| W1 | SHARED | src/shared/** | W0 | ⬜ |
-| W2 | PLATFORM | src/platform/** | W0 | ⬜ |
-| W3 | ASTRO | src/astro/** | W1 | ⬜ |
-| W4 | CHART | src/chart/** | W1, W3 | ⬜ |
-| W5 | BILLING-SERVER | netlify/**, billing/** | W2 | ⬜ |
-| W6 | COMMERCE-CLIENT | src/commerce/** | W2 (runtime W5) | ⬜ |
-| W7 | VOICE | src/voice/** | W1 | ⬜ |
-| W8 | CHAT | src/app/chat/** | W2, W6 | ⬜ |
-| W9 | CONTENT | src/content/** | W1 | ⬜ |
-| W10 | APP-SHELL | src/app/** except chat/** | W2–W6, W9 | ⬜ |
-| W11 | LANDING | src/landing/** | W3, W4, W9 | ⬜ |
-| W12 | SOUVENIR | src/souvenir/** | W4, W6, W8 | ⬜ |
-| W13 | ENTRY-RELEASE | src/main.tsx, src/platform/{pwa,version}.ts | all | ⬜ |
-| W14 | JOURNEY-PROOF | DOCS/DEMONSTRATIONS/** | all | ⬜ |
+| W0 | SHELL | package.json, tsconfig.json, vite.config.ts, landing.html, app.html, .env.example, version.json, build_all.sh, .gitignore, netlify.toml | — | ✅ 982edfb/75b8807/53b0694 |
+| W1 | SHARED | src/shared/** | W0 | ✅ aac9f27 |
+| W2 | PLATFORM | src/platform/** (env/firebase/eventBus; version/pwa by W13) | W0 | ✅ d16359d |
+| W3 | ASTRO | src/astro/** | W1 | ✅ a58e0ba |
+| W4 | CHART | src/chart/** | W1, W3 | ✅ e6b91dd |
+| W5 | BILLING-SERVER | netlify/functions/**, billing/** | W2 | ✅ c0b0b58 |
+| W6 | COMMERCE-CLIENT | src/commerce/** | W2 (runtime W5) | ✅ 0e0f980 |
+| W7 | VOICE | src/voice/** | W1 | ✅ 9573b46 |
+| W8 | CHAT | src/app/chat/** | W2, W6 | ✅ da51fc9 |
+| W9 | CONTENT | src/content/** | W1 | ✅ 19478c8 |
+| W10 | APP-SHELL | src/app/** except chat/** | W2–W6, W9 | ✅ 1468c64 |
+| W11 | LANDING | src/landing/** | W3, W4, W9 | ✅ eafe3b4 |
+| W12 | SOUVENIR | src/souvenir/** | W4, W6, W8 | ✅ a29a3c8 |
+| W13 | ENTRY-RELEASE | src/main.tsx, src/platform/{pwa,version}.ts | all | ✅ 434bc76 |
+| W14 | JOURNEY-PROOF | DOCS/DEMONSTRATIONS/** | all | 🛑 operator: needs Chargebee/Firebase/OpenRouter credentials resolved (KStore pointers), the function deployed to Netlify, and real purchases recorded |
 
-Waves: W0 → {W1, W2} → {W3, W7, W9} + {W5, W6, W4} → {W8} → {W10, W11, W12}
-→ W13 → W14.
+Integration: repo-wide `tsc --noEmit` clean; `bash build_all.sh` green
+(dist-web/, 534 ms). Every task's commit pushed to origin
+(~/github/natally-cleanroom-origin.git).
