@@ -573,3 +573,14 @@ li[aria-selected='true'] > .suggest-option {
   justify-content: center;
   gap: 10px;
 }
+
+/* The verbatim Astrolabe3D root uses the original's Tailwind-style utility
+   classes (absolute inset-0 w-full h-full); those utilities don't exist in
+   this repo, so the same fill behavior is provided here. Without it the
+   renderer's container measures zero and falls back to window.innerHeight. */
+div[id^='threejs-container'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

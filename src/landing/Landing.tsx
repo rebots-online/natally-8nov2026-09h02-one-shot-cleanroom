@@ -10,6 +10,8 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import VersionBadge from '../app/VersionBadge';
+import { getPreloadedVoice } from '../services/supertonicTts';
+import type { Voice, VoiceState } from '../voice';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { formatCr } from '../shared/credits';
 import { creditDisplayPerUsd } from '../platform/env';
@@ -128,28 +130,36 @@ const ORDINALS = [
  * chart (the sticky inset highlights it while its siblings dim); the last
  * beat pulls back to the whole, undimmed wheel.
  */
-const BEATS: readonly { key: ChartBodyKey | null; heading: string; body: string }[] = [
+const BEATS: readonly { key: ChartBodyKey | null; heading: string; body: string; spoken: string }[] = [
  {
   key: 'Sun',
   heading: 'The Sun — where your light gathers',
   body: 'Vitality, pride, the thing you cannot help shining at. In this example sky the Sun sits in Leo, in the fifth house of play and performance: warmth that genuinely wants an audience.',
+  spoken: 'This is the Sun — where your light gathers. Here it sits in Leo, in the fifth house of play.',
  },
  {
   key: 'Moon',
   heading: 'The Moon — your inner weather',
   body: 'The Moon is the tide under your day — mood, memory, what safety feels like. Here it floats in Pisces, in the eighth house: feeling that runs deep and picks up every current in the room.',
+  spoken: 'The Moon is your inner weather — this one floats in Pisces, feeling every current in the room.',
  },
  {
   key: 'Ascendant',
   heading: 'The Ascendant — the door you open',
   body: 'Not a planet but a point: the sign rising on the eastern horizon at your first breath. Sagittarius rising opens onto wonder — the doorway between you and every room you walk into.',
+  spoken: 'And the Ascendant is the door you open. Sagittarius rising opens onto wonder.',
  },
  {
   key: null,
   heading: 'And the wheel that holds them all',
   body: 'Twelve houses, and the chords between them — conversations the planets are having with each other. Notice the structure never dims while each light takes its turn; that is exactly how Natally reads a chart. The map stays, the attention moves.',
+  spoken: 'Twelve houses, and the chords between them. The map stays, the attention moves.',
  },
 ];
+
+/** Natally's greeting while the stage holds the first viewport. */
+const WELCOME_LINE =
+  'Come in. You can explore my room, move the little things on my shelves, and see what catches your eye. Scroll, and I will read this chart for you.';
 
 const CREDIT_PACKS: readonly { usd: number; line: string; cta: (cr: string) => string }[] = [
  {
@@ -196,6 +206,52 @@ export default function Landing() {
   query.addEventListener?.('change', update);
   return () => query.removeEventListener?.('change', update);
  }, []);
+
+ // Two-way narration: her lines highlight + navigate, the visitor's scroll
+ // picks what she speaks about next. One shared voice controller with the
+ // app; audio still waits for a real gesture.
+ const voiceRef = useRef<Voice | null>(null);
+ if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
+ const voice = voiceRef.current;
+ const [voiceState, setVoiceState] = useState<VoiceState>({ admitted: false, speaking: false, error: null });
+ const currentLine = useRef(WELCOME_LINE);
+ const speakingBeat = useRef(-2);
+
+ useEffect(() => voice.onState(setVoiceState), [voice]);
+
+ // First gesture admits audio and speaks the current line.
+ useEffect(() => {
+  const admit = () => {
+   if (voice.admitted) return;
+   voice.admit();
+   voice.speakStream(currentLine.current, { flush: true });
+  };
+  window.addEventListener('pointerdown', admit, { once: true });
+  window.addEventListener('keydown', admit, { once: true });
+  return () => {
+   window.removeEventListener('pointerdown', admit);
+   window.removeEventListener('keydown', admit);
+  };
+ }, [voice]);
+
+ // Scroll → speech: whichever beat is current becomes her next line (with
+ // its chart focus, which the beat already drives).
+ useEffect(() => {
+  const line = beat === -1 ? WELCOME_LINE : (BEATS[beat]?.spoken ?? WELCOME_LINE);
+  currentLine.current = line;
+  speakingBeat.current = beat;
+  if (!voice.admitted) return;
+  voice.stop();
+  voice.speakStream(line, { flush: true });
+ }, [beat, voice]);
+
+ // Speech → DOM: when a line starts, its beat is brought into the reading
+ // band — the page follows her voice, not just the pointer.
+ useEffect(() => {
+  if (!voiceState.speaking || speakingBeat.current < 0) return;
+  const element = beatRefs.current[speakingBeat.current];
+  element?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'center' });
+ }, [voiceState.speaking, reducedMotion]);
 
  useEffect(() => {
   let live = true;
@@ -494,6 +550,14 @@ export default function Landing() {
     </div>
    </footer>
 
+   <p className="landing-voice-note" role="note">
+    {voiceState.admitted
+      ? voiceState.speaking
+        ? 'Natally is reading.'
+        : 'Voice is on — scroll and she follows.'
+      : 'Tap or type once and Natally will read the chart aloud.'}
+    {voiceState.error ? ` ${voiceState.error}` : ''}
+   </p>
    <VersionBadge />
   </div>
  );

@@ -629,20 +629,15 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 56rem) {
-  /* The inset stops floating and takes its place in the flow between the
-     hero and the explanation; the swap-in still runs on scroll. */
-  .inset-rail {
-    position: static;
-    justify-content: center;
-    padding: 0.6rem 1.2rem 0;
-  }
-
-  .inset-drag {
-    position: static;
-  }
-
+  /* The inset stays floating over the pinned scene at every width — the
+     toroidal wheel belongs in the first impression beside Natally — it just
+     scales down instead of dropping into the flow. */
   .inset-panel {
-    width: min(19rem, 84vw);
+    width: min(12.5rem, 46vw);
+  }
+
+  .inset-rail {
+    right: 0.6rem;
   }
 
   .explain-beat {
@@ -685,4 +680,30 @@
   font-size: 0.85rem;
   color: var(--parchment-muted);
   text-align: center;
+}
+
+/* The verbatim Astrolabe3D root uses the original's Tailwind-style utility
+   classes (absolute inset-0 w-full h-full); those utilities don't exist in
+   this repo, so the same fill behavior is provided here. Without it the
+   renderer's container measures zero and falls back to window.innerHeight. */
+div[id^='threejs-container'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Truthful narration status — the unadmitted state is never silent. */
+.landing-voice-note {
+  position: fixed;
+  left: 14px;
+  bottom: 10px;
+  z-index: 60;
+  margin: 0;
+  max-width: min(22rem, 60vw);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--parchment-muted);
+  opacity: 0.75;
+  pointer-events: none;
 }
