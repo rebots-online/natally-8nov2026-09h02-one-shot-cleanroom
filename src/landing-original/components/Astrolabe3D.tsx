@@ -1125,9 +1125,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const xOuter = Math.cos(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
       const zOuter = Math.sin(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
 
-      // House boundaries need real width: WebGL does not honor LineBasicMaterial
-      // linewidth consistently. Keep a white core on black so the boundary
-      // remains readable against both the purple wheel and bright glyphs.
+      // Thin kintsugi-gold house seams retain real width across WebGL devices.
+      // They are permanent positional structure, never part of focus dimming.
       const start = new THREE.Vector3(xInner, 0.025, zInner);
       const end = new THREE.Vector3(xOuter, 0.025, zOuter);
       const direction = end.clone().sub(start);
@@ -1137,17 +1136,15 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const rotation = new THREE.Quaternion().setFromUnitVectors(
           new THREE.Vector3(0, 1, 0), direction.normalize()
         );
-        for (const [radius, color, order] of [[0.019, 0x08040e, 2], [0.007, 0xffffff, 3]]) {
-          const divider = new THREE.Mesh(
-            new THREE.CylinderGeometry(radius, radius, length, 8),
-            new THREE.MeshBasicMaterial({ color, depthTest: false, depthWrite: false })
-          );
-          divider.position.copy(midpoint);
-          divider.quaternion.copy(rotation);
-          divider.renderOrder = order;
-          divider.userData.structureFrame = true;
-          dynamicGroup.add(divider);
-        }
+        const divider = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.006, 0.006, length, 8),
+          new THREE.MeshBasicMaterial({ color: 0xd4af37, depthTest: false, depthWrite: false })
+        );
+        divider.position.copy(midpoint);
+        divider.quaternion.copy(rotation);
+        divider.renderOrder = 2;
+        divider.userData.structureFrame = true;
+        dynamicGroup.add(divider);
       }
 
       // Cusp Badge
