@@ -34,8 +34,12 @@ export const SUPERTONIC_VOICES = [
 
 export type SupertonicVoice = (typeof SUPERTONIC_VOICES)[number];
 
-/** Voice used when `speakStream` is called without a `voice` option. */
-export const DEFAULT_VOICE: SupertonicVoice = 'F1';
+/**
+ * Voice used when `speakStream` is called without a `voice` option.
+ * F5 (operator tuning 2026-11-08): the lightest, brightest feminine speaker
+ * — soft kawaii energy per SOUL.md; F1/F3 read too deep and slow.
+ */
+export const DEFAULT_VOICE: SupertonicVoice = 'F5';
 
 export interface SpeakOptions {
   /** Supertonic voice for the text in this call (per-sentence granularity). */

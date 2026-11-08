@@ -19,8 +19,11 @@ const TRANSFORMERS_CDN_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transfor
 const MODEL_ID = 'onnx-community/Supertonic-TTS-ONNX';
 /** Model card guidance: 5 steps is the quality/speed sweet spot (1–50). */
 const NUM_INFERENCE_STEPS = 5;
-/** Slightly quicker than neutral, per the model card's conversational example. */
-const SPEED = 1.05;
+/**
+ * Pace (operator tuning 2026-11-08): 1.15 — chatty and bright per SOUL.md's
+ * overcaffeinated-oracle cadence; 1.0 still read as slow.
+ */
+const SPEED = 1.15;
 
 /** Minimal local typing of the CDN module surface this worker consumes. */
 interface TransformersCdnModule {

@@ -29,21 +29,22 @@
 
 .topbar .wordmark {
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: clamp(1.7rem, 3.4vw, 2.1rem);
   letter-spacing: 0.04em;
   color: var(--parchment);
-}
-
-.topbar .wordmark em {
-  font-style: normal;
-  color: var(--brass);
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.65);
 }
 
 .topbar .enter {
-  font-size: 0.95rem;
-  color: var(--parchment);
-  border-bottom: 1px solid transparent;
-  padding-bottom: 2px;
+  display: inline-block;
+  font-size: 1rem;
+  color: var(--brass-bright);
+  background: rgb(28 17 34 / 0.72);
+  border: 1px solid var(--plum-line);
+  border-radius: 10px;
+  padding: 0.55rem 1.1rem;
+  backdrop-filter: blur(6px);
+  transition: border-color 160ms ease, color 160ms ease;
 }
 
 .topbar .enter:hover,
@@ -103,6 +104,14 @@
 .meet {
   position: relative;
   z-index: 2;
+  /* The section blocks scroll over the pinned scene: their empty regions
+     stay click-through so every trinket remains grabbable. */
+  pointer-events: none;
+}
+
+.meet .copy-panel,
+.meet a {
+  pointer-events: auto;
 }
 
 .meet h1 {
@@ -366,6 +375,13 @@
   position: relative;
   z-index: 2;
   padding-right: clamp(1.2rem, 4vw, 3rem);
+  pointer-events: none;
+}
+
+.explain .explain-beat,
+.explain .example-note,
+.explain a {
+  pointer-events: auto;
 }
 
 .explain .lede {
@@ -706,4 +722,28 @@ div[id^='threejs-container'] {
   color: var(--parchment-muted);
   opacity: 0.75;
   pointer-events: none;
+}
+
+/* Karaoke caption: her spoken line, the current word glowing in brass. */
+.karaoke-caption {
+  position: fixed;
+  left: 50%;
+  bottom: 2.4rem;
+  transform: translateX(-50%);
+  z-index: 61;
+  margin: 0;
+  max-width: min(40rem, 86vw);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--parchment-muted);
+  text-shadow: 0 2px 14px rgb(0 0 0 / 0.8);
+  pointer-events: none;
+}
+
+.karaoke-caption .is-glowing {
+  color: var(--brass-bright);
+  text-shadow: 0 0 18px rgb(201 164 92 / 0.65), 0 2px 14px rgb(0 0 0 / 0.8);
+  transition: color 120ms ease;
 }

@@ -12,6 +12,8 @@ import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import VersionBadge from '../app/VersionBadge';
 import { getPreloadedVoice } from '../services/supertonicTts';
 import type { Voice, VoiceState } from '../voice';
+import { withPerformanceEvents } from '../app/voicePerformance';
+import KaraokeCaption from '../app/karaokeCaption';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { formatCr } from '../shared/credits';
 import { creditDisplayPerUsd } from '../platform/env';
@@ -135,31 +137,31 @@ const BEATS: readonly { key: ChartBodyKey | null; heading: string; body: string;
   key: 'Sun',
   heading: 'The Sun — where your light gathers',
   body: 'Vitality, pride, the thing you cannot help shining at. In this example sky the Sun sits in Leo, in the fifth house of play and performance: warmth that genuinely wants an audience.',
-  spoken: 'This is the Sun — where your light gathers. Here it sits in Leo, in the fifth house of play.',
+  spoken: "Okay so, the Sun — it's where your light gathers, like your whole main-character setting? This one's in Leo, fifth house, which is giving born-to-be-perceived, and honestly? Respect.",
  },
  {
   key: 'Moon',
   heading: 'The Moon — your inner weather',
   body: 'The Moon is the tide under your day — mood, memory, what safety feels like. Here it floats in Pisces, in the eighth house: feeling that runs deep and picks up every current in the room.',
-  spoken: 'The Moon is your inner weather — this one floats in Pisces, feeling every current in the room.',
+  spoken: "The Moon is your inner weather — this one's in Pisces, eighth house, feeling everything. Like me trying to watch one movie without annotating it. It's a lot. It's also the gift.",
  },
  {
   key: 'Ascendant',
   heading: 'The Ascendant — the door you open',
   body: 'Not a planet but a point: the sign rising on the eastern horizon at your first breath. Sagittarius rising opens onto wonder — the doorway between you and every room you walk into.',
-  spoken: 'And the Ascendant is the door you open. Sagittarius rising opens onto wonder.',
+  spoken: "And the Ascendant is the door you open when you walk anywhere. Sagittarius rising is basically hi, I brought a telescope and a snack — wander mode, permanently on.",
  },
  {
   key: null,
   heading: 'And the wheel that holds them all',
   body: 'Twelve houses, and the chords between them — conversations the planets are having with each other. Notice the structure never dims while each light takes its turn; that is exactly how Natally reads a chart. The map stays, the attention moves.',
-  spoken: 'Twelve houses, and the chords between them. The map stays, the attention moves.',
+  spoken: "And the wheel! Twelve houses, all the little lines between the planets. The structure never dims while each light takes its turn — which is literally how I read. The map stays, I lose the thread, the map stays.",
  },
 ];
 
-/** Natally's greeting while the stage holds the first viewport. */
+/** Natally's greeting while the stage holds the first viewport (SOUL.md voice). */
 const WELCOME_LINE =
-  'Come in. You can explore my room, move the little things on my shelves, and see what catches your eye. Scroll, and I will read this chart for you.';
+  "Okay hi, come in, come in — mind the crystals, I taped one back together like last week and I'm not doing that again. You can poke around my shelves, everything's grabbable, I promise I won't side-eye. Scroll whenever and I'll read this chart for you; I'm so ready.";
 
 const CREDIT_PACKS: readonly { usd: number; line: string; cta: (cr: string) => string }[] = [
  {
@@ -211,7 +213,7 @@ export default function Landing() {
  // picks what she speaks about next. One shared voice controller with the
  // app; audio still waits for a real gesture.
  const voiceRef = useRef<Voice | null>(null);
- if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
+  if (voiceRef.current === null) voiceRef.current = withPerformanceEvents(getPreloadedVoice());
  const voice = voiceRef.current;
  const [voiceState, setVoiceState] = useState<VoiceState>({ admitted: false, speaking: false, error: null });
  const currentLine = useRef(WELCOME_LINE);
@@ -395,7 +397,7 @@ export default function Landing() {
        >
         <span className="inset-grip-dots" aria-hidden="true" />
        </div>
-       <div className="inset-swap">
+       <div className="inset-swap" data-chart-callout-boundary data-chart-inset="true">
         {example ? (
          <Astrolabe3D
           chart={example}
@@ -549,6 +551,7 @@ export default function Landing() {
      <span className="footer-copyright">© 2026 Natally</span>
     </div>
    </footer>
+   <KaraokeCaption />
 
    <p className="landing-voice-note" role="note">
     {voiceState.admitted
