@@ -1,94 +1,82 @@
 /* App-shell layout over the atelier scene (palette: src/shared/tokens.css). */
+/* Calmer atelier (operator note 2026-11-08): the room breathes slowly —
+   ambient drifters run longer and softer than the original's cadence.
+   Keyframes are redefined (this sheet loads after AtelierScene.css, and the
+   later same-name definition wins) without touching the verbatim folder. */
+@keyframes atelier-cloud-one {
+  0%,
+  100% {
+    transform: translate(-14px, 7px) rotate(-9deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(14px, -10px) rotate(9deg);
+    opacity: 0.85;
+  }
+}
 
-/* ---------- Full-viewport layered atelier scene ---------- */
+@keyframes atelier-cloud-two {
+  0%,
+  100% {
+    transform: translate(11px, -9px) rotate(10deg);
+  }
+  50% {
+    transform: translate(-13px, 11px) rotate(-11deg);
+  }
+}
 
-.atelier-scene {
+@keyframes atelier-cloud-strong-one {
+  0%,
+  100% {
+    transform: translate(-14px, 7px) rotate(-9deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(14px, -10px) rotate(9deg);
+    opacity: 0.85;
+  }
+}
+
+@keyframes atelier-cloud-strong-two {
+  0%,
+  100% {
+    transform: translate(11px, -9px) rotate(10deg);
+  }
+  50% {
+    transform: translate(-13px, 11px) rotate(-11deg);
+  }
+}
+
+.atelier-clouds--first,
+.atelier-clouds--second {
+  animation-duration: 46s !important;
+}
+
+.atelier-scene__stars--left,
+.atelier-scene__stars--right {
+  animation-duration: 120s !important;
+}
+
+.atelier-glow {
+  animation-duration: 6.4s !important;
+}
+
+/* ---------- Splash ---------- */
+
+/* Full-viewport mount for the verbatim atelier scene (sign-in backdrop). */
+.scene-mount {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   background: var(--plum-deep);
-}
-
-.scene-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/*
- * Mascot layer: the shaded composite (room.webp) registered over its clean
- * plate (puppet-cleanplate.webp) and masked to the puppet region the plate
- * was generated for, so the figure floats gently over its own scene.
- */
-.scene-mascot {
-  mask-image: radial-gradient(ellipse 27% 49% at 50% 46%, #000 62%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 27% 49% at 50% 46%, #000 62%, transparent 100%);
-  animation: mascot-float 7s ease-in-out infinite alternate;
-}
-
-@keyframes mascot-float {
-  from {
-    transform: translateY(-0.5%);
-  }
-  to {
-    transform: translateY(0.5%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scene-mascot {
-    animation: none;
-  }
-}
-
-/* Readability wash between the art and the working UI. */
-.scene-dim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(28, 17, 34, 0.42) 0%,
-    rgba(28, 17, 34, 0.62) 55%,
-    rgba(28, 17, 34, 0.78) 100%
-  );
-}
-
-/* Companion portrait card (corner). */
-.companion-card {
-  position: fixed;
-  left: 18px;
-  bottom: 18px;
-  z-index: 2;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 10px 6px;
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  background: rgba(42, 26, 51, 0.85);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
-  pointer-events: none;
 }
 
-.companion-card img {
-  width: 74px;
-  height: 74px;
-  border-radius: 9px;
-  object-fit: cover;
+.scene-mount .atelier-scene {
+  width: 100%;
 }
-
-.companion-card span {
-  font-family: var(--font-display);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--brass);
-}
-
-/* ---------- Splash ---------- */
 
 .app-splash {
   min-height: 100dvh;
@@ -101,13 +89,24 @@
 
 /* ---------- Centered cards (sign-in, birth intake) ---------- */
 
+/* The sign-in card sits to the side of the room so Natally — center of the
+   artwork — stays the visible presence while signing in. */
 .app-intake {
   position: relative;
   z-index: 1;
   min-height: 100dvh;
   display: grid;
-  place-items: center;
-  padding: 24px 16px;
+  justify-items: end;
+  align-items: center;
+  padding: 24px clamp(16px, 6vw, 96px);
+}
+
+@media (max-width: 56rem) {
+  .app-intake {
+    justify-items: center;
+    align-items: end;
+    padding-bottom: clamp(24px, 10vh, 96px);
+  }
 }
 
 .card {
@@ -350,6 +349,14 @@ li[aria-selected='true'] > .suggest-option {
   color: var(--plum-deep);
 }
 
+.chart-loading {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  color: var(--parchment-muted);
+  font-family: var(--font-display);
+}
+
 .btn.small {
   font-size: 13px;
   padding: 5px 11px;
@@ -414,72 +421,21 @@ li[aria-selected='true'] > .suggest-option {
   font-style: italic;
 }
 
-.app-columns {
-  display: grid;
-  grid-template-columns: minmax(320px, 5fr) minmax(340px, 6fr);
-  gap: 18px;
-  align-items: start;
+.app-stage {
   flex: 1;
-}
-
-.app-side {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   min-width: 0;
 }
 
-.app-chat {
-  min-width: 0;
-  min-height: 560px;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (max-width: 960px) {
-  .app-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .app-chat {
-    min-height: 480px;
-  }
-}
-
-@media (max-width: 720px) {
-  .companion-card {
-    display: none;
-  }
-}
-
-/* ---------- Panels ---------- */
-
-.panel {
+/* Lesson card under the conversation. */
+.lesson-card {
   background: rgba(54, 33, 65, 0.88);
   border: 1px solid var(--plum-line);
   border-radius: 14px;
   padding: 16px;
   backdrop-filter: blur(4px);
+  margin-top: 16px;
 }
 
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.panel-head h2 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 20px;
-}
-
-.chart-body {
-  min-height: 320px;
-}
 
 /* Lesson card under the chart. */
 .lesson-kicker {

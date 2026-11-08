@@ -6,7 +6,12 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": true,
+    // Relaxed for src/atelier-original/**: those files are byte-identical
+    // copies of the original app (operator-authorized verbatim exception)
+    // and were authored under the original's tsconfig, which never enabled
+    // noUnusedLocals. TS cannot scope this flag per-folder, and excluding
+    // the folder would not help (imported files join the program anyway).
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,

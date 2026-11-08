@@ -1,26 +1,28 @@
 // App shell for /app.html (DOCS/ARCHITECTURE.md §Surfaces). State machine:
-//   signed-out (onAuthChange)  → Google sign-in card over the atelier scene
-//   signed-in without a chart  → FirstLight: the staged first-light welcome
-//                                (src/app/onboarding) around the original
-//                                onboarding intake, ending in the reveal and
-//                                a single button into the conversation
-//   signed-in with a chart     → atelier layout: AtelierBackdrop behind a
-//                                collapsible AstroChart panel, ChatPanel
-//                                (its onTopUp opens the TopUpSheet), a
-//                                lesson card for the hovered body (getLesson,
-//                                falling back to the general lesson), and the
-//                                keepsake offer, code-split behind a dynamic
-//                                import. The computed chart is kept
+//   signed-out (onAuthChange)  → Google sign-in card over the verbatim
+//                                atelier scene (src/atelier-original)
+//   signed-in without a chart  → first-light onboarding: welcome, the
+//                                verbatim FirstLight intake, an honest
+//                                casting moment, then the chart reveal
+//                                (src/app/onboarding hands the chart back)
+//   signed-in with a chart     → the verbatim ReadingStage: the original
+//                                atelier (hero-scale Natally, breakable
+//                                trinkets, armillary) with our AstroChart
+//                                as the draggable inset and ChatPanel in
+//                                the conversation slot. The chart is kept
 //                                per-customer in localStorage so a reload
 //                                doesn't demand re-entering birth data.
 
 import { Suspense, lazy, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { AstroChart } from '../chart/AstroChart';
-import { getLesson } from '../content/lessons';
 import { authUnavailable, googleSignIn, onAuthChange } from '../platform/firebase';
 import type { ChartBodyKey, NatalChart } from '../shared/types';
-import AtelierBackdrop from './AtelierBackdrop';
+import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
+import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
+import { getLesson } from '../content/lessons';
+import { ReadingStage } from '../atelier-original/components/ReadingStage';
+import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
+import type { PresentationState, PresentationView } from '../atelier-original/services/presentation';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
 import TopUpSheet from './TopUpSheet';
@@ -67,13 +69,34 @@ function loadStoredChart(uid: string): NatalChart | null {
 export default function App() {
   const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
   const [chart, setChart] = useState<NatalChart | null>(null);
-  const [chartOpen, setChartOpen] = useState(true);
   const [hoveredKey, setHoveredKey] = useState<ChartBodyKey | null>(null);
+  const [view, setView] = useState<PresentationView>('atelier');
+  const [paused, setPaused] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [souvenirOpen, setSouvenirOpen] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
   const [signInError, setSignInError] = useState<string | null>(null);
+  // The original renderer's view of the same sky: computed with its own
+  // pipeline from the same birth data the clean-room chart persists.
+  const [astrolabe, setAstrolabe] = useState<NatalChartResult | null>(null);
 
+  useEffect(() => {
+    let live = true;
+    setAstrolabe(null);
+    if (chart !== null) {
+      computeAstrolabeChart(chart.input)
+        .then(result => {
+          if (live) setAstrolabe(result);
+        })
+        .catch(() => {
+          // The renderer pane keeps its honest loading line.
+          if (live) setAstrolabe(null);
+        });
+    }
+    return () => {
+      live = false;
+    };
+  }, [chart]);
   useEffect(() => {
     if (authUnavailable) {
       setAuth({ status: 'signedOut', unavailable: true });
@@ -141,7 +164,9 @@ export default function App() {
   if (auth.status === 'signedOut') {
     return (
       <>
-        <AtelierBackdrop />
+        <div className="scene-mount" aria-hidden="true">
+          <AtelierScene phase="idle" motionEnabled accountUid={null} />
+        </div>
         <div className="app-intake">
           <div className="card">
             <img
@@ -184,10 +209,19 @@ export default function App() {
   }
 
   const lesson = getLesson(hoveredKey ?? 'general');
+  const presentation: PresentationState = {
+    chartKey: `${chart.input.dateIso}|${chart.input.place.label}|${chart.input.timeIso ?? 'unknown'}`,
+    selectedTargets: [],
+    focusTargets: [],
+    view,
+    panel: 'conversation',
+    follow: true,
+    sequence: 0,
+    lastReceipt: null,
+  };
 
   return (
     <div className="app-main">
-      <AtelierBackdrop />
       <div className="app-frame">
         <header className="app-header">
           <h1 className="app-brand">
@@ -212,40 +246,43 @@ export default function App() {
           </div>
         </header>
 
-        <div className="app-columns">
-          <div className="app-side">
-            <section className="panel" aria-label="Your natal chart">
-              <header className="panel-head">
-                <h2>Your natal chart</h2>
-                <button
-                  type="button"
-                  className="btn ghost small"
-                  aria-expanded={chartOpen}
-                  onClick={() => setChartOpen(open => !open)}
-                >
-                  {chartOpen ? 'Hide' : 'Show'}
-                </button>
-              </header>
-              {chartOpen && (
-                <div className="chart-body">
-                  <AstroChart chart={chart} onHoverBody={key => setHoveredKey(key ?? null)} />
+        <div className="app-stage">
+          <ReadingStage
+            accountUid={auth.uid}
+            presentation={presentation}
+            phase="idle"
+            paused={paused}
+            onPause={setPaused}
+            onView={setView}
+            chart={
+              astrolabe ? (
+                <Astrolabe3D
+                  chart={astrolabe}
+                  isSpinning={false}
+                  resetTrigger={0}
+                  selectedPlanetName={hoveredKey}
+                  onSelectPlanet={name => setHoveredKey((name as ChartBodyKey) ?? null)}
+                />
+              ) : (
+                <div className="chart-loading" role="status">
+                  Casting the wheel…
                 </div>
-              )}
-            </section>
-
-            <section className="panel lesson-card" aria-live="polite">
-              <p className="lesson-kicker">
-                {hoveredKey !== null ? `You’re hovering · ${hoveredKey}` : 'From Natally’s notebook'}
-              </p>
-              <h3>{lesson.title}</h3>
-              <p className="lesson-body">{lesson.what}</p>
-              <p className="lesson-question">{lesson.question}</p>
-            </section>
-          </div>
-
-          <section className="app-chat" aria-label="Conversation with Natally">
-            <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} />
-          </section>
+              )
+            }
+            conversation={
+              <>
+                <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} />
+                <section className="lesson-card" aria-live="polite">
+                  <p className="lesson-kicker">
+                    {hoveredKey !== null ? `You’re hovering · ${hoveredKey}` : 'From Natally’s notebook'}
+                  </p>
+                  <h3>{lesson.title}</h3>
+                  <p className="lesson-body">{lesson.what}</p>
+                  <p className="lesson-question">{lesson.question}</p>
+                </section>
+              </>
+            }
+          />
         </div>
       </div>
 

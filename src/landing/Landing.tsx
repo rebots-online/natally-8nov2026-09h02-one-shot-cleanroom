@@ -6,9 +6,10 @@
 // formatter at the configured display rate.
 
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
-import { AstroChart } from '../chart/AstroChart';
-import { getLesson } from '../content/lessons';
+import type { PointerEvent as ReactPointerEvent } from 'react';
+import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
+import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
+import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { formatCr } from '../shared/credits';
 import { creditDisplayPerUsd } from '../platform/env';
 import type { ChartBodyKey, NatalChart } from '../shared/types';
@@ -166,47 +167,44 @@ const CREDIT_PACKS: readonly { usd: number; line: string }[] = [
 
 const SOUVENIR_USD = 30;
 
-/** Full-bleed room scene with the poster as the graceful fallback. */
-function AtelierScene() {
-  const [failed, setFailed] = useState(false);
-  return (
-    <img
-      className="hero-scene-img"
-      src={failed ? '/atelier/poster.webp' : '/atelier/room.webp'}
-      alt=""
-      onError={() => setFailed(true)}
-      decoding="async"
-      draggable={false}
-    />
-  );
-}
-
 export default function Landing() {
-  const [hovered, setHovered] = useState<ChartBodyKey | null>(null);
-  // Inset choreography: which face the sticky panel shows, and which
+  // Inset choreography: whether the sticky chart panel is shown, and which
   // explanation beat is currently in the reading band of the viewport.
-  const [insetStage, setInsetStage] = useState<'mascot' | 'chart'>('mascot');
+  const [chartShown, setChartShown] = useState(false);
   const [beat, setBeat] = useState(-1);
+  // The example wheel, computed once with the original renderer's pipeline.
+  const [example, setExample] = useState<NatalChartResult | null>(null);
   // Inset drag: the panel is repositionable within a clamped range.
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dragState = useRef<{ id: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const explainRef = useRef<HTMLElement | null>(null);
   const beatRefs = useRef<(HTMLElement | null)[]>([]);
-  const reducedMotion = useRef(
-    typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+
+  useEffect(() => {
+    let live = true;
+    computeAstrolabeChart(EXAMPLE_CHART.input)
+      .then(result => {
+        if (live) setExample(result);
+      })
+      .catch(() => {
+        // The inset keeps its honest loading line.
+        if (live) setExample(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
 
   // Swap moment: as the explanation section enters the viewport (while the
-  // hero scene is still on screen), the inset trades the mascot for the
-  // focused example chart. Scrolling back up trades it back.
+  // hero scene is still on screen), the draggable inset chart appears over
+  // the atelier. Scrolling back up dismisses it again.
   useEffect(() => {
     const explain = explainRef.current;
     if (!explain) return;
     const observer = new IntersectionObserver(
       entries => {
         for (const entry of entries) {
-          setInsetStage(entry.isIntersecting ? 'chart' : 'mascot');
+          setChartShown(entry.isIntersecting);
         }
       },
       { rootMargin: '0px 0px -30% 0px', threshold: 0 },
@@ -214,6 +212,7 @@ export default function Landing() {
     observer.observe(explain);
     return () => observer.disconnect();
   }, []);
+
 
   // Beat focus: whichever explanation block crosses the reading band drives
   // the chart's activeBody; the last beat (whole wheel) restores all bodies.
@@ -237,25 +236,7 @@ export default function Landing() {
   const activeBodyDetail = activeBody
     ? EXAMPLE_CHART.bodies.find(candidate => candidate.key === activeBody)
     : undefined;
-  const hoveredBody = hovered
-    ? EXAMPLE_CHART.bodies.find(body => body.key === hovered)
-    : undefined;
   const perUsd = creditDisplayPerUsd();
-
-  // Hero parallax: the scene answers the pointer. Skipped entirely under
-  // prefers-reduced-motion (the CSS also freezes the layers in place).
-  const onHeroPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (reducedMotion.current) return;
-    const hero = event.currentTarget;
-    const x = (event.clientX / window.innerWidth) * 2 - 1;
-    const y = (event.clientY / window.innerHeight) * 2 - 1;
-    hero.style.setProperty('--px', x.toFixed(3));
-    hero.style.setProperty('--py', y.toFixed(3));
-  };
-  const onHeroPointerLeave = (event: ReactPointerEvent<HTMLElement>) => {
-    event.currentTarget.style.setProperty('--px', '0');
-    event.currentTarget.style.setProperty('--py', '0');
-  };
 
   // Inset drag: pointer-grab the grip strip to reposition the panel; a
   // double-click on the grip returns it home.
@@ -283,11 +264,9 @@ export default function Landing() {
     if (dragState.current?.id === event.pointerId) dragState.current = null;
   };
 
-  const caption = hoveredBody
-    ? `${getLesson(hoveredBody.key).title} — ${hoveredBody.sign}, ${ORDINALS[hoveredBody.house - 1]} house`
-    : activeBodyDetail
-      ? `${activeBodyDetail.key === 'Ascendant' ? 'Ascendant' : activeBodyDetail.key} in ${activeBodyDetail.sign}, ${ORDINALS[activeBodyDetail.house - 1]} house`
-      : 'Sun in Leo, Moon in Pisces, Sagittarius rising.';
+  const caption = activeBodyDetail
+    ? `${activeBodyDetail.key === 'Ascendant' ? 'Ascendant' : activeBodyDetail.key} in ${activeBodyDetail.sign}, ${ORDINALS[activeBodyDetail.house - 1]} house`
+    : 'Sun in Leo, Moon in Pisces, Sagittarius rising.';
 
   return (
     <div className="landing">
@@ -301,16 +280,15 @@ export default function Landing() {
       </header>
 
       <div className="hero-stage">
-        <section
-          className="hero"
-          style={{ '--px': 0, '--py': 0 } as CSSProperties}
-          onPointerMove={onHeroPointerMove}
-          onPointerLeave={onHeroPointerLeave}
-        >
-          <div className="hero-scene" aria-hidden="true">
-            <AtelierScene />
-            <div className="hero-scene-shade" />
-          </div>
+        {/* The persistent stage: the verbatim atelier stays pinned while the
+            copy scrolls past it. Hero-scale Natally, breakable trinkets,
+            armillary — the original scene, fully interactive. */}
+        <div className="hero-scene" aria-hidden="true">
+          <AtelierScene phase="idle" motionEnabled accountUid={null} />
+          <div className="hero-scene-shade" />
+        </div>
+
+        <section className="hero">
           <div className="hero-inner">
             <div className="hero-copy">
               <p className="eyebrow">A small atelier, open all hours</p>
@@ -325,76 +303,71 @@ export default function Landing() {
                 machine of sun-sign slogans.
               </p>
               <div className="hero-actions">
-                <a className="cta-primary" href="/app.html">
-                  Open Natally
-                </a>
-                <a className="cta-secondary" href="#example">
+                <a className="cta-primary" href="#example">
                   Watch her read a chart
+                </a>
+                <a className="cta-secondary" href="/app.html">
+                  Open Natally
                 </a>
               </div>
             </div>
           </div>
-
         </section>
 
-          <div className="inset-rail">
-            <div
-              className="inset-drag"
-              style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
+        {/* Sticky inset: the draggable example chart appears over the scene
+            as the explanation begins, then zooms with each beat. */}
+        <div className="inset-rail">
+          <div
+            className="inset-drag"
+            style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
+          >
+            <aside
+              className={`inset-panel${chartShown ? ' is-shown' : ''}${
+                chartShown && activeBody !== null ? ' inset-panel--zoom' : ''
+              }`}
+              aria-label="Example natal chart panel"
+              aria-hidden={!chartShown}
             >
-              <aside
-                className={`inset-panel${insetStage === 'chart' ? ' inset-panel--chart' : ''}${
-                  insetStage === 'chart' && activeBody !== null ? ' inset-panel--zoom' : ''
-                }`}
-                aria-label="Atelier companion panel"
+              <div
+                className="inset-grip"
+                role="separator"
+                aria-label="Drag to move the panel (double-click to reset)"
+                onPointerDown={onGripPointerDown}
+                onPointerMove={onGripPointerMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                onDoubleClick={() => setDragOffset({ x: 0, y: 0 })}
               >
-                <div
-                  className="inset-grip"
-                  role="separator"
-                  aria-label="Drag to move the panel (double-click to reset)"
-                  onPointerDown={onGripPointerDown}
-                  onPointerMove={onGripPointerMove}
-                  onPointerUp={endDrag}
-                  onPointerCancel={endDrag}
-                  onDoubleClick={() => setDragOffset({ x: 0, y: 0 })}
-                >
-                  <span className="inset-grip-dots" aria-hidden="true" />
-                </div>
-                <div className="inset-swap">
-                  <div
-                    className={`inset-face inset-face--mascot${insetStage === 'mascot' ? ' is-on' : ''}`}
-                    aria-hidden={insetStage !== 'mascot'}
-                  >
-                    <img
-                      className="inset-mascot"
-                      src="/atelier/puppet-cleanplate.webp"
-                      alt=""
-                      draggable={false}
-                    />
-                    <p className="inset-tag">Natally, at your service</p>
+                <span className="inset-grip-dots" aria-hidden="true" />
+              </div>
+              <div className="inset-swap">
+                {example ? (
+                  <Astrolabe3D
+                    chart={example}
+                    isSpinning={false}
+                    resetTrigger={0}
+                    highlightedComponents={activeBody ? [activeBody] : []}
+                    focusSequence={beat}
+                  />
+                ) : (
+                  <div className="inset-loading" role="status">
+                    Casting the example wheel…
                   </div>
-                  <div
-                    className={`inset-face inset-face--chart${insetStage === 'chart' ? ' is-on' : ''}`}
-                    aria-hidden={insetStage !== 'chart'}
-                  >
-                    <div className="inset-chart">
-                      <AstroChart chart={EXAMPLE_CHART} activeBody={activeBody} onHoverBody={setHovered} />
-                    </div>
-                    <p className="inset-tag inset-tag--chart">{caption}</p>
-                  </div>
-                </div>
-              </aside>
-            </div>
+                )}
+                <p className="inset-tag inset-tag--chart">{caption}</p>
+              </div>
+            </aside>
           </div>
+        </div>
 
         <section className="section explain" id="example" ref={explainRef}>
           <p className="eyebrow">How she reads</p>
           <h2>A chart, read like a map</h2>
           <p className="lede">
-            The panel beside you has traded the mascot for a real wheel — a
-            summer-evening sky over Paris, cast with the same Swiss Ephemeris
-            your own chart will use. Drag the wheel to turn it; then watch each
-            light take its turn as she walks you through.
+            The panel beside you carries a real wheel — a summer-evening sky over
+            Paris, cast with the same Swiss Ephemeris your own chart will use.
+            Drag the wheel to turn it; then watch each light take its turn as
+            she walks you through.
           </p>
           <div className="explain-beats">
             {BEATS.map((entry, index) => (

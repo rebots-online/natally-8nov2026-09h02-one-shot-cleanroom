@@ -12,8 +12,9 @@
 // the chat that reads from the same chart state.
 import { useEffect, useRef, useState } from 'react';
 import { natalChart } from '../../astro/chart';
-import { AstroChart } from '../../chart/AstroChart';
-import AtelierBackdrop from '../AtelierBackdrop';
+import { computeAstrolabeChart, type NatalChartResult } from '../../chart/astrolabeInput';
+import { Astrolabe3D } from '../../atelier-original/components/Astrolabe3D';
+import { AtelierScene } from '../../atelier-original/components/atelier/AtelierScene';
 import type { NatalChart, ZodiacSign } from '../../shared/types';
 import type { Voice, VoiceState } from '../../voice';
 import { loadGazetteer } from '../../services/gazetteer';
@@ -52,6 +53,7 @@ type Phase = 'welcome' | 'intake' | 'casting' | 'reveal';
 export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChart) => void }) {
   const [phase, setPhase] = useState<Phase>('welcome');
   const [chart, setChart] = useState<NatalChart | null>(null);
+  const [wheel, setWheel] = useState<NatalChartResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [castSeconds, setCastSeconds] = useState(0);
   const [voiceState, setVoiceState] = useState<VoiceState>({
@@ -123,7 +125,7 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
       if (!place) {
         throw new Error('That birth place is no longer in the gazetteer — pick it again from the suggestions.');
       }
-      const computed = await natalChart({
+      const birth = {
         name: draft.name || undefined,
         dateIso: draft.date,
         timeIso: draft.unknownTime ? null : draft.time,
@@ -133,8 +135,13 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
           longitude: place.lon,
           timezoneIana: place.tzid,
         },
-      });
+      };
+      const [computed, wheel] = await Promise.all([
+        natalChart(birth),
+        computeAstrolabeChart(birth),
+      ]);
       setChart(computed);
+      setWheel(wheel);
       setPhase('reveal');
     } catch (failure) {
       setError(
@@ -155,12 +162,14 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
   if (phase === 'welcome') {
     return (
       <>
-        <AtelierBackdrop />
+        <div className="scene-mount" aria-hidden="true">
+          <AtelierScene phase="idle" motionEnabled accountUid={null} />
+        </div>
         <div className="onboarding">
           <div className="onboarding-card welcome-card">
             <img
               className="welcome-mascot"
-              src="/atelier/puppet-cleanplate.webp"
+              src="/natally-mascot.webp"
               alt="Natally, the atelier astrologer"
               draggable={false}
             />
@@ -183,7 +192,9 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
 
   return (
     <>
-      <AtelierBackdrop />
+      <div className="scene-mount" aria-hidden="true">
+        <AtelierScene phase="idle" motionEnabled accountUid={null} />
+      </div>
       {/* The verbatim intake; kept mounted (hidden) while casting so a failed
           cast returns to the customer's answers exactly as they left them. */}
       <div hidden={phase === 'casting'}>
@@ -197,7 +208,7 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
       {phase === 'casting' && (
         <section className="onboarding casting" role="status" aria-live="polite">
           <div className="onboarding-card casting-card">
-            <img className="casting-mascot" src="/atelier/puppet-cleanplate.webp" alt="" draggable={false} />
+            <img className="casting-mascot" src="/natally-mascot.webp" alt="" draggable={false} />
             <h2>Casting your chart…</h2>
             <p>
               Swiss Ephemeris, computed right here on your device — no server
@@ -214,7 +225,13 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
         <section className="onboarding reveal" aria-live="polite">
           <div className="onboarding-card reveal-card">
             <div className="reveal-chart">
-              <AstroChart chart={chart} />
+              {wheel ? (
+                <Astrolabe3D chart={wheel} isSpinning={false} resetTrigger={0} />
+              ) : (
+                <div className="chart-loading" role="status">
+                  Casting the wheel…
+                </div>
+              )}
             </div>
             <p className="welcome-kicker">First light</p>
             <h2>{chart.input.name ? `First light, ${chart.input.name}.` : 'First light.'}</h2>
