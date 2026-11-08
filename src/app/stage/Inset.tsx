@@ -2,8 +2,8 @@
 // clean-room, written from the architecture words only). Whichever pane is
 // not in focus floats over the stage from first load; drag anywhere across
 // the full stage and it docks near an edge or corner on release; a corner
-// grip and Alt+arrow keys resize, arrow keys move; position and size
-// persist per account in localStorage.
+// grip and Alt+arrow keys resize, arrow keys move; position, size and
+// docked/floating mode persist per account in localStorage.
 //
 // Size is set by usefulness, not by a percentage: the floor is the smallest
 // inset at which every individual house number and every individual planet
@@ -15,14 +15,23 @@
 // Above the floor the inset prefers larger, up to 60% of the stage; the
 // customer can resize anywhere from the floor to that cap.
 //
+// On stages large enough, the chart docks BESIDE the scene — side by side
+// or stacked, whichever fits — and the scene re-zooms into the remaining
+// space, so neither obscures the other; the stage is laid out through
+// `data-inset-dock` + `--inset-dock-size`, which the card sets on its host
+// stage and layer. Dragging the card back over the scene lifts it out to
+// floating; releasing a floating card at the scene side (right edge) or
+// beneath (bottom edge) docks it beside again. Smaller stages fall back to
+// the floating-card ranges.
+//
 // The inset moves like a card: picked up anywhere on its surface, with a
 // short move threshold so a tap without movement still selects the
 // planet/sign/house/aspect under the pointer — moving and exploring never
 // fight.
 //
-// First-load placement serves one intent: the customer can always see both
-// Natally and her chart well enough to use them — neither defeats the
-// other. Measured against the on-screen box of her rendered head
+// First-load floating placement serves one intent: the customer can always
+// see both Natally and her chart well enough to use them — neither defeats
+// the other. Measured against the on-screen box of her rendered head
 // (`.atelier-character__head`): roomy stages get the largest corner/size
 // above the floor that leaves her face clear; tight stages get the least
 // overlap at the largest size that achieves it; when the floor itself
@@ -67,6 +76,12 @@ const KEY_RESIZE_STEP = 0.02;
 const FACE_COVERED_INVERT = 0.8;
 /** Bodies on a full wheel, when the caller cannot supply the live count. */
 const DEFAULT_BODY_COUNT = 14;
+/** The scene's readable minimum width when the chart docks beside it. */
+const SCENE_MIN_W = 320;
+/** The scene + conversation minimum above a stacked chart row. */
+const STACK_MIN_H = 520;
+/** Gap between the scene and a chart docked beside it. */
+const DOCK_GAP = 16;
 
 interface InsetGeometry {
   /** Left edge as a fraction of stage width. */
@@ -75,6 +90,15 @@ interface InsetGeometry {
   y: number;
   /** Width as a fraction of stage width (height keeps the aspect). */
   w: number;
+}
+
+/** Where the chart lives: docked beside the scene (side by side, or stacked
+ *  under it) or floating over the stage. */
+export type InsetMode = 'side' | 'stack' | 'floating';
+
+interface InsetState {
+  mode: InsetMode;
+  geometry: InsetGeometry;
 }
 
 export interface InsetProps {
@@ -129,8 +153,8 @@ export function insetFloorPx(bodyCount: number): number {
   return Math.ceil((count * BODY_TARGET_PX) / Math.PI) + CHROME_PX;
 }
 
-/** Read and validate the stored geometry; null when absent or corrupt. */
-function loadGeometry(storageKey: string): InsetGeometry | null {
+/** Read and validate the stored state; null when absent or corrupt. */
+function loadState(storageKey: string): InsetState | null {
   try {
     const raw = localStorage.getItem(storageKey);
     if (raw === null) return null;
@@ -140,15 +164,20 @@ function loadGeometry(storageKey: string): InsetGeometry | null {
     if (!isFiniteNumber(candidate.x) || !isFiniteNumber(candidate.y) || !isFiniteNumber(candidate.w)) {
       return null;
     }
-    return { x: candidate.x, y: candidate.y, w: candidate.w };
+    const geometry = { x: candidate.x, y: candidate.y, w: candidate.w };
+    const mode = candidate.mode;
+    return {
+      mode: mode === 'side' || mode === 'stack' ? mode : 'floating',
+      geometry,
+    };
   } catch {
     return null;
   }
 }
 
-function storeGeometry(storageKey: string, geometry: InsetGeometry): void {
+function storeState(storageKey: string, state: InsetState): void {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(geometry));
+    localStorage.setItem(storageKey, JSON.stringify({ mode: state.mode, ...state.geometry }));
   } catch {
     // Storage unavailable (private mode/quota): the inset lives in memory.
   }
@@ -157,6 +186,23 @@ function storeGeometry(storageKey: string, geometry: InsetGeometry): void {
 /** The largest width (px) the stage allows: 60% of width, or the height cap. */
 function allowedWidthPx(stage: StageBox): number {
   return Math.max(1, Math.min(INSET_MAX_W * stage.width, (0.9 * stage.height) / ASPECT));
+}
+
+/** Side-by-side docking needs the scene's minimum plus a floor-sized chart. */
+function sideFits(stage: StageBox, floorPx: number): boolean {
+  return stage.width >= SCENE_MIN_W + floorPx + DOCK_GAP;
+}
+
+/** Stacked docking needs the scene's minimum above a floor-sized chart. */
+function stackFits(stage: StageBox, floorPx: number): boolean {
+  return stage.height >= STACK_MIN_H + floorPx;
+}
+
+/** The width the chart prefers when docked beside the scene. */
+function dockedWidthPx(stage: StageBox, floorPx: number): number {
+  const cap = allowedWidthPx(stage);
+  const beside = stage.width - SCENE_MIN_W - DOCK_GAP;
+  return Math.min(Math.max(Math.min(cap, beside), floorPx), cap);
 }
 
 /** Clamp geometry fractions into the stage for the current box and floor. */
@@ -210,11 +256,11 @@ type AutoPlacement =
   | { kind: 'invert' };
 
 /**
- * First-load placement from the intent: roomy → the largest corner/size
- * from the usefulness floor up to the cap that leaves her face clear;
- * tight → the least overlap at the largest size that achieves it; a floor
- * the stage cannot fit, or that would hide her face on every corner even
- * at its smallest, is too small for both — the chart takes focus.
+ * First-load floating placement from the intent: roomy → the largest
+ * corner/size from the usefulness floor up to the cap that leaves her face
+ * clear; tight → the least overlap at the largest size that achieves it; a
+ * floor the stage cannot fit, or that would hide her face on every corner
+ * even at its smallest, is too small for both — the chart takes focus.
  * Overlap with size is monotone per corner, so each corner's best sits at
  * the size breakpoints where the growing inset edges cross her face edges.
  */
@@ -293,10 +339,13 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: numbe
 }
 
 /**
- * The floating chart inset. Positions itself inside its parent element
+ * The chart inset — floating over the stage, or docked beside the scene on
+ * stages large enough (the stage and host layer are laid out through the
+ * `data-inset-dock` attribute and `--inset-dock-size` this component sets
+ * on them). Positions itself inside its parent element
  * (`.stage-inset-layer`, which fills the stage); measures that parent via
  * ResizeObserver so window resizes re-clamp the pane into the stage — or,
- * before the customer's first move, re-evaluate the face-aware placement.
+ * before the customer's first move, re-evaluate the placement.
  */
 export function Inset({
   storageKey,
@@ -311,19 +360,24 @@ export function Inset({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [stage, setStage] = useState<StageBox | null>(null);
   const [geometry, setGeometry] = useState<InsetGeometry | null>(null);
+  const [mode, setMode] = useState<InsetMode>('floating');
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   // False until the customer moves or resizes the pane: until then the
   // placement is ours to re-evaluate on every stage resize.
   const userMovedRef = useRef(false);
+  // Restored from storage exactly once, on the first stage metrics.
+  const restoredRef = useRef(false);
   // Last invert decision reported through onAutoInvert.
   const invertRef = useRef(false);
   const floorPx = insetFloorPx(bodyCount);
 
-  // Measure the host layer (this element's parent, which fills the stage).
+  // Measure the host stage (the layer's parent): floating, the layer fills
+  // it exactly; docked, the layer is confined to the dock slot while the
+  // stage remains the space the chart is placed within.
   useLayoutEffect(() => {
-    const host = rootRef.current?.parentElement;
-    if (host === null || host === undefined) return;
+    const stageEl = rootRef.current?.parentElement?.parentElement;
+    if (stageEl === null || stageEl === undefined) return;
     const observer = new ResizeObserver(entries => {
       const box = entries[entries.length - 1];
       if (box !== undefined) {
@@ -331,8 +385,13 @@ export function Inset({
         if (width > 0 && height > 0) setStage({ width, height });
       }
     });
-    observer.observe(host);
+    observer.observe(stageEl);
     return () => observer.disconnect();
+  }, []);
+
+  const hostLayer = useCallback((): HTMLElement | null => {
+    const layer = rootRef.current?.parentElement;
+    return layer instanceof HTMLElement ? layer : null;
   }, []);
 
   const stageElement = useCallback((): HTMLElement | null => {
@@ -350,74 +409,122 @@ export function Inset({
     [onAutoInvert],
   );
 
-  // First metrics: restore the customer's saved geometry, or evaluate the
-  // face-aware first-load placement.
+  // Restore the customer's saved state once, on the first stage metrics (a
+  // dock that no longer fits on this screen falls back to floating).
   useEffect(() => {
-    if (stage === null || geometry !== null) return;
-    const stored = loadGeometry(storageKey);
-    if (stored !== null) {
-      userMovedRef.current = true;
-      setGeometry(clampGeometry(stored, stage, floorPx));
+    if (stage === null || restoredRef.current) return;
+    restoredRef.current = true;
+    const stored = loadState(storageKey);
+    if (stored === null) return;
+    userMovedRef.current = true;
+    const fits =
+      (stored.mode === 'side' && sideFits(stage, floorPx)) ||
+      (stored.mode === 'stack' && stackFits(stage, floorPx)) ||
+      stored.mode === 'floating';
+    setMode(fits ? stored.mode : 'floating');
+    setGeometry(clampGeometry(stored.geometry, stage, floorPx));
+  }, [stage, storageKey, floorPx]);
+
+  // On stage metrics: keep the customer's choice clamped and fitting, or —
+  // until their first move — evaluate where the chart belongs.
+  useEffect(() => {
+    if (stage === null) return;
+    if (userMovedRef.current) {
+      if (mode === 'side' && !sideFits(stage, floorPx)) setMode('floating');
+      else if (mode === 'stack' && !stackFits(stage, floorPx)) setMode('floating');
+      setGeometry(current => (current === null ? current : clampGeometry(current, stage, floorPx)));
       return;
     }
+    if (sideFits(stage, floorPx) || stackFits(stage, floorPx)) {
+      // Large enough to dock beside the scene: neither obscures the other,
+      // the scene re-zooms into the remaining space.
+      reportInvert(false);
+      setMode(sideFits(stage, floorPx) ? 'side' : 'stack');
+      setGeometry(current =>
+        clampGeometry(
+          current ?? { x: 0.5, y: 0.5, w: dockedWidthPx(stage, floorPx) / stage.width },
+          stage,
+          floorPx,
+        ),
+      );
+      return;
+    }
+    setMode('floating');
     const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()), floorPx);
     reportInvert(placement.kind === 'invert');
     if (placement.kind === 'dock') setGeometry(placement.geometry);
-  }, [stage, geometry, storageKey, stageElement, reportInvert, floorPx]);
+  }, [stage, mode, floorPx, stageElement, reportInvert]);
 
-  // On stage resize: re-clamp the customer's geometry, or keep evaluating
-  // the face-aware placement until they have moved it.
+  // Lay out the host stage and layer for the current mode. While the chart
+  // is focused the dock yields to the full-stage fill.
+  const dockSizePx =
+    stage === null || geometry === null
+      ? 0
+      : Math.min(Math.max(geometry.w * stage.width, floorPx), allowedWidthPx(stage));
   useEffect(() => {
-    if (stage === null) return;
-    setGeometry(current => {
-      if (current === null) return current;
-      if (userMovedRef.current) return clampGeometry(current, stage, floorPx);
-      const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()), floorPx);
-      reportInvert(placement.kind === 'invert');
-      if (placement.kind === 'invert') return current;
-      const next = placement.geometry;
-      if (
-        Math.abs(next.x - current.x) < 1e-6 &&
-        Math.abs(next.y - current.y) < 1e-6 &&
-        Math.abs(next.w - current.w) < 1e-6
-      ) {
-        return current;
+    const layer = hostLayer();
+    const stageEl = stageElement();
+    const dock = !focused && mode !== 'floating' ? mode : '';
+    for (const element of [layer, stageEl]) {
+      if (element === null) continue;
+      if (dock === '') {
+        delete element.dataset.insetDock;
+      } else {
+        element.dataset.insetDock = dock;
       }
-      return next;
-    });
-  }, [stage, stageElement, reportInvert, floorPx]);
+    }
+    if (dock === '') {
+      stageEl?.style.removeProperty('--inset-dock-size');
+    } else if (dockSizePx > 0) {
+      stageEl?.style.setProperty('--inset-dock-size', `${Math.round(dockSizePx)}px`);
+    }
+  }, [mode, focused, dockSizePx, hostLayer, stageElement]);
 
   const persist = useCallback(
-    (next: InsetGeometry) => {
+    (nextMode: InsetMode, nextGeometry: InsetGeometry) => {
       userMovedRef.current = true;
-      storeGeometry(storageKey, next);
+      storeState(storageKey, { mode: nextMode, geometry: nextGeometry });
     },
     [storageKey],
   );
 
   /** Card drag: armed on press anywhere, live after a short move threshold,
-   *  so a plain tap still reaches the chart under the pointer. */
+   *  so a plain tap still reaches the chart under the pointer. Dragging a
+   *  docked card lifts it out beside the scene to floating. */
   const armRef = useRef<{ pointerId: number; x: number; y: number; grabX: number; grabY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startW: number } | null>(null);
 
   const pointInStage = (event: ReactPointerEvent<HTMLElement>): { x: number; y: number } => {
-    const host = rootRef.current?.parentElement;
-    const rect = host?.getBoundingClientRect();
+    const rect = stageElement()?.getBoundingClientRect();
     const x = rect === undefined ? event.clientX : event.clientX - rect.left;
     const y = rect === undefined ? event.clientY : event.clientY - rect.top;
     return { x, y };
+  };
+
+  /** The card's current on-stage position, floating or docked. */
+  const cardRectInStage = (): { x: number; y: number; w: number; h: number } | null => {
+    const card = rootRef.current?.getBoundingClientRect();
+    const host = stageElement()?.getBoundingClientRect();
+    if (card === undefined || host === undefined || stage === null) return null;
+    return {
+      x: card.left - host.left,
+      y: card.top - host.top,
+      w: card.width,
+      h: card.height,
+    };
   };
 
   const onSurfacePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || stage === null || geometry === null) return;
     // The resizer stops propagation before this; the bar is chrome only.
     const point = pointInStage(event);
+    const card = cardRectInStage();
     armRef.current = {
       pointerId: event.pointerId,
       x: point.x,
       y: point.y,
-      grabX: point.x - geometry.x * stage.width,
-      grabY: point.y - geometry.y * stage.height,
+      grabX: card === null ? 0 : point.x - card.x,
+      grabY: card === null ? 0 : point.y - card.y,
     };
   };
 
@@ -429,6 +536,19 @@ export function Inset({
       if (Math.hypot(point.x - arm.x, point.y - arm.y) < DRAG_THRESHOLD_PX) return;
       event.currentTarget.setPointerCapture(event.pointerId);
       setDragging(true);
+      if (mode !== 'floating') {
+        // Lift the docked card out under the pointer.
+        const card = cardRectInStage();
+        if (card !== null) {
+          const width = Math.min(Math.max(card.w, floorPx), allowedWidthPx(stage));
+          setMode('floating');
+          setGeometry({
+            x: (point.x - arm.grabX) / stage.width,
+            y: (point.y - arm.grabY) / stage.height,
+            w: width / stage.width,
+          });
+        }
+      }
     }
     if (!dragging || arm === null || arm.pointerId !== event.pointerId) return;
     const point = pointInStage(event);
@@ -461,6 +581,19 @@ export function Inset({
     const nearTop = centerY < DOCK_REACH * stage.height;
     const nearBottom = centerY > (1 - DOCK_REACH) * stage.height;
 
+    // Released at the scene side or beneath: dock beside the scene again.
+    if (nearRight && !nearTop && !nearBottom && sideFits(stage, floorPx)) {
+      setGeometry(clampGeometry({ ...geometry, w: dockedWidthPx(stage, floorPx) / stage.width }, stage, floorPx));
+      setMode('side');
+      persist('side', clampGeometry(geometry, stage, floorPx));
+      return;
+    }
+    if (nearBottom && !nearLeft && !nearRight && stackFits(stage, floorPx)) {
+      setMode('stack');
+      persist('stack', clampGeometry(geometry, stage, floorPx));
+      return;
+    }
+
     let x = geometry.x * stage.width;
     let y = geometry.y * stage.height;
     if (nearLeft || nearRight || nearTop || nearBottom) {
@@ -471,7 +604,7 @@ export function Inset({
     }
     const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage, floorPx);
     setGeometry(next);
-    persist(next);
+    persist('floating', next);
   };
 
   /** Resize from the corner grip, keeping the aspect and the floor→cap span. */
@@ -503,12 +636,13 @@ export function Inset({
     }
     resizeRef.current = null;
     setResizing(false);
-    persist(geometry);
+    persist(mode, geometry);
   };
 
-  /** Arrow keys move the pane; Alt+arrow keys resize it. */
+  /** Arrow keys move the floating pane; Alt+arrow keys resize it anywhere. */
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (!event.key.startsWith('Arrow') || stage === null || geometry === null) return;
+    if (mode !== 'floating' && !event.altKey) return;
     event.preventDefault();
     const width = geometry.w * stage.width;
     const step = Math.max(KEY_STEP * stage.width, 4);
@@ -530,7 +664,7 @@ export function Inset({
       floorPx,
     );
     setGeometry(next);
-    persist(next);
+    persist(mode, next);
   };
 
   if (focused) {
@@ -556,21 +690,26 @@ export function Inset({
 
   const width = geometry.w * stage.width;
   const height = width * ASPECT;
+  const docked = mode !== 'floating';
 
   return (
     <div
       ref={rootRef}
-      className="chart-inset"
+      className={docked ? 'chart-inset chart-inset--docked' : 'chart-inset'}
       role="region"
       aria-label={`${label} — drag to move, arrow keys to move, Alt and arrow keys to resize`}
       tabIndex={0}
       data-dragging={dragging || resizing}
-      style={{
-        left: geometry.x * stage.width,
-        top: geometry.y * stage.height,
-        width,
-        height,
-      }}
+      style={
+        docked
+          ? undefined
+          : {
+              left: geometry.x * stage.width,
+              top: geometry.y * stage.height,
+              width,
+              height,
+            }
+      }
       onKeyDown={onKeyDown}
       onPointerDown={onSurfacePointerDown}
       onPointerMove={onSurfacePointerMove}

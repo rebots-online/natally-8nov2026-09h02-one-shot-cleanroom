@@ -612,3 +612,32 @@ div[id^='threejs-container'] {
 .app-brand {
   font-size: clamp(1.7rem, 3.4vw, 2.1rem);
 }
+
+/* ---------- Docked-beside layout (ARCHITECTURE §Chart inset) ---------- */
+
+/* When the stage is large enough the chart takes its own slot and the
+   verbatim stage — Natally's scene — re-zooms into the remaining space;
+   the inset sets data-inset-dock and --inset-dock-size on this element. */
+.app-stage[data-inset-dock='side'] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--inset-dock-size);
+  gap: 14px;
+}
+.app-stage[data-inset-dock='side'] > .reading-stage {
+  min-width: 0;
+}
+.app-stage[data-inset-dock='side'] > .stage-inset-layer {
+  position: static;
+  grid-column: 2;
+}
+.app-stage[data-inset-dock='stack'] {
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;
+}
+.app-stage[data-inset-dock='stack'] > .stage-inset-layer {
+  position: static;
+  grid-row: 2;
+  width: var(--inset-dock-size);
+  height: var(--inset-dock-size);
+}

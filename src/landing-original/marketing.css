@@ -113,3 +113,33 @@
 @media(max-width:640px){.marketing-frame__target-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}}
 @media(max-width:440px){.marketing-frame__caption{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.marketing-frame__spring{transform:none}.marketing-frame__pane{transition:none}}
+
+/* ---------- Docked-beside layout (ARCHITECTURE §Chart inset) ---------- */
+
+/* Side by side: the room narrows to the remaining width — the scene
+   re-zooms — and the chart card takes the right-hand dock slot. */
+.marketing-frame__stage[data-inset-dock='side'] .marketing-frame__pane[data-active='true'] {
+  width: auto;
+  right: calc(var(--inset-dock-size) + 8px);
+}
+.marketing-frame__stage[data-inset-dock='side'] .stage-inset-layer {
+  left: auto;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--inset-dock-size);
+  z-index: 2;
+}
+/* Stacked: the chart strip sits under the scene inside the stage. */
+.marketing-frame__stage[data-inset-dock='stack'] .marketing-frame__pane[data-active='true'] {
+  height: auto;
+  bottom: calc(var(--inset-dock-size) + 8px);
+}
+.marketing-frame__stage[data-inset-dock='stack'] .stage-inset-layer {
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--inset-dock-size);
+  z-index: 2;
+}
