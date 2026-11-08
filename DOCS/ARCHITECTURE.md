@@ -101,3 +101,10 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | Presentation state | `src/app/presentation/state.ts` | Reducer over `PresentationState`: focus/clear set the highlighted targets; view swaps chart⇄inset (chart focused → Natally becomes the inset). A manual view choice turns `follow` off, and automatic view cues then stop. |
 | Playback drive | `src/app/presentation/playback.ts` | The voice engine's word boundary offsets advance through the cues; each crossed cue is applied, so highlight → scroll → focus → un-highlight track what she is saying. Without audio, cues apply at text-stream offsets. |
 | Cue prompting | `src/app/chat/context.ts` | System prompt instructs her to emit those cues as she narrates: chart view for geometry, atelier view for reflection, clear between emphases; includes this chart's exact target inventory. |
+
+## Chart inset (primary USP)
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Inset (app) | `src/atelier-original/components/ReadingStage.tsx` + `.css` | Whichever pane is not in focus (chart, or Natally when the chart is focused) floats as an inset over the stage, visible from first load. Drag anywhere across the full stage; released near an edge or corner it docks there. A corner grip resizes it from 20% to 60% of the stage width, keeping its aspect; arrow keys with Alt resize. Position and size persist per account. Never covers Natally's face on first load (default dock bottom-right). |
+| Inset (landing) | `src/landing-original/marketing.tsx` + `marketing.css` | Same behaviour for the landing's example chart inset: draggable, dockable, resizable 20–60%, persisted for the guest. |
