@@ -58,10 +58,10 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   const focusStartRef = useRef(0);
   const haloMaterialsRef = useRef<THREE.SpriteMaterial[]>([]);
   const endpointLabelsRef = useRef<Array<{ element: HTMLDivElement; leader: HTMLDivElement; point: THREE.Vector3; target: string; persistent: boolean }>>([]);
-  const setAspectHoverRef = useRef<(name: string | null) => void>(() => {});
-  const wakeRendererRef = useRef<() => void>(() => {});
-  const resizeRendererRef = useRef<() => void>(() => {});
-  const dismissHoverRef = useRef<() => void>(() => {});
+  const setAspectHoverRef = useRef<(name: string | null) => void>(() => { });
+  const wakeRendererRef = useRef<() => void>(() => { });
+  const resizeRendererRef = useRef<() => void>(() => { });
+  const dismissHoverRef = useRef<() => void>(() => { });
   // An inset object click first swaps the panes; the selection it chose waits
   // here until the pane swap's CSS transition ends (or fires at once under
   // reduced motion). It never fires stale: cleared on unmount, drag start,
@@ -84,17 +84,19 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const key = `${target.target_kind}:${target.target_id}`;
     if (hoverEpisodeRef.current?.key === key) return;
     endChartHover();
-    hoverEpisodeRef.current = { key, end: beginInteractionEpisode('chart_item_hover', {
-      ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object', input_method: 'pointer',
-    }) };
+    hoverEpisodeRef.current = {
+      key, end: beginInteractionEpisode('chart_item_hover', {
+        ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object', input_method: 'pointer',
+      })
+    };
   };
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => { reducedMotionRef.current = reducedMotion || motionPaused || media.matches;wakeRendererRef.current(); };
-    update();media.addEventListener('change',update);
-    return () => media.removeEventListener('change',update);
-  }, [reducedMotion,motionPaused]);
+    const update = () => { reducedMotionRef.current = reducedMotion || motionPaused || media.matches; wakeRendererRef.current(); };
+    update(); media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [reducedMotion, motionPaused]);
 
   useEffect(() => {
     focusStartRef.current = performance.now();
@@ -160,7 +162,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   useEffect(() => {
     dismissHoverRef.current();
     if (!showAnnotations) {
-      endpointLabelsRef.current.forEach(({element,leader}) => { element.style.display = leader.style.display = 'none'; });
+      endpointLabelsRef.current.forEach(({ element, leader }) => { element.style.display = leader.style.display = 'none'; });
     }
     wakeRendererRef.current();
   }, [showAnnotations]);
@@ -359,9 +361,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const boundary = container.closest<HTMLElement>('[data-chart-callout-boundary]');
     const isInset = () => boundary?.dataset.chartInset === 'true';
     const dismissHover = () => {
-      hoverTarget = null;hoverPointer = null;isHovered = false;
-      setAspectHoverRef.current(null);endChartHover('cancelled');
-      tooltipEl.style.opacity = '0';tooltipEl.style.visibility = 'hidden';
+      hoverTarget = null; hoverPointer = null; isHovered = false;
+      setAspectHoverRef.current(null); endChartHover('cancelled');
+      tooltipEl.style.opacity = '0'; tooltipEl.style.visibility = 'hidden';
       renderer.domElement.style.cursor = 'default';
     };
     dismissHoverRef.current = dismissHover;
@@ -437,7 +439,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const onMouseUp = (event: MouseEvent) => {
       if (touchBinding.suppressMouse()) return;
       if (mouseGesture) {
-        suppressDragClick = mouseGesture.moved || Math.hypot(event.clientX - mouseGesture.x,event.clientY - mouseGesture.y) > 4;
+        suppressDragClick = mouseGesture.moved || Math.hypot(event.clientX - mouseGesture.x, event.clientY - mouseGesture.y) > 4;
         mouseGesture = null;
       }
       endDrag();
@@ -487,19 +489,19 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     const refreshCallout = () => {
       if (!hoverTarget || !hoverPointer) return;
-      if (isDraggingRef.current || !pointerCanHover(hoverPointer.x, hoverPointer.y)) { dismissHover();return; }
+      if (isDraggingRef.current || !pointerCanHover(hoverPointer.x, hoverPointer.y)) { dismissHover(); return; }
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((hoverPointer.x - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((hoverPointer.y - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
-      if (pickChartTargets()[0]?.object !== hoverTarget) { dismissHover();return; }
+      if (pickChartTargets()[0]?.object !== hoverTarget) { dismissHover(); return; }
       tooltipEl.style.transition = reducedMotionRef.current ? 'none' : 'opacity 0.15s ease';
       if (!placeChartCallout(tooltipEl, hoverPointer, isInset() && boundary ? boundary.getBoundingClientRect() : null)) dismissHover();
     };
 
     const onMouseMove = (event: MouseEvent) => {
       if (touchBinding.suppressMouse()) return;
-      if (mouseGesture && Math.hypot(event.clientX - mouseGesture.x,event.clientY - mouseGesture.y) > 4) mouseGesture.moved = true;
+      if (mouseGesture && Math.hypot(event.clientX - mouseGesture.x, event.clientY - mouseGesture.y) > 4) mouseGesture.moved = true;
       if (isDraggingRef.current) {
         updateDrag(event.clientX, event.clientY);
         return;
@@ -507,7 +509,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
       // Guard: If cursor is over any modal, card, panel, button, or menu on top of the canvas,
       // hide the astrolabe tooltip immediately and do not process raycasting
-      if (!pointerCanHover(event.clientX, event.clientY)) { dismissHover();return; }
+      if (!pointerCanHover(event.clientX, event.clientY)) { dismissHover(); return; }
 
       const rect = renderer.domElement.getBoundingClientRect();
       updateDrag(event.clientX, event.clientY);
@@ -522,7 +524,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const data = intersects[0].object.userData;
         if (event.isTrusted) observeChartHover(data.componentId || data.planetName || data.houseName || data.aspectName);
         setAspectHoverRef.current(data.aspectName || (isInset() ? data.componentId || data.planetName || data.houseName : null) || null);
-        hoverTarget = intersects[0].object;hoverPointer = {x:event.clientX,y:event.clientY};
+        hoverTarget = intersects[0].object; hoverPointer = { x: event.clientX, y: event.clientY };
         isHovered = true;
         renderer.domElement.style.cursor = data.selectable === false ? 'help' : 'pointer';
 
@@ -560,7 +562,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     };
     const touchBinding = bindTorusTouch(renderer.domElement, {
       start: (x, y) => {
-        mouseGesture = null;suppressDragClick = false;activatedTouchUntil = 0;
+        mouseGesture = null; suppressDragClick = false; activatedTouchUntil = 0;
         startDrag(x, y);
       },
       move: updateDrag,
@@ -582,7 +584,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       if (touchBinding.suppressClick()) return;
       // Rotation is not a target activation: consume only the click following
       // a legitimate mouse gesture that crossed the same four-pixel tolerance.
-      if (suppressDragClick) { suppressDragClick = false;return; }
+      if (suppressDragClick) { suppressDragClick = false; return; }
       const elementUnderPointer = document.elementFromPoint(event.clientX, event.clientY);
       if (
         elementUnderPointer &&
@@ -609,7 +611,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           const pointerType = (event as PointerEvent).pointerType;
           const inputMethod = pointerType === 'touch' ? 'touch'
             : pointerType === 'mouse' || pointerType === 'pen' ? 'pointer'
-            : event.detail > 0 ? observedInput : 'unknown';
+              : event.detail > 0 ? observedInput : 'unknown';
           const reportSelection = () => {
             if (event.isTrusted && target) trackInteraction('chart_item_select', {
               ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
@@ -623,7 +625,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         return;
       }
 
-      if (activateRef.current) { activateRef.current();return; }
+      if (activateRef.current) { activateRef.current(); return; }
 
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -642,7 +644,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const pointerType = (event as PointerEvent).pointerType;
         const inputMethod = pointerType === 'touch' ? 'touch'
           : pointerType === 'mouse' || pointerType === 'pen' ? 'pointer'
-          : event.detail > 0 ? observedInput : 'unknown';
+            : event.detail > 0 ? observedInput : 'unknown';
         const reportSelection = () => {
           if (event.isTrusted && target) trackInteraction('chart_item_select', {
             ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
@@ -663,7 +665,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const onTouchActivate = (event: TouchEvent) => {
       if (event.isTrusted) clickInput = 'touch';
       if (event.touches.length || event.changedTouches.length !== 1 || touchBinding.suppressClick()) return;
-      const touch = event.changedTouches[0], element = document.elementFromPoint(touch.clientX,touch.clientY);
+      const touch = event.changedTouches[0], element = document.elementFromPoint(touch.clientX, touch.clientY);
       if (element && element !== renderer.domElement && element !== containerRef.current && !renderer.domElement.contains(element)) return;
       // Inset taps follow the same two-path rule as clicks: the chart comes
       // forward at once while the tapped object's selection waits for the
@@ -759,7 +761,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const labelWidth = Math.min(178, Math.max(110, bounds.width - 16));
       const occupied: Array<{ x: number; y: number }> = [];
       endpointLabelsRef.current.forEach(({ element, leader, point, persistent }) => {
-        if (!showAnnotationsRef.current || isInset()) { element.style.display = leader.style.display = 'none';return; }
+        if (!showAnnotationsRef.current || isInset()) { element.style.display = leader.style.display = 'none'; return; }
         if (persistent) element.style.display = leader.style.display = '';
         if (element.style.display === 'none') return;
         const projected = point.clone(); wheelGroup.localToWorld(projected); projected.project(camera);
@@ -836,9 +838,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       pendingInsetSelectionRef.current = null;
       dismissHover();
       disposed = true;
-      dismissHoverRef.current = () => {};
-      wakeRendererRef.current = () => {};
-      resizeRendererRef.current = () => {};
+      dismissHoverRef.current = () => { };
+      wakeRendererRef.current = () => { };
+      resizeRendererRef.current = () => { };
       domEl.removeEventListener('webglcontextlost', onContextLost);
       domEl.removeEventListener('webglcontextrestored', onContextRestored);
       cancelAnimationFrame(animFrameId);
@@ -1123,20 +1125,30 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const xOuter = Math.cos(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
       const zOuter = Math.sin(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
 
-      const spokeGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(xInner, 0.025, zInner),
-        new THREE.Vector3(xOuter, 0.025, zOuter),
-      ]);
-      const spokeMat = new THREE.LineBasicMaterial({
-        color: isSelected ? 0xffdf80 : isCardo ? 0xf2ca50 : 0x7c6999,
-        linewidth: isSelected ? 4 : isCardo ? 3 : 1,
-        transparent: true,
-        opacity: isSelected ? 1.0 : isCardo ? 0.95 : 0.45,
-      });
-      const spokeLine = new THREE.Line(spokeGeo, spokeMat);
-      spokeLine.userData.focused = isSelected;
-      spokeLine.userData.structureFrame = true; // wheel dividers: never dim
-      dynamicGroup.add(spokeLine);
+      // House boundaries need real width: WebGL does not honor LineBasicMaterial
+      // linewidth consistently. Keep a white core on black so the boundary
+      // remains readable against both the purple wheel and bright glyphs.
+      const start = new THREE.Vector3(xInner, 0.025, zInner);
+      const end = new THREE.Vector3(xOuter, 0.025, zOuter);
+      const direction = end.clone().sub(start);
+      const length = direction.length();
+      if (length > 0) {
+        const midpoint = start.clone().add(end).multiplyScalar(0.5);
+        const rotation = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0), direction.normalize()
+        );
+        for (const [radius, color, order] of [[0.019, 0x08040e, 2], [0.007, 0xffffff, 3]]) {
+          const divider = new THREE.Mesh(
+            new THREE.CylinderGeometry(radius, radius, length, 8),
+            new THREE.MeshBasicMaterial({ color, depthTest: false, depthWrite: false })
+          );
+          divider.position.copy(midpoint);
+          divider.quaternion.copy(rotation);
+          divider.renderOrder = order;
+          divider.userData.structureFrame = true;
+          dynamicGroup.add(divider);
+        }
+      }
 
       // Cusp Badge
       const badgeR = R_TORUS_TRACK - R_TORUS_TUBE - 0.12;
@@ -1201,12 +1213,12 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       hCanvas.width = 128;
       hCanvas.height = 128;
       const hCtx = hCanvas.getContext('2d')!;
-      hCtx.beginPath();hCtx.arc(64,64,51,0,Math.PI*2);
-      hCtx.fillStyle=isSelected?'#634618':'#100c1c';hCtx.fill();
-      hCtx.lineWidth=isSelected?7:4;hCtx.strokeStyle=isSelected?'#fff1ac':'#d4af37';hCtx.stroke();
+      hCtx.beginPath(); hCtx.arc(64, 64, 51, 0, Math.PI * 2);
+      hCtx.fillStyle = isSelected ? '#634618' : '#100c1c'; hCtx.fill();
+      hCtx.lineWidth = isSelected ? 7 : 4; hCtx.strokeStyle = isSelected ? '#fff1ac' : '#d4af37'; hCtx.stroke();
       hCtx.font = 'bold 68px "IBM Plex Mono", monospace';
-      hCtx.textAlign = 'center';hCtx.textBaseline = 'middle';
-      hCtx.fillStyle = '#fff2bd';hCtx.fillText(h.num.toString(),64,67);
+      hCtx.textAlign = 'center'; hCtx.textBaseline = 'middle';
+      hCtx.fillStyle = '#fff2bd'; hCtx.fillText(h.num.toString(), 64, 67);
 
       const hTex = new THREE.CanvasTexture(hCanvas);
       const hMat = new THREE.SpriteMaterial({
@@ -1525,7 +1537,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     }
     wakeRendererRef.current();
     return () => {
-      if (setAspectHoverRef.current === applyHover) setAspectHoverRef.current = () => {};
+      if (setAspectHoverRef.current === applyHover) setAspectHoverRef.current = () => { };
       endpointLabels.forEach(({ element, leader }) => { element.remove(); leader.remove(); });
       if (endpointLabelsRef.current === endpointLabels) endpointLabelsRef.current = [];
       dynamicGroup.traverse(object => {
