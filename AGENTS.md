@@ -36,3 +36,10 @@
     invocation increments the version (MAJOR.MINOR.BUILD, MINOR +1, BUILD =
     epoch days % 10000) before anything is built; the same version is stamped
     on web and every native artifact. No manual version numbers.
+
+14. ARCHITECTURE.md, once frozen, is the only thing produced — period, no
+    exceptions. CHECKLIST.md translates it 1:1; subagent coders (never the
+    orchestrator) build exactly that; build_all.sh stamps and deploys. If a
+    described behaviour proves impossible, stop and re-architect:
+    amend ARCHITECTURE.md, re-freeze, re-translate to CHECKLIST.md,
+    re-assign. Never improvise around the document.
