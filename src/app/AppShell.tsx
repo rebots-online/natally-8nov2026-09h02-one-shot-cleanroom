@@ -129,6 +129,22 @@ export default function App() {
     return parseReply(opening, chartTargets(chart)).text;
   }, [chart, opening]);
 
+  // The opening reading reveals word by word as she speaks it (karaoke
+  // boundaries); null shows the whole line, a number is the visible prefix.
+  const [openingReveal, setOpeningReveal] = useState<number | null>(null);
+  const revealActiveRef = useRef(false);
+  const revealCursorRef = useRef(0);
+  const beginOpeningReveal = () => {
+    revealCursorRef.current = 0;
+    revealActiveRef.current = true;
+    setOpeningReveal(0);
+  };
+  const endOpeningReveal = () => {
+    if (!revealActiveRef.current) return;
+    revealActiveRef.current = false;
+    setOpeningReveal(null);
+  };
+
   // Cues cross as her voice reaches them: the driver applies each one, the
   // karaoke word boundaries set the frontier, speech's end flushes the rest.
   const sawCueViewRef = useRef(false);
@@ -149,8 +165,11 @@ export default function App() {
   const handleReplyEvent = (event: ReplyEvent) => {
     const driver = driverRef.current;
     if (driver === null) return;
-    if (event.phase === 'begin') driver.begin(voice.admitted);
-    else if (event.phase === 'delta') driver.update(event.text, event.cues);
+    if (event.phase === 'begin') {
+      // A new utterance supersedes the opening: her words are all visible.
+      endOpeningReveal();
+      driver.begin(voice.admitted);
+    } else if (event.phase === 'delta') driver.update(event.text, event.cues);
     else if (event.phase === 'final') driver.end();
     else driver.finish();
   };
@@ -159,24 +178,40 @@ export default function App() {
   useEffect(() => {
     const onKaraoke = (event: Event) => {
       const detail = (event as CustomEvent<KaraokeDetail>).detail;
-      if (detail !== undefined) {
-        driverRef.current?.spoken({
-          line: detail.line,
-          wordIndex: detail.wordIndex,
-          wordCount: detail.wordCount,
-        });
+      if (detail === undefined) return;
+      driverRef.current?.spoken({
+        line: detail.line,
+        wordIndex: detail.wordIndex,
+        wordCount: detail.wordCount,
+      });
+      // While she speaks the opening reading, its words appear as said.
+      if (revealActiveRef.current && openingClean !== null) {
+        let at = openingClean.indexOf(detail.line, revealCursorRef.current);
+        if (at < 0) at = openingClean.indexOf(detail.line);
+        if (at >= 0) {
+          const words = [...detail.line.matchAll(/\S+/g)];
+          const wordStart =
+            detail.wordIndex >= 0 && detail.wordIndex < words.length
+              ? words[detail.wordIndex].index ?? detail.line.length
+              : detail.line.length;
+          revealCursorRef.current = at + detail.line.length;
+          setOpeningReveal(at + wordStart);
+        }
       }
     };
     window.addEventListener('natally-karaoke', onKaraoke);
     return () => window.removeEventListener('natally-karaoke', onKaraoke);
-  }, []);
+  }, [openingClean]);
 
   // When her speech ends, whatever it never reached is applied now.
   const speakingRef = useRef(false);
   useEffect(
     () =>
       voice.onState(state => {
-        if (speakingRef.current && !state.speaking) driverRef.current?.finish();
+        if (speakingRef.current && !state.speaking) {
+          driverRef.current?.finish();
+          endOpeningReveal();
+        }
         speakingRef.current = state.speaking;
       }),
     [voice],
@@ -195,6 +230,7 @@ export default function App() {
       if (openingSpokenRef.current) return;
       openingSpokenRef.current = true;
       voice.admit();
+      beginOpeningReveal();
       voice.speakStream(openingClean, { flush: true });
     };
     window.addEventListener('pointerdown', admit, { once: true });
@@ -207,6 +243,7 @@ export default function App() {
   useEffect(() => {
     if (openingClean !== null && voice.admitted && !openingSpokenRef.current) {
       openingSpokenRef.current = true;
+      beginOpeningReveal();
       voice.speakStream(openingClean, { flush: true });
     }
   }, [openingClean, voice]);
@@ -228,8 +265,14 @@ export default function App() {
   };
 
   const chatStage = useMemo(
-    () => ({ voice, opening, onReply: handleReplyEvent }),
-    [voice, opening],
+    () => ({
+      voice,
+      opening,
+      onReply: handleReplyEvent,
+      revealedOpening:
+        openingReveal === null || openingClean === null ? null : openingClean.slice(0, openingReveal),
+    }),
+    [voice, opening, openingReveal, openingClean],
   );
 
   // Today's sky for the click readings: the same verbatim pipeline cast for

@@ -49,7 +49,7 @@ function errorText(error: ChatError): string {
 }
 
 export function ChatPanel({ chart, onTopUp, stage }: ChatPanelProps) {
-  const { messages, send, streaming, error, allowance } = useChat(chart, stage);
+  const { messages, send, streaming, openingLive, error, allowance } = useChat(chart, stage);
   const [draft, setDraft] = useState('');
   const logRef = useRef<HTMLDivElement | null>(null);
   const [voiceAdmitted, setVoiceAdmitted] = useState(stage.voice.admitted);
@@ -101,6 +101,11 @@ export function ChatPanel({ chart, onTopUp, stage }: ChatPanelProps) {
         {messages.map((message, index) => {
           const isStreamingReply =
             streaming && index === messages.length - 1 && message.role === 'natally';
+          // Her opening reading carries the same live caret while its
+          // words appear as she speaks them.
+          const isLiveOpening =
+            openingLive && index === messages.length - 1 && message.role === 'natally';
+          const live = isStreamingReply || isLiveOpening;
           return (
             <div
               key={message.id}
@@ -111,7 +116,7 @@ export function ChatPanel({ chart, onTopUp, stage }: ChatPanelProps) {
               }
             >
               {message.text}
-              {isStreamingReply && <span className="chat-caret" aria-hidden="true" />}
+              {live && <span className="chat-caret" aria-hidden="true" />}
             </div>
           );
         })}

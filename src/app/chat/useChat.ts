@@ -64,6 +64,12 @@ export interface ChatStage {
   voice: Voice;
   /** Authored first message: her opening reading of the chart (with cues). */
   opening: string | null;
+  /**
+   * While she speaks the opening reading: the prefix of it her voice has
+   * reached, word by word; null when the whole reading is shown — before
+   * she starts speaking, and once it is flushed.
+   */
+  revealedOpening?: string | null;
   /** Presentation progress of every reply, for the stage to drive. */
   onReply: (event: ReplyEvent) => void;
 }
@@ -72,6 +78,8 @@ export interface UseChat {
   messages: ChatMessage[];
   send: (text: string) => Promise<void>;
   streaming: boolean;
+  /** True while her opening reading is appearing word by word. */
+  openingLive: boolean;
   error: ChatError | null;
   allowance: AllowanceView;
 }
@@ -96,6 +104,13 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
   // Latest stage bundle (voice, opening, onReply) without rebinding send.
   const stageRef = useRef<ChatStage | undefined>(stage);
   stageRef.current = stage;
+
+  // The opening reading: stable message id + full text, so the reveal can
+  // rewrite its words as her voice reaches them.
+  const openingIdRef = useRef<string | null>(null);
+  const openingTextRef = useRef('');
+  // True while the shell reveals the opening reading word by word.
+  const openingLive = stage?.revealedOpening != null;
 
   const updateMessages = useCallback((next: ChatMessage[]) => {
     messagesRef.current = next;
@@ -129,20 +144,46 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
 
   // The stage opens with her reading the chart aloud as her first chat
   // message (unless a conversation is already running). The shell owns the
-  // speech (gesture-gated); here the message lands and its cues reach the
-  // stage through onReply.
+  // speech (gesture-gated) and the word-by-word reveal; here the message
+  // lands — at the spoken prefix when her voice is already in it — and its
+  // cues reach the stage through onReply.
   useEffect(() => {
     const opening = stageRef.current?.opening;
     if (opening === null || opening === undefined) return;
     if (messagesRef.current.length > 0) return;
     const parsed = parseReply(opening, chartTargets(chart));
+    const id = newId();
+    openingIdRef.current = id;
+    openingTextRef.current = parsed.text;
     updateMessages([
-      { id: newId(), role: 'natally', text: parsed.text, at: Date.now() },
+      {
+        id,
+        role: 'natally',
+        text: stageRef.current?.revealedOpening ?? parsed.text,
+        at: Date.now(),
+      },
     ]);
     stageRef.current?.onReply({ phase: 'begin' });
     stageRef.current?.onReply({ phase: 'delta', text: parsed.text, cues: parsed.cues });
     stageRef.current?.onReply({ phase: 'final' });
   }, [chart, updateMessages]);
+
+  // Her words appear as she says them: while the reveal is live, the
+  // opening message shows only the prefix her voice has reached; when the
+  // reveal ends the whole reading settles back into the log.
+  const revealedOpening = stage?.revealedOpening ?? null;
+  useEffect(() => {
+    const id = openingIdRef.current;
+    if (id === null) return;
+    const next = revealedOpening ?? openingTextRef.current;
+    const current = messagesRef.current.find(message => message.id === id);
+    if (current === undefined || current.text === next) return;
+    updateMessages(
+      messagesRef.current.map(message =>
+        message.id === id ? { ...message, text: next } : message,
+      ),
+    );
+  }, [revealedOpening, updateMessages]);
 
   const send = useCallback(
     async (text: string) => {
@@ -246,7 +287,7 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
     [allowance, armIdleStory, chart, clearIdleStory, updateMessages],
   );
 
-  return { messages, send, streaming, error, allowance };
+  return { messages, send, streaming, openingLive, error, allowance };
 }
 
 /** Poll the billing ledger and expose the envelope plus its Cr balance. */
