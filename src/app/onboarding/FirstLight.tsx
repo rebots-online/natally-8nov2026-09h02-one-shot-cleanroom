@@ -192,14 +192,10 @@ export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChar
      timezoneIana: place.tzid,
     },
    };
-   const [computed, wheel] = await Promise.all([
-    natalChart(birth),
-    computeAstrolabeChart(birth),
-   ]);
+   const computed = await natalChart(birth);
    clearStashedDraft();
-   setChart(computed);
-   setWheel(wheel);
-   setPhase('reveal');
+   voice.stop();
+   onSitDown(computed);
   } catch (failure) {
    setError(
     failure instanceof Error
