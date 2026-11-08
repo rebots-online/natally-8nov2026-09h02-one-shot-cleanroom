@@ -783,7 +783,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
       if (wheelGroupRef.current) {
         if (!reducedMotionRef.current && !isDraggingRef.current && !isHovered) {
-          const baseSpin = isSpinningRef.current ? 0.00022 : 0;
+          // Operator tuning 2026-11-08: 2.5× the original 0.00022 — her
+          // wheel turns like the sky: perceptibly, unhurried.
+          const baseSpin = isSpinningRef.current ? 0.00055 : 0;
           wheelGroupRef.current.rotation.y += velocityYRef.current;
           wheelGroupRef.current.rotation.x += velocityXRef.current;
 
