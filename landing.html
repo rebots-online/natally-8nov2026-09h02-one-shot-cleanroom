@@ -1,13 +1,79 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Natally — your astrologer companion</title>
-    <link rel="icon" href="/favicon-32.png" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/landing/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#c9aa60">
+<title>Natally — your birth chart, read aloud</title>
+<meta name="description" content="Natally calculates your natal chart with Swiss Ephemeris, reads it aloud and shows each placement on the wheel as she speaks.">
+<style>
+/* Document chrome verbatim from the original landing page (site header,
+   base tokens, version badge). Marketing sections are intentionally not
+   part of this one-screen port. */
+:root{
+  --bg:oklch(0.17 0.022 294);
+  --surface:oklch(0.205 0.027 294);
+  --surface-2:oklch(0.235 0.03 294);
+  --fg:oklch(0.94 0.014 79);
+  --muted:oklch(0.74 0.025 294);
+  --border:oklch(0.35 0.035 294);
+  --accent:oklch(0.81 0.105 80);
+  --accent-hover:oklch(0.89 0.09 82);
+  --accent-ink:oklch(0.17 0.022 294);
+  --violet:oklch(0.65 0.16 309);
+  --violet-light:oklch(0.79 0.105 309);
+  --deep:oklch(0.12 0.023 294);
+  --success:oklch(0.8 0.065 158);
+  --error:oklch(0.83 0.10 30);
+  --font-display:Georgia,'Times New Roman',serif;
+  --font-body:'Segoe UI',Helvetica,Arial,sans-serif;
+  --r:8px; --r-lg:16px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{width:min(100% - 48px,1160px);margin-inline:auto}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance}
+p{margin:0}
+.site-head{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in oklch,var(--border) 60%,transparent)}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--font-display);font-size:22px;letter-spacing:.01em;min-height:44px}
+.brand img{width:34px;height:34px;border-radius:50%;border:1px solid var(--border)}
+.head-nav{display:flex;align-items:center;gap:4px}
+.head-nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:var(--r);text-decoration:none;color:var(--fg);font-size:14px}
+.head-nav a:hover{background:var(--surface-2)}
+.version-badge{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));z-index:30;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--deep);color:var(--accent);font:11px/1.4 Consolas,'Courier New',monospace;pointer-events:none}
+@media (max-width:760px){
+  .wrap{width:min(100% - 40px,1160px)}
+}
+@media (max-width:380px){.brand{font-size:20px}}
+</style>
+</head>
+<body>
+<header class="site-head" data-od-id="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" data-od-id="brand-home"><img src="/marketing-assets/natally-still.webp" width="400" height="400" alt="">Natally</a>
+    <nav class="head-nav" aria-label="Primary" data-od-id="primary-nav">
+      <a href="#your-chart">Your chart</a>
+      <a href="#reading-aloud">Your chart, explained aloud</a>
+      <a href="#talk-with-natally">Personal readings</a>
+      <a href="#prices">Prices</a>
+      <a href="#education">Learn astrology</a>
+    </nav>
+    <div id="marketing-account-root"></div>
+  </div>
+</header>
+<main id="top">
+  <div id="marketing-experience-root"></div>
+  <noscript><p>Enable JavaScript to explore the interactive room and your own chart.</p></noscript>
+</main>
+<div class="version-badge" data-natally-version-badge aria-label="Build version" hidden></div>
+<script type="module" src="/src/landing/main.tsx"></script>
+</body>
 </html>

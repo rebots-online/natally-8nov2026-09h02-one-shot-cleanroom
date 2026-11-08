@@ -1,15 +1,10 @@
 // Landing entry: renders the VERBATIM original marketing implementation
-// (src/landing-original/marketing.tsx, operator-authorized port). The
-// module self-mounts into #marketing-experience-root and redirects to
-// /app.html for app-entry query params, so this entry only guarantees the
-// mount node exists and loads the port.
+// (src/landing-original/marketing.tsx, operator-authorized port of the
+// deployed original v1.42). The module self-mounts into
+// #marketing-experience-root (provided by landing.html together with the
+// site header and #marketing-account-root) and redirects app-entry query
+// params to /app.html, so this entry only loads the port.
 
-import '../shared/tokens.css';
-
-if (!document.getElementById('marketing-experience-root')) {
-  const host = document.createElement('div');
-  host.id = 'marketing-experience-root';
-  document.body.appendChild(host);
-}
+export {};
 
 void import('../landing-original/marketing');
