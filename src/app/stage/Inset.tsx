@@ -1,22 +1,37 @@
 // The dockable, resizable chart inset (DOCS/ARCHITECTURE.md §Chart inset —
-// clean-room, written from the architecture words only). The unfocused pane
-// floats over the stage from first load; it can be dragged anywhere across
-// the full stage and docks to the nearest edge or corner on release; a
-// visible corner grip resizes it between 20% and 60% of the stage width
-// keeping its aspect; arrow keys move it and Alt+arrow keys resize it;
-// position and size persist per account in localStorage.
+// clean-room, written from the architecture words only). Whichever pane is
+// not in focus floats over the stage from first load; drag anywhere across
+// the full stage and it docks near an edge or corner on release; a corner
+// grip and Alt+arrow keys resize, arrow keys move; position and size
+// persist per account in localStorage.
+//
+// Size is set by usefulness, not by a percentage: the floor is the smallest
+// inset at which every individual house number and every individual planet
+// symbol on the wheel can be told apart and read, with every body a
+// fingertip-sized (~44 CSS px) target. N bodies sit around the wheel's rim,
+// so packing N 44 px targets on the circumference 2πr needs a wheel
+// diameter of about N·44/π (≈196 px for a full 14-body wheel) — house
+// numbers, evenly spaced at 30°, are comfortably readable inside that.
+// Above the floor the inset prefers larger, up to 60% of the stage; the
+// customer can resize anywhere from the floor to that cap.
+//
+// The inset moves like a card: picked up anywhere on its surface, with a
+// short move threshold so a tap without movement still selects the
+// planet/sign/house/aspect under the pointer — moving and exploring never
+// fight.
 //
 // First-load placement serves one intent: the customer can always see both
 // Natally and her chart well enough to use them — neither defeats the
 // other. Measured against the on-screen box of her rendered head
 // (`.atelier-character__head`): roomy stages get the largest corner/size
-// (20–60%) that leaves her face clear; tight stages get the least overlap
-// while the chart stays legible; when any legible inset would cover her
-// face (folded-phone covers) the stage inverts — the chart takes focus and
-// Natally becomes the inset, the same swap a reading uses. The placement
-// re-evaluates on resize until the customer moves the pane; after that the
-// customer's own choice always wins. When the chart is focused (`focused`)
-// the same pane fills the stage's visual area.
+// above the floor that leaves her face clear; tight stages get the least
+// overlap at the largest size that achieves it; when the floor itself
+// cannot sit beside her face (or the stage cannot fit the floor at all)
+// the stage inverts — the chart takes focus and Natally becomes the inset,
+// the same swap a reading uses. Placement re-evaluates on resize until the
+// customer moves the pane; after that the customer's own choice always
+// wins. When the chart is focused (`focused`) the same pane fills the
+// stage's visual area.
 
 import {
   useCallback,
@@ -30,23 +45,28 @@ import {
 } from 'react';
 import './inset.css';
 
-/** Inset width as a fraction of stage width: the architecture's 20–60%. */
-export const INSET_MIN_W = 0.2;
+/** Fingertip-sized hit target per body, in CSS px (the architecture's ~44). */
+export const BODY_TARGET_PX = 44;
+/** Inset width cap as a fraction of stage width (the architecture's 60%). */
 export const INSET_MAX_W = 0.6;
 /** Height = width × aspect; the wheel is square. */
 const ASPECT = 1;
+/** Inset chrome that is not wheel: the drag bar plus both borders, px. */
+const CHROME_PX = 32;
 /** Breathing room between a docked inset and the stage edge, in px. */
 const DOCK_MARGIN = 12;
 /** How close to an edge (fraction of that axis) a release must land to dock. */
 const DOCK_REACH = 0.24;
+/** Pointer travel that turns a touch into a card drag, in px. */
+const DRAG_THRESHOLD_PX = 5;
 /** Keyboard nudge as a fraction of stage width; Alt nudge resizes. */
 const KEY_STEP = 0.012;
 const KEY_RESIZE_STEP = 0.02;
-/**
- * When even the smallest chart hides this much of her face on every corner,
- * the stage is too small for both: the chart takes focus instead.
- */
+/** When the floor-sized inset still hides this much of her face on every
+ *  corner, it cannot sit beside her: the chart takes focus instead. */
 const FACE_COVERED_INVERT = 0.8;
+/** Bodies on a full wheel, when the caller cannot supply the live count. */
+const DEFAULT_BODY_COUNT = 14;
 
 interface InsetGeometry {
   /** Left edge as a fraction of stage width. */
@@ -70,6 +90,8 @@ export interface InsetProps {
   fillHeight?: number | null;
   /** Targets she is highlighting right now, shown on the inset's bar. */
   targets?: readonly string[];
+  /** Bodies drawn on this wheel; sets the usefulness size floor. */
+  bodyCount?: number;
   /**
    * First-load evaluation: true when the stage is too small for both panes
    * and the chart should take focus (Natally becomes the inset). Reported
@@ -98,6 +120,15 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
+/**
+ * The usefulness floor: the smallest inset width at which every body on the
+ * wheel is a ~44 px target on the rim — N·44/π of wheel plus the chrome.
+ */
+export function insetFloorPx(bodyCount: number): number {
+  const count = Math.max(1, Math.min(isFiniteNumber(bodyCount) ? bodyCount : DEFAULT_BODY_COUNT, 40));
+  return Math.ceil((count * BODY_TARGET_PX) / Math.PI) + CHROME_PX;
+}
+
 /** Read and validate the stored geometry; null when absent or corrupt. */
 function loadGeometry(storageKey: string): InsetGeometry | null {
   try {
@@ -123,10 +154,16 @@ function storeGeometry(storageKey: string, geometry: InsetGeometry): void {
   }
 }
 
-/** Clamp geometry fractions into the stage for the current box. */
-function clampGeometry(geometry: InsetGeometry, stage: StageBox): InsetGeometry {
-  const wMax = Math.min(INSET_MAX_W, (0.9 * stage.height) / ASPECT / stage.width);
-  const w = Math.min(Math.max(geometry.w, INSET_MIN_W), Math.max(wMax, INSET_MIN_W));
+/** The largest width (px) the stage allows: 60% of width, or the height cap. */
+function allowedWidthPx(stage: StageBox): number {
+  return Math.max(1, Math.min(INSET_MAX_W * stage.width, (0.9 * stage.height) / ASPECT));
+}
+
+/** Clamp geometry fractions into the stage for the current box and floor. */
+function clampGeometry(geometry: InsetGeometry, stage: StageBox, floorPx: number): InsetGeometry {
+  const maxF = allowedWidthPx(stage) / stage.width;
+  const minF = Math.min(floorPx / stage.width, maxF);
+  const w = Math.min(Math.max(geometry.w, minF), maxF);
   const heightFraction = (w * stage.width * ASPECT) / stage.height;
   const x = Math.min(Math.max(geometry.x, 0), Math.max(0, 1 - w));
   const y = Math.min(Math.max(geometry.y, 0), Math.max(0, 1 - heightFraction));
@@ -173,28 +210,27 @@ type AutoPlacement =
   | { kind: 'invert' };
 
 /**
- * First-load placement from the intent: roomy → the largest corner/size in
- * 20–60% that leaves her face clear; tight → the least overlap while the
- * chart stays legible (larger size on ties); too small for both → invert.
+ * First-load placement from the intent: roomy → the largest corner/size
+ * from the usefulness floor up to the cap that leaves her face clear;
+ * tight → the least overlap at the largest size that achieves it; a floor
+ * the stage cannot fit, or that would hide her face on every corner even
+ * at its smallest, is too small for both — the chart takes focus.
  * Overlap with size is monotone per corner, so each corner's best sits at
  * the size breakpoints where the growing inset edges cross her face edges.
  */
-function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement {
-  const wMin = INSET_MIN_W * stage.width;
-  const wFullest = INSET_MAX_W * stage.width;
-  const wCap = Math.max(
-    wMin,
-    Math.min(wFullest, (0.9 * stage.height) / ASPECT),
-  );
-  const faceArea = rectArea(face);
+function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: number): AutoPlacement {
+  const cap = allowedWidthPx(stage);
+  // The stage cannot offer a useful floating chart at all.
+  if (floorPx > cap) return { kind: 'invert' };
 
-  // Even the smallest chart hides essentially all of her face everywhere:
-  // too small for both — the chart takes focus.
+  const faceArea = rectArea(face);
   if (face !== null && faceArea > 0) {
     const leastHidden = CORNERS.reduce((best, corner) => {
-      const hidden = rectArea(intersection(dockedRectAtCorner(corner, wMin, stage), face)) / faceArea;
+      const hidden = rectArea(intersection(dockedRectAtCorner(corner, floorPx, stage), face)) / faceArea;
       return Math.min(best, hidden);
     }, Number.POSITIVE_INFINITY);
+    // Even at the floor every corner would mostly hide her: it cannot sit
+    // beside her face.
     if (leastHidden > FACE_COVERED_INVERT) return { kind: 'invert' };
   }
 
@@ -202,7 +238,7 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement
   for (const corner of CORNERS) {
     // Widths whose growing inset edges just reach the face's near edges;
     // overlap is piecewise linear between these breakpoints.
-    const candidates = new Set<number>([wMin, wCap]);
+    const candidates = new Set<number>([floorPx, cap]);
     if (face !== null) {
       if (corner.endsWith('l')) {
         candidates.add(face.x1 - DOCK_MARGIN);
@@ -217,7 +253,7 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement
     }
     let cornerBest: { w: number; overlap: number } | null = null;
     for (const w of candidates) {
-      const clamped = Math.min(Math.max(w, wMin), wCap);
+      const clamped = Math.min(Math.max(w, floorPx), cap);
       const overlap = rectArea(intersection(dockedRectAtCorner(corner, clamped, stage), face));
       const better =
         cornerBest === null ||
@@ -234,14 +270,14 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement
   }
 
   if (best === null) {
-    // Degenerate stage: smallest chart, bottom-right.
-    const w = wMin;
-    const rect = dockedRectAtCorner('br', w, stage);
+    // Degenerate stage: the floor, bottom-right.
+    const rect = dockedRectAtCorner('br', floorPx, stage);
     return {
       kind: 'dock',
       geometry: clampGeometry(
-        { x: rect.x1 / stage.width, y: rect.y1 / stage.height, w: w / stage.width },
+        { x: rect.x1 / stage.width, y: rect.y1 / stage.height, w: floorPx / stage.width },
         stage,
+        floorPx,
       ),
     };
   }
@@ -251,6 +287,7 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement
     geometry: clampGeometry(
       { x: rect.x1 / stage.width, y: rect.y1 / stage.height, w: best.w / stage.width },
       stage,
+      floorPx,
     ),
   };
 }
@@ -268,6 +305,7 @@ export function Inset({
   focused = false,
   fillHeight = null,
   targets = [],
+  bodyCount = DEFAULT_BODY_COUNT,
   onAutoInvert = undefined,
 }: InsetProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -280,6 +318,7 @@ export function Inset({
   const userMovedRef = useRef(false);
   // Last invert decision reported through onAutoInvert.
   const invertRef = useRef(false);
+  const floorPx = insetFloorPx(bodyCount);
 
   // Measure the host layer (this element's parent, which fills the stage).
   useLayoutEffect(() => {
@@ -318,13 +357,13 @@ export function Inset({
     const stored = loadGeometry(storageKey);
     if (stored !== null) {
       userMovedRef.current = true;
-      setGeometry(clampGeometry(stored, stage));
+      setGeometry(clampGeometry(stored, stage, floorPx));
       return;
     }
-    const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()));
+    const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()), floorPx);
     reportInvert(placement.kind === 'invert');
     if (placement.kind === 'dock') setGeometry(placement.geometry);
-  }, [stage, geometry, storageKey, stageElement, reportInvert]);
+  }, [stage, geometry, storageKey, stageElement, reportInvert, floorPx]);
 
   // On stage resize: re-clamp the customer's geometry, or keep evaluating
   // the face-aware placement until they have moved it.
@@ -332,8 +371,8 @@ export function Inset({
     if (stage === null) return;
     setGeometry(current => {
       if (current === null) return current;
-      if (userMovedRef.current) return clampGeometry(current, stage);
-      const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()));
+      if (userMovedRef.current) return clampGeometry(current, stage, floorPx);
+      const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()), floorPx);
       reportInvert(placement.kind === 'invert');
       if (placement.kind === 'invert') return current;
       const next = placement.geometry;
@@ -346,7 +385,7 @@ export function Inset({
       }
       return next;
     });
-  }, [stage, stageElement, reportInvert]);
+  }, [stage, stageElement, reportInvert, floorPx]);
 
   const persist = useCallback(
     (next: InsetGeometry) => {
@@ -356,8 +395,9 @@ export function Inset({
     [storageKey],
   );
 
-  /** Live pointer positions during a drag/resize, in stage pixels. */
-  const dragRef = useRef<{ grabX: number; grabY: number } | null>(null);
+  /** Card drag: armed on press anywhere, live after a short move threshold,
+   *  so a plain tap still reaches the chart under the pointer. */
+  const armRef = useRef<{ pointerId: number; x: number; y: number; grabX: number; grabY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startW: number } | null>(null);
 
   const pointInStage = (event: ReactPointerEvent<HTMLElement>): { x: number; y: number } => {
@@ -368,32 +408,48 @@ export function Inset({
     return { x, y };
   };
 
-  /** Drag the pane by its bar; dock to the nearest edge/corner on release. */
-  const onBarPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const onSurfacePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || stage === null || geometry === null) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    // The resizer stops propagation before this; the bar is chrome only.
     const point = pointInStage(event);
-    dragRef.current = {
+    armRef.current = {
+      pointerId: event.pointerId,
+      x: point.x,
+      y: point.y,
       grabX: point.x - geometry.x * stage.width,
       grabY: point.y - geometry.y * stage.height,
     };
-    setDragging(true);
   };
 
-  const onBarPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragging || stage === null || geometry === null || dragRef.current === null) return;
+  const onSurfacePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (stage === null || geometry === null) return;
+    const arm = armRef.current;
+    if (arm !== null && arm.pointerId === event.pointerId && !dragging) {
+      const point = pointInStage(event);
+      if (Math.hypot(point.x - arm.x, point.y - arm.y) < DRAG_THRESHOLD_PX) return;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setDragging(true);
+    }
+    if (!dragging || arm === null || arm.pointerId !== event.pointerId) return;
     const point = pointInStage(event);
     const width = geometry.w * stage.width;
     const height = width * ASPECT;
-    const x = Math.min(Math.max(point.x - dragRef.current.grabX, 0), Math.max(0, stage.width - width));
-    const y = Math.min(Math.max(point.y - dragRef.current.grabY, 0), Math.max(0, stage.height - height));
+    const x = Math.min(Math.max(point.x - arm.grabX, 0), Math.max(0, stage.width - width));
+    const y = Math.min(Math.max(point.y - arm.grabY, 0), Math.max(0, stage.height - height));
     setGeometry({ ...geometry, x: x / stage.width, y: y / stage.height });
   };
 
-  const onBarPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragging || stage === null || geometry === null) return;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-    dragRef.current = null;
+  const onSurfacePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const arm = armRef.current;
+    armRef.current = null;
+    if (!dragging || arm === null || arm.pointerId !== event.pointerId || stage === null || geometry === null) {
+      // A tap without movement: release silently so the chart's own click
+      // lands on the planet, sign, house or aspect under the pointer.
+      return;
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     setDragging(false);
 
     const width = geometry.w * stage.width;
@@ -413,12 +469,12 @@ export function Inset({
       if (nearTop) y = DOCK_MARGIN;
       if (nearBottom) y = stage.height - height - DOCK_MARGIN;
     }
-    const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage);
+    const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage, floorPx);
     setGeometry(next);
     persist(next);
   };
 
-  /** Resize from the corner grip, keeping the aspect and the 20–60% span. */
+  /** Resize from the corner grip, keeping the aspect and the floor→cap span. */
   const onGripPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || stage === null || geometry === null) return;
     event.stopPropagation();
@@ -432,17 +488,19 @@ export function Inset({
     if (!resizing || stage === null || geometry === null || resizeRef.current === null) return;
     const point = pointInStage(event);
     const delta = point.x - resizeRef.current.startX;
-    const wMax = Math.min(INSET_MAX_W, (0.9 * stage.height) / ASPECT / stage.width);
+    const cap = allowedWidthPx(stage);
     const width = Math.min(
-      Math.max(resizeRef.current.startW + delta, INSET_MIN_W * stage.width),
-      Math.max(wMax, INSET_MIN_W) * stage.width,
+      Math.max(resizeRef.current.startW + delta, Math.min(floorPx, cap)),
+      cap,
     );
-    setGeometry(clampGeometry({ ...geometry, w: width / stage.width }, stage));
+    setGeometry(clampGeometry({ ...geometry, w: width / stage.width }, stage, floorPx));
   };
 
   const onGripPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!resizing || geometry === null) return;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     resizeRef.current = null;
     setResizing(false);
     persist(geometry);
@@ -454,21 +512,23 @@ export function Inset({
     event.preventDefault();
     const width = geometry.w * stage.width;
     const step = Math.max(KEY_STEP * stage.width, 4);
+    const cap = allowedWidthPx(stage);
+    const lo = Math.min(floorPx, cap);
     let x = geometry.x * stage.width;
     let y = geometry.y * stage.height;
     let w = width;
     if (event.altKey) {
       const grow = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
-      const wMax = Math.min(INSET_MAX_W, (0.9 * stage.height) / ASPECT / stage.width);
-      w = Math.min(
-        Math.max(width + grow * KEY_RESIZE_STEP * stage.width, INSET_MIN_W * stage.width),
-        Math.max(wMax, INSET_MIN_W) * stage.width,
-      );
+      w = Math.min(Math.max(width + grow * KEY_RESIZE_STEP * stage.width, lo), cap);
     } else if (event.key === 'ArrowLeft') x -= step;
     else if (event.key === 'ArrowRight') x += step;
     else if (event.key === 'ArrowUp') y -= step;
     else if (event.key === 'ArrowDown') y += step;
-    const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: w / stage.width }, stage);
+    const next = clampGeometry(
+      { x: x / stage.width, y: y / stage.height, w: w / stage.width },
+      stage,
+      floorPx,
+    );
     setGeometry(next);
     persist(next);
   };
@@ -512,14 +572,12 @@ export function Inset({
         height,
       }}
       onKeyDown={onKeyDown}
+      onPointerDown={onSurfacePointerDown}
+      onPointerMove={onSurfacePointerMove}
+      onPointerUp={onSurfacePointerUp}
+      onPointerCancel={onSurfacePointerUp}
     >
-      <div
-        className="chart-inset__bar"
-        onPointerDown={onBarPointerDown}
-        onPointerMove={onBarPointerMove}
-        onPointerUp={onBarPointerUp}
-        onPointerCancel={onBarPointerUp}
-      >
+      <div className="chart-inset__bar">
         <span className="chart-inset__gripdots" aria-hidden="true" />
         <span className="chart-inset__label">{label}</span>
         {targets.length > 0 && (
