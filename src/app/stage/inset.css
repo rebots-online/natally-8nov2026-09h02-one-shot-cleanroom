@@ -153,6 +153,9 @@
   left: 0;
   right: 0;
   top: 0;
+  /* Hosts with a measured visual area (the app stage) pass fillHeight;
+     without it the fill covers its host layer completely. */
+  height: 100%;
   pointer-events: auto;
   border: 1px solid var(--plum-line);
   border-radius: 12px;

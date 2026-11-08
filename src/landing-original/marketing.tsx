@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { Astrolabe3D } from './components/Astrolabe3D';
 import { AtelierScene } from './components/atelier/AtelierScene';
 import { AtelierAmbience } from './components/atelier/AtelierAmbience';
+import { Inset } from '../app/stage/Inset';
 import { AccountBillingDialog, type AccountCreditsState as CreditsState } from './components/AccountBillingDialog';
 import { auth } from './services/firebase';
 import { initializeInteractionAnalytics, updateInteractionContext, trackInteraction, beginInteractionEpisode, chartAnalyticsTarget, type InteractionInputMethod } from './services/interactionAnalytics';
@@ -50,9 +51,9 @@ const envString = (key: string, fallback: string): string => {
 const APP_PATH = envString('VITE_APP_PATH', '/app.html');
 const APP_NAMESPACE = envString('VITE_APP_NAMESPACE', 'natally');
 const EXAMPLE_CHART_INPUT: NatalChartInput = {
-  name: 'Aurelia (example)', birthDate: '1997-11-08', birthTime: '19:05',
+  name: 'Aurelia', birthDate: '1988-08-31', birthTime: '14:30',
   placeName: 'Toronto, ON, Canada', latitude: 43.6532, longitude: -79.3832,
-  timezoneOffset: -5, houseSystem: 'W',
+  timezoneOffset: -4, houseSystem: 'W',
 };
 const STORY_SECTIONS = ['meet-natally', 'your-chart', 'reading-aloud', 'talk-with-natally'];
 const nudgeSettings = readNudgeSettings(import.meta.env);
@@ -155,32 +156,6 @@ const MarketingExperience: React.FC = () => {
       const saved = JSON.parse(localStorage.getItem(insetKey) || 'null');
       placeInset(saved && Number.isFinite(saved.x) && Number.isFinite(saved.y) ? saved : { x: 0, y: 1 }, false);
     } catch { placeInset({ x: 0, y: 1 }, false); }
-  }, [insetKey]);
-  useEffect(() => {
-    const avoid = (event: Event) => {
-      const detail = (event as CustomEvent<{ x: number; y: number; bounds?: { left: number; top: number; right: number; bottom: number } }>).detail;
-      const stage = stageRef.current;
-      if (!stage || stage.dataset.view !== 'atelier' || !Number.isFinite(detail?.x) || !Number.isFinite(detail?.y) || dragRef.current) return;
-      const pane = stage.querySelector<HTMLElement>('.marketing-frame__pane[data-active="false"]:not([hidden])');
-      const handle = stage.querySelector<HTMLElement>('.marketing-frame__inset-handle');
-      const composition = roomRef.current?.querySelector<HTMLElement>('.atelier-scene__composition');
-      if (!pane || !handle || !composition) return;
-      const rect = stage.getBoundingClientRect(), room = composition.getBoundingClientRect(), card = pane.getBoundingClientRect(), bar = handle.getBoundingClientRect();
-      if (!rect.width || !rect.height || !room.width || !room.height) return;
-      const bounds = detail.bounds || { left: detail.x - 100, right: detail.x + 100, top: detail.y - 80, bottom: detail.y + 80 };
-      const protectedRect = { left: room.left + bounds.left / 2048 * room.width - 8, right: room.left + bounds.right / 2048 * room.width + 8, top: room.top + bounds.top / 1280 * room.height - 8, bottom: room.top + bounds.bottom / 1280 * room.height + 8 };
-      const overlap = (box: { left: number; right: number; top: number; bottom: number }) => Math.max(0, Math.min(box.right, protectedRect.right) - Math.max(box.left, protectedRect.left)) * Math.max(0, Math.min(box.bottom, protectedRect.bottom) - Math.max(box.top, protectedRect.top));
-      if (!overlap({ left: Math.min(card.left, bar.left), right: Math.max(card.right, bar.right), top: Math.min(card.top, bar.top), bottom: Math.max(card.bottom, bar.bottom) })) return;
-      const candidates = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }].map(position => {
-        const left = rect.left + 10 + position.x * Math.max(0, rect.width - card.width - 20), top = rect.top + 10 + position.y * Math.max(0, rect.height - card.height - bar.height - 20);
-        return { position, area: overlap({ left, right: left + Math.max(card.width, bar.width), top, bottom: top + card.height + bar.height }), distance: Math.hypot(position.x - insetRef.current.x, position.y - insetRef.current.y) };
-      }).sort((a, b) => a.area - b.area || a.distance - b.distance);
-      // If every corner overlaps, the cookie popup measures the remaining side
-      // column after this move and reflows its actual controls into that space.
-      placeInset(candidates[0].position);
-    };
-    window.addEventListener('natally-atelier-shelf-focus', avoid);
-    return () => window.removeEventListener('natally-atelier-shelf-focus', avoid);
   }, [insetKey]);
   const endInsetDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!dragRef.current || dragRef.current.pointer !== event.pointerId) return;
@@ -563,15 +538,24 @@ const MarketingExperience: React.FC = () => {
             </div>
             {view !== 'atelier' && <button type="button" className="marketing-frame__foreground" aria-label="Bring Natally's room into focus" onClick={() => setManualView('atelier')} />}
           </div>
-          <div className="marketing-frame__pane marketing-frame__chart" data-active={view === 'chart'} data-chart-callout-boundary data-chart-inset={view !== 'chart'} hidden={!displayedChart}>
-            <div ref={chartRef} className="marketing-frame__content">
-              {displayedChart && <Astrolabe3D chart={displayedChart} isSpinning={!reducedMotion && documentVisible && inView} resetTrigger={0}
-                selectedComponents={selectedComponents} highlightedComponents={lesson?.targets || []} onToggleComponent={explain}
-                reducedMotion={reducedMotion} motionPaused={reducedMotion || !documentVisible || !inView} visible={inView && documentVisible}
-                showAnnotations={view === 'chart'} layoutKey={view} onActivate={view === 'atelier' ? () => setManualView('chart') : undefined} />}
-            </div>
-          </div>
-          {displayedChart && <button type="button" className="marketing-frame__inset-handle" aria-label="Move inset card" title="Drag to move the inset. Arrow keys move; Home docks top left; End docks bottom right."
+          {/* Clean-room inset (ARCHITECTURE §Chart inset, 'Inset (landing)'):
+              the example/owned chart floats in the same dockable, resizable
+              pane the app uses — drag across the stage, dock to the nearest
+              edge or corner, corner grip 20–60% keeping aspect, arrow keys
+              move, Alt+arrows resize, persisted per guest. Focused (chart
+              view) it fills the stage; the room pane floats instead. */}
+          {displayedChart && <div className="stage-inset-layer" data-mode={view === 'chart' ? 'fill' : 'float'}>
+            <Inset storageKey={`${APP_NAMESPACE}.marketing.inset.v1.${roomUid}`} label={ownedChart ? 'Your wheel' : 'Aurelia\u2019s wheel'}
+              focused={view === 'chart'}>
+              <div ref={chartRef} className="marketing-frame__content" data-chart-callout-boundary data-chart-inset={view !== 'chart'}>
+                <Astrolabe3D chart={displayedChart} isSpinning={!reducedMotion && documentVisible && inView} resetTrigger={0}
+                  selectedComponents={selectedComponents} highlightedComponents={lesson?.targets || []} onToggleComponent={explain}
+                  reducedMotion={reducedMotion} motionPaused={reducedMotion || !documentVisible || !inView} visible={inView && documentVisible}
+                  showAnnotations={view === 'chart'} layoutKey={view} onActivate={view === 'atelier' ? () => setManualView('chart') : undefined} />
+              </div>
+            </Inset>
+          </div>}
+          {displayedChart && view === 'chart' && <button type="button" className="marketing-frame__inset-handle" aria-label="Move Natally's inset" title="Drag to move Natally. Arrow keys move; Home docks top left; End docks bottom right."
             onPointerDown={event => {
               if (event.button !== 0 || !stageRef.current) return;
               const rect = stageRef.current.getBoundingClientRect(), handleHeight = event.currentTarget.getBoundingClientRect().height; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId);
@@ -583,7 +567,7 @@ const MarketingExperience: React.FC = () => {
               const step = event.shiftKey ? .1 : .025, directions: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
               if (directions[event.key]) { event.preventDefault(); const [x, y] = directions[event.key]; placeInset({ x: insetRef.current.x + x, y: insetRef.current.y + y }); }
               else if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); placeInset(event.key === 'Home' ? { x: 0, y: 0 } : { x: 1, y: 1 }); }
-            }}>⠿ <span>Move {view === 'atelier' ? 'chart' : 'Natally'}</span></button>}
+            }}>⠿ <span>Move Natally</span></button>}
         </div>
         <div className="marketing-frame__controls">
           <button type="button" aria-label={voiceEnabled ? 'Sound Off — turn off Natally’s voice' : 'Sound On — turn on Natally’s voice'} aria-pressed={voiceEnabled} onClick={onVoice}>{voiceEnabled ? 'Sound Off 🔇' : 'Sound On 🔊'}</button>
@@ -602,7 +586,7 @@ const MarketingExperience: React.FC = () => {
           {view === 'chart' && <p className="marketing-frame__instruction">Click on a planet, house, sign, or aspect to hear its interpretation in astrology.</p>}
           {caption && <p className="marketing-frame__caption">{caption}</p>}
           {/* Operator directive 2026-11-08: no meta copy anywhere — the example chart is scene dressing on her wall, labelled like any chart in her room; the original's "It is not your chart." disclaimer is retired. */}
-          {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Aurelia · born 8 Nov 1997, 7:05 PM · Whole Sign · Toronto <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
+          {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Aurelia · born 31 Aug 1988, 2:30 PM · Whole Sign · Toronto <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
           {!ownedChart && <div className="marketing-frame__intake" role="status">
             {/* Operator directive 2026-11-08 immersion sweep: every page-spoken
               state line stays in her voice — no system disclaimers anywhere. */}

@@ -51,7 +51,7 @@ export const BACKSTORY_ANSWERS: readonly BackstoryAnswer[] = [
   {
     question: 'do you actually believe in this stuff?',
     answer:
-      "candidly? the measured positions are exact — that part is math doing math things, no vibes required. what I add is the daydream, and I share it freely, but it's a daydream, not a diagnosis and not instructions for your life. so, yes and also no, which I maintain is the most honest oracle answer ever given. take what's useful and leave the rest on the shelf next to the taped star.",
+      "candidly? I don't spend your reading time on my opinion of the sky — either side of it. the positions are measured to the arcminute, the reading is my craft, and craft answers better than argument ever could. so pick a placement and watch what the wheel does with it — that's my answer, and I give it the same way every single time.",
   },
   {
     question: "wait, what's your sign?",
