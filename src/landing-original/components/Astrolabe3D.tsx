@@ -989,6 +989,29 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       return sprite;
     }
 
+    // Operator directive 2026-11-08: degree numbers are how you find relative
+    // positions, so they render as their own always-bright sprite and never
+    // dim with the highlight choreography (which may dim body markers only).
+    function createDegreeTextSprite(text: string, width = 0.34): THREE.Sprite {
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = 48;
+      const ctx = canvas.getContext('2d')!;
+      ctx.font = 'bold 24px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#05020a';
+      ctx.strokeText(text, 80, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, 80, 24);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, depthTest: false }));
+      sprite.scale.set(width, width * 48 / 160, 1);
+      sprite.userData.structureFrame = true;
+      return sprite;
+    }
+
     // 0. GEOCENTRIC CENTER: 🜨 EARTH (TERRA) FOCAL OBSERVER
     // In classic astrolabes and geocentric natal charts, the center is the observer on Earth.
     const R_CENTER_RETICLE = 0.22;
@@ -1018,7 +1041,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     earthRing.rotation.x = Math.PI / 2;
     earthRing.position.set(0, 0.05, 0);
     earthRing.userData.focused = earthSphere.userData.focused;
-    dynamicGroup.add(earthRing);
+    earthRing.userData.structureFrame = true; // gold divider: never dims
 
     // Floating Billboard Label above Earth Center
     const isEarthSelected = activeSelections.includes('Earth') || activeSelections.includes('Earth (Geocentric Origin)');
@@ -1057,7 +1080,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       tick.rotation.z = Math.PI / 2;
       tick.rotation.y = -cuspRad;
       tick.userData.focused = activeSelections.includes(sign.name);
-      dynamicGroup.add(tick);
+      tick.userData.structureFrame = true; // gold zodiac divider: never dims
 
       const centerRad = lonToRad(sign.lon + 15);
       const zx = Math.cos(centerRad) * R_TORUS_TRACK;
@@ -1066,7 +1089,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
       const zSprite = createGlyphSprite(sign.glyph, '', '#f5d77f', 0.32, isSelected);
       zSprite.userData.targetId = sign.name;
-      zSprite.position.set(zx, Y_SUPERIMPOSED + 0.1, zz);
+      zSprite.userData.structureFrame = true; // zodiac structure: never dims
       dynamicGroup.add(zSprite);
 
       const hitMesh = new THREE.Mesh(
@@ -1109,24 +1132,28 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       });
       const spokeLine = new THREE.Line(spokeGeo, spokeMat);
       spokeLine.userData.focused = isSelected;
-      dynamicGroup.add(spokeLine);
+      spokeLine.userData.structureFrame = true; // wheel dividers: never dim
 
       // Cusp Badge
       const badgeR = R_TORUS_TRACK - R_TORUS_TUBE - 0.12;
       const badgeX = Math.cos(rad) * badgeR;
       const badgeZ = Math.sin(rad) * badgeR;
 
+      const badgeScale = isSelected ? 0.35 : isCardo ? 0.3 : 0.24;
       const badgeSprite = createGlyphSprite(
         h.label,
-        h.formattedDeg.split(' ')[0],
+        '',
         isSelected ? '#fff' : isCardo ? '#f2ca50' : '#d4af37',
-        isSelected ? 0.35 : isCardo ? 0.3 : 0.24,
+        badgeScale,
         isSelected || isCardo
       );
       badgeSprite.position.set(badgeX, 0.08, badgeZ);
       badgeSprite.userData.targetId = houseId;
       badgeSprite.userData.focused = isSelected;
       dynamicGroup.add(badgeSprite);
+      const badgeDeg = createDegreeTextSprite(h.formattedDeg.split(' ')[0], badgeScale);
+      badgeDeg.position.set(badgeX, 0.08 - badgeScale * 44 / 128, badgeZ);
+      dynamicGroup.add(badgeDeg);
 
       const hitCusp = new THREE.Mesh(
         new THREE.SphereGeometry(0.2, 8, 8),
@@ -1263,9 +1290,12 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       dynamicGroup.add(bead);
 
       const uncertainMoon = chart.input.birthTimeUnknown && body.name === 'Moon';
-      const sprite = createGlyphSprite(body.glyph, uncertainMoon ? '?' : body.degText, body.color, 0.4, isSelected);
+      const sprite = createGlyphSprite(body.glyph, '', body.color, 0.4, isSelected);
       sprite.position.set(x, 0.36, z);
       dynamicGroup.add(sprite);
+      const degreeSprite = createDegreeTextSprite(uncertainMoon ? '?' : body.degText, 0.4);
+      degreeSprite.position.set(x, 0.36 - 0.4 * 44 / 128, z);
+      dynamicGroup.add(degreeSprite);
       addEndpointLabel('NATAL', body.name, body.glyph, uncertainMoon ? 'Birth time needed' : body.fullDegText, new THREE.Vector3(x, 0.36, z), body.name, isSelected);
       bead.userData.targetId = sprite.userData.targetId = body.name;
 
