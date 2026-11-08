@@ -3,8 +3,8 @@
 // source of truth for every surface that displays or sells an offer.
 
 import type { AllowanceEnvelope, PurchaseKind } from '../shared/types';
-import { createCheckout, getAccess } from './billingApi';
-import { openCheckout } from './chargebee';
+import { BillingNotConfiguredError, createCheckout, getAccess } from './billingApi';
+import { checkoutAvailable, openCheckout } from './chargebee';
 
 /** Credit-pack prices in whole US dollars (BILLING_CREDIT_PACKS_USD). */
 export const PACKS = [5, 10, 25] as const;
@@ -31,6 +31,11 @@ async function purchase(
   kind: PurchaseKind,
   amountUsdMicros: number,
 ): Promise<AllowanceEnvelope> {
+  // Client-side gate first: without a Chargebee site the lightbox can never
+  // open, so never mint a hosted page the customer cannot pay.
+  if (!checkoutAvailable) {
+    throw new BillingNotConfiguredError('VITE_CHARGEBEE_SITE is not set for this build');
+  }
   const session = await createCheckout(idToken, {
     kind,
     amountUsdMicros,

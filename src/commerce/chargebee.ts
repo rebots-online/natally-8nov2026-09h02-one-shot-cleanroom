@@ -90,7 +90,7 @@ function chargebeeInstance(site: string): Promise<ChargebeeInstance> {
  */
 export async function openCheckout(hostedPageUrl: string): Promise<void> {
   if (!checkoutAvailable) {
-    throw new BillingNotConfiguredError();
+    throw new BillingNotConfiguredError('VITE_CHARGEBEE_SITE is not set for this build');
   }
   const instance = await chargebeeInstance(chargebeeSite());
   return new Promise<void>((resolve, reject) => {

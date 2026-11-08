@@ -8,9 +8,17 @@ import type { AllowanceEnvelope, GrantRecord, PurchaseKind } from '../shared/typ
 
 /** The billing function returned 503: billing is not configured. */
 export class BillingNotConfiguredError extends Error {
-  constructor() {
+  /**
+   * What the deployment is missing, when known: the server's
+   * `billing_not_configured` detail (a server setting) or, when the gap is
+   * client-side, the missing build-time setting itself.
+   */
+  readonly detail: string;
+
+  constructor(detail = '') {
     super('billing not configured');
     this.name = 'BillingNotConfiguredError';
+    this.detail = detail;
   }
 }
 
@@ -71,7 +79,16 @@ async function request(
     throw new BillingNetworkError(cause);
   }
   if (response.status === 503) {
-    throw new BillingNotConfiguredError();
+    // Body carries { error: 'billing_not_configured', detail: '<setting> is not set' };
+    // surface the named setting so the failure is specific, never generic.
+    let detail = '';
+    try {
+      const parsed = JSON.parse(text) as { detail?: unknown };
+      if (typeof parsed.detail === 'string' && parsed.detail !== '') detail = parsed.detail;
+    } catch {
+      // Non-JSON 503 (e.g. platform-level): stay generic but still truthful.
+    }
+    throw new BillingNotConfiguredError(detail);
   }
   if (!response.ok) {
     throw new BillingApiError(response.status, text.slice(0, 200));
