@@ -432,6 +432,10 @@ export default function App() {
 
   const lesson = getLesson(hoveredKey ?? 'general');
   const view = presentation.view;
+  // The body she is highlighting (if any) lights up in the wheel itself;
+  // every target also rides the inset's bar as brass chips.
+  const focusBody =
+    chart.bodies.find(body => presentation.focusTargets.includes(body.key))?.key ?? null;
 
   return (
     <div className="app-main">
@@ -502,13 +506,14 @@ export default function App() {
               focused={view === 'chart'}
               fillHeight={stageVisualHeight}
               targets={presentation.focusTargets}
+              onAutoInvert={handleAutoInvert}
             >
               {astrolabe ? (
                 <Astrolabe3D
                   chart={astrolabe}
                   isSpinning={false}
                   resetTrigger={0}
-                  selectedPlanetName={hoveredKey}
+                  selectedPlanetName={hoveredKey ?? focusBody}
                   onSelectPlanet={explainPlanet}
                 />
               ) : (
