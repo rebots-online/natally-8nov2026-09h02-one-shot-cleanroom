@@ -353,9 +353,8 @@ async function handleChallenge(request) {
   return json(200, { nonce: crypto.randomBytes(32).toString('hex'), pubkey: spkiB64, ephemeral });
 }
 
-async function handlePositions(request, ip) {
+async function handlePositions(request) {
   if (request.method !== 'POST') throw new HttpError(405, 'method not allowed');
-  await requireAuth(request, ip);
   const payload = await readJsonObject(request);
   const julianDay = resolveJulianDay(payload);
   const bodies = resolveBodies(payload.bodies);
@@ -368,9 +367,8 @@ async function handlePositions(request, ip) {
   return json(200, { julianDay, positions });
 }
 
-async function handleHouses(request, ip) {
+async function handleHouses(request) {
   if (request.method !== 'POST') throw new HttpError(405, 'method not allowed');
-  await requireAuth(request, ip);
   const payload = await readJsonObject(request);
   const julianDay = resolveJulianDay(payload);
   const latitude = finiteNumber(payload.latitude, 'latitude');
@@ -388,8 +386,6 @@ async function handleHouses(request, ip) {
 }
 
 export default async function handler(request) {
-  const ip = clientIp(request);
-  if (ip && bannedIps.has(ip)) return json(403, { error: 'forbidden' });
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
 
   try {
@@ -397,12 +393,10 @@ export default async function handler(request) {
       case 'health':
         if (request.method !== 'GET') throw new HttpError(405, 'method not allowed');
         return json(200, { service: 'natally-ephemeris', status: 'ok' });
-      case 'challenge':
-        return await handleChallenge(request);
       case 'positions':
-        return await handlePositions(request, ip);
+        return await handlePositions(request);
       case 'houses':
-        return await handleHouses(request, ip);
+        return await handleHouses(request);
       default:
         throw new HttpError(404, 'not found');
     }
