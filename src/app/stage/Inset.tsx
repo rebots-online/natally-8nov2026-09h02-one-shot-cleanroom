@@ -1,12 +1,22 @@
 // The dockable, resizable chart inset (DOCS/ARCHITECTURE.md §Chart inset —
 // clean-room, written from the architecture words only). The unfocused pane
-// floats over the stage from first load, docked bottom-right clear of
-// Natally's face; it can be dragged anywhere across the full stage and docks
-// to the nearest edge or corner on release; a visible corner grip resizes it
-// between 20% and 60% of the stage width keeping its aspect; arrow keys move
-// it and Alt+arrow keys resize it; position and size persist per account in
-// localStorage. When the chart is focused (`focused`) the same pane fills the
-// stage's visual area instead and Natally becomes the floating pane.
+// floats over the stage from first load; it can be dragged anywhere across
+// the full stage and docks to the nearest edge or corner on release; a
+// visible corner grip resizes it between 20% and 60% of the stage width
+// keeping its aspect; arrow keys move it and Alt+arrow keys resize it;
+// position and size persist per account in localStorage.
+//
+// First-load placement serves one intent: the customer can always see both
+// Natally and her chart well enough to use them — neither defeats the
+// other. Measured against the on-screen box of her rendered head
+// (`.atelier-character__head`): roomy stages get the largest corner/size
+// (20–60%) that leaves her face clear; tight stages get the least overlap
+// while the chart stays legible; when any legible inset would cover her
+// face (folded-phone covers) the stage inverts — the chart takes focus and
+// Natally becomes the inset, the same swap a reading uses. The placement
+// re-evaluates on resize until the customer moves the pane; after that the
+// customer's own choice always wins. When the chart is focused (`focused`)
+// the same pane fills the stage's visual area.
 
 import {
   useCallback,
@@ -25,8 +35,6 @@ export const INSET_MIN_W = 0.2;
 export const INSET_MAX_W = 0.6;
 /** Height = width × aspect; the wheel is square. */
 const ASPECT = 1;
-/** Default dock: bottom-right, this fraction of the stage wide. */
-const DEFAULT_W = 0.34;
 /** Breathing room between a docked inset and the stage edge, in px. */
 const DOCK_MARGIN = 12;
 /** How close to an edge (fraction of that axis) a release must land to dock. */
@@ -34,6 +42,11 @@ const DOCK_REACH = 0.24;
 /** Keyboard nudge as a fraction of stage width; Alt nudge resizes. */
 const KEY_STEP = 0.012;
 const KEY_RESIZE_STEP = 0.02;
+/**
+ * When even the smallest chart hides this much of her face on every corner,
+ * the stage is too small for both: the chart takes focus instead.
+ */
+const FACE_COVERED_INVERT = 0.8;
 
 interface InsetGeometry {
   /** Left edge as a fraction of stage width. */
@@ -57,7 +70,29 @@ export interface InsetProps {
   fillHeight?: number | null;
   /** Targets she is highlighting right now, shown on the inset's bar. */
   targets?: readonly string[];
+  /**
+   * First-load evaluation: true when the stage is too small for both panes
+   * and the chart should take focus (Natally becomes the inset). Reported
+   * on every change until the customer moves the pane.
+   */
+  onAutoInvert?: (invert: boolean) => void;
 }
+
+interface StageBox {
+  width: number;
+  height: number;
+}
+
+interface Rect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+type Corner = 'tl' | 'tr' | 'bl' | 'br';
+/** Deterministic tie order for the computed first-load dock. */
+const CORNERS: readonly Corner[] = ['br', 'bl', 'tr', 'tl'];
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -88,11 +123,6 @@ function storeGeometry(storageKey: string, geometry: InsetGeometry): void {
   }
 }
 
-interface StageBox {
-  width: number;
-  height: number;
-}
-
 /** Clamp geometry fractions into the stage for the current box. */
 function clampGeometry(geometry: InsetGeometry, stage: StageBox): InsetGeometry {
   const wMax = Math.min(INSET_MAX_W, (0.9 * stage.height) / ASPECT / stage.width);
@@ -103,10 +133,133 @@ function clampGeometry(geometry: InsetGeometry, stage: StageBox): InsetGeometry 
   return { x, y, w };
 }
 
+/** The on-screen box of Natally's rendered head, in stage coordinates. */
+function faceRectInStage(stageEl: HTMLElement | null): Rect | null {
+  const head = stageEl?.querySelector('.atelier-character__head');
+  if (!(head instanceof SVGElement) || stageEl === null) return null;
+  const stageRect = stageEl.getBoundingClientRect();
+  const box = head.getBoundingClientRect();
+  if (box.width <= 0 || box.height <= 0) return null;
+  return {
+    x1: box.left - stageRect.left,
+    y1: box.top - stageRect.top,
+    x2: box.right - stageRect.left,
+    y2: box.bottom - stageRect.top,
+  };
+}
+
+function dockedRectAtCorner(corner: Corner, width: number, stage: StageBox): Rect {
+  const height = width * ASPECT;
+  const x1 = corner.endsWith('l') ? DOCK_MARGIN : stage.width - width - DOCK_MARGIN;
+  const y1 = corner.startsWith('t') ? DOCK_MARGIN : stage.height - height - DOCK_MARGIN;
+  return { x1, y1, x2: x1 + width, y2: y1 + height };
+}
+
+function intersection(a: Rect, b: Rect | null): Rect | null {
+  if (b === null) return null;
+  const x1 = Math.max(a.x1, b.x1);
+  const y1 = Math.max(a.y1, b.y1);
+  const x2 = Math.min(a.x2, b.x2);
+  const y2 = Math.min(a.y2, b.y2);
+  return x2 > x1 && y2 > y1 ? { x1, y1, x2, y2 } : null;
+}
+
+function rectArea(rect: Rect | null): number {
+  return rect === null ? 0 : (rect.x2 - rect.x1) * (rect.y2 - rect.y1);
+}
+
+type AutoPlacement =
+  | { kind: 'dock'; geometry: InsetGeometry }
+  | { kind: 'invert' };
+
+/**
+ * First-load placement from the intent: roomy → the largest corner/size in
+ * 20–60% that leaves her face clear; tight → the least overlap while the
+ * chart stays legible (larger size on ties); too small for both → invert.
+ * Overlap with size is monotone per corner, so each corner's best sits at
+ * the size breakpoints where the growing inset edges cross her face edges.
+ */
+function computeAutoPlacement(stage: StageBox, face: Rect | null): AutoPlacement {
+  const wMin = INSET_MIN_W * stage.width;
+  const wFullest = INSET_MAX_W * stage.width;
+  const wCap = Math.max(
+    wMin,
+    Math.min(wFullest, (0.9 * stage.height) / ASPECT),
+  );
+  const faceArea = rectArea(face);
+
+  // Even the smallest chart hides essentially all of her face everywhere:
+  // too small for both — the chart takes focus.
+  if (face !== null && faceArea > 0) {
+    const leastHidden = CORNERS.reduce((best, corner) => {
+      const hidden = rectArea(intersection(dockedRectAtCorner(corner, wMin, stage), face)) / faceArea;
+      return Math.min(best, hidden);
+    }, Number.POSITIVE_INFINITY);
+    if (leastHidden > FACE_COVERED_INVERT) return { kind: 'invert' };
+  }
+
+  let best: { corner: Corner; w: number; overlap: number } | null = null;
+  for (const corner of CORNERS) {
+    // Widths whose growing inset edges just reach the face's near edges;
+    // overlap is piecewise linear between these breakpoints.
+    const candidates = new Set<number>([wMin, wCap]);
+    if (face !== null) {
+      if (corner.endsWith('l')) {
+        candidates.add(face.x1 - DOCK_MARGIN);
+      } else {
+        candidates.add(stage.width - DOCK_MARGIN - face.x2);
+      }
+      if (corner.startsWith('t')) {
+        candidates.add((face.y1 - DOCK_MARGIN) / ASPECT);
+      } else {
+        candidates.add((stage.height - DOCK_MARGIN - face.y2) / ASPECT);
+      }
+    }
+    let cornerBest: { w: number; overlap: number } | null = null;
+    for (const w of candidates) {
+      const clamped = Math.min(Math.max(w, wMin), wCap);
+      const overlap = rectArea(intersection(dockedRectAtCorner(corner, clamped, stage), face));
+      const better =
+        cornerBest === null ||
+        overlap < cornerBest.overlap - 1e-6 ||
+        (Math.abs(overlap - cornerBest.overlap) <= 1e-6 && clamped > cornerBest.w);
+      if (better) cornerBest = { w: clamped, overlap };
+    }
+    if (cornerBest === null) continue;
+    const wins =
+      best === null ||
+      cornerBest.overlap < best.overlap - 1e-6 ||
+      (Math.abs(cornerBest.overlap - best.overlap) <= 1e-6 && cornerBest.w > best.w);
+    if (wins) best = { corner, w: cornerBest.w, overlap: cornerBest.overlap };
+  }
+
+  if (best === null) {
+    // Degenerate stage: smallest chart, bottom-right.
+    const w = wMin;
+    const rect = dockedRectAtCorner('br', w, stage);
+    return {
+      kind: 'dock',
+      geometry: clampGeometry(
+        { x: rect.x1 / stage.width, y: rect.y1 / stage.height, w: w / stage.width },
+        stage,
+      ),
+    };
+  }
+  const rect = dockedRectAtCorner(best.corner, best.w, stage);
+  return {
+    kind: 'dock',
+    geometry: clampGeometry(
+      { x: rect.x1 / stage.width, y: rect.y1 / stage.height, w: best.w / stage.width },
+      stage,
+    ),
+  };
+}
+
 /**
  * The floating chart inset. Positions itself inside its parent element
  * (`.stage-inset-layer`, which fills the stage); measures that parent via
- * ResizeObserver so window resizes re-clamp the pane into the stage.
+ * ResizeObserver so window resizes re-clamp the pane into the stage — or,
+ * before the customer's first move, re-evaluate the face-aware placement.
  */
 export function Inset({
   storageKey,
@@ -115,12 +268,18 @@ export function Inset({
   focused = false,
   fillHeight = null,
   targets = [],
+  onAutoInvert = undefined,
 }: InsetProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [stage, setStage] = useState<StageBox | null>(null);
   const [geometry, setGeometry] = useState<InsetGeometry | null>(null);
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
+  // False until the customer moves or resizes the pane: until then the
+  // placement is ours to re-evaluate on every stage resize.
+  const userMovedRef = useRef(false);
+  // Last invert decision reported through onAutoInvert.
+  const invertRef = useRef(false);
 
   // Measure the host layer (this element's parent, which fills the stage).
   useLayoutEffect(() => {
@@ -137,40 +296,61 @@ export function Inset({
     return () => observer.disconnect();
   }, []);
 
-  // First metrics: restore the persisted geometry or dock bottom-right.
+  const stageElement = useCallback((): HTMLElement | null => {
+    const layer = rootRef.current?.parentElement;
+    const element = layer?.parentElement;
+    return element instanceof HTMLElement ? element : null;
+  }, []);
+
+  const reportInvert = useCallback(
+    (invert: boolean) => {
+      if (invertRef.current === invert) return;
+      invertRef.current = invert;
+      onAutoInvert?.(invert);
+    },
+    [onAutoInvert],
+  );
+
+  // First metrics: restore the customer's saved geometry, or evaluate the
+  // face-aware first-load placement.
   useEffect(() => {
     if (stage === null || geometry !== null) return;
     const stored = loadGeometry(storageKey);
-    const base =
-      stored ?? {
-        x: 1,
-        y: 1,
-        w: DEFAULT_W,
-      };
-    const clamped = clampGeometry(
-      stored === null
-        ? {
-            x: 1 - base.w - DOCK_MARGIN / stage.width,
-            y: 1 - (base.w * stage.width * ASPECT) / stage.height - DOCK_MARGIN / stage.height,
-            w: base.w,
-          }
-        : base,
-      stage,
-    );
-    setGeometry(clamped);
-  }, [stage, geometry, storageKey]);
-
-  // Keep the pane inside the stage when the stage resizes.
-  useEffect(() => {
-    if (stage === null || geometry === null) return;
-    const clamped = clampGeometry(geometry, stage);
-    if (clamped !== geometry && (clamped.x !== geometry.x || clamped.y !== geometry.y || clamped.w !== geometry.w)) {
-      setGeometry(clamped);
+    if (stored !== null) {
+      userMovedRef.current = true;
+      setGeometry(clampGeometry(stored, stage));
+      return;
     }
-  }, [stage, geometry]);
+    const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()));
+    reportInvert(placement.kind === 'invert');
+    if (placement.kind === 'dock') setGeometry(placement.geometry);
+  }, [stage, geometry, storageKey, stageElement, reportInvert]);
+
+  // On stage resize: re-clamp the customer's geometry, or keep evaluating
+  // the face-aware placement until they have moved it.
+  useEffect(() => {
+    if (stage === null) return;
+    setGeometry(current => {
+      if (current === null) return current;
+      if (userMovedRef.current) return clampGeometry(current, stage);
+      const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()));
+      reportInvert(placement.kind === 'invert');
+      if (placement.kind === 'invert') return current;
+      const next = placement.geometry;
+      if (
+        Math.abs(next.x - current.x) < 1e-6 &&
+        Math.abs(next.y - current.y) < 1e-6 &&
+        Math.abs(next.w - current.w) < 1e-6
+      ) {
+        return current;
+      }
+      return next;
+    });
+  }, [stage, stageElement, reportInvert]);
 
   const persist = useCallback(
     (next: InsetGeometry) => {
+      userMovedRef.current = true;
       storeGeometry(storageKey, next);
     },
     [storageKey],
@@ -233,10 +413,7 @@ export function Inset({
       if (nearTop) y = DOCK_MARGIN;
       if (nearBottom) y = stage.height - height - DOCK_MARGIN;
     }
-    const next = clampGeometry(
-      { x: x / stage.width, y: y / stage.height, w: geometry.w },
-      stage,
-    );
+    const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage);
     setGeometry(next);
     persist(next);
   };
@@ -276,15 +453,17 @@ export function Inset({
     if (!event.key.startsWith('Arrow') || stage === null || geometry === null) return;
     event.preventDefault();
     const width = geometry.w * stage.width;
-    const height = width * ASPECT;
     const step = Math.max(KEY_STEP * stage.width, 4);
     let x = geometry.x * stage.width;
     let y = geometry.y * stage.height;
     let w = width;
     if (event.altKey) {
-      const grow = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? 1 : -1;
+      const grow = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
       const wMax = Math.min(INSET_MAX_W, (0.9 * stage.height) / ASPECT / stage.width);
-      w = Math.min(Math.max(width + grow * KEY_RESIZE_STEP * stage.width, INSET_MIN_W * stage.width), Math.max(wMax, INSET_MIN_W) * stage.width);
+      w = Math.min(
+        Math.max(width + grow * KEY_RESIZE_STEP * stage.width, INSET_MIN_W * stage.width),
+        Math.max(wMax, INSET_MIN_W) * stage.width,
+      );
     } else if (event.key === 'ArrowLeft') x -= step;
     else if (event.key === 'ArrowRight') x += step;
     else if (event.key === 'ArrowUp') y -= step;
@@ -306,7 +485,8 @@ export function Inset({
   }
 
   if (stage === null || geometry === null) {
-    // Awaiting first stage metrics: reserve the default footprint invisibly.
+    // Awaiting first stage metrics (or inverted): reserve the footprint
+    // invisibly so the host layer still has a measurable child.
     return (
       <div ref={rootRef} className="chart-inset" style={{ visibility: 'hidden' }} aria-hidden="true">
         <div className="chart-inset__content" />
@@ -330,7 +510,6 @@ export function Inset({
         top: geometry.y * stage.height,
         width,
         height,
-        visibility: stage === null ? 'hidden' : undefined,
       }}
       onKeyDown={onKeyDown}
     >
