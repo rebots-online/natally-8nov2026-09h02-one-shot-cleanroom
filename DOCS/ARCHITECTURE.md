@@ -34,6 +34,15 @@ call. UID = customer identity. Firestore with ported-shape rules.
   plus `OPENROUTER_ADMIN_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`,
   `BILLING_KEY_ENCRYPTION_KEY`, `BILLING_ALLOWED_ORIGIN`.
 
+- Purchase prompting: when a chat turn has no allowance, the conversation
+  shows Natally's in-world ask and the top-up sheet opens with the three
+  credit packs and the US$30 souvenir; choosing one opens the Chargebee
+  checkout; on success the allowance refreshes and the same turn can be
+  resent. Every step that needs configuration fails visibly and truthfully
+  when it is absent (missing `VITE_CHARGEBEE_SITE` → the sheet says checkout
+  is not configured and names it; server 503 `billing_not_configured` → the
+  same, with the missing server setting) — never a silent no-op, never a
+  fake success.
 ## Inference
 
 `completeHosted`: streaming completions on the customer's managed OpenRouter
