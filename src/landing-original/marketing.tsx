@@ -195,7 +195,7 @@ const MarketingExperience: React.FC = () => {
       if (balance.ownerUid!==uid) throw new Error('Credits did not match your account.');
       setCredits({kind:'ready',uid,balance:balance.balance});
     } catch {
-      if (mountedRef.current && creditGeneration.current===generation && auth.currentUser?.uid===uid && ownerRef.current===uid) setCredits({kind:'error',uid,message:'Your credits could not be loaded. Please retry.'});
+      if (mountedRef.current && creditGeneration.current===generation && auth.currentUser?.uid===uid && ownerRef.current===uid) setCredits({kind:'error',uid,message:'Hmm, I couldn\'t reach your credits just now — try again?'});
     }
   },[]);
   useEffect(() => {
@@ -292,7 +292,7 @@ const MarketingExperience: React.FC = () => {
     if (!uid) return;
     if (isNatallyHistoryErasing(uid)) { setPhase({kind:'no-intake'});return; }
     try { if (requiresFreshOnboarding(uid)) { setPhase({kind:'no-intake'});return; } }
-    catch { setPhase({kind:'error',message:'Your saved chart status could not be read. Please retry.'});return; }
+    catch { setPhase({kind:'error',message:'I couldn\'t quite read my shelf of charts — try again?'});return; }
     void (async () => {
       try {
         const local = loadNatalIntake(uid);
@@ -321,8 +321,8 @@ const MarketingExperience: React.FC = () => {
             lessonSpeechRef.current++;setLessonChartActive(false);
             setPhase({kind:'ready',uid,intake:remote,chart});
           }
-        } catch { if (isCurrent() && !localReady) setPhase({kind:'error',message:'Your chart could not be loaded.'}); }
-      } catch { if (isCurrent()) setPhase({kind:'error',message:'Your saved intake could not be read.'}); }
+        } catch { if (isCurrent() && !localReady) setPhase({kind:'error',message:'Your chart slipped off the shelf — let\'s try again.'}); }
+      } catch { if (isCurrent()) setPhase({kind:'error',message:'I couldn\'t read your birth details just now.'}); }
     })();
   }, []);
 
@@ -336,10 +336,10 @@ const MarketingExperience: React.FC = () => {
       ownerRef.current = user?.uid || null;setOwnerUid(ownerRef.current);load(ownerRef.current);
     },error => {
       setAccountDialogUid(null);
-      setUser(null);setAuthResolved(false);setAccountError(error.message || 'Your sign-in state could not be determined.');
+      setUser(null);setAuthResolved(false);setAccountError(error.message || 'I couldn\'t tell who\'s at my door just now.');
       creditGeneration.current++;setCredits({kind:'idle'});
       ownerRef.current = null;setOwnerUid(null);load(null);
-      setPhase({kind:'error',message:error.message || 'Sign-in state could not be determined. Please retry.'});
+      setPhase({kind:'error',message:error.message || 'I couldn\'t tell who\'s at my door just now. Try again in a moment.'});
     });
     const erasure = (event: Event) => {
       const detail = (event as CustomEvent<HistoryErasureNotice>).detail;
@@ -467,7 +467,7 @@ const MarketingExperience: React.FC = () => {
             session.presented.add(nudge.id);session.recent = [...session.recent,nudge.id].slice(-2);
             setAside(nudge.text);
           });
-        }).catch(error => { if (current()) setNotice(error instanceof Error ? error.message : 'This story could not be remembered.'); })
+        }).catch(error => { if (current()) setNotice(error instanceof Error ? error.message : 'That memory went fuzzy on me.'); })
           .finally(() => { if (attempt === epoch) { resolving = false;refresh(); } });
       },(nudgeSettings.minSeconds + Math.random() * (nudgeSettings.maxSeconds - nudgeSettings.minSeconds)) * 1000);
     };
@@ -521,11 +521,11 @@ const MarketingExperience: React.FC = () => {
   const signOutAccount=async () => {
     setAccountError(null);
     try { await signOutBilling(); }
-    catch (error) { setAccountError(error instanceof Error?error.message:'Sign out could not finish. Please retry.'); }
+    catch (error) { setAccountError(error instanceof Error?error.message:'The door stuck on the way out — try once more?'); }
   };
   return <>
     {accountMount && createPortal(<div className="marketing-account">
-      {!authResolved ? <span role="status">{accountError || 'Checking sign-in…'}{accountError && <button type="button" onClick={() => window.location.reload()}>Retry</button>}</span> : user ? <>
+      {!authResolved ? <span role="status">{accountError || 'Seeing who\'s at my door…'}{accountError && <button type="button" onClick={() => window.location.reload()}>Retry</button>}</span> : user ? <>
         <details className="marketing-account__profile"><summary>Profile</summary><div className="marketing-account__menu">
           <span>{user.displayName || user.email || 'Your account'}</span>
           <button type="button" onClick={event => { trackInteraction('interface_action',{entry_point:'account',action:'open',activity_kind:'navigation',response_mode:'no_response',input_method:'unknown'});event.currentTarget.focus();setAccountDialogUid(user.uid); }}>Account &amp; billing</button>
@@ -535,7 +535,7 @@ const MarketingExperience: React.FC = () => {
           aria-label={matchingCredits?.kind==='ready' ? `${formatReadingAllowance(matchingCredits.balance)} remaining. Open Account and billing.` : 'Open Account and billing'}
           title={matchingCredits?.kind==='error' ? matchingCredits.message : undefined}
           onClick={event => {event.currentTarget.focus();setAccountDialogUid(user.uid);}}>
-          <span aria-live="polite">{matchingCredits?.kind==='ready' ? formatReadingAllowance(matchingCredits.balance) : matchingCredits?.kind==='error' ? 'Unavailable' : 'Checking…'}</span>
+          <span aria-live="polite">{matchingCredits?.kind==='ready' ? formatReadingAllowance(matchingCredits.balance) : matchingCredits?.kind==='error' ? 'hmm…' : 'counting…'}</span>
         </button>
         {matchingCredits?.kind==='error' && <button type="button" aria-label="Retry balance" onClick={() => void loadCredits(user.uid)}>Retry</button>}
         <a className="signin" href={appEntry('conversation')} data-entry="top-up">Top Up</a>
@@ -595,10 +595,12 @@ const MarketingExperience: React.FC = () => {
         {/* Operator directive 2026-11-08: no meta copy anywhere — the example chart is scene dressing on her wall, labelled like any chart in her room; the original's "It is not your chart." disclaimer is retired. */}
         {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Aurelia · born 8 Nov 1997, 7:05 PM · Whole Sign · Toronto <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
         {!ownedChart && <div className="marketing-frame__intake" role="status">
+          {/* Operator directive 2026-11-08 immersion sweep: every page-spoken
+              state line stays in her voice — no system disclaimers anywhere. */}
           <p>{phase.kind === 'signed-out' ? 'Sign in to explore your own calculated chart.'
-            : phase.kind === 'no-intake' ? 'Create your own natal chart to explore its placements here.'
+            : phase.kind === 'no-intake' ? 'Your chart isn\'t on my wall yet — create it, and I\'ll read it to you.'
             : phase.kind === 'error' ? phase.message
-            : phase.kind === 'loading' ? 'Calculating your saved natal chart…' : 'Checking for your saved chart…'}</p>
+            : phase.kind === 'loading' ? 'Working out your chart, degree by degree…' : 'Looking for your chart on my wall…'}</p>
           {phase.kind === 'error' && <button type="button" onClick={() => { const uid = auth.currentUser?.uid || null;ownerRef.current = uid;setOwnerUid(uid);load(uid); }}>Retry chart</button>}
         </div>}
         {(lesson || aside) && <div className="marketing-frame__lesson" tabIndex={0} aria-label="Natally's complete explanation">
@@ -606,7 +608,7 @@ const MarketingExperience: React.FC = () => {
           {aside && <p>{aside}</p>}
         </div>}
         {(lesson || aside) && <button type="button" className="marketing-frame__replay" onClick={() => void speak(aside || lesson?.text || lastSpoken.current,true,!aside && lesson ? lesson.targets : [],'replay')}>{speechState === 'error' ? 'Retry voice' : 'Replay'}</button>}
-        <p className="marketing-frame__status" role="status">{speechState === 'preparing' ? 'Preparing Natally’s voice…' : speechState === 'speaking' ? 'Natally is speaking' : speechState === 'error' ? (voiceEnabled ? 'Voice could not play. Your text is here; choose Retry voice, or switch Sound Off then Sound On to retry.' : 'Voice could not play. Your text is here; choose Retry voice or Sound On to retry.') : ''}</p>
+        <p className="marketing-frame__status" role="status">{speechState === 'preparing' ? 'Clearing my throat…' : speechState === 'speaking' ? 'Natally is speaking' : speechState === 'error' ? (voiceEnabled ? 'My voice went quiet on me — the words are still here below. Tap Retry voice, or flip Sound Off and On again.' : 'My voice went quiet on me — the words are still here below. Tap Retry voice, or turn Sound On.') : ''}</p>
         {notice && <p className="marketing-frame__notice" role="status">{notice}</p>}
       </div>
     </div>
