@@ -26,7 +26,9 @@ export interface Voice {
    * many times per answer. Sentences are cut at boundaries, synthesized in
    * order by the worker, and played back paced by sentence. Pass
    * `{ flush: true }` with the final fragment to voice trailing text that
-   * lacks closing punctuation.
+   * lacks closing punctuation. One utterance plays at a time: the first
+   * call after a `flush`/`stop` cancels whatever is still audible and
+   * starts clean, so rapid re-clicks supersede rather than overlap.
    */
   speakStream(text: string, opts?: SpeakOptions): void;
   /**

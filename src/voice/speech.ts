@@ -8,6 +8,14 @@
  * gaplessly on Web Audio with a short pause after every sentence, so delivery
  * paces with the sentence structure of the answer.
  *
+ * Single-utterance exclusivity: one utterance at a time. Fragments keep
+ * appending to the open utterance until its closing `flush`, and the first
+ * `speakStream` after that (or after `stop`) supersedes whatever is still
+ * synthesizing, queued, or audible — canceling it cleanly via the epoch
+ * bump — so Natally never talks over herself, even when a caller forgets
+ * to stop first (Robin 2026-11-08: rapid double-clicks overlapped two
+ * explanations).
+ *
  * Gesture gate (browser autoplay policy, by design): an AudioContext is
  * created only after `admit()` has marked a real user gesture. Until then
  * `speakStream` still buffers and queues the streamed text — so admitting
@@ -190,6 +198,14 @@ export function createSpeechEngine() {
   let error: string | null = null;
   /** Streamed text that has not formed a sentence yet. */
   let pending = '';
+  /**
+   * Whether the current utterance is still open for more streamed
+   * fragments. `flush` (or `stop`) closes it; the next non-empty
+   * `speakStream` then starts a fresh utterance that supersedes any
+   * playback still in flight (Robin 2026-11-08: double-clicked
+   * explanations talked over each other).
+   */
+  let streamOpen = false;
   /** Complete sentences waiting for the worker (with the voice they came with). */
   const queue: { text: string; voice: SupertonicVoice }[] = [];
   let ctx: AudioContext | null = null;
@@ -353,7 +369,17 @@ export function createSpeechEngine() {
       );
       return;
     }
+    if (text.length > 0) {
+      if (!streamOpen) {
+        // New utterance: cancel whatever is still synthesizing/queued/
+        // audible (the epoch bump drops stale worker results) so one
+        // Natally never talks over herself, then start this text clean.
+        stop();
+      }
+      streamOpen = true;
+    }
     feed(text, voice, opts.flush === true);
+    if (opts.flush === true) streamOpen = false;
     if (!admitted) {
       // Buffered and queued; playback starts once a gesture admits audio.
       setError(VOICE_NOT_ADMITTED);
@@ -378,6 +404,7 @@ export function createSpeechEngine() {
     activeSources.clear();
     if (ctx) nextTime = ctx.currentTime;
     inflight = 0; // outstanding results arrive with a stale epoch and are dropped
+    streamOpen = false; // any partially-streamed utterance is abandoned too
     error = null;
     speaking = false;
     emit();
