@@ -10,7 +10,7 @@ const fs = require('fs');
 let v = { version: '1.1.0', builtAt: null };
 try { v = JSON.parse(fs.readFileSync('version.json','utf8')); } catch {}
 let [maj, min] = (v.version || '1.1.0').split('.').map(Number);
-maj = Math.max(1, maj || 1); min = Math.max(1, (min || 0) + 1);
+maj = Math.max(1, maj || 1); min = (min || 0) + 1;
 const build = Math.floor(Date.now() / 86400000) % 10000;
 v.version = [maj, min, build].join('.');
 v.builtAt = new Date().toISOString();
