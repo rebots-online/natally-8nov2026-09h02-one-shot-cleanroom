@@ -94,6 +94,7 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | Canonical coordinator | `build_all.sh` | One stamp and dual web publish before native compilation; web/deploy failure aborts the run |
 | Build credential resolver | `scripts/build-environment.mjs` | Signing defaults declared in .env.example, actual pointers resolved through installed KStore client into child-process environment only |
 | Native packaging coordinator | `scripts/build-native.mjs` | Sync native metadata to stamped version; run all supported native targets; stage artifacts and SHA-256 inventory; nonzero exit for any missing/failed requested target |
+| Windows MSI (Store) | `scripts/build-native.mjs`, MSI source under `src-tauri/msi/` | Built on Linux, no Windows host: after the cross-compiled Windows executable, `wixl` (msitools) packages it into a per-machine MSI carrying the product identity (name Natally, the existing upgrade code, version MAJOR.MINOR.BUILD.0 from the stamp, Start-menu shortcut, mascot icon). Staged with SHA-256 as `natally-v<version>-windows-x64.msi`; failure marks the target failed like any other. |
 | Native host | `src-tauri/**` | Preserved original identity and native bridges; app.html bundle; Android full debug symbols and production keystore signing |
 
 ## First reveal and speech-driven presentation
