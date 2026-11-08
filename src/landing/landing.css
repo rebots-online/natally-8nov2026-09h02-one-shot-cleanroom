@@ -1,13 +1,15 @@
 @import '../shared/tokens.css';
 
-/* Landing surface styling. Palette and type come from the shared tokens:
-   deep plum grounds, brass accents, parchment text, Playfair display. */
+/* Landing = the product (operator parity directive 2026-11-08): one screen,
+   the verbatim atelier stage, the draggable inset wheel, her explore bar.
+   Palette and type from the shared tokens: deep plum, brass, parchment. */
 
 .landing {
-  min-height: 100vh;
-  background: var(--plum);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--plum-deep);
   color: var(--parchment);
-  scroll-behavior: smooth;
 }
 
 .landing a {
@@ -20,130 +22,336 @@
 .topbar {
   position: absolute;
   inset: 0 0 auto 0;
-  z-index: 3;
+  z-index: 5;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1.1rem clamp(1.2rem, 4vw, 3rem);
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 3.5vw, 2.5rem);
 }
 
 .topbar .wordmark {
   font-family: var(--font-display);
-  font-size: clamp(1.7rem, 3.4vw, 2.1rem);
+  font-size: clamp(2.1rem, 5vw, 3.2rem);
   letter-spacing: 0.04em;
   color: var(--parchment);
-  text-shadow: 0 2px 12px rgb(0 0 0 / 0.65);
+  text-shadow: 0 2px 14px rgb(0 0 0 / 0.7);
+  line-height: 1;
 }
 
-.topbar .enter {
+.topbar .wordmark em {
+  font-style: normal;
+  color: var(--brass);
+}
+
+.topbar-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  text-align: right;
+}
+
+.cta-primary {
   display: inline-block;
-  font-size: 1rem;
+  background: rgb(28 17 34 / 0.78);
   color: var(--brass-bright);
-  background: rgb(28 17 34 / 0.72);
-  border: 1px solid var(--plum-line);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  padding: 0.7rem 1.3rem;
   border-radius: 10px;
-  padding: 0.55rem 1.1rem;
-  backdrop-filter: blur(6px);
+  border: 1px solid var(--brass-dim);
+  backdrop-filter: blur(8px);
   transition: border-color 160ms ease, color 160ms ease;
 }
 
-.topbar .enter:hover,
-.topbar .enter:focus-visible {
-  color: var(--brass-bright);
-  border-bottom-color: var(--brass);
-}
-/* ---------- Hero stage: the persistent verbatim atelier ---------- */
-
-.hero-stage {
-  position: relative;
+.cta-primary:hover,
+.cta-primary:focus-visible {
+  border-color: var(--brass);
+  color: var(--parchment);
 }
 
-/* The scene is the stage: it pins to the viewport while the hero copy and
-   the explanation beats scroll past it. Content above stays transparent so
-   the atelier never hides. */
-.hero-scene {
-  position: sticky;
-  top: 0;
-  height: 100svh;
+.cta-sub {
+  font-size: 0.85rem;
+  color: var(--parchment-muted);
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.8);
+}
+
+/* ---------- Stage ---------- */
+
+.stage {
+  position: absolute;
+  inset: 0;
   z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--plum-deep);
 }
 
-.hero-scene .atelier-scene {
+.stage .atelier-scene {
   width: 100%;
   height: 100%;
 }
 
-.hero-scene-shade {
+.stage-shade {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(
-      180deg,
-      rgb(28 17 34 / 0.28) 0%,
-      rgb(28 17 34 / 0.05) 30%,
-      rgb(28 17 34 / 0.05) 62%,
-      rgb(28 17 34 / 0.42) 100%
-    ),
-    linear-gradient(rgb(42 26 51 / 0) 84%, var(--plum) 100%);
+  background: linear-gradient(
+    180deg,
+    rgb(28 17 34 / 0.34) 0%,
+    rgb(28 17 34 / 0.08) 26%,
+    rgb(28 17 34 / 0.08) 60%,
+    rgb(28 17 34 / 0.5) 100%
+  );
 }
 
-.hero {
-  position: relative;
-  z-index: 2;
-  min-height: 100svh;
+/* ---------- Inset wheel (fixed: never vanishes) ---------- */
+
+.inset-rail {
+  position: fixed;
+  top: clamp(4.6rem, 10vh, 6.5rem);
+  right: clamp(0.6rem, 3.5vw, 3rem);
+  z-index: 4;
+  display: flex;
+  justify-content: flex-end;
   pointer-events: none;
 }
 
-/* First story block: below the stage, never over Natally (frozen design). */
-.meet {
-  position: relative;
-  z-index: 2;
-  /* The section blocks scroll over the pinned scene: their empty regions
-     stay click-through so every trinket remains grabbable. */
-  pointer-events: none;
-}
-
-.meet .copy-panel,
-.meet a {
+.inset-drag {
   pointer-events: auto;
 }
 
-.meet h1 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(2.1rem, 5.4vw, 3.7rem);
-  line-height: 1.12;
-  margin: 0 0 1.25rem;
-  text-wrap: balance;
+/* Callout boundary: the verbatim placement module keeps hover cards in the
+   bands outside this box (+12px); the modest padding keeps them close, and
+   the tether below restores the visual link to the wheel. */
+.inset-frame {
+  padding: 0.5rem;
+  pointer-events: none;
 }
 
-.meet h1 em {
-  font-style: normal;
+.inset-frame .inset-panel {
+  pointer-events: auto;
+}
+
+.inset-panel {
+  position: relative;
+  width: clamp(14.5rem, 24vw, 21.5rem);
+  border: 1px solid var(--plum-line);
+  border-radius: 14px;
+  background: rgb(28 17 34 / 0.78);
+  backdrop-filter: blur(9px);
+  box-shadow:
+    0 1.4rem 3rem rgb(0 0 0 / 0.5),
+    0 0 2.4rem rgb(201 164 92 / 0.16);
+}
+
+/* '⠿ Move chart' — the original's visible drag affordance. */
+.inset-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem 0.35rem;
+  border: 0;
+  border-radius: 14px 14px 0 0;
+  background: rgb(54 33 65 / 0.9);
+  color: var(--parchment);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  cursor: grab;
+  touch-action: none;
+}
+
+.inset-handle:active {
+  cursor: grabbing;
+}
+
+.inset-resize {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background:
+    linear-gradient(135deg, transparent 50%, var(--brass-dim) 50%) no-repeat
+      right bottom / 12px 12px;
+  border-radius: 3px;
+}
+
+.inset-swap {
+  position: relative;
+  aspect-ratio: 1 / 1.04;
+  margin: 0 0.4rem 0.4rem;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* The verbatim Astrolabe3D root carries the original's Tailwind-style
+   utility classes; provide the same fill here (see app-shell.css note). */
+div[id^='threejs-container'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.inset-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  color: var(--parchment-muted);
+  text-align: center;
+}
+
+.inset-tag {
+  position: absolute;
+  bottom: 0.45rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
   color: var(--brass-bright);
 }
 
-.meet .subhead {
-  max-width: 34rem;
-  font-size: 1.08rem;
-  color: var(--parchment-muted);
-  margin: 0 0 2.2rem;
+/* Tether: hover callouts land in the band beside the inset (the placement
+   module prefers the wider side); a brass leader ties card → wheel. */
+.astrolabe-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -26px;
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(201 164 92 / 0), rgb(201 164 92 / 0.9));
 }
 
-.meet .subhead strong {
+.astrolabe-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  width: 5px;
+  height: 5px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: rgb(201 164 92 / 0.95);
+}
+
+/* ---------- Explore bar ---------- */
+
+.explore-bar {
+  position: absolute;
+  left: clamp(1rem, 3.5vw, 2.5rem);
+  bottom: clamp(1.2rem, 5vh, 2.6rem);
+  z-index: 5;
+  max-width: min(30rem, calc(100vw - 2rem));
+}
+
+.copy-panel {
+  background: rgb(28 17 34 / 0.84);
+  border: 1px solid var(--plum-line);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  backdrop-filter: blur(8px);
+}
+
+.example-caption {
+  margin: 0 0 0.7rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--parchment-muted);
+}
+
+.explore-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.explore-label select {
+  font: 400 0.95rem var(--font-body);
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--parchment);
-  font-weight: 400;
+  background: var(--plum-raised);
+  border: 1px solid var(--plum-line);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+}
+
+/* ---------- Karaoke caption ---------- */
+
+.karaoke-caption {
+  position: fixed;
+  left: 50%;
+  bottom: 2.4rem;
+  transform: translateX(-50%);
+  z-index: 61;
+  margin: 0;
+  max-width: min(40rem, 86vw);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--parchment-muted);
+  text-shadow: 0 2px 14px rgb(0 0 0 / 0.85);
+  pointer-events: none;
+}
+
+.karaoke-caption .is-glowing {
+  color: var(--brass-bright);
+  text-shadow: 0 0 18px rgb(201 164 92 / 0.65), 0 2px 14px rgb(0 0 0 / 0.85);
+  transition: color 120ms ease;
+}
+
+/* ---------- Truthful voice note ---------- */
+
+.landing-voice-note {
+  position: fixed;
+  left: 14px;
+  bottom: 10px;
+  z-index: 60;
+  margin: 0;
+  max-width: min(22rem, 60vw);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--parchment-muted);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* ---------- Version badge ---------- */
+
+.version-badge {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  z-index: 60;
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--parchment-muted);
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 /* Calmer atelier (operator note 2026-11-08): the room breathes slowly —
    ambient drifters run longer and softer than the original's cadence.
-   Keyframes are redefined (later sheet wins by name) without touching the
-   verbatim AtelierScene.css. */
+   Keyframes are redefined (this sheet loads after AtelierScene.css, and
+   the later same-name definition wins) without touching the verbatim
+   folder. */
 @keyframes atelier-cloud-one {
   0%,
   100% {
@@ -188,492 +396,57 @@
   }
 }
 
-.hero-scene .atelier-clouds--first,
-.hero-scene .atelier-clouds--second {
+.stage .atelier-clouds--first,
+.stage .atelier-clouds--second {
   animation-duration: 46s !important;
 }
 
-.hero-scene .atelier-scene__stars--left,
-.hero-scene .atelier-scene__stars--right {
+.stage .atelier-scene__stars--left,
+.stage .atelier-scene__stars--right {
   animation-duration: 120s !important;
 }
 
-.hero-scene .atelier-glow {
+.stage .atelier-glow {
   animation-duration: 6.4s !important;
-}
-
-/* CTA styling per the frozen design run: dark plum surfaces with pale gold
-   text, 10px radius — matching the original's "Create your natal chart"
-   button family. */
-.cta-primary {
-  display: inline-block;
-  background: var(--plum-raised);
-  color: var(--brass-bright);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  padding: 0.8rem 1.5rem;
-  border-radius: 10px;
-  border: 1px solid var(--plum-line);
-  transition: border-color 160ms ease, color 160ms ease;
-}
-
-.cta-primary:hover,
-.cta-primary:focus-visible {
-  border-color: var(--brass);
-  color: var(--brass-bright);
-}
-
-.cta-secondary {
-  display: inline-block;
-  color: var(--parchment);
-  font-size: 1rem;
-  padding: 0.8rem 1.2rem;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  transition: border-color 160ms ease, color 160ms ease;
-}
-
-.cta-secondary:hover,
-.cta-secondary:focus-visible {
-  color: var(--brass-bright);
-  border-color: var(--brass-dim);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-}
-
-/* Copy scrolls over the pinned stage; the panel keeps it legible against
-   the artwork without hiding it. */
-.copy-panel {
-  max-width: 34rem;
-  background: rgb(28 17 34 / 0.84);
-  border: 1px solid var(--plum-line);
-  border-radius: 18px;
-  padding: clamp(1.4rem, 3vw, 2.2rem);
-  backdrop-filter: blur(8px);
-}
-
-/* Version stamp (bottom-right, all surfaces). */
-.version-badge {
-  position: fixed;
-  right: 14px;
-  bottom: 10px;
-  z-index: 60;
-  margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--parchment-muted);
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* ---------- Sticky inset chart panel ---------- */
-
-/* The rail spans hero + explanation, so the panel stays pinned while the
-   beats scroll beside it. It ignores pointer events; the panel re-enables
-   them, so page scrolling and scene play stay untouched. */
-.inset-rail {
-  position: absolute;
-  top: clamp(3.4rem, 8vh, 5.5rem);
-  right: clamp(0.8rem, 3.5vw, 3.5rem);
-  bottom: 0;
-  z-index: 4;
-  display: flex;
-  justify-content: flex-end;
-  pointer-events: none;
-}
-
-.inset-drag {
-  position: sticky;
-  top: clamp(5rem, 13vh, 8.5rem);
-  pointer-events: auto;
-}
-
-.inset-panel {
-  width: clamp(14.5rem, 23vw, 20.5rem);
-  border: 1px solid var(--plum-line);
-  border-radius: 16px;
-  background: rgb(28 17 34 / 0.78);
-  backdrop-filter: blur(9px);
-  box-shadow:
-    0 1.4rem 3rem rgb(0 0 0 / 0.5),
-    0 0 2.4rem rgb(201 164 92 / 0.18);
-  opacity: 0;
-  transform: translateY(14px) scale(0.9);
-  pointer-events: none;
-  transition:
-    opacity 620ms ease,
-    transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-/* The swap moment: the chart inset arrives over the scene. */
-.inset-panel.is-shown {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-.inset-grip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 1.7rem;
-  cursor: grab;
-  touch-action: none;
-  border-radius: 16px 16px 0 0;
-}
-
-.inset-grip:active {
-  cursor: grabbing;
-}
-
-.inset-grip-dots {
-  width: 2rem;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--plum-line);
-  box-shadow: 0 -6px 0 var(--plum-line), 0 6px 0 var(--plum-line);
-}
-
-.inset-swap {
-  position: relative;
-  aspect-ratio: 1 / 1.06;
-  margin: 0 0.45rem 0.45rem;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-/* Zoom moment: while a single body is in focus the whole inset leans in. */
-.inset-panel--zoom .inset-swap {
-  transform: scale(1.16);
-}
-.inset-chart {
-  position: absolute;
-  inset: 2% 2% 11%;
-}
-
-.inset-tag {
-  position: absolute;
-  bottom: 0.55rem;
-  left: 0.6rem;
-  right: 0.6rem;
-  margin: 0;
-  text-align: center;
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: var(--brass-bright);
-}
-
-/* ---------- Explanation beats ---------- */
-
-.explain {
-  position: relative;
-  z-index: 2;
-  padding-right: clamp(1.2rem, 4vw, 3rem);
-  pointer-events: none;
-}
-
-.explain .explain-beat,
-.explain .example-note,
-.explain a {
-  pointer-events: auto;
-}
-
-.explain .lede {
-  max-width: 40rem;
-}
-
-.explain-beats {
-  display: grid;
-  gap: clamp(2rem, 5vh, 3.5rem);
-  max-width: 38rem;
-}
-
-.explain-beat {
-  min-height: 58vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 1.4rem 1.3rem;
-  background: rgb(28 17 34 / 0.84);
-  border: 1px solid var(--plum-line);
-  border-left: 2px solid var(--plum-line);
-  border-radius: 14px;
-  backdrop-filter: blur(8px);
-  transition: border-color 400ms ease;
-}
-
-.explain-beat.is-current {
-  border-left-color: var(--brass);
-}
-
-.explain-beat-step {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: 0.9rem;
-  border: 1px solid var(--brass-dim);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  color: var(--brass);
-}
-
-.explain-beat h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.45rem;
-  margin: 0 0 0.7rem;
-  color: var(--parchment-muted);
-  transition: color 400ms ease;
-}
-
-.explain-beat.is-current h3 {
-  color: var(--brass-bright);
-}
-
-.explain-beat p {
-  margin: 0;
-  color: var(--parchment-muted);
-}
-
-.example-note {
-  max-width: 38rem;
-  margin: 2.6rem 0 0;
-  font-size: 0.9rem;
-  color: var(--parchment-muted);
-  opacity: 0.85;
-}
-
-/* ---------- Shared section chrome ---------- */
-
-.section {
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: clamp(3.2rem, 8vh, 5.5rem) clamp(1.2rem, 4vw, 3rem);
-}
-
-.section .eyebrow {
-  font-size: 0.82rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--brass);
-  margin: 0 0 0.7rem;
-}
-
-.section h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.7rem, 3.6vw, 2.4rem);
-  line-height: 1.2;
-  margin: 0 0 0.9rem;
-}
-
-.section .lede {
-  max-width: 42rem;
-  color: var(--parchment-muted);
-  margin: 0 0 2.6rem;
-}
-
-/* ---------- How it works ---------- */
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 2.5vw, 2rem);
-  counter-reset: step;
-}
-
-.step {
-  background: var(--plum-raised);
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  padding: 1.4rem 1.3rem 1.5rem;
-}
-
-.step .step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  margin-bottom: 0.8rem;
-  border: 1px solid var(--brass-dim);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  color: var(--brass);
-}
-
-.step h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.15rem;
-  margin: 0 0 0.55rem;
-}
-
-.step p {
-  margin: 0;
-  color: var(--parchment-muted);
-  font-size: 0.96rem;
-}
-
-/* ---------- Offers ---------- */
-
-.offers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr));
-  gap: clamp(1rem, 2.5vw, 1.8rem);
-}
-
-.offer {
-  display: flex;
-  flex-direction: column;
-  background: var(--plum-raised);
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  padding: 1.5rem 1.4rem 1.6rem;
-}
-
-.offer.souvenir {
-  border-color: var(--brass-dim);
-  background:
-    linear-gradient(rgb(201 164 92 / 0.08), rgb(201 164 92 / 0.02)),
-    var(--plum-raised);
-}
-
-.offer .offer-price {
-  margin: 0 0 0.2rem;
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--brass-bright);
-}
-
-.offer .offer-unit {
-  margin: 0 0 0.8rem;
-  font-size: 0.92rem;
-  letter-spacing: 0.06em;
-  color: var(--brass);
-}
-
-.offer p {
-  margin: 0 0 1rem;
-  color: var(--parchment-muted);
-  font-size: 0.96rem;
-}
-
-.offer a {
-  margin-top: auto;
-  color: var(--brass-bright);
-  font-size: 0.98rem;
-  border-bottom: 1px solid var(--brass-dim);
-  align-self: flex-start;
-  padding-bottom: 2px;
-}
-
-.offer a:hover,
-.offer a:focus-visible {
-  color: var(--parchment);
-  border-bottom-color: var(--brass-bright);
-}
-
-.offers-fineprint {
-  margin: 1.6rem 0 0;
-  font-size: 0.88rem;
-  color: var(--parchment-muted);
-  opacity: 0.85;
-}
-
-/* ---------- Footer ---------- */
-
-.landing-footer {
-  border-top: 1px solid var(--plum-line);
-}
-
-.footer-inner {
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: clamp(2.4rem, 6vh, 4rem) clamp(1.2rem, 4vw, 3rem) 3rem;
-  display: grid;
-  gap: 1rem;
-}
-
-.footer-inner .wordmark {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  color: var(--parchment);
-}
-
-.footer-inner .wordmark em {
-  font-style: normal;
-  color: var(--brass);
-}
-
-.footer-tag {
-  margin: 0;
-  max-width: 30rem;
-  color: var(--parchment-muted);
-  font-size: 0.95rem;
-}
-
-.footer-links {
-  display: flex;
-  gap: 1.4rem;
-}
-
-.footer-links a {
-  font-size: 0.95rem;
-  color: var(--parchment-muted);
-}
-
-.footer-links a:hover,
-.footer-links a:focus-visible {
-  color: var(--brass-bright);
-}
-
-.footer-copyright {
-  font-size: 0.85rem;
-  color: var(--parchment-muted);
-  opacity: 0.75;
 }
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 56rem) {
-  /* The inset stays floating over the pinned scene at every width — the
-     toroidal wheel belongs in the first impression beside Natally — it just
-     scales down instead of dropping into the flow. */
+@media (max-width: 40rem) {
   .inset-panel {
-    width: min(12.5rem, 46vw);
+    width: min(12rem, 46vw);
   }
 
   .inset-rail {
+    top: clamp(4.2rem, 9vh, 6rem);
     right: 0.6rem;
   }
 
-  .explain-beat {
-    min-height: 0;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+  .topbar {
+    align-items: flex-start;
   }
 
-  .steps {
-    grid-template-columns: 1fr;
+  .topbar .wordmark {
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+  }
+
+  .cta-sub {
+    display: none;
+  }
+
+  .explore-bar {
+    right: clamp(1rem, 3.5vw, 2.5rem);
+    max-width: none;
+  }
+
+  .copy-panel {
+    padding: 0.8rem 0.9rem;
   }
 }
 
 /* ---------- Motion preferences ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .landing {
-    scroll-behavior: auto;
-  }
-
   .landing *,
   .landing *::before,
   .landing *::after {
@@ -681,82 +454,4 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
-
-  /* Hold the composed static composition: the inset appears without motion. */
-  .inset-panel {
-    transform: none;
-  }
-}
-
-.inset-loading {
-  position: absolute;
-  inset: 2% 2% 11%;
-  display: grid;
-  place-items: center;
-  font-size: 0.85rem;
-  color: var(--parchment-muted);
-  text-align: center;
-}
-
-/* The verbatim Astrolabe3D root uses the original's Tailwind-style utility
-   classes (absolute inset-0 w-full h-full); those utilities don't exist in
-   this repo, so the same fill behavior is provided here. Without it the
-   renderer's container measures zero and falls back to window.innerHeight. */
-div[id^='threejs-container'] {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Truthful narration status — the unadmitted state is never silent. */
-.landing-voice-note {
-  position: fixed;
-  left: 14px;
-  bottom: 10px;
-  z-index: 60;
-  margin: 0;
-  max-width: min(22rem, 60vw);
-  font-size: 11px;
-  line-height: 1.4;
-  color: var(--parchment-muted);
-  opacity: 0.75;
-  pointer-events: none;
-}
-
-/* Karaoke caption: her spoken line, the current word glowing in brass. */
-.karaoke-caption {
-  position: fixed;
-  left: 50%;
-  bottom: 2.4rem;
-  transform: translateX(-50%);
-  z-index: 61;
-  margin: 0;
-  max-width: min(40rem, 86vw);
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
-  line-height: 1.5;
-  color: var(--parchment-muted);
-  text-shadow: 0 2px 14px rgb(0 0 0 / 0.8);
-  pointer-events: none;
-}
-
-.karaoke-caption .is-glowing {
-  color: var(--brass-bright);
-  text-shadow: 0 0 18px rgb(201 164 92 / 0.65), 0 2px 14px rgb(0 0 0 / 0.8);
-  transition: color 120ms ease;
-}
-
-/* Callout boundary: the verbatim placement module keeps annotation cards
-   outside this box (+12px). The generous padding pushes them well clear of
-   the panel itself — real separation, never overlapping the wheel. The
-   frame itself is click-through except for the panel. */
-.inset-frame {
-  padding: clamp(1.1rem, 3vw, 2rem);
-  pointer-events: none;
-}
-
-.inset-frame .inset-panel {
-  pointer-events: auto;
 }
