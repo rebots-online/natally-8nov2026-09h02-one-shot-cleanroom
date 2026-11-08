@@ -143,3 +143,36 @@
   height: var(--inset-dock-size);
   z-index: 2;
 }
+
+/* ---------- Composition and presence (ARCHITECTURE) ---------- */
+
+/* Landing balance: the example caption and its call to action form one
+   centred group beneath the controls; the button is the clear primary
+   action at the controls' rhythm — never hanging lopsided off one side. */
+.marketing-frame__caption--example {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  margin: 6px auto 2px;
+}
+.marketing-frame__caption--example a {
+  border-color: var(--accent, #d4b477);
+  background: var(--accent, #d4b477);
+  color: var(--accent-ink, #171128);
+  font-weight: 600;
+}
+.marketing-frame__caption--example a:hover {
+  border-color: var(--accent-hover, #ffe4a1);
+  background: var(--accent-hover, #ffe4a1);
+}
+.marketing-frame__intake {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Space: the stage gets the screen — no dead bands above or below it. */
+.marketing-story .hero,
+.marketing-story .usp { padding-block: 28px; }
+.marketing-story__visual { padding: 20px 0 16px; }

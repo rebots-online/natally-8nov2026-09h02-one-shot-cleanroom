@@ -589,11 +589,11 @@ const MarketingExperience: React.FC = () => {
           {exampleCaptionShown && <p className="marketing-frame__caption marketing-frame__caption--example">Aurelia · born 31 Aug 1988, 2:30 PM · Whole Sign · Toronto <a href={`${APP_PATH}?app=1`}>Create your natal chart ↗</a></p>}
           {!ownedChart && <div className="marketing-frame__intake" role="status">
             {/* Operator directive 2026-11-08 immersion sweep: every page-spoken
-              state line stays in her voice — no system disclaimers anywhere. */}
-            <p>{phase.kind === 'signed-out' ? 'Sign in to explore your own calculated chart.'
-              : phase.kind === 'no-intake' ? 'Your chart isn\'t on my wall yet — create it, and I\'ll read it to you.'
-                : phase.kind === 'error' ? phase.message
-                  : phase.kind === 'loading' ? 'Working out your chart, degree by degree…' : 'Looking for your chart on my wall…'}</p>
+              state line stays in her voice — no system disclaimers anywhere;
+              the signed-out state lets the centred call-to-action speak. */}
+            <p>{phase.kind === 'no-intake' ? 'Your chart isn\'t on my wall yet — create it, and I\'ll read it to you.'
+              : phase.kind === 'error' ? phase.message
+                : phase.kind === 'loading' ? 'Working out your chart, degree by degree…' : phase.kind === 'signed-out' ? '' : 'Looking for your chart on my wall…'}</p>
             {phase.kind === 'error' && <button type="button" onClick={() => { const uid = auth.currentUser?.uid || null; ownerRef.current = uid; setOwnerUid(uid); load(uid); }}>Retry chart</button>}
           </div>}
           {(lesson || aside) && <div className="marketing-frame__lesson" tabIndex={0} aria-label="Natally's complete explanation">
