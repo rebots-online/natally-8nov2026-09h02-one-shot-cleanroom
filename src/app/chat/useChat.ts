@@ -1,10 +1,15 @@
 // React state for a conversation with Natally (DOCS/ARCHITECTURE.md
 // §Surfaces /app.html). send() appends the user turn, streams the reply
 // into the last message live, and converts typed inference failures into
-// banner state. useAllowance() keeps the ledger envelope fresh: on mount,
-// after every completed turn, and on a slow poll.
+// banner state. Persona questions ("who are you…") get her authored
+// backstory answer instead of a billed completion; quiet moments after a
+// completed turn get, at most once between user turns, a spontaneous
+// story from the backstage shelf. useAllowance() keeps the ledger
+// envelope fresh: on mount, after every completed turn, and on a slow
+// poll.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { nextSpontaneousStory } from '../../content/backstory';
 import { getAccess } from '../../commerce/billingApi';
 import { creditDisplayPerUsd } from '../../platform/env';
 import {
@@ -14,6 +19,7 @@ import {
 } from '../../platform/firebase';
 import { formatCr } from '../../shared/credits';
 import type { AllowanceEnvelope, ChatMessage, NatalChart } from '../../shared/types';
+import { backstoryAnswerFor } from './context';
 import {
   BillingNotConfiguredError,
   ChatNetworkError,
@@ -31,6 +37,9 @@ export type ChatError =
 
 /** Cadence for re-reading the ledger between turns (posted usage lags). */
 const ALLOWANCE_POLL_MS = 60_000;
+
+/** How quiet a completed turn must go before a spontaneous story. */
+const SPONTANEOUS_IDLE_MS = 60_000;
 
 export interface AllowanceView {
   /** Last known server-signed envelope; null when never fetched/signed out. */
@@ -116,49 +125,92 @@ export function useChat(chart: NatalChart): UseChat {
   // Mirror of `messages` so streaming updates never read stale state.
   const messagesRef = useRef<ChatMessage[]>([]);
   const streamingRef = useRef(false);
+  const idleTimerRef = useRef<number | undefined>(undefined);
+  // Never two stories without a user turn between them.
+  const storyAllowedRef = useRef(true);
 
   const updateMessages = useCallback((next: ChatMessage[]) => {
     messagesRef.current = next;
     setMessages(next);
   }, []);
 
+  const clearIdleStory = useCallback(() => {
+    window.clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = undefined;
+  }, []);
+
+  /** Drop the next spontaneous story into a still room, if allowed. */
+  const fireIdleStory = useCallback(() => {
+    if (streamingRef.current || !storyAllowedRef.current) return;
+    storyAllowedRef.current = false;
+    updateMessages([
+      ...messagesRef.current,
+      { id: newId(), role: 'natally', text: nextSpontaneousStory(), at: Date.now() },
+    ]);
+  }, [updateMessages]);
+
+  const armIdleStory = useCallback(() => {
+    clearIdleStory();
+    idleTimerRef.current = window.setTimeout(fireIdleStory, SPONTANEOUS_IDLE_MS);
+  }, [clearIdleStory, fireIdleStory]);
+
+  // A live user question always outranks a queued story; unmount kills it.
+  useEffect(() => clearIdleStory, [clearIdleStory]);
+
   const send = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
       if (trimmed === '' || streamingRef.current) return;
 
-      streamingRef.current = true;
-      setStreaming(true);
+      clearIdleStory();
+      storyAllowedRef.current = true;
       setError(null);
 
-      const at = Date.now();
       const userMessage: ChatMessage = {
         id: newId(),
         role: 'user',
         text: trimmed,
-        at,
+        at: Date.now(),
       };
-      const replyId = newId();
 
-      // The wire history is the transcript so far plus this user turn — the
-      // empty streaming placeholder must not reach the model.
+      // The wire history is the transcript so far plus this user turn —
+      // authored or streamed replies never reach the model mid-flight.
       const history = [...messagesRef.current, userMessage];
+
+      // The telescope turned on her: answer from the authored backstory,
+      // in her voice, without spending allowance.
+      const authored = backstoryAnswerFor(trimmed);
+      if (authored !== null) {
+        updateMessages([
+          ...history,
+          { id: newId(), role: 'natally', text: authored.answer, at: Date.now() },
+        ]);
+        armIdleStory();
+        return;
+      }
+
+      streamingRef.current = true;
+      setStreaming(true);
+
+      const replyId = newId();
       updateMessages([
         ...history,
         { id: replyId, role: 'natally', text: '', at: Date.now() },
       ]);
 
+      let failed = false;
       try {
-        let text = '';
+        let reply = '';
         for await (const delta of streamChat({ history, chart })) {
-          text += delta;
+          reply += delta;
           updateMessages(
             messagesRef.current.map((message) =>
-              message.id === replyId ? { ...message, text } : message,
+              message.id === replyId ? { ...message, text: reply } : message,
             ),
           );
         }
       } catch (cause) {
+        failed = true;
         const typed: ChatError =
           cause instanceof NoAllowanceError ||
           cause instanceof BillingNotConfiguredError ||
@@ -180,9 +232,10 @@ export function useChat(chart: NatalChart): UseChat {
         streamingRef.current = false;
         setStreaming(false);
         allowance.refresh();
+        if (!failed) armIdleStory();
       }
     },
-    [allowance, chart, updateMessages],
+    [allowance, armIdleStory, chart, clearIdleStory, updateMessages],
   );
 
   return { messages, send, streaming, error, allowance };

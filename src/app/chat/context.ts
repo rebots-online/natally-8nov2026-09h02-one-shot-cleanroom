@@ -1,7 +1,8 @@
 // Conversation context for Natally (DOCS/ARCHITECTURE.md §Inference):
-// system = persona + a compact natal-chart facts block, then the last turns.
+// system = persona + compact chart facts + compact backstory, then turns.
 // No token math anywhere — the server owns completion budgeting.
 
+import { BACKSTORY_ANSWERS, type BackstoryAnswer } from '../../content/backstory';
 import { NATALLY_SYSTEM_PROMPT } from '../../content/persona';
 import type { ChatMessage, NatalChart, ZodiacSign } from '../../shared/types';
 
@@ -91,13 +92,52 @@ export function chartFacts(chart: NatalChart): string {
   return lines.join('\n');
 }
 
+/**
+ * Compact backstory digest: her canonical self-answers verbatim plus a
+ * one-line anchor for the vignette shelf, so streamed replies never
+ * contradict the authored material.
+ */
+function backstoryBlock(): string {
+  const answers = BACKSTORY_ANSWERS.map(
+    (entry) => `Q: ${entry.question}\nA: ${entry.answer}`,
+  );
+  return [
+    'When the customer asks about Natally herself, these are her canonical answers; stay consistent with them.',
+    ...answers,
+    "Her backstage holds a grandmother's annotated ephemeris, a decorative brass telescope, postcards above the desk, and a cat named Umbra; never contradict these details.",
+  ].join('\n');
+}
+
+/** Lowercased phrase triggers, parallel to BACKSTORY_ANSWERS. */
+const BACKSTORY_TRIGGERS: readonly string[] = [
+  'who are you',
+  'do you believe',
+  'your sign',
+  'how did you learn',
+];
+
+/** The authored answer for a persona question, or null for chart talk. */
+export function backstoryAnswerFor(text: string): BackstoryAnswer | null {
+  const lowered = text.toLowerCase();
+  for (let i = 0; i < BACKSTORY_TRIGGERS.length; i++) {
+    const trigger = BACKSTORY_TRIGGERS[i];
+    if (trigger !== undefined && lowered.includes(trigger) && i < BACKSTORY_ANSWERS.length) {
+      return BACKSTORY_ANSWERS[i] ?? null;
+    }
+  }
+  return null;
+}
+
 /** System + trimmed conversation, ready for the wire. */
 export function buildMessages(
   history: ChatMessage[],
   chart: NatalChart,
 ): ContextMessage[] {
   const messages: ContextMessage[] = [
-    { role: 'system', content: `${NATALLY_SYSTEM_PROMPT}\n\nNATAL CHART FACTS\n${chartFacts(chart)}` },
+    {
+      role: 'system',
+      content: `${NATALLY_SYSTEM_PROMPT}\n\nNATAL CHART FACTS\n${chartFacts(chart)}\n\nNATALLY'S OWN STORY\n${backstoryBlock()}`,
+    },
   ];
 
   for (const message of history.slice(-MAX_CONTEXT_MESSAGES)) {
