@@ -13,10 +13,14 @@
 //                                per-customer in localStorage so a reload
 //                                doesn't demand re-entering birth data.
 
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { authUnavailable, googleSignIn, onAuthChange } from '../platform/firebase';
-import type { ChartBodyKey, NatalChart } from '../shared/types';
+import type { BirthInput, ChartBodyKey, NatalChart } from '../shared/types';
+import { composeLiveReading } from '../chart/liveReading';
+import type { Voice } from '../voice';
+import { getPreloadedVoice } from '../services/supertonicTts';
+import { withPerformanceEvents } from './voicePerformance';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import { getLesson } from '../content/lessons';
@@ -80,10 +84,27 @@ export default function App() {
   // The original renderer's view of the same sky: computed with its own
   // pipeline from the same birth data the clean-room chart persists.
   const [astrolabe, setAstrolabe] = useState<NatalChartResult | null>(null);
+  // Bespoke click reading: authored lesson + today's sky, computed on the
+  // spot when a body is clicked in the wheel.
+  const [liveReading, setLiveReading] = useState<{ planet: string; text: string | null } | null>(null);
+  const skyForChart = useRef<Promise<NatalChartResult> | null>(null);
+
+  // Today's sky for the click readings: the same verbatim pipeline cast for
+  // this moment at the customer's birth place, computed at most once per
+  // chart and shared by every click.
+  const skyToday = (birth: BirthInput): Promise<NatalChartResult> => {
+    skyForChart.current ??= computeAstrolabeChart({
+      ...birth,
+      dateIso: new Date().toISOString().slice(0, 10),
+      timeIso: new Date().toTimeString().slice(0, 5),
+    });
+    return skyForChart.current;
+  };
 
   useEffect(() => {
     let live = true;
     setAstrolabe(null);
+    skyForChart.current = null;
     if (chart !== null) {
       computeAstrolabeChart(chart.input)
         .then(result => {
@@ -98,6 +119,49 @@ export default function App() {
       live = false;
     };
   }, [chart]);
+
+  // Clicks in the wheel get a bespoke reading: authored lesson + today's
+  // sky computed on the spot, spoken in her voice (mouth follows via the
+  // performance bridge).
+  const voiceRef = useRef<Voice | null>(null);
+  if (voiceRef.current === null) voiceRef.current = withPerformanceEvents(getPreloadedVoice());
+  const voice = voiceRef.current;
+
+  const explainPlanet = (name: string | null) => {
+    const key = (name as ChartBodyKey | null) ?? null;
+    setHoveredKey(key);
+    if (!key || chart === null) {
+      setLiveReading(null);
+      return;
+    }
+    const natalBody = chart.bodies.find(body => body.key === key);
+    if (!natalBody) {
+      setLiveReading(null);
+      return;
+    }
+    setLiveReading({ planet: key, text: null });
+    void skyToday(chart.input)
+      .then(today => {
+        const current = today.natalBodies.find(body => body.name === key) ?? null;
+        const text = composeLiveReading(
+          key,
+          { sign: natalBody.sign, lon: natalBody.position.longitude },
+          current ? { sign: current.signName, lon: current.lon } : null,
+        );
+        setLiveReading({ planet: key, text });
+        if (voice.admitted) {
+          voice.stop();
+          voice.speakStream(text, { flush: true });
+        }
+      })
+      .catch(() => {
+        // Degrade truthfully to the authored lesson alone.
+        setLiveReading({
+          planet: key,
+          text: composeLiveReading(key, { sign: natalBody.sign, lon: natalBody.position.longitude }, null),
+        });
+      });
+  };
   useEffect(() => {
     if (authUnavailable) {
       setAuth({ status: 'signedOut', unavailable: true });
@@ -269,7 +333,7 @@ export default function App() {
                   isSpinning={false}
                   resetTrigger={0}
                   selectedPlanetName={hoveredKey}
-                  onSelectPlanet={name => setHoveredKey((name as ChartBodyKey) ?? null)}
+                  onSelectPlanet={explainPlanet}
                 />
               ) : (
                 <div className="chart-loading" role="status">
@@ -282,11 +346,17 @@ export default function App() {
                 <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} />
                 <section className="lesson-card" aria-live="polite">
                   <p className="lesson-kicker">
-                    {hoveredKey !== null ? `You’re hovering · ${hoveredKey}` : 'From Natally’s notebook'}
+                    {liveReading
+                      ? `Her reading · ${liveReading.planet}, live`
+                      : hoveredKey !== null
+                        ? `You’re hovering · ${hoveredKey}`
+                        : 'From Natally’s notebook'}
                   </p>
                   <h3>{lesson.title}</h3>
-                  <p className="lesson-body">{lesson.what}</p>
-                  <p className="lesson-question">{lesson.question}</p>
+                  <p className="lesson-body">
+                    {liveReading?.text ?? lesson.what}
+                  </p>
+                  {!liveReading && <p className="lesson-question">{lesson.question}</p>}
                 </section>
               </>
             }
