@@ -48,6 +48,8 @@ the continuous recording; no operator audition or test suite is a substitute.
 | NATIVE-ANDROID-1 | ARCHITECTURE.md §Native packaging: the Android target collects exactly the APK and AAB produced by THIS invocation (current stamped version), never leftovers from earlier versions; v1.24.765 failed with "Android release APK/AAB were not uniquely produced". Signed APK + AAB + native-symbol ZIP staged with SHA-256 in dist/natally-v<version>/. | `scripts/build-native.mjs` | not started |
 | NATIVE-MSI-1 | ARCHITECTURE.md §Native packaging 'Windows MSI (Store)': package the cross-compiled Windows executable into an MSI on Linux with `wixl` (install msitools if absent): per-machine install, product name Natally, existing upgrade code from tauri.conf.json, version MAJOR.MINOR.BUILD.0 from the stamp, Start-menu shortcut, mascot icon; staged as natally-v<version>-windows-x64.msi with SHA-256; replaces the "windows-store not-built" entry. | `scripts/build-native.mjs`, `src-tauri/msi/**` | not started |
 
+Landed (committed + pushed): NATIVE-ANDROID-1 2772764 (Android packaged in v1.26.765) · NATIVE-MSI-1 fc4da1d, a34ab8f (proof MSI from the v1.26.765 exe: Natally 1.26.765.0, per-machine, existing upgrade code). The Status column above predates these commits.
+
 ## INSET — dockable, resizable chart inset (ARCHITECTURE.md §Chart inset)
 
 | ID | Task | Owned files (exclusive) | Status |
