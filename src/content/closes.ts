@@ -19,17 +19,17 @@ export interface NatallyClose {
 export const CLOSES: readonly NatallyClose[] = [
   {
     kind: 'credits',
-    text: 'We have reached the edge of this session\u2019s credits, and I would hate to leave your chart half-explored — there is a whole sky still on the table. A small pack of credits keeps our conversation going from exactly where we left off, whenever you are ready.',
+    text: 'okay so we just bumped into the edge of this session\u2019s credits — low-key tragic, because your chart was getting SO good. a little pack keeps our conversation going from this exact sentence, whenever you want: no rush, no dramatic fog effects, your chart and your pace.',
     cta: 'Keep the conversation going',
   },
   {
     kind: 'souvenir',
-    text: 'If tonight\u2019s reading struck a chord, imagine having it bound — these words and your actual chart, frozen together as a keepsake you can return to for years. The souvenir report turns our conversation into something you can hold.',
+    text: 'if tonight\u2019s reading is living rent-free in your head — valid, it happens — imagine it bound: these words plus your actual chart, frozen together as a keepsake you can reread for years. the souvenir report is basically our conversation wearing its fancy coat.',
     cta: 'Make it a keepsake',
   },
   {
     kind: 'none',
-    text: 'And with that, the sky can rest for tonight — you brought good questions, and your chart clearly enjoys your company. Come back whenever you want to look deeper; I will keep the telescope warm. Warmly, Natally',
+    text: 'and with that, the sky can rest — you brought the good questions and the whole wheel noticed. come back whenever you want to go deeper; the candles and I keep the atelier warm. be gentle with yourself out there, bestie. — natally',
     cta: null,
   },
 ];
