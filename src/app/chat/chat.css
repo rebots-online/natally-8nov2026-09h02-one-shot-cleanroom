@@ -1,0 +1,202 @@
+/* Chat panel — parchment-on-plum conversation (src/shared/tokens.css).
+   Fallback values mirror the tokens so the panel survives a missing
+   tokens.css import. */
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--plum, #2a1a33);
+  border: 1px solid var(--plum-line, #422a50);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chat-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem 0.6rem;
+  border-bottom: 1px solid var(--plum-line, #422a50);
+  font-family: var(--font-display, Georgia, serif);
+}
+
+.chat-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--parchment, #f3ead8);
+}
+
+.chat-balance {
+  font-size: 0.9rem;
+  color: var(--brass, #c9a45c);
+  white-space: nowrap;
+}
+
+.chat-balance[data-state='none'] {
+  color: var(--parchment-muted, #b9a996);
+}
+
+.chat-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem;
+}
+
+.chat-empty {
+  margin: auto;
+  text-align: center;
+  font-style: italic;
+  color: var(--parchment-muted, #b9a996);
+}
+
+.chat-msg {
+  max-width: 85%;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Natally speaks parchment-on-plum. */
+.chat-msg-natally {
+  align-self: flex-start;
+  background: var(--plum-raised, #362141);
+  color: var(--parchment, #f3ead8);
+  border: 1px solid var(--plum-line, #422a50);
+  border-bottom-left-radius: 4px;
+}
+
+/* The customer's words invert the palette. */
+.chat-msg-user {
+  align-self: flex-end;
+  background: var(--parchment, #f3ead8);
+  color: var(--plum-deep, #1c1122);
+  border-bottom-right-radius: 4px;
+}
+
+.chat-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--brass, #c9a45c);
+  border-radius: 1px;
+  animation: chat-blink 1.1s steps(1) infinite;
+}
+
+@keyframes chat-blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+
+  56%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-caret {
+    animation: none;
+  }
+}
+
+.chat-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 1.1rem 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--plum-deep, #1c1122);
+  border: 1px solid var(--brass-dim, #6f5a35);
+  border-radius: 8px;
+}
+
+.chat-error-text {
+  color: var(--parchment-muted, #b9a996);
+  font-size: 0.9rem;
+}
+
+.chat-topup {
+  flex: none;
+  padding: 0.35rem 0.9rem;
+  background: var(--brass, #c9a45c);
+  color: var(--plum-deep, #1c1122);
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.chat-topup:hover {
+  background: var(--brass-bright, #d9b878);
+}
+
+.chat-input {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.8rem 1.1rem 1rem;
+  border-top: 1px solid var(--plum-line, #422a50);
+}
+
+.chat-draft {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.75rem;
+  background: var(--plum-deep, #1c1122);
+  border: 1px solid var(--plum-line, #422a50);
+  border-radius: 8px;
+  color: var(--parchment, #f3ead8);
+  font: inherit;
+}
+
+.chat-draft::placeholder {
+  color: var(--parchment-muted, #b9a996);
+}
+
+.chat-draft:focus-visible {
+  outline: 2px solid var(--brass, #c9a45c);
+  outline-offset: 1px;
+  border-color: var(--brass, #c9a45c);
+}
+
+.chat-draft:disabled {
+  opacity: 0.55;
+}
+
+.chat-send {
+  flex: none;
+  padding: 0.55rem 1.1rem;
+  background: var(--brass, #c9a45c);
+  color: var(--plum-deep, #1c1122);
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.chat-send:hover:not(:disabled) {
+  background: var(--brass-bright, #d9b878);
+}
+
+.chat-send:disabled {
+  background: var(--brass-dim, #6f5a35);
+  color: var(--parchment-muted, #b9a996);
+  cursor: default;
+}
