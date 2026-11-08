@@ -12,6 +12,11 @@
     gets a preauthored observation rubric (DOCS/RUBRIC-*.md) BEFORE design or
     code; acceptance is a recorded screencast against every rubric checkpoint
     (DOCS/DEMONSTRATIONS/). Static inspection and lint never substitute.
+
+11. Every web publish goes to BOTH the dated custom domain and its
+    surge.sh alias simultaneously (e.g. natally-8nov2026.robin.mba AND
+    natally-8nov2026.surge.sh) — the alias is the fallback that keeps the
+    site reachable when the custom domain has cert/DNS trouble.
 4. No placeholder functionality, mock customer experiences, dummy payments,
    or invented customer data.
 5. No greps; no verification runs by the orchestrator; coders locate only

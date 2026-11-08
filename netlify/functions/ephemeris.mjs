@@ -60,7 +60,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 
 export const config = { path: '/ephemeris/*' };
@@ -139,29 +139,70 @@ async function stageCdnAssets(dir) {
   return dir;
 }
 
+// TEMPORARILY INSTRUMENTED for live deployment diagnosis: init failures carry
+// a `detail` (resolution attempts + underlying error) surfaced in the 500 body
+// as {error, detail}; remove once the asset location is confirmed working.
 async function initEngine() {
-  const require = createRequire(import.meta.url);
-  let glueUrl = null;
+  const trace = [`module dir: ${dirname(fileURLToPath(import.meta.url))}`];
   let assetDir = null;
-  try {
-    const pkgWasmDir = join(dirname(require.resolve('swisseph-wasm/package.json')), 'wasm');
-    if (SWE_ASSET_FILES.every((name) => existsSync(join(pkgWasmDir, name)))) {
-      glueUrl = pathToFileURL(join(pkgWasmDir, 'swisseph.js')).href;
-      assetDir = pkgWasmDir;
+
+  // 1. Disk candidates, most-deploy-specific first:
+  //    a. wasm/ next to this module (Netlify [functions] included_files land
+  //       beside the bundle in the function dir),
+  //    b/c. node_modules shipped intact beside/below the module,
+  //    d. resolvable installed package (unbundled local/dev).
+  const here = dirname(fileURLToPath(import.meta.url));
+  const diskCandidates = [
+    ['module-relative wasm/', join(here, 'wasm')],
+    ['module-relative node_modules', join(here, 'node_modules', 'swisseph-wasm', 'wasm')],
+    ['parent node_modules', join(here, '..', 'node_modules', 'swisseph-wasm', 'wasm')],
+  ];
+  for (const [label, dir] of diskCandidates) {
+    if (SWE_ASSET_FILES.every((name) => existsSync(join(dir, name)))) {
+      assetDir = dir;
+      trace.push(`${label}: OK -> ${dir}`);
+      break;
     }
-  } catch { /* package not on disk (bundled deploy) → CDN fallback below */ }
-  if (!glueUrl) {
-    assetDir = await stageCdnAssets(join(tmpdir(), `natally-swisseph-${SWE_VERSION}`));
-    glueUrl = pathToFileURL(join(assetDir, 'swisseph.js')).href;
+    trace.push(`${label}: missing -> ${dir}`);
   }
-  const factory = (await import(glueUrl)).default;
-  const module = await factory({ locateFile: (name) => join(assetDir, name) });
-  if (!module.HEAP32) module.HEAP32 = new Int32Array(module.HEAPF64.buffer);
-  module.ccall('swe_set_ephe_path', 'string', ['string'], ['sweph']); // data package mounts ephemeris files at /sweph
-  return {
-    calcUt: (julianDay, bodyId, flags) => sweCalcUt(module, julianDay, bodyId, flags),
-    houses: (julianDay, geoLat, geoLon, hsys) => sweHouses(module, julianDay, geoLat, geoLon, hsys),
-  };
+  if (!assetDir) {
+    try {
+      const require = createRequire(import.meta.url);
+      const pkgWasmDir = join(dirname(require.resolve('swisseph-wasm/package.json')), 'wasm');
+      const ok = SWE_ASSET_FILES.every((name) => existsSync(join(pkgWasmDir, name)));
+      trace.push(`require.resolve: ${ok ? 'OK' : 'missing files'} -> ${pkgWasmDir}`);
+      if (ok) assetDir = pkgWasmDir;
+    } catch (err) {
+      trace.push(`require.resolve: failed (${err && (err.code || err.message)})`);
+    }
+  }
+
+  // 2. CDN staging fallback (bundled deploy without shipped assets).
+  if (!assetDir) {
+    try {
+      assetDir = await stageCdnAssets(join(tmpdir(), `natally-swisseph-${SWE_VERSION}`));
+      trace.push(`cdn staging: OK -> ${assetDir}`);
+    } catch (err) {
+      const failure = new Error('no usable swisseph-wasm asset location');
+      failure.detail = `${trace.join(' | ')} | cdn staging failed: ${err && err.message}`;
+      throw failure;
+    }
+  }
+
+  try {
+    const glueUrl = pathToFileURL(join(assetDir, 'swisseph.js')).href;
+    const factory = (await import(glueUrl)).default;
+    const module = await factory({ locateFile: (name) => join(assetDir, name) });
+    if (!module.HEAP32) module.HEAP32 = new Int32Array(module.HEAPF64.buffer);
+    module.ccall('swe_set_ephe_path', 'string', ['string'], ['sweph']); // data package mounts ephemeris files at /sweph
+    return {
+      calcUt: (julianDay, bodyId, flags) => sweCalcUt(module, julianDay, bodyId, flags),
+      houses: (julianDay, geoLat, geoLon, hsys) => sweHouses(module, julianDay, geoLat, geoLon, hsys),
+    };
+  } catch (err) {
+    err.detail = `${trace.join(' | ')} | init with assets at ${assetDir} failed: ${err && (err.stack || err.message)}`;
+    throw err;
+  }
 }
 
 // Thin C bridge over the Emscripten module, mirroring swisseph-wasm's own
@@ -403,6 +444,10 @@ export default async function handler(request) {
   } catch (err) {
     if (err instanceof HttpError) return json(err.status, { error: err.message });
     console.error('ephemeris engine failure:', err);
-    return json(500, { error: 'ephemeris engine failure' });
+    // TEMPORARY (deployment diagnosis): expose the engine's own detail so one
+    // live request reveals the failing asset path/init error. Remove after.
+    return json(500, err && err.detail
+      ? { error: 'ephemeris engine failure', detail: String(err.detail).slice(0, 1500) }
+      : { error: 'ephemeris engine failure' });
   }
 }
