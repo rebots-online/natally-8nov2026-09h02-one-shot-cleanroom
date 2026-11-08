@@ -122,5 +122,6 @@ current rewrite's dist-web/app.html is the bundled native entry.
 
 | Entity | Location | Contract |
 | --- | --- | --- |
-| Demo birth data | landing example chart | 14 June 1993, 14:30, Toronto (43.6532 N, 79.3832 W, America/Toronto). Chosen by measurement over 1975–2005: ten planets across 9 signs, largest empty arc 57°, 29 aspects spread around the wheel. (The previous 8 Nov 1997 19:05 sample packed every planet into one 148° strip with a 212° empty arc.) |
+| Demo birth data | landing example chart | 31 August 1988, 14:30, Toronto (43.6532 N, 79.3832 W, America/Toronto). Chosen by measurement for a clearly visible theme: Sun–Moon–Neptune grand trine (1.0° orb), one bright triangle across the wheel, planets across 9 signs. Her demo narration opens on that triangle. |
 | Casual discovery | landing inset wheel | Bodies, signs, houses and aspect lines are spread so an idle mouse-over anywhere on the wheel lands on something; each hit shows its tooltip/highlight. |
+| No disclaimers | everything she says or the page shows | No disclaimer, hedge or meta framing anywhere — not in page copy, captions, lessons, spoken narration or chat replies ("example", "not your chart", "not proven predictions", "symbolic language, not…", "sign in to explore your own…"). She speaks with conviction in-world; the persona prompt forbids self-discounting. |
