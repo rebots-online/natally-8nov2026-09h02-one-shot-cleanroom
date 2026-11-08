@@ -381,6 +381,7 @@ export default function Landing() {
       className="inset-drag"
       style={{ transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)` }}
      >
+      <div className="inset-frame" data-chart-callout-boundary data-chart-inset="true">
       <aside
        className={`inset-panel is-shown${activeBody !== null ? ' inset-panel--zoom' : ''}`}
        aria-label="Example natal chart panel"
@@ -397,7 +398,7 @@ export default function Landing() {
        >
         <span className="inset-grip-dots" aria-hidden="true" />
        </div>
-       <div className="inset-swap" data-chart-callout-boundary data-chart-inset="true">
+       <div className="inset-swap">
         {example ? (
          <Astrolabe3D
           chart={example}
@@ -418,6 +419,7 @@ export default function Landing() {
         <p className="inset-tag inset-tag--chart">{caption}</p>
        </div>
       </aside>
+      </div>
      </div>
     </div>
 

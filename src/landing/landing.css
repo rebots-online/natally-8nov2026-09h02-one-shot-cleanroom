@@ -747,3 +747,16 @@ div[id^='threejs-container'] {
   text-shadow: 0 0 18px rgb(201 164 92 / 0.65), 0 2px 14px rgb(0 0 0 / 0.8);
   transition: color 120ms ease;
 }
+
+/* Callout boundary: the verbatim placement module keeps annotation cards
+   outside this box (+12px). The generous padding pushes them well clear of
+   the panel itself — real separation, never overlapping the wheel. The
+   frame itself is click-through except for the panel. */
+.inset-frame {
+  padding: clamp(1.1rem, 3vw, 2rem);
+  pointer-events: none;
+}
+
+.inset-frame .inset-panel {
+  pointer-events: auto;
+}
