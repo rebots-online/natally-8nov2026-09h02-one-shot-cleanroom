@@ -22,6 +22,11 @@ const NUM_INFERENCE_STEPS = 5;
 /**
  * Pace (operator tuning 2026-11-08): 1.15 — chatty and bright per SOUL.md's
  * overcaffeinated-oracle cadence; 1.0 still read as slow.
+ *
+ * No pitch knob: the Supertonic API (checked 2026-11-08, both model cards)
+ * exposes only speaker / speed / steps, so the requested +2-semitone lift
+ * has no parameter to ride — the kawaii high register is carried by the
+ * F5 speaker embedding itself.
  */
 const SPEED = 1.15;
 
