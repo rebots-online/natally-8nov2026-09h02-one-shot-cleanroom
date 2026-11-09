@@ -72,3 +72,15 @@ recorded, not acted on, until Robin says go (global-agent-rules "How we work").
 | Q5 | Go-ahead to add the checkout/webhook toolsets to `natally_catalog` via the MCP Builder? | Toolsets listed: hosted_page_operations/lookup, webhook_operations/lookup, invoice/transaction/event lookup, customer_operations, promotional_credit_operations | — |
 | Q6 | Touch screens have no hover — what should a tap on the inset do on a phone? | Click rule confirmed for pointer devices (L6989–6997) | — |
 | Q7 | Per-project expenses index `PROJECTS/Natally/EXPENSES.md` linking each receipt — wanted? | Receipts filed under `RECORDS/FINANCIAL/<YYYY>/` with LEDGER.md | — |
+
+### Resolved by assumption (2026-11-09) — Robin: a question queue "manufactures de facto blockers"; none may exist
+
+| # | Assumption acted on | Justification |
+| --- | --- | --- |
+| Q1 | **Yes** — conversation persistence added to the list: verbatim per account in Firestore; embeddings for semantic recall of lore and past turns | Robin asked to *confirm* it exists; the asking states the expectation |
+| Q2 | **No move.** "Firebase matter" = user data lives in Firebase; it already does (`billing/ledger.mjs` → Firestore). The Netlify function stays as compute | His sentence was about storing user data, which is already Firestore-only |
+| Q3 | **Build it** in the existing `kstore` database (one store, one backup); `removed` requires a reason; markdown lists become generated views | Single source of truth; append-only history matches KStore's own revision model |
+| Q4 | **Done now:** REST `CHARGEBEE_API_KEY` removed from Netlify env and repo pointers | Robin: "remove the chargebee rest api we are not using it" — explicit instruction |
+| Q5 | **Yes** — toolsets added to `natally_catalog` when the §Billing re-architecture item is executed | Follows directly from REST removal; MCP is the only remaining path |
+| Q6 | **Touch:** a tap on a chart component acts as hover+click (select, swap, explain); a tap on empty inset swaps; press-and-hold then move drags | The hover rule's purpose — "what you see is what the click acts on" — maps to touch as tap-to-reveal-and-act |
+| Q7 | **Yes** — `PROJECTS/Natally/EXPENSES.md` index created in Admin-Manual, one line per receipt | Robin asked the PDF to be "persisted in the project's expenses" |
