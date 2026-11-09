@@ -1,0 +1,58 @@
+## Entity table
+
+| Entity | Kind | File:line | Signature / role |
+|---|---|---|---|
+| InsetProps | interface | src/app/stage/Inset.tsx:104 | `{ storageKey: string; label: string; children: ReactNode; focused?: boolean; fillHeight?: number\|null; targets?: readonly string[]; bodyCount?: number; onAutoInvert?: (invert: boolean) => void }` |
+| Inset | component | src/app/stage/Inset.tsx:350 | `export function Inset({ storageKey, label, children, focused = false, fillHeight = null, targets = [], bodyCount = DEFAULT_BODY_COUNT, onAutoInvert = undefined }: InsetProps)` |
+| insetFloorPx | function | src/app/stage/Inset.tsx:151 | `export function insetFloorPx(bodyCount: number): number` — size floor: `ceil(N·44/π)+32` chrome |
+| BODY_TARGET_PX / INSET_MAX_W | consts | src/app/stage/Inset.tsx:58-60 | 44 px per body; width cap 0.6 of stage width; cap also `0.9·height` in `allowedWidthPx` (:187) |
+| DRAG_THRESHOLD_PX | const | src/app/stage/Inset.tsx:70 | 5 px travel turns touch into drag (click-vs-drag discrimination) |
+| onSurfacePointerDown | handler | src/app/stage/Inset.tsx:517 | `(event: ReactPointerEvent<HTMLDivElement>) => void` — arms drag anywhere on surface |
+| onSurfacePointerMove | handler | src/app/stage/Inset.tsx:531 | drag arms past threshold (:536 `Math.hypot(...) < DRAG_THRESHOLD_PX`); docked card lifts to floating on drag (:539-551) |
+| onSurfacePointerUp | handler | src/app/stage/Inset.tsx:562 | tap-without-drag returns silently so chart's own click lands (:565-569); release near edge/corner snaps: `DOCK_REACH = 0.24` (:68) — right→'side' (:585), bottom→'stack' (:591), else edge/corner `DOCK_MARGIN=12` snap (:597-604) |
+| dataset.insetDock + --inset-dock-size | dock layout | src/app/stage/Inset.tsx:464-481 | sets `data-inset-dock` ('side'/'stack') and px size on host layer AND stage element; cleared when floating/focused |
+| sideFits / stackFits | functions | src/app/stage/Inset.tsx:192,197 | `(stage, floorPx) => boolean`; needs `SCENE_MIN_W=320`+`DOCK_GAP=16` (:80-84) / `STACK_MIN_H=520` |
+| computeAutoPlacement | function | src/app/stage/Inset.tsx:267 | `(stage, face: Rect\|null, floorPx) => AutoPlacement` ('dock' geometry \| 'invert'); corner order `CORNERS=['br','bl','tr','tl']` (:141) |
+| faceRectInStage | function | src/app/stage/Inset.tsx:220 | measures `.atelier-character__head` bounding box in stage coords (roomy/tight first-load placement) |
+| FACE_COVERED_INVERT | const | src/app/stage/Inset.tsx:76 | 0.8 — floor hiding >80% of face on every corner → 'invert' (chart takes focus) via `onAutoInvert` (:403-410, :453-454) |
+| onGripPointerDown/Move/Up | resize handlers | src/app/stage/Inset.tsx:611-640 | corner grip `.chart-inset__resizer` (:733-740); aspect-locked, floor→cap clamp (:625-628) |
+| onKeyDown (Alt+arrow) | handler | src/app/stage/Inset.tsx:643 | `KEY_STEP=0.012` move, `KEY_RESIZE_STEP=0.02` resize (:72-73) |
+| loadState / storeState | persistence | src/app/stage/Inset.tsx:157,178 | localStorage JSON `{mode,x,y,w}` under caller-supplied `storageKey`; AppShell key `natally.inset.v1:${auth.uid}` (AppShell.tsx:801); restore once at :414-426, invalid dock→floating |
+| clampGeometry / allowedWidthPx | functions | src/app/stage/Inset.tsx:209,187 | floor/ceiling applied on every geometry change |
+| Inset render | JSX | src/app/stage/Inset.tsx:695-742 | bar w/ gripdots+label+target chips; `chart-inset--docked` when mode≠floating |
+| useStageVisualHeight | hook | src/app/stage/stageMetrics.ts:12 | `export function useStageVisualHeight(root: React.RefObject<HTMLElement\|null>): number\|null` — only export; feeds Inset fillHeight |
+| `.chart-inset` | css surface | src/app/stage/inset.css:35-47 | `border: 1px solid var(--plum-line); border-radius: 12px; background: rgba(6,7,17,0.92); box-shadow…; touch-action:none` — **no backdrop-filter** |
+| `.chart-inset__resizer` | css grip | src/app/stage/inset.css:117-140 | 20×20 nwse-resize corner grip, brass gradient + diagonal lines |
+| `.chart-inset__bar` / `__gripdots` / `__targets` | css chrome | src/app/stage/inset.css:60-114 | drag bar, dots, focus-target chips |
+| `.chart-inset--docked` / `[data-inset-dock]` | css docked | src/app/stage/inset.css:181-202 | static position, aspect-ratio 1; layer flex for side/stack |
+| `.stage-inset-layer` | css layer | src/app/stage/inset.css:11-23 | pointer-events none; z:0 (focused, Natally floats above) / z:40 in `[data-mode='float']` |
+| verbatim pane hidden | css | src/app/stage/inset.css:28-31 | `.stage-inset-root .reading-stage__chart, …__inset-handle { display:none !important }` |
+| `.chart-inset-fill` | css focused | src/app/stage/inset.css:151-164 | full-stage visual fill, bg rgba(6,7,17,0.96) |
+| PresentationState | interface | src/app/presentation/state.ts:11 | `{ chartKey: string; selectedTargets: string[]; focusTargets: string[]; view: 'atelier'\|'chart'; panel: 'conversation'; follow: boolean; sequence: number; lastReceipt: null }` |
+| PresentationAction | union | src/app/presentation/state.ts:29 | `{type:'chart',key}` \| `{type:'focus',targets}` \| `{type:'clear'}` \| `{type:'view',view,manual?}` |
+| presentationReducer | function | src/app/presentation/state.ts:46 | focus/clear set focusTargets; view swap; manual choice turns `follow` off and later auto cues dropped (:78) |
+| parseReply | function | src/app/presentation/cues.ts:35 | `export function parseReply(raw: string, inventory: ReadonlySet<string>): ParsedReply` — regex `/\[\[(chart\|view):([^\]\r\n]*)\]\]/gi` (:26); `[[view:chart]]`, `[[view:atelier]]`, `[[chart:Sun;Moon]]`, `[[chart:clear]]`; MAX_TARGETS=6; unterminated `[[` held back (:36-38); targets filtered by inventory |
+| createPlayback | function | src/app/presentation/playback.ts:31 | `export function createPlayback(apply: (cue: Cue) => void): PlaybackDriver` — apply points: `update()` stream frontier (:59-60), `spoken()` karaoke frontier (:62-78), `end()` flush only if speech never drove (:79-83), `finish()` flush all (:84-86) |
+| presentationBlock | function | src/app/chat/context.ts:140 | cue instructions in system prompt: `[[view:chart]]`, `[[chart:TARGET;TARGET]]`, `[[chart:clear]]` rules |
+| chartTargets | function | src/app/chat/context.ts:132 | `export function chartTargets(chart: NatalChart): Set<string>` — bodies + 12 signs + `House N` (only if timeIso≠null); injected verbatim at :148 |
+| buildMessages | function | src/app/chat/context.ts:153 | system = `NATALLY_SYSTEM_PROMPT + NATAL CHART FACTS(chartFacts, :64) + LIVE STAGE(presentationBlock) + NATALLY'S OWN STORY(backstoryBlock)` (:160); last 20 turns |
+| Astrolabe3D | component | src/atelier-original/components/Astrolabe3D.tsx:60 | mounted by AppShell.tsx:45 import + :810-816 with `chart/isSpinning={false}/resetTrigger={0}/selectedPlanetName={hoveredKey??focusBody}/onSelectPlanet={explainPlanet}` — **no highlightedComponents/focusSequence passed** |
+| raycaster | hover raycast | src/atelier-original/components/Astrolabe3D.tsx:387-388 | `raycaster.params.Line = { threshold: 0.045 }`; `pickChartTargets` (:484) prioritizes badge > planet glyph > nearest visible aspect line |
+| hover tooltip | DOM callout | src/atelier-original/components/Astrolabe3D.tsx:253-276,526-536,571 | fixed-position `.astrolabe-tooltip` div on body; `placeChartCallout` (chartCalloutPlacement.ts:5) `export function placeChartCallout(card: HTMLDivElement, pointer: Point, inset: DOMRect\|null): boolean` clamps to viewport/inset boundary |
+| click/tap selection | handlers | src/atelier-original/components/Astrolabe3D.tsx:641-679,715 | click/pointerup: `data.selectable !== false` → `queueInsetObjectSelection` (:507) waits for pane-swap transitionend (:140-157) then `toggleComponent` or `selectPlanet`; tap-vs-drag: `suppressDragClick = gesture.moved \|\| hypot > 4` (:478) |
+| aspect line classes | meshes | src/atelier-original/components/Astrolabe3D.tsx:1441-1505 | natal↔natal: `LineBasicMaterial` solid, color per aspect (:1443); transit (now↔natal): `LineDashedMaterial` cyan dashed (:1442); both in `interactiveObjectsRef` with `userData.aspectName` (:1481-1482) — **lines ARE raycast-selectable**, tooltip shows '· HOVER PREVIEW' (:573); selected lines get tube/ring emphasis (:1451-1478) |
+| aspect sources | data | src/atelier-original/components/Astrolabe3D.tsx:1498-1505 | `chart.aspectChords` (natal) + `chart.currentSky?.aspects` (now→natal); **no now↔now lines** |
+| focus-dim traverse | effect | src/atelier-original/components/Astrolabe3D.tsx:1512-1523,1537-1548 | dims materials ×`CHART_FOCUS.dim=0.19` when `focusActive && !focused`; exempt: `userData.structureFrame` (torus/bezels/rings/disc :328,341,348,364,379) and `userData.orientationAnchor` (house-number badge :1269) — **house spokes (:1189), sign ticks (:1136), zodiac sprites, degree subtext, aspect lines DO dim**; halos on focused sprites (:1552-1571) w/ `chartHaloOpacity` (chartFocusVisuals.ts:3) |
+| activeSelections | memo | src/atelier-original/components/Astrolabe3D.tsx:161 | expands seeds (highlightedComponents ?? selectedComponents+selectedPlanetName) to touched bodies/houses/aspect names |
+| FirstLight | component | src/app/onboarding/FirstLight.tsx:60 | `export default function FirstLight({ onSitDown }: { onSitDown: (chart: NatalChart) => void })`; reveal handoff: `onCreate` → `natalChart(birth)` → `voice.stop(); onSitDown(computed)` at :156-159 (AppShell passes `onSitDown={setChart}` AppShell.tsx:722); draft stash key `natally.firstlight.draft.v1` (:30) |
+| landing inset mount | JSX | src/landing-original/marketing.tsx:580-589 | `<Inset storageKey={`${APP_NAMESPACE}.marketing.inset.v1.${roomUid}`}` (`${APP_NAMESPACE}` = `envString('VITE_APP_NAMESPACE','natally')` :54); own extra drag handle position key `insetKey = ${APP_NAMESPACE}.marketing.inset-position.${roomUid}` (:151), default `{x:0,y:1}` (:74) |
+
+## Does NOT exist (evidence)
+
+- **No layout-by-range (large/roomy/tight/too-small) exports in stageMetrics.ts** — the file is 33 lines with only `useStageVisualHeight` (stageMetrics.ts:12-33); the roomy/tight/too-small logic lives in Inset.tsx (`sideFits`/`stackFits` :192/:197, `computeAutoPlacement` :267, `FACE_COVERED_INVERT` :76).
+- **No now↔now aspect lines** — only `chart.aspectChords` and `chart.currentSky?.aspects` are drawn, the latter from current-sky coords to natal coords (Astrolabe3D.tsx:1498-1505).
+- **No backdrop-filter on the inset surface** — `.chart-inset` uses plain rgba background (inset.css:35-47); `backdrop-filter: blur(16px)` exists only on the inline-styled Astrolabe tooltip (Astrolabe3D.tsx:263).
+- **AppShell does not pass highlightedComponents/focusSequence to Astrolabe3D** — only `selectedPlanetName`/`onSelectPlanet` (AppShell.tsx:810-816); spoken `focusTargets` reach the wheel only via `focusBody` → `selectedPlanetName` (:748-749), not as a highlight list.
+- **No Home/End corner docking in the clean-room Inset** — that exists only on the verbatim ReadingStage handle (ReadingStage.tsx:78) and the landing's separate handle (marketing.tsx:602); clean-room Inset uses arrows/Alt+arrows only (Inset.tsx:643-668).
+- **House numbers/spokes dim status**: they DO participate in focus-dim (house spokes :1189 dim; house-number badge is exempt via `orientationAnchor` :1269 + :1521), i.e. dimming is not limited to bodies/aspects.
+- Aspect lines **are** selectable and tooltiped, contrary to a possible assumption otherwise (Astrolabe3D.tsx:1481-1482, 573, 641-644).

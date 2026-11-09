@@ -137,3 +137,7 @@ Robin (2026-11-09): "if OpenRouter is being used, then it is already on the prem
 - [ ] Touch
 - [ ] On-device storage
 - [ ] Cost principle
+
+### Anchor survey + new observation (2026-11-09 ~16:10)
+- Verified anchors for the inset cluster saved at `DOCS/CODEMAP/inset-anchors-3f00f98.md` (scout `InsetAnchors`, read-only, clean-room only). Key findings: drag/dock/grip/Alt-arrow/persistence/auto-placement all exist in `src/app/stage/Inset.tsx`; `.chart-inset` has no backdrop-filter (inset.css:35-47); aspect lines ARE raycast-selectable and tooltiped (Astrolabe3D.tsx:1481-1482, 573); no now↔now lines (:1498-1505); focus-dim dims house spokes, sign ticks, zodiac sprites, degree subtext (:1512-1548; only structureFrame + house-number badge exempt); AppShell passes only `selectedPlanetName`/`onSelectPlanet` to Astrolabe3D (AppShell.tsx:810-816) — no highlight list; stageMetrics.ts has only `useStageVisualHeight`.
+- Robin: "tap on a component with a hover = Natally has to talk, which she doesn't now." → On a click/tap of a hovered component she must speak (explain it, lipsync) — today the click only selects/swaps; no speech is triggered. Ledger item: Click = hover decides (extends: she talks).
