@@ -2,12 +2,12 @@ import { signOutBilling } from './services/billingApi';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createPortal } from 'react-dom';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { Astrolabe3D } from './components/Astrolabe3D';
+import { FirebaseError } from 'firebase/app';
+import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut, type User } from 'firebase/auth';
 import { AtelierScene } from './components/atelier/AtelierScene';
 import { AtelierAmbience } from './components/atelier/AtelierAmbience';
 import { Inset } from '../app/stage/Inset';
-import { AccountBillingDialog, type AccountCreditsState as CreditsState } from './components/AccountBillingDialog';
+import { describeSignInFailure } from '../platform/firebase';
 import { auth } from './services/firebase';
 import { initializeInteractionAnalytics, updateInteractionContext, trackInteraction, beginInteractionEpisode, chartAnalyticsTarget, type InteractionInputMethod } from './services/interactionAnalytics';
 import { readCreditBalance, formatReadingAllowance } from './services/billingApi';
@@ -67,6 +67,7 @@ const MarketingExperience: React.FC = () => {
   const [authResolved, setAuthResolved] = useState(false);
   const [accountError, setAccountError] = useState<string | null>(null);
   const [accountDialogUid, setAccountDialogUid] = useState<string | null>(null);
+  const [signInBusy, setSignInBusy] = useState(false);
   const [credits, setCredits] = useState<CreditsState>({ kind: 'idle' });
   const [inset, setInset] = useState<InsetPosition>({ x: 0, y: 1 });
   const [dragging, setDragging] = useState(false);
@@ -303,6 +304,36 @@ const MarketingExperience: React.FC = () => {
         } catch { if (isCurrent() && !localReady) setPhase({ kind: 'error', message: 'Your chart slipped off the shelf — let\'s try again.' }); }
       } catch { if (isCurrent()) setPhase({ kind: 'error', message: 'I couldn\'t read your birth details just now.' }); }
     })();
+  }, []);
+
+  // One-click sign-in (ARCHITECTURE §Header, menu and sign-in): the Sign In
+  // control starts Google sign-in directly — popup, redirect when blocked —
+  // and every outcome but success is named right where they tapped.
+  const startSignIn = async () => {
+    if (signInBusy) return;
+    setAccountError(null);
+    setSignInBusy(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        if (error instanceof FirebaseError && error.code === 'auth/popup-blocked') {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+        throw error;
+      }
+      // Success: the auth observer carries the visitor into the app.
+    } catch (error) {
+      setSignInBusy(false);
+      setAccountError(describeSignInFailure(error));
+    }
+  };
+
+  // A redirect sign-in that came back failed shows its specific message here.
+  useEffect(() => {
+    getRedirectResult(auth).catch(error => setAccountError(describeSignInFailure(error)));
   }, []);
 
   useEffect(() => {
