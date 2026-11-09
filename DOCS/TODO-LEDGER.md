@@ -108,33 +108,9 @@ Robin (2026-11-09): "if OpenRouter is being used, then it is already on the prem
 | Highlight correction | "the discussed component *is* highlighted, with others de-emphasized" | S1 11-09 ~19:40 | `v1.27.765` | "Natally drives focus" | Supersedes the earlier row's wording: highlighting works; the defect is only that house division bars, house numbers, sign ring and degree marks fade with the rest |
 | natally_catalog toolsets + server key | (follows from "remove the chargebee rest api") | S1 11-09 ~20:40 | Chargebee site rochemedia | §Billing (MCP-only) | To add: hosted_page_operations/lookup, webhook_operations/lookup, invoice/transaction/event lookup, customer_operations, promotional_credit_operations; then a full server API key filed in both credential locations |
 
-## Open items — the list (2026-11-09, after the session scratch list was retired)
+## Open items (keyphrases; details are in the rows above)
 
-**Billing**
-1. natally_catalog MCP server API key obtained unmasked and filed in both credential locations
-2. natally family item prices: packs US$5/10/25, souvenir US$30 (exact cents)
-3. Webhook registered to natally-hosted-chat `/billing/webhook` with the basic-auth secret
-4. §Billing re-architected MCP-only (REST removed; Netlify env already cleared; `.env.example` comment still names the key)
-5. natally_catalog: toolsets added (row above)
-6. Deploy via build_all; real purchase of credits and of the souvenir
-
-**NAV-1**
-7. Header/menu/one-click sign-in fully connected; typechecks; commit, push, deploy
-
-**Inset and conversation**
-8. Click on inset: hover decides — component → swap + explain; empty → swap; drag moves
-9. Natally brings chart to focus during readings; atelier to inset
-10. Wheel structure never fades when highlighting (house bars, numbers, sign ring, degree marks)
-11. Relationship lines hover-selectable and identified (now↔natal, natal↔natal, now↔now)
-12. Relationship lines take part in readings and explorations
-13. Docking by drag to edge/corner, with re-zoom on large screens
-14. Resizing by all four corners
-15. Acrylic dark-purple pane, darkened + blurred behind, fully legible
-16. Size floor: every house number and planet symbol readable (v1.24.765 fix unconfirmed)
-17. Onboarding for all users regardless of payment
-18. Three levels per clicked item; unpaid = levels 1–2 + upsell; level 3 = inference = paid
-19. Paid levels: turns = relate + degree/dose; souvenir = holistic conclusions; customer context changes interpretation
-20. Chat input: mic (on-device STT) + media upload
-21. Touch: tap on component = hover+click; tap on empty = swap; press-hold-move = drag (assumption)
-22. Conversation storage on-device: verbatim + 4096-dim qwen3-embedding-8b vectors; recall on-device; embeddings on the customer's managed key when allowance exists
-23. Cost principle: nothing cost-bearing is an unbounded obligation; on-device or inside a priced purchase
+**Billing** 1 MCP server key · 2 Item prices · 3 Webhook · 4 §Billing MCP-only · 5 Toolsets · 6 Deploy + real purchase
+**NAV-1** 7 Header / menu / sign-in
+**Inset** 8 Click = hover decides · 9 Natally focuses chart · 10 Wheel never fades · 11 Lines hoverable · 12 Lines in readings · 13 Docking · 14 Corner resize · 15 Acrylic · 16 Size floor
+**Product** 17 Onboarding for all · 18 Three levels · 19 Paid levels · 20 Mic + upload · 21 Touch · 22 On-device storage · 23 Cost principle
