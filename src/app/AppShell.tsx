@@ -19,7 +19,13 @@
 
 import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { authUnavailable, googleSignIn, onAuthChange } from '../platform/firebase';
+import {
+  authUnavailable,
+  describeSignInFailure,
+  googleSignIn,
+  onAuthChange,
+  redirectSignInFailure,
+} from '../platform/firebase';
 import type { BirthInput, ChartBodyKey, NatalChart } from '../shared/types';
 import { composeLiveReading } from '../chart/liveReading';
 import type { KaraokeDetail, Voice } from '../voice';
@@ -394,11 +400,24 @@ export default function App() {
       await googleSignIn();
     } catch (error) {
       setSigningIn(false);
-      setSignInError(
-        error instanceof Error ? error.message : 'Sign-in failed. Please try again.',
-      );
+      // Specific, plain-language outcome (cancellation included) shown in
+      // the card, right under the button they tapped.
+      setSignInError(describeSignInFailure(error));
     }
   }
+
+  // A redirect sign-in that came back failed (popup was blocked, domain
+  // unauthorized, network…) surfaces here once, where they clicked.
+  useEffect(() => {
+    if (auth.status !== 'signedOut' || authUnavailable) return;
+    let live = true;
+    void redirectSignInFailure().then(message => {
+      if (live && message !== null) setSignInError(message);
+    });
+    return () => {
+      live = false;
+    };
+  }, [auth.status]);
 
   if (auth.status === 'unknown') {
     return (

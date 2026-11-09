@@ -8,6 +8,7 @@ import { FirebaseError, getApp, getApps, initializeApp, type FirebaseOptions } f
 import {
   GoogleAuthProvider,
   getAuth,
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
@@ -29,6 +30,14 @@ export class NotSignedInError extends Error {
   constructor() {
     super('No signed-in user; sign in with Google first.');
     this.name = 'NotSignedInError';
+  }
+}
+
+/** Thrown by googleSignIn() when the person closed the popup themselves. */
+export class SignInCancelledError extends Error {
+  constructor() {
+    super('Sign-in was cancelled.');
+    this.name = 'SignInCancelledError';
   }
 }
 
@@ -67,18 +76,78 @@ function requireAuth(): Auth {
   return auth;
 }
 
-/** Google sign-in via popup, falling back to redirect when the popup is blocked. */
+/** Google sign-in via popup, falling back to redirect when the popup is
+ *  blocked. Cancellation (the person closed the popup) throws
+ *  SignInCancelledError; every other failure rethrows for
+ *  describeSignInFailure() to name. */
 export async function googleSignIn(): Promise<void> {
   const a = requireAuth();
   const provider = new GoogleAuthProvider();
   try {
     await signInWithPopup(a, provider);
   } catch (error) {
-    if (error instanceof FirebaseError && error.code === 'auth/popup-blocked') {
-      await signInWithRedirect(a, provider);
-      return;
+    if (error instanceof FirebaseError) {
+      if (error.code === 'auth/popup-blocked') {
+        await signInWithRedirect(a, provider);
+        return;
+      }
+      if (
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request'
+      ) {
+        throw new SignInCancelledError();
+      }
     }
     throw error;
+  }
+}
+
+/** Specific, plain-language text for any sign-in outcome short of success —
+ *  callers show it exactly where the sign-in click happened. Never silent. */
+export function describeSignInFailure(error: unknown): string {
+  if (error instanceof SignInCancelledError) {
+    return 'Sign-in was cancelled — tap again whenever you’re ready.';
+  }
+  if (error instanceof AuthUnavailableError) {
+    return 'Sign-in isn’t configured on this deployment — VITE_FIREBASE_CONFIG is empty or invalid.';
+  }
+  if (error instanceof FirebaseError) {
+    switch (error.code) {
+      case 'auth/popup-blocked':
+        return 'The sign-in window was blocked — allow popups for this site and tap again.';
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+        return 'Sign-in was cancelled — tap again whenever you’re ready.';
+      case 'auth/unauthorized-domain':
+        return 'This domain isn’t authorized for Google sign-in yet — it must be added in the Firebase console (Authentication → Settings → Authorized domains).';
+      case 'auth/operation-not-allowed':
+        return 'Google sign-in is disabled for this Firebase project — enable it in the console (Authentication → Sign-in method).';
+      case 'auth/configuration-not-found':
+        return 'Google sign-in isn’t configured for this project — add the Google provider in the Firebase console.';
+      case 'auth/network-request-failed':
+        return 'A network problem stopped sign-in — check the connection and try again.';
+      case 'auth/too-many-requests':
+        return 'Too many attempts just now — wait a moment and try again.';
+      default:
+        return `Sign-in failed (${error.code}). Please try again.`;
+    }
+  }
+  if (error instanceof Error && error.message) {
+    return `Sign-in failed — ${error.message}`;
+  }
+  return 'Sign-in failed. Please try again.';
+}
+
+/** After a redirect sign-in returns: its specific failure message, or null
+ *  when no redirect failed (or auth isn't configured — that is reported
+ *  separately by authUnavailable). */
+export async function redirectSignInFailure(): Promise<string | null> {
+  try {
+    await getRedirectResult(requireAuth());
+    return null;
+  } catch (error) {
+    if (error instanceof AuthUnavailableError) return null;
+    return describeSignInFailure(error);
   }
 }
 
