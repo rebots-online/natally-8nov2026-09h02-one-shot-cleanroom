@@ -87,29 +87,59 @@ reading reveal, click readings, and lazy `SouvenirDialog`. `StageHeader` (95)
 and `AccountPanel` (185) implement the header/account surface (NAV-1: live
 balance, Top up / Keepsake / Sign out from the avatar menu).
 
-**The inset card** (`stage/Inset.tsx`, 854-line module) is the heart of the
-stage. Verified mechanics:
+**The inset card** (`stage/Inset.tsx`) is the heart of the stage. Target
+mechanics (INSET revision, 2026-11-09 — behaviour authority: Robin's rows in
+`DOCS/TODO-LEDGER.md`; anchors: `DOCS/CODEMAP/inset-anchors-3f00f98.md`):
 
-- **Size floor** `insetFloorPx(bodyCount)` (151): `ceil(count·44/π) + CHROME_PX`
-  — every body is a fingertip (~44 px) target on the rim. Cap `INSET_MAX_W`
-  0.6 of stage width; square wheel (`ASPECT` 1).
-- **Modes** `InsetMode = 'side' | 'stack' | 'floating'` (97): docked beside the
-  scene (side-by-side or stacked) or a floating card. State
-  `{mode, geometry{x,y,w}}` persists per account through the caller's
-  `storageKey`; a restored dock that no longer fits degrades to floating.
-- **Until the customer moves it** (`userMovedRef`), every stage resize
-  re-evaluates placement: dock if `sideFits`/`stackFits`, else
-  `computeAutoPlacement(stage, faceRectInStage(...), floorPx)` — measured
-  against the **on-screen rect of Natally's rendered head** — with a `dock`
-  placement and an `invert` kind reported through `onAutoInvert` (too small →
-  the chart takes focus and Natally becomes the inset).
-- **Card drag**: armed on pointer-down anywhere on the surface, live only after
-  a movement threshold, so a plain tap still reaches the chart under the
-  pointer (and a tap swaps the views); dragging a docked card lifts it to
-  floating. Corner grips resize within [floor, 60%].
-- Docking is expressed as `data-inset-dock` + `--inset-dock-size` on the host
-  stage/layer; `stage/inset.css` implements the re-zoom; `stageMetrics.ts`
-  `useStageVisualHeight` feeds the focused fill height.
+- **Two views, one stage.** The atelier (Natally) and her chart; one fills the
+  stage, the other is the inset. `presentation.view` decides which; the chart
+  is always rendered by `Astrolabe3D` inside `Inset`, Natally by the atelier
+  pane, so a swap is a re-layout, never a remount.
+- **Click acts on what hover has shown.** Pointer over a chart component
+  (planet, sign, house, aspect line) highlights it; a click/tap on a
+  highlighted component swaps the views (chart to the stage, Natally to the
+  inset) and **Natally speaks**: the authored levels 1–2 explanation of that
+  component (what it is, what it symbolises, "your X is in Y, which…"), with
+  lipsync, while the chart highlights every involved element (the planet, its
+  house, its sign, its aspect lines) and the highlight moves with her words
+  (§5). A click where nothing is highlighted swaps the views only. A drag
+  moves the card and never swaps or selects. The tap always speaks levels 1–2
+  (authored, no inference); when the customer has allowance the same tap
+  continues into level 3 — synthesis, degree/dose, ties to other elements — as
+  a paid turn debited like any other (§6); without allowance it ends in the
+  upsell. The paid/unpaid line is the inference line, never the gesture.
+- **Touch** (assumption Q6, overturnable): tap on a component = hover+click
+  above; tap on empty inset = swap; press-and-hold (`LONG_PRESS_MS`) then
+  move = drag.
+- **Size floor** `insetFloorPx(bodyCount)`: the larger of the fingertip rim
+  (`ceil(count·44/π) + CHROME_PX`) and the glyph-legibility floor
+  (`GLYPH_MIN_PX` per house number and planet symbol at the wheel's symbol
+  scale) — every house number and every planet symbol individually readable.
+  Cap `INSET_MAX_W` 0.6 of stage width; square wheel.
+- **Modes** `InsetMode = 'side' | 'stack' | 'floating'`: docked beside the
+  scene or a floating card; `{mode, geometry}` persists per account through
+  the caller's `storageKey`; a restored dock that no longer fits degrades to
+  floating.
+- **Auto placement until the customer moves it** (`userMovedRef`): on every
+  stage resize, dock if `sideFits`/`stackFits`, else
+  `computeAutoPlacement(stage, faceRectInStage(...), floorPx)` against the
+  on-screen rect of Natally's head; too small for the floor to clear her face
+  → `onAutoInvert` (chart takes the stage, Natally becomes the inset).
+- **Drag, dock, resize — observed not working on `v1.27.765` and corrected
+  here as contracts, not code presence:** drag arms anywhere on the surface
+  past `DRAG_THRESHOLD_PX`; a docked card lifts to floating on drag; release
+  within `DOCK_REACH` of an edge/corner docks there (right → `side`, bottom →
+  `stack`, else corner snap at `DOCK_MARGIN`) and the scene re-zooms into the
+  remaining space (`data-inset-dock` + `--inset-dock-size` on the stage;
+  `inset.css` implements the fill). All four corners carry a resize grip
+  (`.chart-inset__resizer`, aspect-locked, clamped to [floor, cap]). Alt+arrow
+  keyboard move/resize retained. Acceptance is by observation on the deployed
+  build, not by the presence of these handlers.
+- **Acrylic surface** `.chart-inset`: translucent dark-purple pane —
+  `backdrop-filter: blur(…)` plus a plum tint that darkens what lies behind —
+  with the wheel, numbers and symbols fully legible on it; the docked and
+  focused fills keep the same material.
+- `stageMetrics.ts` `useStageVisualHeight` feeds the focused fill height.
 
 `AtelierBackdrop.tsx` layers the real art (`/atelier/puppet-cleanplate.webp` +
 pixel-registered `room.webp` mascot, poster fallback). `karaokeCaption.tsx`
@@ -158,7 +188,20 @@ sequenceDiagram
 - `state.ts` — `presentationReducer` over `PresentationState {chartKey,
   focusTargets, view, follow, sequence}`: `focus`/`clear` set highlights, `view`
   swaps chart⇄atelier, **a manual view choice sets `follow:false` and automatic
-  view cues stop**; `chart` resets on a new chart key.
+  view cues stop**; `chart` resets on a new chart key. **Target:** `focusTargets`
+  reach the wheel as its highlight list (`Astrolabe3D` `highlightedComponents`),
+  not only as one `selectedPlanetName`; targets include aspect lines
+  (`"Sun trine Moon"`, `"now Mars square Venus"`) so she can highlight and
+  explain relationship lines (natal↔natal and now↔natal only — now↔now is
+  excluded by design: the current sky aspects itself continuously and would
+  cover the wheel with lines carrying no personal information).
+- `explain.ts` — **new** `explainTarget(target, chart, sky)`: composes the
+  authored levels 1–2 passage for a tapped component (`content/lessons` +
+  `chart/liveReading` placement statement) with cues for every involved
+  element (`involvedElements(target, chart)`: the body, its house, its sign,
+  its aspect lines), then hands it to the same driver as a reply so `view:
+  chart`, highlights and speech move together. No inference. Used by the
+  shell's tap handler and available to the opening.
 - `opening.ts` — `openingReading(chart)`: her authored first message with cues
   (`[[view:chart]]`, Sun/Moon/Ascendant passages, first trine…), timed or
   untimed (`unknown time` variants).
@@ -177,7 +220,14 @@ sequenceDiagram
 - `context.ts` — builds the OpenRouter wire messages: persona system prompt
   (`content/persona`), chart facts, target inventory + cue instructions
   (`presentationBlock`), backstory answers, last `MAX_CONTEXT_MESSAGES` (20)
-  turns.
+  turns. **Target:** `chartTargets` also enumerates aspect lines
+  (`aspectTargetName`, natal↔natal and now↔natal) so her cues can address
+  them; `presentationBlock` instructs her to bring the chart forward, highlight
+  the involved elements, clear between emphases, and never to narrate level 3
+  unless the turn is paid. A tap with allowance posts the levels 1–2 passage as
+  her message and continues through `streamChat` for level 3 as one paid turn.
+  The customer's lore — turns, and the souvenir workup once bought — lives
+  on-device with its embeddings and enters context like the chart facts.
 - `inference.ts` — `streamChat()`: SSE client over `POST /billing/chat` with
   Bearer Firebase ID token; typed failures `NoAllowanceError` (402),
   `ChatNetworkError`, `BillingNotConfiguredError`; frames parsed incrementally
@@ -208,7 +258,15 @@ sequenceDiagram
   the lesson alone).
 - `atelier-original/components/Astrolabe3D.tsx` — the original three.js wheel
   (117 symbols): tiered renderer (WebGL/SVG fallback), pointer picking with
-  hover analytics episodes, inset-aware layout, callouts.
+  hover analytics episodes, inset-aware layout, callouts. **Target (deliberate
+  local additions to the frozen port, registered in §16.12):** the focus-dim
+  traverse exempts the whole wheel structure — house spokes, house numbers,
+  sign ring and ticks, degree marks — by `userData.wheelStructure`, so only
+  bodies, glyphs and aspect lines de-emphasise; `highlightedComponents` is
+  driven from `presentation.focusTargets`; aspect lines keep their raycast
+  selectability and callouts (natal↔natal solid, now↔natal dashed; no now↔now
+  by design); a click on a hovered component reports the hit to the shell,
+  which swaps the view and speaks (§4), instead of selection only.
 
 ## 8. Voice (`src/voice/` + TTS rail)
 
@@ -356,12 +414,17 @@ identity + native bridges, not part of the web registry.
 ## 15. Known divergences (snapshot vs intent)
 
 Recorded verbatim with citations in [`DOCS/TODO-LEDGER.md`](TODO-LEDGER.md):
-billing purchase flow never exercised end-to-end; Chargebee REST key deadlock
-(11 attempts, `DOCS/ASSUMPTIONS/2026-11-09-chargebee-rest-key.md`); webhook
-not yet registered; landing one-click sign-in + working menu items remaining
-(click-to-swap inset, docking, resizing reported unverified on `v1.27.765`);
-three-level inference split (authored levels 1–2 unpaid / inference level 3
-paid) not yet in code.
+billing purchase flow never exercised end-to-end; Chargebee REST removed by
+operator order (MCP-only; `DOCS/ASSUMPTIONS/2026-11-09-chargebee-rest-key.md`
+superseded); webhook not yet registered; landing one-click sign-in + working
+menu items remaining. **Inset (target state written into §4, §5, §6, §7 on
+2026-11-09; none of it observed working on `v1.27.765`):** click on a hovered
+component does not swap or make her speak; docking and corner resize do not
+work; `.chart-inset` has no acrylic (no backdrop-filter); focus-dim fades
+house spokes, sign ticks and degree marks; `focusTargets` never reach the wheel
+as a highlight list; aspect lines are not in the cue inventory; three-level
+split (authored 1–2 / paid 3) not in code; conversation and workup not
+persisted as lore (on-device target, §6). Touch mapping is an assumption (Q6).
 
 ---
 
@@ -417,7 +480,8 @@ contract.
 | Entity | Kind | Where | Role |
 | --- | --- | --- | --- |
 | `SouvenirDialog` lazy binding ·priv, `AuthState` ·priv, `StageHeader`, `AccountPanel`, `loadStoredChart`, `App` (default) | const ·priv, type ·priv, comp ·priv, comp ·priv, fn ·priv, comp | `app/AppShell.tsx:72,76,95,185,264,276` | composition root (internal: `onKaraoke`, `handleReplyEvent`, `explainPlanet`, `skyToday`, `admit`, chatStage, opening reveal refs) |
-| `BODY_TARGET_PX`, `INSET_MAX_W`, `ASPECT` ·priv, `CHROME_PX` ·priv, `DEFAULT_BODY_COUNT` ·priv, `DRAG_THRESHOLD_PX` ·priv, `DOCK_GAP` ·priv, `InsetGeometry` ·priv, `InsetMode`, `InsetState` ·priv, `InsetProps`, `StageBox` ·priv, `Rect` ·priv, `insetFloorPx`, `loadState` ·priv, `storeState` ·priv, `clampGeometry` ·priv, `allowedWidthPx` ·priv, `sideFits` ·priv, `stackFits` ·priv, `dockedWidthPx` ·priv, `computeAutoPlacement` ·priv, `faceRectInStage` ·priv, `isFiniteNumber` ·priv, `Inset` | const/type/fn | `app/stage/Inset.tsx:58,60,62,~64,~,~,84,86,97,99,104,127,132,151,157,~,~,~,~,~,~,~,~,~,~,350` | the inset card (see §4) |
+| `BODY_TARGET_PX`, `INSET_MAX_W`, `ASPECT` ·priv, `CHROME_PX` ·priv, `DEFAULT_BODY_COUNT` ·priv, `DRAG_THRESHOLD_PX` ·priv, `DOCK_GAP` ·priv, `DOCK_REACH` ·priv, `DOCK_MARGIN` ·priv, `FACE_COVERED_INVERT` ·priv, `KEY_STEP`/`KEY_RESIZE_STEP` ·priv, `InsetGeometry` ·priv, `InsetMode`, `InsetState` ·priv, `InsetProps`, `StageBox` ·priv, `Rect` ·priv, `insetFloorPx`, `loadState` ·priv, `storeState` ·priv, `clampGeometry` ·priv, `allowedWidthPx` ·priv, `sideFits` ·priv, `stackFits` ·priv, `dockedWidthPx` ·priv, `computeAutoPlacement` ·priv, `faceRectInStage` ·priv, `isFiniteNumber` ·priv, `Inset` | const/type/fn | `app/stage/Inset.tsx:58,60,62,~64,~,70,84,68,~,76,72–73,86,97,99,104,127,132,151,157,178,209,187,192,197,~,267,220,~,350` | the inset card (see §4) |
+| **pending INSET** `GLYPH_MIN_PX` ·priv, `LONG_PRESS_MS` ·priv, `InsetProps.onSwap`, `InsetProps.onComponentTap` | const ·priv, const ·priv, props | `app/stage/Inset.tsx` | glyph-legibility floor; touch long-press-to-drag; tap-on-empty → swap; tap-on-hovered-component → shell (speak + swap) |
 | `useStageVisualHeight` | fn | `app/stage/stageMetrics.ts:12` | focused fill height |
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
@@ -434,6 +498,7 @@ contract.
 | `CueAction`, `Cue`, `ParsedReply`, `CUE` ·priv, `MAX_TARGETS` ·priv, `parseReply` | type, iface, iface, const ·priv, const ·priv, fn | `app/presentation/cues.ts:9,14,20,26,27,35` | cue stripping with offsets |
 | `SpokenBoundary`, `PlaybackDriver`, `createPlayback` (+`applyThrough` ·priv) | iface, iface, fn | `app/presentation/playback.ts:~10,18,31` | speech-paced cue application |
 | `PresentationView`, `PresentationState`, `PresentationAction`, `initialPresentation`, `presentationReducer` | type, iface, type, const, fn | `app/presentation/state.ts:~,~,~,~40,46` | stage reducer (manual view → follow off) |
+| **pending INSET** `ExplainSource`, `explainTarget`, `involvedElements`, `aspectTargetName` | type, fn, fn, fn | `app/presentation/explain.ts` | tap → authored levels 1–2 passage + cues for every involved element (body, house, sign, aspect lines); aspect-line target naming shared with `chat/context.ts` |
 | `openingReading`, `inHouse` ·priv, `ordinal` ·priv | fn | `app/presentation/opening.ts:10,22,~` | authored opening with cues |
 
 ### 16.6 Chat and inference
@@ -513,6 +578,7 @@ contract.
 | Entity | Kind | Where |
 | --- | --- | --- |
 | `Astrolabe3D`, `Astrolabe3DProps` | comp, iface | `components/Astrolabe3D.tsx:60,~42` |
+| **pending INSET (deliberate local additions)** `userData.wheelStructure` marker on house spokes, sign ring/ticks, degree subtext; `Astrolabe3DProps.onComponentTap` | scene flag, prop | `components/Astrolabe3D.tsx` (focus-dim traverse ~1512–1548; click path ~641–679) |
 | `AtelierScene`, `ConversationPhase` | comp, type | `components/atelier/AtelierScene.tsx:14,10` |
 | `AtelierAmbience`, `AtelierCharacter`, `AtelierSeason`, `AtelierThemeSelector`, `AtelierTrinkets`, `CrystalPool` (+ css) | comps | `components/atelier/*` |
 | `ReadingStage`, `ReadingStageProps` | comp, iface | `components/ReadingStage.tsx:20,~7` |
