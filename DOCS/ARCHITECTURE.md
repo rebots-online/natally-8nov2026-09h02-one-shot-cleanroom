@@ -98,16 +98,12 @@ mechanics (INSET revision, 2026-11-09 — behaviour authority: Robin's rows in
 - **Click acts on what hover has shown.** Pointer over a chart component
   (planet, sign, house, aspect line) highlights it; a click/tap on a
   highlighted component swaps the views (chart to the stage, Natally to the
-  inset) and **Natally speaks**: the authored levels 1–2 explanation of that
-  component (what it is, what it symbolises, "your X is in Y, which…"), with
-  lipsync, while the chart highlights every involved element (the planet, its
-  house, its sign, its aspect lines) and the highlight moves with her words
-  (§5). A click where nothing is highlighted swaps the views only. A drag
-  moves the card and never swaps or selects. The tap always speaks levels 1–2
-  (authored, no inference); when the customer has allowance the same tap
-  continues into level 3 — synthesis, degree/dose, ties to other elements — as
-  a paid turn debited like any other (§6); without allowance it ends in the
-  upsell. The paid/unpaid line is the inference line, never the gesture.
+  inset) and **Natally speaks** about that component, with lipsync, while the
+  chart highlights every involved element (the planet, its house, its sign,
+  its aspect lines) and the highlight moves with her words (§5). A click where
+  nothing is highlighted swaps the views only. A drag moves the card and never
+  swaps or selects. What she says, and how far (the unpaid/paid information
+  levels), is a separate issue tracked in the ledger, not part of the inset.
 - **Touch** (assumption Q6, overturnable): tap on a component = hover+click
   above; tap on empty inset = swap; press-and-hold (`LONG_PRESS_MS`) then
   move = drag.
@@ -195,8 +191,8 @@ sequenceDiagram
   explain relationship lines (natal↔natal and now↔natal only — now↔now is
   excluded by design: the current sky aspects itself continuously and would
   cover the wheel with lines carrying no personal information).
-- `explain.ts` — **new** `explainTarget(target, chart, sky)`: composes the
-  authored levels 1–2 passage for a tapped component (`content/lessons` +
+- `explain.ts` — **new** `explainTarget(target, chart, sky)`: composes her
+  spoken passage for a tapped component (`content/lessons` +
   `chart/liveReading` placement statement) with cues for every involved
   element (`involvedElements(target, chart)`: the body, its house, its sign,
   its aspect lines), then hands it to the same driver as a reply so `view:
@@ -220,12 +216,11 @@ sequenceDiagram
 - `context.ts` — builds the OpenRouter wire messages: persona system prompt
   (`content/persona`), chart facts, target inventory + cue instructions
   (`presentationBlock`), backstory answers, last `MAX_CONTEXT_MESSAGES` (20)
-  turns. **Target:** `chartTargets` also enumerates aspect lines
+  turns. **Target (inset):** `chartTargets` also enumerates aspect lines
   (`aspectTargetName`, natal↔natal and now↔natal) so her cues can address
-  them; `presentationBlock` instructs her to bring the chart forward, highlight
-  the involved elements, clear between emphases, and never to narrate level 3
-  unless the turn is paid. A tap with allowance posts the levels 1–2 passage as
-  her message and continues through `streamChat` for level 3 as one paid turn.
+  them; `presentationBlock` instructs her to bring the chart forward,
+  highlight the involved elements and clear between emphases. The information
+  levels (unpaid/paid) are a separate issue.
 - `inference.ts` — `streamChat()`: SSE client over `POST /billing/chat` with
   Bearer Firebase ID token; typed failures `NoAllowanceError` (402),
   `ChatNetworkError`, `BillingNotConfiguredError`; frames parsed incrementally
@@ -420,9 +415,9 @@ menu items remaining. **Inset (target state written into §4, §5, §6, §7 on
 component does not swap or make her speak; docking and corner resize do not
 work; `.chart-inset` has no acrylic (no backdrop-filter); focus-dim fades
 house spokes, sign ticks and degree marks; `focusTargets` never reach the wheel
-as a highlight list; aspect lines are not in the cue inventory; three-level
-split (authored 1–2 / paid 3) not in code; conversation and workup not
-persisted as lore (on-device target, §6). Touch mapping is an assumption (Q6).
+as a highlight list; aspect lines are not in the cue inventory. Touch mapping
+is an assumption (Q6). **Separate issues, not inset:** information levels
+(unpaid/paid) not in code; conversation not persisted (on-device target).
 
 ---
 
@@ -496,7 +491,7 @@ contract.
 | `CueAction`, `Cue`, `ParsedReply`, `CUE` ·priv, `MAX_TARGETS` ·priv, `parseReply` | type, iface, iface, const ·priv, const ·priv, fn | `app/presentation/cues.ts:9,14,20,26,27,35` | cue stripping with offsets |
 | `SpokenBoundary`, `PlaybackDriver`, `createPlayback` (+`applyThrough` ·priv) | iface, iface, fn | `app/presentation/playback.ts:~10,18,31` | speech-paced cue application |
 | `PresentationView`, `PresentationState`, `PresentationAction`, `initialPresentation`, `presentationReducer` | type, iface, type, const, fn | `app/presentation/state.ts:~,~,~,~40,46` | stage reducer (manual view → follow off) |
-| **pending INSET** `ExplainSource`, `explainTarget`, `involvedElements`, `aspectTargetName` | type, fn, fn, fn | `app/presentation/explain.ts` | tap → authored levels 1–2 passage + cues for every involved element (body, house, sign, aspect lines); aspect-line target naming shared with `chat/context.ts` |
+| **pending INSET** `ExplainSource`, `explainTarget`, `involvedElements`, `aspectTargetName` | type, fn, fn, fn | `app/presentation/explain.ts` | tap → her spoken passage about the component + cues for every involved element (body, house, sign, aspect lines); aspect-line target naming shared with `chat/context.ts` |
 | `openingReading`, `inHouse` ·priv, `ordinal` ·priv | fn | `app/presentation/opening.ts:10,22,~` | authored opening with cues |
 
 ### 16.6 Chat and inference
