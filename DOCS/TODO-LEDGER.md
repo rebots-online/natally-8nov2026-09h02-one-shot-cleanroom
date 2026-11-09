@@ -99,3 +99,42 @@ Note for the architecture phase (orchestrator, 2026-11-09): with vectors on-devi
 Correction (Robin, 2026-11-09): "it's not simply free user data — it's that anything that might bear cost is not scalable, no matter what it is for or if there is a free component." → The principle is general: no design element carries an unbounded per-use or per-customer cost, free or paid alike. Cost-bearing work (storage, inference, embeddings, egress) lives either on the customer's device or inside a priced purchase that covers it. The earlier "free user data" wording is superseded.
 Firebase cost background (2026-11-09, firebase.google.com/pricing): Spark — quota exceeded → Firestore refuses operations until midnight PT (outage, no bill); Blaze — no cap, everything over free quota is billed, budgets only alert (hard stop requires a self-written billing-disable function). Firestore after free tier: storage ~$0.15–0.18/GiB-month cumulative; writes ~$0.09–0.18/100K; reads ~$0.03–0.06/100K; egress ~$0.12/GiB over 10 GiB. Worked example: 10K customers × 50 turns/mo → writes <$1/mo; verbatim text 0.5 GiB/mo; 4096-dim vectors 8–16 GiB/mo → ~$1.5–3 first month, ~$15–35/mo after a year, climbing without ceiling. Storage accumulates; the free tier only delays the bill. Confirms on-device storage.
 Robin (2026-11-09): "if OpenRouter is being used, then it is already on the premise of its costs being covered as a matter of full-cost pricing." → Resolves the embedding-cost note above: embedding calls run on the customer's own managed OpenRouter key, whose spend limit is raised only by verified purchases (§Billing), so their cost is inside the price the customer paid, like inference. No subsidy arises. Consequence to carry into architecture: embeddings are generated when the customer has allowance on that key; before any purchase the key has no spend, so unpaid turns are stored verbatim on-device and embedded when allowance exists (or the authored levels-1/2 content, being fixed text, needs no per-turn embedding).
+
+## Rows added on consolidation (2026-11-09)
+
+| Item | Robin said | Cited | Observed on | Architecture | Tried / landed |
+| --- | --- | --- | --- | --- | --- |
+| Chat input: mic + media upload | "the chatbot textbox format is missing the mic for on-device STT and for uploading media to share with Natally" | S1 11-09 ~20:50 | `v1.27.765` | §Surfaces app chat (new row needed: input affordances) | — |
+| Highlight correction | "the discussed component *is* highlighted, with others de-emphasized" | S1 11-09 ~19:40 | `v1.27.765` | "Natally drives focus" | Supersedes the earlier row's wording: highlighting works; the defect is only that house division bars, house numbers, sign ring and degree marks fade with the rest |
+| natally_catalog toolsets + server key | (follows from "remove the chargebee rest api") | S1 11-09 ~20:40 | Chargebee site rochemedia | §Billing (MCP-only) | To add: hosted_page_operations/lookup, webhook_operations/lookup, invoice/transaction/event lookup, customer_operations, promotional_credit_operations; then a full server API key filed in both credential locations |
+
+## Open items — the list (2026-11-09, after the session scratch list was retired)
+
+**Billing**
+1. natally_catalog MCP server API key obtained unmasked and filed in both credential locations
+2. natally family item prices: packs US$5/10/25, souvenir US$30 (exact cents)
+3. Webhook registered to natally-hosted-chat `/billing/webhook` with the basic-auth secret
+4. §Billing re-architected MCP-only (REST removed; Netlify env already cleared; `.env.example` comment still names the key)
+5. natally_catalog: toolsets added (row above)
+6. Deploy via build_all; real purchase of credits and of the souvenir
+
+**NAV-1**
+7. Header/menu/one-click sign-in fully connected; typechecks; commit, push, deploy
+
+**Inset and conversation**
+8. Click on inset: hover decides — component → swap + explain; empty → swap; drag moves
+9. Natally brings chart to focus during readings; atelier to inset
+10. Wheel structure never fades when highlighting (house bars, numbers, sign ring, degree marks)
+11. Relationship lines hover-selectable and identified (now↔natal, natal↔natal, now↔now)
+12. Relationship lines take part in readings and explorations
+13. Docking by drag to edge/corner, with re-zoom on large screens
+14. Resizing by all four corners
+15. Acrylic dark-purple pane, darkened + blurred behind, fully legible
+16. Size floor: every house number and planet symbol readable (v1.24.765 fix unconfirmed)
+17. Onboarding for all users regardless of payment
+18. Three levels per clicked item; unpaid = levels 1–2 + upsell; level 3 = inference = paid
+19. Paid levels: turns = relate + degree/dose; souvenir = holistic conclusions; customer context changes interpretation
+20. Chat input: mic (on-device STT) + media upload
+21. Touch: tap on component = hover+click; tap on empty = swap; press-hold-move = drag (assumption)
+22. Conversation storage on-device: verbatim + 4096-dim qwen3-embedding-8b vectors; recall on-device; embeddings on the customer's managed key when allowance exists
+23. Cost principle: nothing cost-bearing is an unbounded obligation; on-device or inside a priced purchase
