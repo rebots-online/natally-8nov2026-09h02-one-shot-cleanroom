@@ -226,8 +226,6 @@ sequenceDiagram
   the involved elements, clear between emphases, and never to narrate level 3
   unless the turn is paid. A tap with allowance posts the levels 1–2 passage as
   her message and continues through `streamChat` for level 3 as one paid turn.
-  The customer's lore — turns, and the souvenir workup once bought — lives
-  on-device with its embeddings and enters context like the chart facts.
 - `inference.ts` — `streamChat()`: SSE client over `POST /billing/chat` with
   Bearer Firebase ID token; typed failures `NoAllowanceError` (402),
   `ChatNetworkError`, `BillingNotConfiguredError`; frames parsed incrementally
