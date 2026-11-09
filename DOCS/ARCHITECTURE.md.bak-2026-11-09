@@ -1,0 +1,147 @@
+# Architecture — 2026-11-08 (clean-room one-shot)
+
+## Product
+
+Natally: astrologer companion. Landing (marketing) · App (atelier, natal
+chart, conversation with Natally) · Souvenir (US$30 natal report keepsake).
+Conversation runs on credit packs (US$5/10/25). No placeholders, no dummy
+payments.
+
+## Stack
+
+Vite + React 19 + TypeScript strict · three.js chart · Firebase (existing
+project, public web config) · Chargebee prepaid rail · OpenRouter inference on
+a per-customer managed key.
+
+## Identity
+
+Firebase Auth, Google sign-in. Firebase ID token authenticates every billing
+call. UID = customer identity. Firestore with ported-shape rules.
+
+## Billing — Chargebee (replaces RevenueCat on the client rail)
+
+- Client: Chargebee.js drop-in checkout for one-time charges. Prices from
+  `.env` (`BILLING_OFFER_PRICE_USD=30.00`, `BILLING_CREDIT_PACKS_USD=5,10,25`);
+  Chargebee item prices must equal those exact cents.
+- Server: Netlify function `chargebee.mjs` on the `natally-hosted-chat` site,
+  routes `/billing/{access,checkout,redeem,webhook,history,invoices/:id}`.
+  Verified Chargebee webhook payments idempotently grant integer USD-micros
+  allowances in the runtime Firestore ledger and raise the managed OpenRouter
+  key's USD spend limit by the verified amount. Allowance = grants − posted
+  usage. The existing RevenueCat-wired function stays untouched.
+- Env (kstore pointers, resolved at runtime only): `CHARGEBEE_SITE`,
+  `CHARGEBEE_API_KEY`, `CHARGEBEE_WEBHOOK_SECRET`, `VITE_CHARGEBEE_SITE`,
+  plus `OPENROUTER_ADMIN_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`,
+  `BILLING_KEY_ENCRYPTION_KEY`, `BILLING_ALLOWED_ORIGIN`.
+
+- Purchase prompting: when a chat turn has no allowance, the conversation
+  shows Natally's in-world ask and the top-up sheet opens with the three
+  credit packs and the US$30 souvenir; choosing one opens the Chargebee
+  checkout; on success the allowance refreshes and the same turn can be
+  resent. Every step that needs configuration fails visibly and truthfully
+  when it is absent (missing `VITE_CHARGEBEE_SITE` → the sheet says checkout
+  is not configured and names it; server 503 `billing_not_configured` → the
+  same, with the missing server setting) — never a silent no-op, never a
+  fake success.
+## Inference
+
+`completeHosted`: streaming completions on the customer's managed OpenRouter
+key (free-tier chain); context = natal chart facts + conversation. Without
+allowance: authored content only.
+
+## Astrology
+
+Swiss Ephemeris WASM (`public/vendor/swisseph/*`) computed locally; gazetteer
+for birth place → coordinates/timezone. Frozen chart types in
+`src/shared/types.ts`.
+
+## Surfaces
+
+- `/` landing: actual atelier art + mascot hero, example chart, value copy,
+  offers at configured prices.
+- `/app.html`: atelier scene (actual art), natal chart, chat with Natally
+  (persona: warm astrologer, streaming, optional voice), account + top-up.
+- Souvenir: US$30 purchase → authored + chart-facts report → PDF + retained
+  interactive viewer.
+
+## Env (public)
+
+`VITE_BILLING_API_URL=https://natally-hosted-chat.netlify.app`,
+`VITE_CHARGEBEE_SITE`, `VITE_FIREBASE_CONFIG` (public JSON),
+`VITE_CREDIT_DISPLAY_PER_USD=100`.
+
+## Release
+
+Canonical `build_all.sh` only. Every run stamps a new version
+(`version.json`/`version.txt`, shown bottom-right on every surface), deploys
+the web build first to both production hosts — natally-8nov2026.robin.mba and
+natally-8nov2026.surge.sh — then builds the native matrix (Linux, Windows via
+cross-compilation, Android). natally.robin.mba is cut over only by the
+operator.
+
+## Native packaging
+
+The canonical build is deploy-first and full-matrix: stamp once; compile web;
+publish to natally-8nov2026.robin.mba and natally-8nov2026.surge.sh; then run
+Linux AppImage/deb/rpm, Windows x64 executable/NSIS and Android arm64 APK/AAB/
+native-symbol packaging. Native output lives in dist/natally-v<version>/.
+The original Tauri Rust host, capabilities, mascot icons and generated
+Android source project supply packaging identity mba.robin.natally; the
+current rewrite's dist-web/app.html is the bundled native entry.
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Canonical coordinator | `build_all.sh` | One stamp and dual web publish before native compilation; web/deploy failure aborts the run |
+| Build credential resolver | `scripts/build-environment.mjs` | Signing defaults declared in .env.example, actual pointers resolved through installed KStore client into child-process environment only |
+| Native packaging coordinator | `scripts/build-native.mjs` | Sync native metadata to stamped version; run all supported native targets; stage artifacts and SHA-256 inventory; nonzero exit for any missing/failed requested target |
+| Windows MSI (Store) | `scripts/build-native.mjs`, MSI source under `src-tauri/msi/` | Built on Linux, no Windows host: after the cross-compiled Windows executable, `wixl` (msitools) packages it into a per-machine MSI carrying the product identity (name Natally, the existing upgrade code, version MAJOR.MINOR.BUILD.0 from the stamp, Start-menu shortcut, mascot icon). Staged with SHA-256 as `natally-v<version>-windows-x64.msi`; failure marks the target failed like any other. |
+| Native host | `src-tauri/**` | Preserved original identity and native bridges; app.html bundle; Android full debug symbols and production keystore signing |
+
+## First reveal and speech-driven presentation
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Reveal handoff | `src/app/onboarding/FirstLight.tsx` | Casting completes → hand the chart to the stage at once. No separate wheel is ever drawn over Natally; the only chart on screen is the stage's. |
+| Opening reading | `src/app/AppShell.tsx` | The stage opens with Natally reading the chart aloud immediately (gesture-gated audio; truthful note when not admitted). The reading is her first chat message; chat is live beneath it. |
+| Presentation cues | `src/app/presentation/cues.ts` | Her replies carry hidden cues `[[view:chart]]`, `[[view:atelier]]`, `[[chart:TARGET;…]]`, `[[chart:clear]]` at the passage they govern. Parsed out of display and speech with exact text offsets; unknown targets are dropped. |
+| Presentation state | `src/app/presentation/state.ts` | Reducer over `PresentationState`: focus/clear set the highlighted targets; view swaps chart⇄inset (chart focused → Natally becomes the inset). A manual view choice turns `follow` off, and automatic view cues then stop. |
+| Playback drive | `src/app/presentation/playback.ts` | The voice engine's word boundary offsets advance through the cues; each crossed cue is applied, so highlight → scroll → focus → un-highlight track what she is saying. Without audio, cues apply at text-stream offsets. |
+| Cue prompting | `src/app/chat/context.ts` | System prompt instructs her to emit those cues as she narrates: chart view for geometry, atelier view for reflection, clear between emphases; includes this chart's exact target inventory. |
+
+## Chart inset (primary USP)
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Inset (app) | `src/app/stage/Inset.tsx` + `inset.css` | **Intent:** the customer can always see both Natally and her chart well enough to use them; neither defeats the other. The inset exists to read and explore the chart, so its size is set by usefulness, not by a percentage. **Size:** the smallest allowed inset is the one at which every individual house number and every individual planet symbol on the wheel can be told apart and read, and every body is a fingertip-sized target (about 44 CSS px) — as the inset allowed before this rewrite; above that floor it prefers larger, up to 60% of the stage; resizable anywhere from that floor to 60% by corner grip or Alt+arrow keys. **Moves like a card:** pick it up anywhere on its surface — not only a bar on top — and drag it; a tap or click without movement still selects the planet, sign, house or aspect under it. **Layout by range** (measured on the actual screen against the on-screen box of Natally's rendered head): *large enough* — the chart docks beside the scene (side by side or stacked, whichever fits) and the scene re-zooms into the remaining space so nothing is obscured; dragging it back over the scene undocks it to a floating card; *roomy* — floating card at the largest corner/size above the floor that leaves her face clear; *tight* — least overlap at the largest size that achieves it; *too small* — the floor itself cannot sit beside her face → invert: the chart takes focus and Natally becomes the inset. Re-evaluated on resize until the customer moves it; position, size and docked/floating state persist per account; the customer's own choice always wins. |
+| Inset (landing) | `src/landing-original/marketing.tsx` + `marketing.css` | Same component and same sizing and placement rules for the landing's example chart inset, persisted for the guest. |
+| Swap on click | inset (chart or atelier) | Clicking or tapping anywhere on the inset — without dragging — swaps it with the main view: the inset becomes the focused view and the former main view becomes the inset. A drag moves the inset instead; a click never moves it, a drag never swaps it. Once the chart is the focused main view, clicks on it select and explain components. (Supersedes the earlier "tap on the inset selects" sentence in the row above: in the inset, a tap swaps.) |
+| Natally drives focus | chart during any reading or educational explanation | When she discusses a component she brings the chart into focus (atelier to the inset), highlights the component being discussed and de-emphasises the other bodies and aspect lines. She **never** de-emphasises the wheel itself or its structure — house divisions, house numbers, the sign ring and degree marks stay at full presence, because the customer needs them to find their bearings. Between emphases she clears the highlight. |
+| Relationship lines explained | chart, focused or inset | Every line connecting two points — natal↔natal, now↔natal and now↔now — is selectable on mouse-over or tap, shows which two points and which aspect it is, and is explained like any other component. |
+| Dock and resize | inset | Dragging the inset near an edge or corner docks it there (with the docked layout of §Chart inset on large screens); dragging it away undocks it. All four corners resize it by dragging, within the size floor and 60%. |
+| Acrylic inset | inset surface | The inset is a translucent acrylic pane: dark purple tint, with what lies behind it darkened and slightly blurred, keeping enough contrast that everything in the inset stays fully legible. |
+| Orientation never blocks | app (the "Talk with Natally" card and any orientation/instructions) | **Intent:** orientation helps only if they can still see Natally. Orientation and instructions sit in a side panel beside the stage — never over Natally, never a modal, never requiring dismissal to continue; the customer can talk and explore immediately while it is shown. |
+
+## Landing demo chart (unpaid example)
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Demo birth data | landing example chart | 31 August 1988, 14:30, Toronto (43.6532 N, 79.3832 W, America/Toronto). Chosen by measurement for a clearly visible theme: Sun–Moon–Neptune grand trine (1.0° orb), one bright triangle across the wheel, planets across 9 signs. Her demo narration opens on that triangle. |
+| Casual discovery | landing inset wheel | Bodies, signs, houses and aspect lines are spread so an idle mouse-over anywhere on the wheel lands on something; each hit shows its tooltip/highlight. |
+| She stays herself | everything she says or the page shows | **Intent:** people come for entertainment, escape, mystique, awe, wonder — and sometimes they really are looking for answers. She serves all of them with one consistent voice: a sincere astrologer answering from inside the tradition, the same stance every time — never inflating it into miracles, never deflating it with "get real". A single "for entertainment and edutainment purposes" notice appears once, in the terms and site footer, not in her voice; after that people are treated as the adults they are, never patronized. **Welcome:** how astrology has been held to work across centuries and cultures — Babylonian, Hellenistic, Indian, medieval, modern — told with the relish of someone who loves the tradition. **Never spend their time on opinion, either way:** no stepping out of character to impose a reductionist frame or remind them it's "only symbolic", "not predictions", "not proven", "just an example", "not your chart" — and no arguing the opposite case either. Judged by what a line does for the person in context, not by matching phrases. Warmth, humour and candour about what a chart shows stay. Applies to page copy, captions, lessons, spoken narration and the chat persona prompt. |
+
+## Composition and presence
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Landing balance | landing stage controls | **Intent:** the first screen reads as one balanced composition. The chart caption and "Create your natal chart" form one centred group beneath the controls; the button is the clear primary action, sized to the controls' rhythm, never hanging lopsided off one side. |
+| First paint | landing and app entry | The atelier scene (its poster image) is on screen immediately; no blank page while scripts load. |
+| Chat present as she speaks | app stage | **Intent:** conversation is the primary experience. The moment Natally starts speaking — her first reading included — the chat box is on screen, her words appear in it as she says them, and the input is ready for a reply, as before this rewrite. |
+| Space | landing and app, every screen size | **Intent:** the stage — Natally and her chart — gets the screen. The header is one compact line (wordmark, sign-in, a menu for the rest when they don't fit); no stacked nav rows eating the top. The stage grows to fill the viewport height so there is no dead space below it; the footer notice sits below the fold, reached by scrolling. |
+
+## Header, menu and sign-in
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Header placement | landing and app | **Intent:** people find navigation where every site puts it, without thinking. One header bar at the top: wordmark at the left (returns home), menu items inline beside it on wide screens, the account action at the top right; on narrow screens the items collapse into a standard menu button at the top right. No navigation stacked below the header or centred in its own rows. |
+| Menu items work | landing and app | Every item does what its label says the moment it is used — each section link scrolls to or opens that real section; an item with no real destination does not exist. No dead links, no items that only look clickable. |
+| One-click sign-in | landing and app | **Intent:** signing in is one action. "Sign in" starts Google sign-in directly (popup, with redirect fallback where popups are blocked) and, on success, lands the person in the app at their chart or first light — never an intermediate page with a second sign-in button. Every outcome is visible: success shows them signed in; cancellation returns them to where they were, saying so; any failure (popup blocked, unauthorised domain, network, configuration missing) shows a specific message where they clicked, naming what went wrong. Never silent. |

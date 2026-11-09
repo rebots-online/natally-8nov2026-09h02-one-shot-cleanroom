@@ -1,0 +1,110 @@
+@startuml natally-architecture-3f00f98
+' Natally architecture — codebase snapshot, commit 3f00f98 (2026-11-09).
+' Source of truth: DOCS/ARCHITECTURE.md (same date). Render: plantuml.
+
+skinparam monochrome false
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultFontSize 12
+
+title Natally — codebase snapshot (commit 3f00f98, 2026-11-09)
+
+package "Browser · landing surface" {
+  [landing.html /\n(served at /; index.html is a build-time copy)] as LH
+  [src/landing/main.tsx] as LM
+  [src/landing-original/marketing.tsx\nverbatim port v1.42 + services/*] as PORT
+}
+
+package "Browser · app surface (src/main.tsx dispatch)" {
+  [AppShell.tsx\nApp: stage, header, account] as SHELL
+  [onboarding/FirstLight\nwelcome→intake→casting] as FL
+  [intake/BirthForm] as BF
+  [stage/Inset.tsx\ndock/float/resize card] as INSET
+  [chat/ChatPanel + useChat] as CHAT
+  [chat/inference.ts\nSSE client /billing/chat] as INFC
+  [presentation/*\ncues → playback → state] as PRES
+  [karaokeCaption] as KAR
+  [TopUpSheet + commerce/*] as COM
+  [souvenir/* (lazy)\nreport→pdf→retain] as SOUV
+}
+
+package "Astrology" {
+  [astro/chart.ts natalChart()\nclean-room pipeline] as AC
+  [astro/ephemeris.ts\nswisseph WASM wrapper] as AE
+  [astro/gazetteer.ts + gazetteer.json\n(108 places)] as GZ
+  [chart/astrolabeInput.ts bridge] as AIB
+  [atelier-original/services/ephemeris.ts\noriginal pipeline] as ORE
+  [atelier-original/components/Astrolabe3D.tsx\nthree.js wheel renderer] as A3D
+  [chart/AstroChart.tsx + scene.ts\ncanvas wheel (souvenir)] as C2D
+  [chart/liveReading.ts\nauthored lesson + today's sky] as LR
+}
+
+package "Voice" {
+  [voice/index.ts createVoice()\nsentence-buffered, gesture-gated] as VOICE
+  [services/supertonicTts.ts preload seam] as SEAM
+  [atelier-original/services/supertonic*.ts\nworker TTS runtime] as TTS
+}
+
+package "Server (Netlify)" {
+  [functions/chargebee.mjs\n/billing/{access,checkout,redeem,\nwebhook,history,invoices/:id,chat}] as FN
+  [billing/verify.mts\nFirebase ID token verify] as VER
+  [billing/ledger.mjs\nFirestore REST ledger] as LED
+  [billing/chargebee.mjs\nChargebee REST client] as CBC
+  [billing/openrouter.mjs\nmanaged keys + chat] as ORR
+  [functions/ephemeris.mjs\nsigned swisseph positions/houses] as EPH
+  [billing/server.mjs\nlocal dev host of the router] as DEV
+}
+
+cloud "Upstreams" {
+  [Chargebee] as CB
+  [Firestore] as FS
+  [OpenRouter\nfree-tier chain] as OR
+  [Firebase Auth] as FA
+}
+
+LH --> LM : script
+LM --> PORT : dynamic import
+PORT --> INSET : renders <Inset>
+
+SHELL <-- FL : onSitDown(NatalChart)
+SHELL --> INSET
+SHELL --> CHAT
+SHELL --> KAR
+SHELL --> COM
+SHELL --> SOUV
+SHELL --> PRES
+SHELL --> A3D : inside Inset
+SHELL --> AIB : persisted BirthInput
+SHELL --> AC : clean-room chart
+SHELL --> VOICE
+FL --> BF
+FL --> SEAM
+CHAT --> INFC
+INFC --> FN : SSE
+COM --> FN : JSON
+FN --> VER
+FN --> LED
+FN --> CBC
+FN --> ORR
+LED --> FS
+CBC --> CB
+ORR --> OR
+VER --> FA
+AC --> AE
+AIB --> ORE
+A3D --> ORE
+SOUV --> C2D
+SHELL --> LR : click readings
+PRES --> VOICE : word boundaries
+VOICE --> TTS
+SEAM --> TTS
+BF --> GZ
+EPH --> OR
+
+note bottom of SHELL
+  The app renders the ORIGINAL renderer
+  (Astrolabe3D) inside the clean-room Inset:
+  two astrology pipelines coexist by design
+  (frozen NatalChart types bridge them).
+end note
+@enduml

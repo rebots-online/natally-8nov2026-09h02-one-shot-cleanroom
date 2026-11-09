@@ -1,0 +1,1 @@
+Source: Google Stitch projects/8007307049701360266 “Natally v3 — frozen UI prototype (5 Nov 2026)”, screens Souvenir offer / Souvenir atelier / Souvenir PDF — opening pages / Souvenir PDF — element pages. Fetched 2026-11-09 into the clean-room repo at commit 3f00f98 for the souvenir report + SPA spec.

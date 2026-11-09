@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Souvenir offer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #120c1c;
+      color: #f1e8d8;
+      font-family: 'Nunito Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-fraunces {
+      font-family: 'Fraunces', serif;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    .font-mono-jb {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#120c1c] text-[#f1e8d8] relative pb-16 selection:bg-[#c9a24a] selection:text-[#120c1c]">
+  <!-- Main Container with 20px side margins -->
+  <main class="max-w-[420px] mx-auto px-[20px] pt-6 flex flex-col gap-6">
+
+    <!-- 1. Header row -->
+    <header class="flex items-center justify-between">
+      <h1 class="font-fraunces text-[28px] leading-tight text-[#f1e8d8] font-normal tracking-tight">
+        Souvenir
+      </h1>
+      <button 
+        id="souvenir-close-button" 
+        type="button"
+        class="font-cinzel text-[13px] tracking-[0.18em] text-[#a698b5] hover:text-[#f1e8d8] uppercase transition-colors py-1 px-2 -mr-2 focus:outline-none">
+        CLOSE
+      </button>
+    </header>
+
+    <!-- 2. Wide illustration card (aspect 16:10, 16px radius, hairline border) -->
+    <section class="w-full aspect-[16/10] rounded-[16px] border border-[#3a2d50] overflow-hidden bg-[#1a1226] relative flex-shrink-0">
+      <img 
+        src="https://lh3.googleusercontent.com/aida/AEtjO1WUWFrQLQ9N3gYxwDV2aCOfLp2RXC8ylQ8GZ072sVHYmxJR1N7166lCAszszj7NSvvPufi6pk26m4N4ZRG_ZQ1YiGB6V9l8B2AloqugOtpel1tBY74EJ7oXgO9i7ixpgzpkr77_-J0BGrDhOCmpQM_FTZQY7HIxzRzk3CE7j1Ha3KTRxf8lemAT8NpvhXuFpCu-0DOPp1VVNrKWB1_ZuwgK4m19dr8OrIIdG0SFpxXiwNEp5nPJ3pMcn6Q" 
+        alt="Natally at her desk in the candlelit atelier" 
+        class="w-full h-full object-cover object-center block"
+      />
+    </section>
+
+    <!-- 3. Quotation in Fraunces italic 20px cream -->
+    <blockquote class="font-fraunces italic text-[20px] leading-relaxed text-[#f1e8d8] text-center px-1 font-normal">
+      &ldquo;A keepsake of your own sky, like a framed chart on the wall.&rdquo;
+    </blockquote>
+
+    <!-- 4. Card (panel, hairline, 16px radius): What you receive -->
+    <section class="bg-[#1a1226] border border-[#3a2d50] rounded-[16px] p-5 flex flex-col gap-4">
+      <h2 class="font-fraunces text-[20px] leading-snug text-[#f1e8d8] font-normal">
+        What you receive
+      </h2>
+      <ul class="flex flex-col gap-3.5 pl-0 m-0 list-none">
+        <li class="flex items-start gap-3 text-[15px] leading-relaxed text-[#f1e8d8]">
+          <span class="w-[6px] h-[6px] rounded-full bg-[#c9a24a] mt-[8px] flex-shrink-0"></span>
+          <span>Your full reading, saved as Natally gave it.</span>
+        </li>
+        <li class="flex items-start gap-3 text-[15px] leading-relaxed text-[#f1e8d8]">
+          <span class="w-[6px] h-[6px] rounded-full bg-[#c9a24a] mt-[8px] flex-shrink-0"></span>
+          <span>A keepsake PDF with a chapter for every planet, sign, aspect and house in your chart.</span>
+        </li>
+        <li class="flex items-start gap-3 text-[15px] leading-relaxed text-[#f1e8d8]">
+          <span class="w-[6px] h-[6px] rounded-full bg-[#c9a24a] mt-[8px] flex-shrink-0"></span>
+          <span>Your own atelier, frozen in time, to revisit and replay.</span>
+        </li>
+        <li class="flex items-start gap-3 text-[15px] leading-relaxed text-[#f1e8d8]">
+          <span class="w-[6px] h-[6px] rounded-full bg-[#c9a24a] mt-[8px] flex-shrink-0"></span>
+          <span>Both links in your purchase history and by email.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 5 & 6. Solid gold button & small muted line -->
+    <section class="flex flex-col items-center gap-2.5 pt-1">
+      <button 
+        id="souvenir-buy-button" 
+        type="button"
+        class="w-full h-[52px] rounded-[12px] bg-[#c9a24a] text-[#120c1c] font-cinzel font-semibold text-[15px] tracking-[0.05em] flex items-center justify-center hover:bg-[#d8b056] active:scale-[0.99] transition-all focus:outline-none">
+        Buy souvenir &middot; US$30
+      </button>
+      <p class="text-[13px] leading-normal text-[#a698b5] text-center font-normal">
+        You see the total before you pay.
+      </p>
+    </section>
+
+    <!-- 7. Hairline divider, then stamp in Cinzel small caps, muted -->
+    <div class="flex flex-col items-center gap-4 pt-2">
+      <div class="w-full h-[1px] bg-[#3a2d50]"></div>
+      <span class="font-cinzel text-[12px] tracking-[0.2em] text-[#a698b5] uppercase">
+        AFTER PURCHASE
+      </span>
+    </div>
+
+    <!-- 8. Card (id="souvenir-ready-card", elevated fill, 1px gold border, 16px radius) -->
+    <section 
+      id="souvenir-ready-card" 
+      class="bg-[#2a1d3d] border border-[#c9a24a] rounded-[16px] p-5 flex flex-col gap-4">
+      <h2 class="font-fraunces text-[20px] leading-snug text-[#f1e8d8] font-normal">
+        Your souvenir is ready
+      </h2>
+      <div class="grid grid-cols-2 gap-3 w-full">
+        <button 
+          id="souvenir-open-atelier-button" 
+          type="button"
+          class="h-[48px] px-3 rounded-[12px] bg-[#1a1226] border border-[#3a2d50] text-[#f1e8d8] font-cinzel text-[13px] tracking-[0.03em] flex items-center justify-center text-center hover:border-[#c9a24a] transition-colors focus:outline-none">
+          Open your atelier
+        </button>
+        <button 
+          id="souvenir-open-pdf-button" 
+          type="button"
+          class="h-[48px] px-3 rounded-[12px] bg-[#1a1226] border border-[#3a2d50] text-[#f1e8d8] font-cinzel text-[13px] tracking-[0.03em] flex items-center justify-center text-center hover:border-[#c9a24a] transition-colors focus:outline-none">
+          Souvenir PDF
+        </button>
+      </div>
+      <p class="text-[13px] leading-normal text-[#a698b5] font-normal">
+        Also sent to [email]
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Fixed at the bottom right: version badge "v3.1.00001" -->
+  <aside class="fixed bottom-2 right-2 z-50 pointer-events-none">
+    <div class="font-mono-jb text-[11px] text-[#f2ca50] bg-[#0b0712] border border-[#3a2d50] px-2.5 py-1 rounded-[6px] tracking-tight">
+      v3.1.00001
+    </div>
+  </aside>
+</body>
+</html>

@@ -1,0 +1,115 @@
+%% Natally architecture — codebase snapshot diagrams, commit 3f00f98 (2026-11-09).
+%% Source of truth: DOCS/ARCHITECTURE.md (same date). Render: mermaid-cli.
+
+%% ─── 1. Surfaces and entry topology ───────────────────────────────────────────
+flowchart TD
+  subgraph Browser["Browser surfaces"]
+    LH["landing.html  (served at / and copied to index.html at build)"]
+    AH["app.html"]
+    LH --> LM["src/landing/main.tsx<br/>plants version meta"]
+    AH --> ME["src/main.tsx (entry dispatcher)"]
+    LM -->|dynamic import| MKT["src/landing-original/marketing.tsx<br/>(verbatim port v1.42, self-mounts)"]
+    ME -->|pathname contains 'landing'| LM
+    ME -->|dynamic import| SHELL["src/app/AppShell.tsx (default export App)"]
+  end
+
+  subgraph Stage["App stage (AppShell)"]
+    SHELL --> FL["onboarding/FirstLight (welcome → intake → casting)"]
+    SHELL --> INSET["stage/Inset (dock/float/resize card)"]
+    SHELL --> CHATP["chat/ChatPanel + useChat"]
+    SHELL --> KAR["karaokeCaption (word-glow captions)"]
+    SHELL --> TOPUP["TopUpSheet"]
+    SHELL --> SOUV["souvenir/SouvenirDialog (lazy)"]
+    INSET -->|children| A3D["atelier-original Astrolabe3D<br/>(original renderer pipeline)"]
+  end
+
+  FL -->|onSitDown NatalChart| SHELL
+  MKT --> INSET
+
+  subgraph Pres["Presentation pipeline"]
+    OPEN["presentation/opening.ts<br/>openingReading(chart)"] -->|cued text| PB["presentation/playback.ts<br/>PlaybackDriver"]
+    CHATP -->|streamed reply| CUES["presentation/cues.ts<br/>parseReply"]
+    CUES --> PB
+    PB -->|applies Cue actions| ST["presentation/state.ts<br/>presentationReducer"]
+    ST -->|focus/view| SHELL
+  end
+
+  subgraph Astro["Astrology engines"]
+    AC["astro/chart.ts natalChart()<br/>(clean-room, swisseph WASM)"]
+    AE["astro/ephemeris.ts<br/>(julianDay, calcUt, placidusHouses)"]
+    GZ["astro/gazetteer.ts<br/>(searchPlace, resolvePlace)"]
+    ORIG["atelier-original/services/ephemeris.ts<br/>calculateNatalChart (original pipeline)"]
+    AC --> AE
+    A3D --> ORIG
+    AI["chart/astrolabeInput.ts<br/>BirthInput → NatalChartInput bridge"] --> ORIG
+  end
+
+  SHELL -->|persisted birth| AI
+  SHELL --> AC
+
+  subgraph Voice["Voice"]
+    VI["voice/index.ts createVoice()<br/>(sentence-buffered, gesture-gated)"]
+    PRE["services/supertonicTts.ts<br/>getPreloadedVoice / preload seam"]
+    STON["atelier-original/services/supertonicTts.ts<br/>(worker, WASM/graph runtime)"]
+    PRE --> VI
+    VI --> STON
+  end
+
+  SHELL --> PRE
+  FL --> PRE
+  PB -->|word boundaries| VI
+
+%% ─── 2. Billing and inference money loop ──────────────────────────────────────
+flowchart LR
+  subgraph Client["Browser (app)"]
+    BUY["commerce/purchases.ts<br/>buyCredits / buySouvenir"]
+    CBJS["commerce/chargebee.ts<br/>Chargebee.js lightbox"]
+    API["commerce/billingApi.ts<br/>Bearer idToken JSON"]
+    INFC["chat/inference.ts streamChat<br/>SSE client"]
+    ALLW["useChat useAllowance (poll)"]
+  end
+
+  subgraph Netlify["Netlify function: chargebee.mjs (billing/*)"]
+    R1["GET  /billing/access"]
+    R2["POST /billing/checkout"]
+    R3["POST /billing/redeem"]
+    R4["POST /billing/webhook"]
+    R5["GET  /billing/history"]
+    R6["GET  /billing/invoices/:id"]
+    R7["POST /billing/chat (SSE passthrough)"]
+  end
+
+  subgraph Upstream["Upstreams"]
+    CB[("Chargebee site<br/>(hosted checkout + REST)")]
+    FS[("Firestore<br/>natallyCreditGrants · events ·<br/>natallyManagedKeys (AES-GCM)")]
+    OR[("OpenRouter<br/>managed keys + free-tier chain")]
+  end
+
+  BUY --> R2 --> CB
+  BUY --> CBJS
+  R4 -->|HMAC/Basic verified| CB
+  R4 -->|recordGrant idempotent| FS
+  R4 -->|raiseKeyLimit| OR
+  R1 --> FS
+  R5 --> FS
+  R6 --> CB
+  API --> R1
+  ALLW --> API
+  INFC --> R7 --> OR
+  R7 -->|usage chunk → recordUsage| FS
+  R3 -->|code grant| FS
+
+%% ─── 3. Cue timeline (speech drives the stage) ────────────────────────────────
+sequenceDiagram
+  participant M as Model reply (SSE)
+  participant P as parseReply (cues.ts)
+  participant D as PlaybackDriver (playback.ts)
+  participant V as Voice (voice/index.ts)
+  participant S as presentationReducer (state.ts)
+  M->>P: streamed fragment with [[view:chart]] [[chart:Sun;Moon]]
+  P-->>D: cleaned text + Cue{offset, action}
+  D->>V: speakStream(cleaned)
+  V-->>D: word boundary (char offset advances)
+  D->>S: apply crossed cues (focus / clear / view)
+  S-->>D: state.view chart ⇄ atelier; focusTargets
+  Note over V,S: speech end → finish(): every unapplied cue flushes

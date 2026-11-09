@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Souvenir PDF — element pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Nunito+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0b0712;
+      color: #f1e8d8;
+      font-family: 'Nunito Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 48px 40px 64px;
+      overflow-x: auto;
+    }
+
+    .sheet-canvas {
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .page-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 816px;
+      flex-shrink: 0;
+    }
+
+    .template-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a698b5;
+      padding-left: 2px;
+    }
+
+    /* Print sheet US Letter portrait page */
+    .pdf-page {
+      position: relative;
+      width: 816px;
+      height: 1056px;
+      background-color: #120c1c;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Inset gold frame 28px from edge */
+    .page-frame {
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      border: 1px solid #c9a24a;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 44px;
+      box-sizing: border-box;
+    }
+
+    .page-content-wrapper {
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      padding: 42px 48px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    /* Shared typography & decorative ornaments */
+    .stamp-cinzel {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #c9a24a;
+      line-height: 1.3;
+    }
+
+    .title-fraunces-56 {
+      font-family: 'Fraunces', serif;
+      font-size: 56px;
+      font-weight: 400;
+      line-height: 1.1;
+      color: #f1e8d8;
+    }
+
+    .title-fraunces-36 {
+      font-family: 'Fraunces', serif;
+      font-size: 36px;
+      font-weight: 400;
+      line-height: 1.15;
+      color: #f1e8d8;
+    }
+
+    .subtitle-fraunces-20 {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 400;
+      color: #a698b5;
+      line-height: 1.3;
+    }
+
+    /* Star rule with centered ✦ ☽ ✦ */
+    .star-rule {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 20px 0 28px;
+    }
+
+    .star-rule::before,
+    .star-rule::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #c9a24a;
+      opacity: 0.7;
+    }
+
+    .star-rule-text {
+      padding: 0 16px;
+      color: #c9a24a;
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+    }
+
+    .body-nunito-16 {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #f1e8d8;
+      font-weight: 400;
+    }
+
+    .body-nunito-15 {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #f1e8d8;
+      font-weight: 400;
+    }
+
+    /* Chips */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .element-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #2a1d3d;
+      border: 1px solid rgba(201, 162, 74, 0.45);
+      border-radius: 9999px;
+      padding: 10px 22px;
+      color: #f1e8d8;
+      text-decoration: none;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .element-chip:hover {
+      border-color: #c9a24a;
+      background-color: #35254c;
+    }
+
+    .element-chip .chip-glyph {
+      color: #c9a24a;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .inline-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #2a1d3d;
+      border: 1px solid rgba(201, 162, 74, 0.5);
+      border-radius: 9999px;
+      padding: 2px 10px;
+      color: #f1e8d8;
+      text-decoration: none;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      vertical-align: baseline;
+      margin: 0 3px;
+      transition: border-color 0.2s;
+    }
+
+    .inline-chip:hover {
+      border-color: #c9a24a;
+    }
+
+    .inline-chip .inline-glyph {
+      color: #c9a24a;
+      font-size: 13px;
+    }
+
+    /* Page footers inside frame */
+    .page-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #a698b5;
+      padding-top: 16px;
+    }
+
+    /* Hear Natally Pill Badge */
+    .hear-natally-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #2a1d3d;
+      border: 1px solid #c9a24a;
+      border-radius: 9999px;
+      padding: 9px 18px;
+      color: #f1e8d8;
+      text-decoration: none;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: background-color 0.2s, transform 0.15s;
+    }
+
+    .hear-natally-badge:hover {
+      background-color: #3b2854;
+      transform: translateY(-1px);
+    }
+
+    .hear-natally-badge svg {
+      width: 14px;
+      height: 14px;
+      fill: #c9a24a;
+      flex-shrink: 0;
+    }
+
+    /* Page 2 Specifics */
+    .glyph-circle-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    .glyph-circle {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 1px solid #c9a24a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-size: 42px;
+      color: #c9a24a;
+      background: radial-gradient(circle, rgba(201, 162, 74, 0.06) 0%, transparent 70%);
+    }
+
+    .element-card-panel {
+      background-color: #1a1226;
+      border: 1px solid rgba(201, 162, 74, 0.35);
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-top: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Page 3 Deep Dive Float & Wrapping */
+    .deep-dive-wrap {
+      position: relative;
+    }
+
+    .natally-cameo-float {
+      float: right;
+      width: 250px;
+      margin-left: 24px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .cameo-avatar-frame {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 1px solid #c9a24a;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: #2a1d3d;
+    }
+
+    .cameo-avatar-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cameo-speech-bubble {
+      background-color: #2a1d3d;
+      border: 1px solid rgba(201, 162, 74, 0.45);
+      border-radius: 14px;
+      padding: 14px 18px;
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .cameo-speech-bubble::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 12px;
+      height: 12px;
+      background-color: #2a1d3d;
+      border-left: 1px solid rgba(201, 162, 74, 0.45);
+      border-top: 1px solid rgba(201, 162, 74, 0.45);
+    }
+
+    .cameo-speech-text {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #f1e8d8;
+    }
+
+    .deep-dive-section {
+      margin-bottom: 22px;
+    }
+
+    .deep-dive-section .stamp-cinzel {
+      margin-bottom: 7px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sheet-canvas">
+
+    <!-- PAGE 1: GROUP COVER -->
+    <div class="page-column">
+      <div class="template-label">TEMPLATE: GROUP COVER</div>
+      <div class="pdf-page" id="pdf-page-group-cover">
+        
+        <!-- Inset Border -->
+        <div class="page-frame"></div>
+
+        <!-- Inner Content (generous whitespace, uncrowded) -->
+        <div class="page-content-wrapper">
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 24px;">
+            
+            <!-- Stamp in Cinzel gold -->
+            <div class="stamp-cinzel" style="margin-bottom: 20px;">[GROUP NAME]</div>
+
+            <!-- Large title in Fraunces 56px cream -->
+            <h1 class="title-fraunces-56">[group title]</h1>
+
+            <!-- Gold star rule with centered ✦ ☽ ✦ -->
+            <div class="star-rule" style="margin: 24px 0 32px;">
+              <span class="star-rule-text">✦ ☽ ✦</span>
+            </div>
+
+            <!-- Introduction paragraph -->
+            <p class="body-nunito-16" style="max-width: 620px; margin-bottom: 36px;">
+              [group introduction]
+            </p>
+
+            <!-- Wrapped row of element chips -->
+            <div class="chips-grid">
+              <a href="#" class="element-chip" id="pdf-group-chip-1">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+              <a href="#" class="element-chip" id="pdf-group-chip-2">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+              <a href="#" class="element-chip" id="pdf-group-chip-3">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+              <a href="#" class="element-chip" id="pdf-group-chip-4">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+              <a href="#" class="element-chip" id="pdf-group-chip-5">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+              <a href="#" class="element-chip" id="pdf-group-chip-6">
+                <span class="chip-glyph">[glyph]</span>
+                <span>[element]</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Footer inside frame -->
+          <div class="page-footer">
+            [GROUP NAME]
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- PAGE 2: ELEMENT COVER -->
+    <div class="page-column">
+      <div class="template-label">TEMPLATE: ELEMENT COVER</div>
+      <div class="pdf-page" id="pdf-page-element-cover">
+        
+        <!-- Inset Border -->
+        <div class="page-frame"></div>
+
+        <!-- Inner Content -->
+        <div class="page-content-wrapper">
+          <div style="flex: 1; display: flex; flex-direction: column;">
+
+            <!-- Centred in the upper third, 160px circle with 1px gold border -->
+            <div class="glyph-circle-container">
+              <div class="glyph-circle">
+                [glyph]
+              </div>
+            </div>
+
+            <!-- Title in Fraunces 56px cream, centred -->
+            <h1 class="title-fraunces-56" style="text-align: center; margin-bottom: 10px;">
+              [element name]
+            </h1>
+
+            <!-- Subtitle in Fraunces italic 20px muted, centred -->
+            <div class="subtitle-fraunces-20" style="text-align: center; margin-bottom: 28px;">
+              [element subtitle]
+            </div>
+
+            <!-- Panel with generous padding -->
+            <div class="element-card-panel">
+              <div class="stamp-cinzel">YOU AND [ELEMENT]</div>
+              <p class="body-nunito-16">
+                [your relation to this element]
+              </p>
+            </div>
+
+            <!-- Pill badge link at bottom right -->
+            <div style="display: flex; justify-content: flex-end; margin-top: auto; padding-top: 24px; padding-bottom: 12px;">
+              <a href="#" class="hear-natally-badge" id="pdf-hear-natally-element-cover">
+                <svg viewBox="0 0 24 24">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+                <span>Hear Natally</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="page-footer">
+            [ELEMENT] · 1 OF 2
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- PAGE 3: DEEP DIVE -->
+    <div class="page-column">
+      <div class="template-label">TEMPLATE: DEEP DIVE</div>
+      <div class="pdf-page" id="pdf-page-deep-dive">
+        
+        <!-- Inset Border -->
+        <div class="page-frame"></div>
+
+        <!-- Inner Content -->
+        <div class="page-content-wrapper">
+          <div style="flex: 1; display: flex; flex-direction: column;">
+
+            <!-- Title in Fraunces 36px cream -->
+            <h2 class="title-fraunces-36" style="padding-top: 6px;">[element name]</h2>
+
+            <!-- Gold star rule "✦ ☽ ✦" -->
+            <div class="star-rule" style="margin: 14px 0 20px;">
+              <span class="star-rule-text">✦ ☽ ✦</span>
+            </div>
+
+            <!-- Wrapped flow containing sections and right-floated Natally cameo -->
+            <div class="deep-dive-wrap" style="flex: 1;">
+              
+              <!-- Floated Natally cameo and speech bubble -->
+              <div class="natally-cameo-float">
+                <div class="cameo-avatar-frame">
+                  <img src="https://lh3.googleusercontent.com/aida/AEtjO1XuRNRzb7RUbcZkNBdxegbvWLatcYtMoXmmdxFBllPbOrMGg_R17ygNjW_POfEESv4N7Zx42bh-j5dMKiPcoPO9NS7RtuQGuPCilnsPfp-H3s4e9xix6r4aHVWaQn-9xs5_6N5RVElv8hugdQTXPt1Po0WrZdSCO5HMYH2BWsWOc5vBxbXTYazP0Dou8A8dDVvnyKKeiN9iIz-1ti3mzsTZW9p0PLIOnV6uSzVVWz4yueLhPpMCa4YRZOs" alt="Natally the cute robot astrologer">
+                </div>
+                <div class="cameo-speech-bubble">
+                  <p class="cameo-speech-text">[Natally's aside]</p>
+                </div>
+              </div>
+
+              <!-- Section 1: ORIGINS -->
+              <div class="deep-dive-section">
+                <span class="stamp-cinzel">ORIGINS</span>
+                <p class="body-nunito-15">
+                  [origins] In relation to <a href="#" class="inline-chip" id="pdf-chip-venus"><span class="inline-glyph">♀</span> Venus</a> and the subtle balance within the celestial wheel.
+                </p>
+              </div>
+
+              <!-- Section 2: TRADITIONAL INTERPRETATION -->
+              <div class="deep-dive-section">
+                <span class="stamp-cinzel">TRADITIONAL INTERPRETATION</span>
+                <p class="body-nunito-15">
+                  [traditional interpretation] As expressed through <a href="#" class="inline-chip" id="pdf-chip-libra"><span class="inline-glyph">♎</span> Libra</a> and its harmonizing light across the natal hemisphere.
+                </p>
+              </div>
+
+              <!-- Section 3: LORE -->
+              <div class="deep-dive-section" style="clear: both; padding-top: 6px;">
+                <span class="stamp-cinzel">LORE</span>
+                <p class="body-nunito-15">
+                  [lore] Anchored by the dignity of the <a href="#" class="inline-chip" id="pdf-chip-7th-house">7th House</a>, unfolding ancient principles of correspondence.
+                </p>
+              </div>
+
+              <!-- Section 4: EXAMPLES -->
+              <div class="deep-dive-section">
+                <span class="stamp-cinzel">EXAMPLES</span>
+                <p class="body-nunito-15">
+                  [examples]
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Pill badge link at bottom right -->
+            <div style="display: flex; justify-content: flex-end; margin-top: auto; padding-bottom: 8px;">
+              <a href="#" class="hear-natally-badge" id="pdf-hear-natally-deep-dive">
+                <svg viewBox="0 0 24 24">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+                <span>Hear Natally</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="page-footer">
+            [ELEMENT] · 2 OF 2 ✦ ☽ ✦
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

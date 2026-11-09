@@ -1,0 +1,107 @@
+flowchart TD
+
+subgraph group_entry["App and onboarding"]
+  node_app["App shell<br/>[AppShell.tsx]"]
+  node_onboarding["Birth intake<br/>[FirstLight.tsx]"]
+end
+
+subgraph group_reading["Astrology and Atelier"]
+  node_chartcalc["Natal chart<br/>[chart.ts]"]
+  node_ephemeris["Ephemeris<br/>[ephemeris.ts]"]
+  node_chartinput["Chart input<br/>[astrolabeInput.ts]"]
+  node_astrolabe["3D astrolabe<br/>[Astrolabe3D.tsx]"]
+  node_atelier["Atelier scene<br/>[AtelierScene.tsx]"]
+  node_trinkets["Atelier trinkets"]
+  node_character["Atelier character"]
+end
+
+subgraph group_conversation["Conversation"]
+  node_chatpanel["Chat panel<br/>[ChatPanel.tsx]"]
+  node_chatstate["Chat state<br/>[useChat.ts]"]
+  node_inference["Chat inference<br/>[inference.ts]"]
+  node_chatcontext["Prompt context<br/>[context.ts]"]
+end
+
+subgraph group_commerce["Billing and identity"]
+  node_billingapi["Billing client<br/>[billingApi.ts]"]
+  node_billingfn["Billing function<br/>[chargebee.mjs]"]
+  node_ledger[("Credit ledger<br/>[ledger.mjs]")]
+  node_chargebee["Chargebee adapter<br/>[chargebee.mjs]"]
+  node_openrouter["OpenRouter adapter<br/>[openrouter.mjs]"]
+  node_firebase["Firebase identity<br/>[firebase.ts]"]
+  node_purchase["Purchase client<br/>[purchases.ts]"]
+end
+
+subgraph group_keepsake["Souvenir"]
+  node_souvenirdialog["Souvenir purchase<br/>[SouvenirDialog.tsx]"]
+  node_report["Reading report<br/>[report.ts]"]
+  node_pdf["PDF download<br/>[pdf.ts]"]
+  node_retention["Souvenir retention<br/>[retain.ts]"]
+end
+
+node_user(("App user"))
+
+node_user -->|"opens"| node_app
+node_app -->|"renders"| node_onboarding
+node_onboarding -->|"creates chart"| node_chartcalc
+node_chartcalc -->|"uses"| node_ephemeris
+node_onboarding -->|"prepares chart"| node_chartinput
+node_app -->|"renders"| node_astrolabe
+node_app -->|"renders"| node_atelier
+node_astrolabe -->|"uses"| node_ephemeris
+node_atelier -->|"renders"| node_trinkets
+node_atelier -->|"renders"| node_character
+node_app -->|"renders"| node_chatpanel
+node_chatstate -->|"streams via"| node_inference
+node_inference -->|"builds messages"| node_chatcontext
+node_chatstate -->|"fetches allowance"| node_billingapi
+node_chatstate -->|"gets token"| node_firebase
+node_inference -->|"gets token"| node_firebase
+node_billingapi -->|"calls API"| node_billingfn
+node_billingfn -->|"uses"| node_ledger
+node_billingfn -->|"uses"| node_chargebee
+node_billingfn -->|"uses"| node_openrouter
+node_app -->|"opens"| node_souvenirdialog
+node_souvenirdialog -->|"buys souvenir"| node_purchase
+node_souvenirdialog -->|"builds report"| node_report
+node_souvenirdialog -->|"downloads"| node_pdf
+node_souvenirdialog -->|"saves report"| node_retention
+node_purchase -->|"uses"| node_billingapi
+
+click node_app "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/AppShell.tsx"
+click node_onboarding "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/onboarding/FirstLight.tsx"
+click node_chartcalc "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/astro/chart.ts"
+click node_ephemeris "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/astro/ephemeris.ts"
+click node_chartinput "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/chart/astrolabeInput.ts"
+click node_astrolabe "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/atelier-original/components/Astrolabe3D.tsx"
+click node_atelier "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/atelier-original/components/atelier/AtelierScene.tsx"
+click node_trinkets "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/atelier-original/components/atelier/AtelierTrinkets.tsx"
+click node_character "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/atelier-original/components/atelier/AtelierCharacter.tsx"
+click node_chatpanel "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/chat/ChatPanel.tsx"
+click node_chatstate "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/chat/useChat.ts"
+click node_inference "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/chat/inference.ts"
+click node_chatcontext "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/app/chat/context.ts"
+click node_billingapi "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/commerce/billingApi.ts"
+click node_billingfn "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/netlify/functions/chargebee.mjs"
+click node_ledger "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/billing/ledger.mjs"
+click node_chargebee "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/billing/chargebee.mjs"
+click node_openrouter "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/billing/openrouter.mjs"
+click node_firebase "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/platform/firebase.ts"
+click node_souvenirdialog "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/souvenir/SouvenirDialog.tsx"
+click node_report "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/souvenir/report.ts"
+click node_pdf "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/souvenir/pdf.ts"
+click node_retention "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/souvenir/retain.ts"
+click node_purchase "https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom/blob/master/src/commerce/purchases.ts"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_app,node_onboarding,node_user toneBlue
+class node_chartcalc,node_ephemeris,node_chartinput,node_astrolabe,node_atelier,node_trinkets,node_character toneAmber
+class node_chatpanel,node_chatstate,node_inference,node_chatcontext toneMint
+class node_billingapi,node_billingfn,node_ledger,node_chargebee,node_openrouter,node_firebase,node_purchase toneRose
+class node_souvenirdialog,node_report,node_pdf,node_retention toneIndigo
