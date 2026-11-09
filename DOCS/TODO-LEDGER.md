@@ -111,7 +111,7 @@ Robin (2026-11-09): "if OpenRouter is being used, then it is already on the prem
 ## Open items
 
 ### Billing
-- [ ] MCP server key
+- [x] MCP server key — closed 2026-11-09 (Robin: "vastly ancient history, resolved")
 - [ ] Item prices
 - [ ] Webhook
 - [ ] §Billing MCP-only
