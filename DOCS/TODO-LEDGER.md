@@ -119,10 +119,10 @@ Robin (2026-11-09): "if OpenRouter is being used, then it is already on the prem
 - [ ] Header, menu, sign-in
 
 ### Inset
-- [ ] Click: hover decides
+- [ ] Click: hover decides (and she speaks)
 - [ ] Natally focuses chart
 - [ ] Wheel never fades
-- [ ] Lines hoverable
+- [ ] Lines hoverable (natal↔natal, now↔natal; no now↔now)
 - [ ] Lines in readings
 - [ ] Docking
 - [ ] Corner resize
@@ -141,3 +141,8 @@ Robin (2026-11-09): "if OpenRouter is being used, then it is already on the prem
 ### Anchor survey + new observation (2026-11-09 ~16:10)
 - Verified anchors for the inset cluster saved at `DOCS/CODEMAP/inset-anchors-3f00f98.md` (scout `InsetAnchors`, read-only, clean-room only). Key findings: drag/dock/grip/Alt-arrow/persistence/auto-placement all exist in `src/app/stage/Inset.tsx`; `.chart-inset` has no backdrop-filter (inset.css:35-47); aspect lines ARE raycast-selectable and tooltiped (Astrolabe3D.tsx:1481-1482, 573); no now↔now lines (:1498-1505); focus-dim dims house spokes, sign ticks, zodiac sprites, degree subtext (:1512-1548; only structureFrame + house-number badge exempt); AppShell passes only `selectedPlanetName`/`onSelectPlanet` to Astrolabe3D (AppShell.tsx:810-816) — no highlight list; stageMetrics.ts has only `useStageVisualHeight`.
 - Robin: "tap on a component with a hover = Natally has to talk, which she doesn't now." → On a click/tap of a hovered component she must speak (explain it, lipsync) — today the click only selects/swaps; no speech is triggered. Ledger item: Click = hover decides (extends: she talks).
+
+| Item | Robin said | Cited | Observed on | Architecture | Tried / landed |
+| --- | --- | --- | --- | --- | --- |
+| No now↔now lines (clutter) | "no now-now lines to contain clutter" | S1 11-09 ~16:15 | — | §7 Astrolabe3D aspect sources | Supersedes "now↔now" in the lines items: lines are natal↔natal and now↔natal only; the renderer already draws exactly those (Astrolabe3D.tsx:1498-1505). Hoverable + explained + in readings still applies to both classes |
+| Tap on hovered component → she speaks | "tap on a component with a hover = natally has to talk which she doesn't now" | S1 11-09 ~16:10 | `v1.27.765` | §4 Inset click rule + §5 presentation + §6 chat | Today: Astrolabe3D click → `queueInsetObjectSelection` → `onSelectPlanet`→`explainPlanet` (AppShell.tsx:810-816); no speech path from that click. Target: click on hovered component = swap + highlight involved elements + Natally speaks the levels 1–2 explanation (authored, lipsync); level 3 only with allowance |
