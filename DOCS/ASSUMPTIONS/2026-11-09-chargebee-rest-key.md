@@ -34,3 +34,7 @@ available today is either scoped to the MCP Builder (attempts 2–5) or not
 retrievable through the API (attempts 7–9). A Full-Access REST key is therefore
 the one credential type that makes purchases possible, and the dashboard page
 named above is where Chargebee issues it.
+
+## Superseded (2026-11-09, later the same day)
+
+Robin: "remove the Chargebee REST API, we are not using it; look up the Chargebee MCP documentation." The premise above — that checkout and webhooks exist only in REST — was wrong. Read from the MCP Builder (`list_applicable_mcp_toolsets` for `natally_catalog`, 55 toolsets): the full tool catalog includes `hosted_page_operations` (create checkout and other hosted pages, 9 tools), `hosted_page_lookup`, `webhook_operations` (create/update/delete endpoints), `webhook_lookup`, `invoice_lookup`, `transaction_lookup`, `event_lookup`, `customer_operations`, `promotional_credit_operations`, `estimate_operations`. Official docs (chargebee.com/docs/billing/2.0/ai-in-chargebee/custom-mcp-server): custom servers take any combination of tools; auth is a server API key (`Authorization: Bearer`, up to 5 per server, "server-to-server integrations") or OAuth; URL `https://rochemedia.mcp.chargebee.com/natally_catalog`. No REST key is needed; the assumption and the REST-key to-do are withdrawn.
