@@ -131,3 +131,11 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | First paint | landing and app entry | The atelier scene (its poster image) is on screen immediately; no blank page while scripts load. |
 | Chat present as she speaks | app stage | **Intent:** conversation is the primary experience. The moment Natally starts speaking — her first reading included — the chat box is on screen, her words appear in it as she says them, and the input is ready for a reply, as before this rewrite. |
 | Space | landing and app, every screen size | **Intent:** the stage — Natally and her chart — gets the screen. The header is one compact line (wordmark, sign-in, a menu for the rest when they don't fit); no stacked nav rows eating the top. The stage grows to fill the viewport height so there is no dead space below it; the footer notice sits below the fold, reached by scrolling. |
+
+## Header, menu and sign-in
+
+| Entity | Location | Contract |
+| --- | --- | --- |
+| Header placement | landing and app | **Intent:** people find navigation where every site puts it, without thinking. One header bar at the top: wordmark at the left (returns home), menu items inline beside it on wide screens, the account action at the top right; on narrow screens the items collapse into a standard menu button at the top right. No navigation stacked below the header or centred in its own rows. |
+| Menu items work | landing and app | Every item does what its label says the moment it is used — each section link scrolls to or opens that real section; an item with no real destination does not exist. No dead links, no items that only look clickable. |
+| One-click sign-in | landing and app | **Intent:** signing in is one action. "Sign in" starts Google sign-in directly (popup, with redirect fallback where popups are blocked) and, on success, lands the person in the app at their chart or first light — never an intermediate page with a second sign-in button. Every outcome is visible: success shows them signed in; cancellation returns them to where they were, saying so; any failure (popup blocked, unauthorised domain, network, configuration missing) shows a specific message where they clicked, naming what went wrong. Never silent. |

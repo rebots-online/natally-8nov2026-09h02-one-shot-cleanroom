@@ -70,3 +70,9 @@ Acceptance: observed in the dev browser at 344, 500 and 1440 px — visible on l
 | ID | Task | Owned files (exclusive) | Status |
 | --- | --- | --- | --- |
 | BILL-1 | Full Chargebee purchase flow per §Billing: no-allowance turn → Natally's in-world ask + top-up sheet opens (3 packs + US$30 souvenir) → Chargebee checkout → allowance refresh → resend. Missing client or server configuration fails visibly, naming the missing setting; never silent, never fake success. Exposes the top-up sheet and purchase API only; INSET owns ChatPanel/AppShell wiring (it opens the sheet on a no-allowance error). | `src/commerce/**`, `src/app/TopUpSheet.tsx`, `netlify/functions/chargebee.mjs`, `billing/**` | not started |
+
+## NAV — header, menu and one-click sign-in (ARCHITECTURE.md §Header, menu and sign-in)
+
+| ID | Task | Owned files (exclusive) | Status |
+| --- | --- | --- | --- |
+| NAV-1 | Single stage owner. Standard header placement (one top bar: wordmark left, items inline on wide screens, account action top right, standard menu button top right on narrow screens; nothing stacked below or centred in rows). Every menu item does exactly what its label says (real section scroll/open); items with no real destination removed. "Sign in" starts Google sign-in directly (popup, redirect fallback) and lands in the app at chart or first light — no intermediate page or second button; success, cancellation and every failure (popup blocked, unauthorised domain, network, missing configuration) shown visibly and specifically where they clicked. Landing and app. | `src/app/**` (except `src/app/TopUpSheet.tsx`), `src/landing/**`, `src/landing-original/marketing.tsx`, `src/landing-original/marketing.css`, `src/platform/firebase.ts`, `landing.html`, `index.html`, `app.html` | not started |
