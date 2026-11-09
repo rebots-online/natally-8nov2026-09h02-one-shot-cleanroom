@@ -1,0 +1,10 @@
+{
+  "authorization": "operator-approved-product",
+  "approvalRecord": "Robin 2026-11-09: \"after architecting it, try assigning the checklisted transform of the relevant sections to a glm claude code acp-controlled set of agents in parallel\" \u2014 ARCHITECTURE c50a55c, CHECKLIST c9b807c",
+  "task": "INSET-A",
+  "sourceRevision": "c9b807c6ba2e6351107309919c8920704e7caa5b",
+  "ownedPaths": [
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/app/stage/Inset.tsx",
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/app/stage/inset.css"
+  ]
+}
