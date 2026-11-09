@@ -670,3 +670,23 @@ div[id^='threejs-container'] {
   max-width: min(100%, max(420px, calc((100dvh - 310px) * 1.6)));
   margin-inline: auto;
 }
+
+/* Account panel (avatar menu → Account). */
+.account-panel__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 12px 0 18px;
+}
+.account-panel__facts dt {
+  color: var(--parchment-muted);
+}
+.account-panel__facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.account-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

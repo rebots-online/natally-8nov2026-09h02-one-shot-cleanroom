@@ -12,6 +12,7 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
+  signOut,
   type Auth,
   type User,
 } from 'firebase/auth';
@@ -161,4 +162,9 @@ export async function idToken(): Promise<string> {
   const user = requireAuth().currentUser;
   if (!user) throw new NotSignedInError();
   return user.getIdToken();
+}
+
+/** Sign the current customer out (NAV-1: the account menu's Sign out). */
+export async function signOutNow(): Promise<void> {
+  await signOut(requireAuth());
 }

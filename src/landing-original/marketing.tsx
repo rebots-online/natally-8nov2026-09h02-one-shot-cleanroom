@@ -6,6 +6,8 @@ import { FirebaseError } from 'firebase/app';
 import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut, type User } from 'firebase/auth';
 import { AtelierScene } from './components/atelier/AtelierScene';
 import { AtelierAmbience } from './components/atelier/AtelierAmbience';
+import { Astrolabe3D } from './components/Astrolabe3D';
+import { AccountBillingDialog, type AccountCreditsState as CreditsState } from './components/AccountBillingDialog';
 import { Inset } from '../app/stage/Inset';
 import { describeSignInFailure } from '../platform/firebase';
 import { auth } from './services/firebase';
