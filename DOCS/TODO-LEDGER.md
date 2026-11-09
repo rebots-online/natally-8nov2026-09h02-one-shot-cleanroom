@@ -60,3 +60,15 @@ recorded, not acted on, until Robin says go (global-agent-rules "How we work").
 | Item | Robin said | Cited | Observed on | Architecture | Tried / landed |
 | --- | --- | --- | --- | --- | --- |
 | REST removed; MCP only | "remove the chargebee rest api we are not using it; look up the chargebee mcp documentation" | S1 11-09 ~20:40 (line at next sync) | — | §Billing to be rewritten: server function → natally_catalog MCP (hosted_page_operations checkout, webhook_operations, invoice/transaction/event lookup) with a server API key; REST `CHARGEBEE_API_KEY` removed from Netlify, .env, credentials pointers | Toolsets verified via MCP Builder (55 available, incl. hosted pages + webhooks); `DOCS/ASSUMPTIONS/2026-11-09-chargebee-rest-key.md` superseded. Earlier claim "no checkout/webhook toolsets exist" was wrong |
+
+## Questions for Robin (open until answered) — raised 2026-11-09, session 01a1bb46
+
+| # | Question | Context | Answer |
+| --- | --- | --- | --- |
+| Q1 | Add conversation persistence — verbatim per account in Firestore plus embeddings for semantic recall of lore and past turns? | Confirmed by code read: chat lives only in React state (`src/app/chat/useChat.ts:93`); no Firestore writes, no embeddings anywhere; §Inference/§Identity have no row for it | — |
+| Q2 | Does "Firebase matter" mean moving the billing function itself from the Netlify site to Firebase Cloud Functions? | Data already in Firestore (`billing/ledger.mjs:9`); Netlify holds only the function + env secrets | — |
+| Q3 | Single to-do store: build `tasks`/`task_evidence`/`task_events` in the KStore Postgres on .87 with markdown lists as generated views? Same `kstore` database or separate? Removal reason mandatory? | KStore has no task table today (tables: documents, document_revisions, entities, relations, activity_events, embeddings…) | — |
+| Q4 | Go-ahead to delete the REST `CHARGEBEE_API_KEY` from the Netlify site env now? | REST removed per Robin; MCP catalog has checkout + webhook toolsets | — |
+| Q5 | Go-ahead to add the checkout/webhook toolsets to `natally_catalog` via the MCP Builder? | Toolsets listed: hosted_page_operations/lookup, webhook_operations/lookup, invoice/transaction/event lookup, customer_operations, promotional_credit_operations | — |
+| Q6 | Touch screens have no hover — what should a tap on the inset do on a phone? | Click rule confirmed for pointer devices (L6989–6997) | — |
+| Q7 | Per-project expenses index `PROJECTS/Natally/EXPENSES.md` linking each receipt — wanted? | Receipts filed under `RECORDS/FINANCIAL/<YYYY>/` with LEDGER.md | — |
