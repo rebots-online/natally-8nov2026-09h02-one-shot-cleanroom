@@ -1029,7 +1029,7 @@ controller must use that result; quiet state alone does not prove success.
 | --- | --- | --- |
 | `SpeakOptions.onComplete?:()=>void` | `src/voice/index.ts:34` | Once after the flushed current utterance's whole queue succeeds; dropped on false/error/stop/supersession; VOICE-COMPLETE |
 | `createVoice` / effect-local queue, epoch and completion state | `src/voice/index.ts:83` | Capture callback on flush; run only after all queued text played true with matching epoch; VOICE-COMPLETE |
-| `ChatStage.onSpeechComplete?:()=>void` | `src/app/chat/useChat.ts:65` | Callback captured for a streamed reply and passed to its successful final voice flush; VOICE-COMPLETE |
+| `ChatStage.captureSpeechCompletion?:()=>()=>void` | `src/app/chat/useChat.ts:65` | Factory called once after reply begin; returned epoch-bound callback is passed to its successful final voice flush; VOICE-COMPLETE |
 | `App`, `speakPassage`, existing landing explanation/opening paths | `src/app/AppShell.tsx:380` | Clear presentation only after current complete reading; new target stops old voice immediately before async sky lookup; VOICE-COMPLETE |
 | `presentationReducer` clear action | `src/app/presentation/state.ts:46` | Clear both selectedTargets/focusTargets and always increment sequence so renderer resets local latch; preserve view/follow; VOICE-COMPLETE |
 | `prepareSpeechWithOffsets` | `src/atelier-original/services/voiceService.ts:116` | Whole-word case-insensitive atelier -> ah-tell-yay in speech only, monotonic source offset map; VOICE-COMPLETE |

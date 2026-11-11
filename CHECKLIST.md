@@ -529,8 +529,15 @@ src/app/presentation/playback.ts and the existing renderer reset prop contract.
 You are not alone: preserve current layout/geometry/overlay work and do not
 restore cancelled billing source or touch billing/model/provisioning code.
 
-Do: Implement SpeakOptions.onComplete and ChatStage.onSpeechComplete exactly
-as §18. Existing speakNatallyText returns boolean; use it rather than guessing
+Do: Extend SpeakOptions with optional onComplete?:()=>void and ChatStage with
+optional captureSpeechCompletion?:()=>()=>void. Call the latter factory once
+immediately after onReply(begin), retain its returned callback for that reply,
+and pass that exact callback to the successful final voice flush. The shell
+factory captures the current component-local interaction epoch and returns a
+callback that checks the captured epoch, finishes driver and dispatches clear.
+Increment the interaction epoch at each new reading/selection, stopping old
+voice before any async sky lookup. Existing speakNatallyText returns boolean;
+use it rather than guessing
 from onState. Callback belongs to the current epoch, fires once only after the
 whole flushed queue succeeds, and is discarded on stop/supersession/false/error.
 Do not treat a temporary empty queue during an unfinished stream as completion.
