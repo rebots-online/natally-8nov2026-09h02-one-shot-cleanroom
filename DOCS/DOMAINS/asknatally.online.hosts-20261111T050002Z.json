@@ -1,0 +1,1 @@
+{"source":"Namecheap connector dns_records_get, pre-write snapshot (backup rule)","domain":"asknatally.online","items":[{"type":"CNAME","name":"www","cname":"parkingpage.namecheap.com.","ttl":1800}],"omittedRecords":[{"type":"URL","name":"@","note":"Namecheap parking redirect (default)"}],"total":2}
