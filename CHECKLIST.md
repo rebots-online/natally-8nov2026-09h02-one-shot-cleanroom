@@ -18,15 +18,19 @@ remaining direct-key/reading gaps must be reported honestly.
 
 | Task | Current state | Actual source / proof |
 | --- | --- | --- |
-| Namespace | [X] written, targeted assertions passed | 80e2d7f; mba.robin.astronatally in Tauri/Gradle/Kotlin/build preparation; actual APK observation awaits build |
-| Purchased HTTPS publication option | [X] written, bash syntax gate passed | 308a4a4; both Surge commands force HTTPS on next canonical publication; certificates previously observed valid |
-| Compact layout / exact 3D chart / acrylic status | [X] written, recorded visual observations | source 3d73829/b6b1b88/4401e7d/29cc530; proof in landing-polish-2026-11-11 |
+| Namespace | [X] written; actual production APK identity/signature observed | 80e2d7f/c68e9a8; all native version projections agree; SDK reports mba.robin.astronatally, version1.31.768; configured production signer comparison passed; proof7490239 |
+| Purchased HTTPS publication | Observed live on both purchased hosts | CLI pin2fca7ee; canonical v1.31.768 published with HTTPS forced; actual root badges, normal TLS and all root/app/auth routes observed; proof0dc2681 |
+| Compact layout / exact 3D chart / acrylic status | [X] written, recorded visual observations; phone overlap open | source 3d73829/b6b1b88/4401e7d/29cc530; proof in landing-polish-2026-11-11 plus deployed v1.31.768 captures; root reviewed desktop/390px; phone inset still overlaps Natally's upper-left face |
 | Neutral reset / sentence speech mapping | [X] written; 11 actual-source tests and tsc passed | source4e19107, proof8073639; actual completion/interruption observed; pronunciation audition remains unverified without audio |
-| Native browser sign-in bridge | [X] written; 8 actual-source tests, tsc and locked Cargo metadata passed | source8ba564a, proof2c2e138; real browser cancellation POST headers observed; native compilation/actual Google return pending |
+| Native browser sign-in bridge | [X] written; source tests and all native compilation passed | source8ba564a, protocol proof2c2e138, full packaging proof7490239; actual Google/system-browser return and native runtime remain unverified |
 | Personal product host references | [X] tracked migration written | 3be3421; exact originals retained in Admin-Manual operational backup; runtime request observation follows new deployment |
 | Cancelled Netlify patches | [X] isolated and restored to published source | exact patch/test backup + SHA readback in Admin-Manual/.staging/natally-cancelled-netlify-checkpoint-2026-11-11 |
-| Direct-key issuance / reading | Pending replacement issuer configuration and wiring | Current active inference.ts still posts to old /billing/chat; no replacement issuer endpoint recovered from available KStore/config/Cloud Run/Hostinger access. Async operator clarification pending. Never put management key/admin code in client. |
-| Full checkpoint build and deployment | Requested now: PUBLISH-CURRENT | Canonical automatic stamp and dual purchased-domain publish/native matrix; functional reading verification remains separate |
+| Direct-key issuance / reading | Pending replacement issuer/client wiring and actual readable reply | Current active inference.ts still posts to old /billing/chat; no replacement issuer endpoint recovered from available KStore/config/Cloud Run/Hostinger access. This is not a gate for the operator's current publication order; no further issuer/account lookup is implied. Never put management key/admin code in client. |
+| Full checkpoint build and deployment | Observed canonical exit0; complete packaging inventory | v1.31.768 stampd7a6073; both sites live; Linux3, Windows3, Android APK/AAB/symbols;9 artifacts, all4 target states packaged; exact metadata gate printed BUILD-MATRIX-PACKAGED 1.31.768; proof7490239. Real login/reading rubric acceptance remains open. |
+| Native artifact transport | Exact inventory/log/evidence pushed; large binary bytes local | dist/natally-v1.31.768/ retains all produced bytes; no artifact LFS filter/URL configured. Preserve the operator's no-Forgejo-contact restriction; no oversized raw Git blobs, GitHub LFS or remote changes. |
+| Windows signing | Packaging succeeded; installer signing skipped | Actual windows.log reports unsigned cross-platform installer; no signing, installation or Windows runtime acceptance is claimed. |
+| Literal wildcard DNS | Pending exact two-record correction | Apex/www already geo.surge.world with valid HTTPS. Connected Namecheap tool has no zone read/write, Composio found no DNS interface, and actual browser access failed No browser is available. No zone mutation or full-zone backup was possible. |
+| Required semantic review | Pending; latest returned ERROR is provider_read_timeout | Canonical KStore review is not PASS. Current exact review request is retained in the Admin-Manual operational outbox; no alternate authority or verdict override. |
 | Chargebee checkout activation | Explicitly after checkpoint | No dummy flow, purchase or automatic allowance |
 
 ## Original 2026-11-08 task history — superseded where the frontier differs
@@ -720,6 +724,17 @@ stamp is explicitly authorized to commit/push its own exact projection files.
 Report URLs, final source/stamp, complete/partial platform matrix, inventory and
 actual output paths. No repeat deployment permission is needed.
 
+Observed execution: canonical v1.31.768 exited0 after the scoped Android
+source-root correction c68e9a8. Stamp/source d7a6073, web proof0dc2681 and
+final packaging/SDK proof7490239 are pushed. The committed versioned inventory
+has complete:true,9 artifacts and all4 target states packaged. Both apexes
+show the actual version badge over validated HTTPS; root/app/native-auth
+routes returned200. Root reviewed deployed desktop and phone captures; the
+phone inset overlap remains open. Native bytes are preserved locally; their
+inventory/log/evidence are pushed. Windows installer signing and actual
+Google/native-return/direct-key reading acceptance remain unverified or open
+as specified above; this record does not promote them to a passed rubric.
+
 ## DNS-WILDCARDS — exact operator-requested Surge target
 
 External operational ownership only: literal host * CNAME in astronatally.com
@@ -785,3 +800,11 @@ does not imply signing: preserve the observed unsigned-installer limitation.
 Keep large native bytes in the versioned root dist, with exact inventory/logs
 committed/pushed; no raw oversized Git blobs, GitHub LFS, Forgejo contact or
 remote reconfiguration while the operator's restriction remains active.
+
+Observed execution: c68e9a8 implemented both exact setters, preserving the
+obsolete generated files. The only retry was ./build_all.sh, which assigned
+v1.31.768 and completed all platforms. The idempotent gate printed
+BUILD-MATRIX-PACKAGED 1.31.768 (exit0). SDK badging observed application ID
+mba.robin.astronatally, versionName1.31.768; apksigner exited0 with one valid
+v2 signer matching the configured production certificate. Exact observations
+are committed at7490239 under dist/natally-v1.31.768/verification/.
