@@ -1090,30 +1090,37 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       // fixed glyph and each previously placed label; a colliding label steps
       // along its own radius (outward for degree text, staggering clustered
       // bodies) until it clears. The wheel is rigid, so a chosen offset holds
-      // steady; the lerp only eases transitions when the view changes.
+      // steady, and the checked box is the box drawn in the same frame.
       const declutter = declutterRef.current;
       if (declutter && bounds.height > 0 && declutter.movables.length) {
-        const fovTan = Math.tan((camera.fov * Math.PI) / 360);
+        camera.updateMatrixWorld();
         const boxOf = (object: THREE.Object3D, halfWidth: number, halfHeight: number) => {
           object.updateWorldMatrix(true, false);
           const world = object.getWorldPosition(declutterWorld);
-          const distance = camera.position.distanceTo(world);
-          const pxPerWorld = distance > 0 ? bounds.height / (2 * distance * fovTan) : 0;
+          const depth = Math.max(0.001, -world.clone().applyMatrix4(camera.matrixWorldInverse).z);
+          const worldScale = object.getWorldScale(new THREE.Vector3());
+          const pxPerWorldX = Math.abs(camera.projectionMatrix.elements[0]) * bounds.width / (2 * depth);
+          const pxPerWorldY = Math.abs(camera.projectionMatrix.elements[5]) * bounds.height / (2 * depth);
           const projected = world.project(camera);
           return {
             x: (projected.x + 1) * bounds.width / 2,
             y: (1 - projected.y) * bounds.height / 2,
-            hw: halfWidth * pxPerWorld,
-            hh: halfHeight * pxPerWorld,
+            hw: halfWidth * worldScale.x / (object.scale.x || 1) * pxPerWorldX,
+            hh: halfHeight * worldScale.y / (object.scale.y || 1) * pxPerWorldY,
           };
         };
         const overlaps = (a: { x: number; y: number; hw: number; hh: number }, b: { x: number; y: number; hw: number; hh: number }) =>
-          Math.abs(a.x - b.x) < a.hw + b.hw + 2 && Math.abs(a.y - b.y) < a.hh + b.hh + 2;
+          Math.abs(a.x - b.x) < a.hw + b.hw + 6 && Math.abs(a.y - b.y) < a.hh + b.hh + 6;
         const placed = declutter.obstacles.filter(entry => entry.object.visible).map(entry => {
           const sprite = entry.object as THREE.Sprite;
           return sprite.isSprite
             ? boxOf(entry.object, sprite.scale.x / 2, sprite.scale.y / 2)
             : boxOf(entry.object, entry.radius, entry.radius);
+        });
+        endpointLabelsRef.current.forEach(({ element }) => {
+          if (element.style.display === 'none') return;
+          const rect = element.getBoundingClientRect();
+          if (rect.width && rect.height) placed.push({ x: rect.left - bounds.left + rect.width / 2, y: rect.top - bounds.top + rect.height / 2, hw: rect.width / 2, hh: rect.height / 2 });
         });
         declutter.movables.forEach(movable => {
           if (!movable.sprite.visible) return;
@@ -1122,7 +1129,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           for (const offset of movable.offsets) {
             movable.sprite.position.copy(movable.origin).addScaledVector(movable.axis, offset);
             const box = boxOf(movable.sprite, movable.sprite.scale.x / 2, movable.sprite.scale.y / 2);
-            if (!placed.some(other => overlaps(box, other))) { target = offset;targetBox = box;break; }
+            const inside = box.x - box.hw >= 6 && box.y - box.hh >= 6 && box.x + box.hw <= bounds.width - 6 && box.y + box.hh <= bounds.height - 6;
+            if (inside && !placed.some(other => overlaps(box, other))) { target = offset;targetBox = box;break; }
           }
           // The tested box must be the box actually drawn this frame; easing
           // a label through another label made the valid target still overlap.
@@ -1578,8 +1586,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         h.label,
         '',
         isSelected ? '#fff' : isCardo ? '#f2ca50' : '#d4af37',
-        isSelected ? 0.35 : isCardo ? 0.3 : 0.24,
-        isSelected || isCardo
+        isSelected ? 0.18 : 0.15,
+        isSelected
       );
       badgeSprite.position.set(badgeX, 0.08, badgeZ);
       badgeSprite.userData.targetId = houseId;
@@ -1765,7 +1773,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const labelAxis = new THREE.Vector3(Math.cos(adjustedRad), 0, Math.sin(adjustedRad));
       degreeLabel.position.copy(sprite.position).addScaledVector(labelAxis, 0.32);
       dynamicGroup.add(degreeLabel);
-      declutterMovables.push({ sprite: degreeLabel, origin: degreeLabel.position.clone(), axis: labelAxis, offsets: [0, 0.12, 0.24, 0.36, 0.48], current: 0 });
+      declutterMovables.push({ sprite: degreeLabel, origin: degreeLabel.position.clone(), axis: labelAxis, offsets: [0, 0.14, 0.28, 0.42, 0.56, 0.70, 0.84], current: 0 });
       addGlyphLabel(body.glyph, sprite.position.clone());
       addEndpointLabel('NATAL', body.name, body.glyph, uncertainMoon ? 'Birth time needed' : body.fullDegText, bead.position.clone(), body.name, isSelected);
       bead.userData.targetId = sprite.userData.targetId = body.name;

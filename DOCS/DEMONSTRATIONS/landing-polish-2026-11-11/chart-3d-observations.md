@@ -56,3 +56,28 @@ speech-completion → shell clear → neutral-wheel recording remains pending th
 shell integration. The selection recording reaches actual speech preparation;
 it is not claimed as proof of completed playback or neutral reset. No synthetic
 reset event or injected component props were used to manufacture that proof.
+
+## Secondary annotation follow-up
+
+Self-review of the preceding matrix identified crowded Saturn/Uranus degree
+strings and oversized IC text. The follow-up keeps the same 3D marker style
+and exact anchors. It projects label bounds using camera-space depth, the
+camera projection matrix and world scale, reserves six CSS pixels between
+boxes, includes visible endpoint cards as obstacles and defers secondary text
+when no in-canvas slot is clear. IC/ASC labels use a smaller authored size;
+body markers never enter this suppression pass.
+
+Actual before/after captures were taken on port 5192 at 1440×900, DPR 2, with
+the browser's reduced-motion preference enabled so the wheel holds the same
+orientation for comparison:
+
+| State | Before | After |
+| --- | --- | --- |
+| 400 px floating inset | [Before](chart-labels-before-floating-1440-dpr2.png) | [After](chart-labels-after-floating-1440-dpr2.png) |
+| Focused chart | [Before](chart-labels-before-focused-1440-dpr2.png) | [After](chart-labels-after-focused-1440-dpr2.png) |
+
+The after-focused capture shows the 27° Sag and 25° Sag strings in distinct,
+clear slots, with IC at a comparable scale to neighbouring labels. The
+Saturn/Uranus/Neptune bodies remain visible. `npx tsc --noEmit` exited 0 after
+this follow-up. This is annotation-layout proof; the speech-completion reset
+integration remains the separate pending observation described above.
