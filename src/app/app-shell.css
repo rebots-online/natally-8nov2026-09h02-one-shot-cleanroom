@@ -1,4 +1,21 @@
 /* App-shell layout over the atelier scene (palette: src/shared/tokens.css). */
+.karaoke-caption span {
+  font-weight: 700;
+}
+
+.karaoke-caption .is-glowing {
+  color: #fff36b;
+  font-weight: 700;
+  text-shadow:
+    -1px -1px 0 #171018,
+    1px -1px 0 #171018,
+    -1px 1px 0 #171018,
+    1px 1px 0 #171018,
+    0 0 5px rgba(255, 243, 107, 0.95),
+    0 0 14px rgba(255, 220, 50, 0.75),
+    0 0 26px rgba(255, 194, 35, 0.45);
+}
+
 /* Calmer atelier (operator note 2026-11-08): the room breathes slowly —
    ambient drifters run longer and softer than the original's cadence.
    Keyframes are redefined (this sheet loads after AtelierScene.css, and the

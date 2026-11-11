@@ -80,6 +80,8 @@ import './inset.css';
 export const BODY_TARGET_PX = 44;
 /** Inset width cap as a fraction of stage width (the architecture's 60%). */
 export const INSET_MAX_W = 0.6;
+const COMPACT_INSET_MIN_PX = 96;
+const COMPACT_INSET_DEFAULT_PX = 180;
 /** Height = width × aspect; the wheel is square. */
 const ASPECT = 1;
 /** Inset chrome that is not wheel: the drag bar plus both borders, px. */
@@ -147,6 +149,8 @@ export interface InsetProps {
   targets?: readonly string[];
   /** Bodies drawn on this wheel; sets the usefulness size floor. */
   bodyCount?: number;
+  /** The landing's compact floating preview; detailed views keep the normal floor. */
+  compact?: boolean;
   /**
    * Click/tap on the inset where no chart component was hit: swap the two
    * views. Component taps the chart claims (through `onComponentTap`)
@@ -336,8 +340,8 @@ type AutoPlacement =
  * Overlap with size is monotone per corner, so each corner's best sits at
  * the size breakpoints where the growing inset edges cross her face edges.
  */
-function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: number): AutoPlacement {
-  const cap = allowedWidthPx(stage);
+function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: number, preferredWidthPx?: number): AutoPlacement {
+  const cap = Math.min(allowedWidthPx(stage), preferredWidthPx ?? Number.POSITIVE_INFINITY);
   // The stage cannot offer a useful floating chart at all.
   if (floorPx > cap) return { kind: 'invert' };
 
@@ -432,6 +436,7 @@ export function Inset({
   fillHeight = null,
   targets = [],
   bodyCount = DEFAULT_BODY_COUNT,
+  compact = false,
   onSwap = undefined,
   onComponentTap = undefined,
   onAutoInvert = undefined,
@@ -455,7 +460,7 @@ export function Inset({
   const restoredRef = useRef(false);
   // Last invert decision reported through onAutoInvert.
   const invertRef = useRef(false);
-  const floorPx = insetFloorPx(bodyCount);
+  const floorPx = compact ? COMPACT_INSET_MIN_PX : insetFloorPx(bodyCount);
 
   // Measure the host stage (the layer's parent) as its VISIBLE box — the
   // intersection with the browser window — so every clamp keeps the card
@@ -546,7 +551,7 @@ export function Inset({
       setGeometry(current => (current === null ? current : clampGeometry(current, stage, floorPx)));
       return;
     }
-    if (sideFits(stage, floorPx) || stackFits(stage, floorPx)) {
+    if (!compact && (sideFits(stage, floorPx) || stackFits(stage, floorPx))) {
       // Large enough to dock beside the scene: neither obscures the other,
       // the scene re-zooms into the remaining space.
       reportInvert(false);
@@ -573,10 +578,17 @@ export function Inset({
             x2: face.x2 - stage.left,
             y2: face.y2 - stage.top,
           };
-    const placement = computeAutoPlacement(stage, faceInBox, floorPx);
-    reportInvert(placement.kind === 'invert');
+    const preferredWidthPx = compact
+      ? Math.min(window.innerWidth <= 760 ? 144 : COMPACT_INSET_DEFAULT_PX, allowedWidthPx(stage))
+      : undefined;
+    const placement = computeAutoPlacement(stage, faceInBox, compact ? Math.min(floorPx, allowedWidthPx(stage)) : floorPx, preferredWidthPx);
+    reportInvert(!compact && placement.kind === 'invert');
     if (placement.kind === 'dock') setGeometry(placement.geometry);
-  }, [stage, mode, floorPx, stageElement, reportInvert]);
+    else if (compact) {
+      const width = preferredWidthPx ?? COMPACT_INSET_DEFAULT_PX;
+      setGeometry(clampGeometry({ x: 1 - (width + DOCK_MARGIN) / stage.width, y: 1 - (width + DOCK_MARGIN) / stage.height, w: width / stage.width }, stage, floorPx));
+    }
+  }, [stage, mode, floorPx, compact, stageElement, reportInvert]);
 
   // Lay out the host stage and layer for the current mode. While the chart
   // is focused the dock yields to the full-stage fill.
@@ -1014,6 +1026,7 @@ export function Inset({
       data-dragging={dragging || resizing}
       data-chart-callout-boundary=""
       data-chart-inset={focused ? undefined : 'true'}
+      data-compact={compact || undefined}
       style={
         focused
           ? stage === null

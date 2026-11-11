@@ -9,7 +9,7 @@
 // call-to-action in this tree lives on the first card of meet-natally
 // (§12.1 item 2: one click, one sign-in; no second-click prompts).
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './landing.css';
 
 export type LandingCardsProps = {
@@ -157,6 +157,7 @@ export const LANDING_SECTIONS: readonly {
 export function LandingCards({ onSection, onSignIn, signingIn }: LandingCardsProps) {
  const rootRef = useRef<HTMLDivElement | null>(null);
  const lastReportedRef = useRef<string | null>(null);
+ const [activeIndex, setActiveIndex] = useState(0);
 
  // Section tracking: the section with the greatest height inside the
  // viewport is the one in view. Recomputed on scroll, resize and
@@ -170,22 +171,29 @@ export function LandingCards({ onSection, onSignIn, signingIn }: LandingCardsPro
   const sections = Array.from(root.querySelectorAll<HTMLElement>('section[id]'));
   const report = () => {
    const viewportHeight = window.innerHeight;
+   const stage = document.querySelector('.landing-chart-stage');
+   const visibleTop = window.matchMedia('(max-width: 760px)').matches
+    ? stage?.getBoundingClientRect().bottom ?? 0
+    : 0;
    let bestId: string | null = null;
    let bestVisible = 0;
    for (const section of sections) {
     const rect = section.getBoundingClientRect();
     const visible = Math.max(
      0,
-     Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0),
+     Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, visibleTop),
     );
     if (visible > bestVisible) {
      bestVisible = visible;
      bestId = section.id;
     }
    }
-   if (bestId === null || bestId === lastReportedRef.current) return;
-   const active = LANDING_SECTIONS.find(entry => entry.id === bestId);
+   if (bestId === null) return;
+   const index = LANDING_SECTIONS.findIndex(entry => entry.id === bestId);
+   const active = LANDING_SECTIONS[index];
    if (active === undefined) return;
+   setActiveIndex(index);
+   if (bestId === lastReportedRef.current) return;
    lastReportedRef.current = active.id;
    onSection(active.id, active.chart);
   };
@@ -201,8 +209,29 @@ export function LandingCards({ onSection, onSignIn, signingIn }: LandingCardsPro
   };
  }, [onSection]);
 
+ const goToSection = (index: number) => {
+  const section = LANDING_SECTIONS[index];
+  if (section === undefined) return;
+  document.getElementById(section.id)?.scrollIntoView({
+   block: 'start',
+   behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+  });
+ };
+
  return (
   <div className="landing-cards" ref={rootRef}>
+   <nav className="landing-scroll-cue" aria-label="Explore the landing page">
+    {activeIndex > 0 && (
+     <button type="button" onClick={() => goToSection(activeIndex - 1)}>
+      {activeIndex === LANDING_SECTIONS.length - 1 ? '↑ Back up' : '↑ Previous'}
+     </button>
+    )}
+    {activeIndex < LANDING_SECTIONS.length - 1 && (
+     <button type="button" onClick={() => goToSection(activeIndex + 1)}>
+      {activeIndex === 0 ? 'Scroll down ↓' : 'Next ↓'}
+     </button>
+    )}
+   </nav>
    {LANDING_SECTIONS.map(section => (
     <section key={section.id} id={section.id}>
      {section.cards.map((card, cardIndex) => {

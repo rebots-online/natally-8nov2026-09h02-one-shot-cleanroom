@@ -1211,7 +1211,8 @@ export default function App() {
       data-mode={landingChartFocused ? 'fill' : 'float'}
      >
       <Inset
-       storageKey="natally.inset.v1:landing"
+       storageKey="natally.inset.v1:landing:compact-v1"
+       compact
        label="Natal chart"
        focused={landingChartFocused}
        fillHeight={landingStageVisualHeight}
