@@ -127,3 +127,27 @@ claims that the current page passes.
     the old explanation's selection/highlights/dimming clear and the whole
     wheel returns to its neutral presentation. A stale completion never clears
     the newer interaction's highlights. Verify in focused and floating views.
+22. **Real prebilling checkpoint.** In a normal supported browser, Google
+    sign-in reaches the app in one flow. With zero Natally allowance, a
+    model-backed question is denied without a grant/key spend. Redeem the
+    operator's actual deployed admin code through the account UI: the real
+    balance appears immediately, even before a managed key exists. Submit a
+    chart question: a real per-user key is provisioned and a complete readable
+    `openrouter/free` reply is spoken with karaoke. The key has a zero-dollar
+    provider spend limit; no purchased credit or redemption is fabricated.
+    Chargebee checkout remains unconnected for this checkpoint.
+23. **Rate-limit distinction.** A temporary upstream 429 retains the question
+    and yields a brief authored acknowledgement without invented chart
+    analysis or charging for a failed completion. Retry honours Retry-After.
+    Neither a 429 nor the provider's zero cost bypasses Natally's paid-or-admin
+    redemption gate. The requested model remains exactly `openrouter/free`.
+24. **Atelier pronunciation.** Hear a real generated sentence with “atelier”:
+    speech says “ah-tell-YAY”; captions and visible copy retain “atelier”,
+    and the active-word alignment remains correct.
+25. **Checkpoint artifact set before billing connection.** After checkpoint22
+    works, invoke the sole entry `build_all.sh` once. It stamps one version,
+    deploys both purchased web domains first, then produces all available
+    Linux/Windows/Android artifacts in `dist/natally-v<version>/` with the
+    shared version and SHA-256 inventory. Observe login/redemption/read on
+    the deployed build. Report missing/failed platform outputs explicitly;
+    a successful web publish alone is not an all-platform build.

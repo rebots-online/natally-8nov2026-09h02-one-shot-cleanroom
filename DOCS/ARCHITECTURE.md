@@ -343,8 +343,7 @@ purchase; a 402 in chat opens it automatically.
 - `openrouter.mjs` — `createManagedKey` (limit-limited key; secret visible
   once), `patchKeyLimit`, `streamChat` with `usage.include` harvesting.
 - `chatRoute` (356): Bearer-verified SSE passthrough on the customer's managed
-  key over the **free-tier chain** `deepseek/deepseek-chat-v3-0324:free →
-  meta-llama/llama-3.3-70b-instruct:free → google/gemma-3-27b-it:free`;
+  key using exactly **`openrouter/free`** (operator reaffirmed 2026-11-11);
   forwards upstream bytes verbatim, mines the final usage chunk, posts actual
   spend as `recordUsage` (micros).
 - `ephemeris.mjs` (separate function): swisseph-wasm server positions/houses
@@ -353,6 +352,87 @@ purchase; a 402 in chat opens it automatically.
   diagnostics in 500 detail (temporary).
 - `billing/server.mjs` — `createBillingServer()`: local Node host of the same
   router (PORT, default 8788).
+
+### 9.1 Login, redemption and reading checkpoint — operator 2026-11-11, FROZEN
+
+This checkpoint precedes connecting Chargebee. It changes neither the rule
+for receiving allowance nor the ledger's meaning: only actual paid grants or
+a successful redemption of the operator's deployed admin code grant access.
+No automatic preview, sponsored, seeded or invented allowance. A positive
+OpenRouter account balance is separate from Natally's allowance. Requested
+model is exactly `openrouter/free`, with no paid-model fallback. The old three
+model IDs are retired; current catalog verification found them absent.
+
+The existing path is retained: Google/Firebase sign-in → authenticated
+`POST /billing/redeem` → positive real `natallyCreditGrants` entry →
+authenticated `POST /billing/chat` checks allowance before lazy per-UID key
+provisioning → real streamed reading. The existing deployed
+`BILLING_REDEMPTION_CODE` and positive `BILLING_REDEMPTION_ALLOWANCE_USD` remain
+private and authoritative. The client never contains the admin code, decides
+the grant amount or directly grants credit. Use its existing
+`redeem(idToken, code, requestId)` API, retaining the request ID for a retry of
+the same submission and renewing it for a different attempt.
+
+`TopUpSheet` exposes an accessible “Redeem admin code” form independently of
+Chargebee configuration. It calls the real redemption API, reports the actual
+result/error, clears the entered code on success and signals
+`natally-allowance-changed`. `useAllowance` listens and refreshes immediately.
+`balanceCr` formats `allowanceUsdMicros` with
+`formatCr(envelope.allowanceUsdMicros, creditDisplayPerUsd())`, even when key
+state is `none`; a missing key does not erase a real grant. Zero allowance
+displays `0 Cr` after a valid response. Fetch failures remain distinguishable
+from loading/zero; `AllowanceView` gains `loading:boolean` and `error:string|null`,
+displayed in the existing header/account surface. No invented customer data.
+
+All provisioned managed keys use a provider spend limit of **0 USD** while
+the server requests `openrouter/free`. `createManagedKey` and `patchKeyLimit`
+enforce this consistently; stored `limitUsdMicros` reflects 0, rather than
+substituting it for the customer's real Natally grant. No allowance is
+inferred from a provider key limit. A live isolated probe on 2026-11-11
+confirmed positive provider balance + zero-limit key + `openrouter/free`
+returns 200 at usage.cost 0; the diagnostic key was disabled afterward.
+That tiny probe is not a complete-reading acceptance.
+
+`BILLING_ALLOWED_ORIGIN` permits the four purchased HTTPS hosts and current
+local development origins (localhost/127.0.0.1 on 5180, 5192, 5194, 5195), plus
+the existing native Tauri origins. Retire old product personal-domain entries.
+Snapshot the private deployed configuration before updating the existing
+Netlify project. Do not change Firebase provider credentials: live admin reads
+confirmed purchased hosts + localhost authorized and Google enabled. Google
+refusal of an automation-controlled browser is not an unauthorized-domain
+failure and must never be worked around by bypassing Google's checks.
+
+Temporary upstream 429 is distinct from allowance denial. Preserve 429 and
+Retry-After through the backend, expose a typed `RateLimitedError` in the
+client, retain the unanswered question, speak/display one short authored
+acknowledgement, and offer retry after the deadline. Do not loop immediately,
+switch to a paid model, invent chart analysis, or post usage for a completion
+that never occurred. Mid-stream rate-limit errors preserve any text actually
+received and identify the incomplete reply honestly.
+
+An explanation's spoken completion clears its old highlights, selection and
+dimming, including the renderer's local aspect latch via an incremented
+`focusSequence` with empty selection props. A completion belonging to an older
+utterance cannot clear a newer selection. `SpeakOptions.onComplete?:()=>void`
+fires exactly once only when the flushed utterance's full queued playback
+finishes successfully; stop, supersession and errors invalidate it. The same
+utterance epoch guards the shell's completion cleanup. Actual speech still
+drives mouth/word events. Speech pronunciation normalizes whole-word
+“atelier” to “ah-tell-yay” only in the TTS input, preserving the original
+display text and the text-offset map used for karaoke.
+
+Once login → actual admin redemption → real key → complete readable and spoken
+`openrouter/free` reading works, run `build_all.sh` for one provisional complete
+platform set BEFORE connecting Chargebee. Its automatic shared version stamp,
+dual purchased-domain web publish first, native matrix and artifact inventory
+remain mandatory. Do not describe incomplete platform output as complete.
+Chargebee API-key reconciliation and checkout activation follow this checkpoint;
+they are not prerequisites for the existing admin-redemption path.
+
+The subsequent requested card narration, adaptive half-speed presence,
+pointer/sensor seeding, diverse continuing lore and brief table marquee remain
+queued under rubric15–19; they must receive their detailed frozen contracts
+before implementation and must not silently delay this checkpoint frontier.
 
 ## 10. Souvenir (`src/souvenir/`)
 
@@ -744,6 +824,11 @@ contract.
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
 | `KaraokeCaption` (default), `KaraokeState` ·priv | comp, iface ·priv | `app/karaokeCaption.tsx:14,9` | spoken-word caption |
+| `AllowanceView.loading`, `AllowanceView.error`, `natally-allowance-changed` | boolean/string-null fields, window event | `app/chat/useChat.ts` existing `AllowanceView`/`useAllowance`; `app/TopUpSheet.tsx` redemption handler | CHECKPOINT-CLIENT: truthful grant/load state and immediate refresh; no admin code in client config |
+| `SpeakOptions.onComplete` | optional callback | `voice/index.ts:34` | CHECKPOINT-CLIENT: once after successful complete flushed utterance; cancelled/error epochs never invoke |
+| `RateLimitedError` | class extends Error; `retryAfterSeconds:number` | `app/chat/inference.ts` beside existing error classes | CHECKPOINT-CLIENT: constructor `(retryAfterSeconds:number, message?:string)`; actual 429 and incomplete stream distinction |
+| `OpenRouterRateLimitError` | exported class extends Error; `retryAfterSeconds:number` | `billing/openrouter.mjs` beside existing upstream helpers | CHECKPOINT-SERVER: constructor `(retryAfterSeconds:number)`; true upstream429; Retry-After seconds/date parsed and bounded1–86400, default30 |
+| `FREE_MODEL_CHAIN` | private constant | `netlify/functions/chargebee.mjs:18` | CHECKPOINT-SERVER: exactly `['openrouter/free']`; no alternate paid model |
 | `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (96, 400) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
 | `.landing-scroll-cue`, `.landing-card`, `.landing-cards`, `.karaoke-caption .is-glowing` | CSS/UI selectors | `app/landing/LandingCards.tsx:157`, `app/landing/landing.css:19`, `app/app-shell.css` existing karaoke rule | LANDING-POLISH layout: directional section controls, card rhythm, static bright-yellow speaking-word glow; existing component-local state/handlers only |
 | `--landing-stage-height` | private CSS property | `app/landing/landing.css` narrow landing selectors | POLISH-LAYOUT: one shared sticky-stage/anchor/caption height; nonoverlapping phone room/chart/caption bands |

@@ -266,8 +266,6 @@ observe label clarity/spoke joins. Record checkpoints 9/10 in
 `DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/`; coordinate browser access with
 POLISH-LAYOUT and report actual observations, not static-code confidence.
 
-### DOMAIN-RETIREMENT — pending after the landing corrections
-
 ### POLISH-CHART-3D — operator's sculpted-marker correction
 
 Exclusive owner: `src/atelier-original/components/Astrolabe3D.tsx`. Same
@@ -325,3 +323,127 @@ rewriting history. Preserve `mba.robin.natally` package identity. No product
 deployment may target an unrelated personal-domain host. The exact migration
 and release assignment follows the landing correction review; no placeholder
 backend destination or unapproved backup-domain role may be invented.
+
+## PREBILLING CHECKPOINT — current frontier (operator 2026-11-11)
+
+Frozen §9.1; rubric22–25. Order: working Google login + real admin redemption
++ managed key + readable/spoken `openrouter/free` response → one all-platform
+`build_all.sh` checkpoint → Chargebee connection later. No automatic allowance.
+
+### CHECKPOINT-SERVER
+
+Own `netlify/functions/chargebee.mjs` and `billing/openrouter.mjs`, existing
+backend deployment configuration/credentials through the private Netlify API.
+Read-only `billing/ledger.mjs`, `billing/verify.mjs`, `netlify.toml`,
+`scripts/build-environment.mjs`, `.env.example`. Never print secrets. Root/other
+coders own client/layout/renderer. Preserve concurrent work.
+
+Do:
+1. Set existing `FREE_MODEL_CHAIN` exactly to `['openrouter/free']`; retire the
+   three absent models. `createManagedKey` and `patchKeyLimit` send limit0,
+   retain actual0 in saved managed-key metadata. Keep the allowance check
+   before key creation: only payment/admin-code grant, never zero-cost access
+   inferred from the model or key cap. `redeemRoute`, constant-time secret
+   compare, configured grant amount and idempotent grant identity remain real.
+2. Add exported `OpenRouterRateLimitError(retryAfterSeconds)` with numeric field
+   bounded1–86400/default30. On actual upstream429 parse Retry-After seconds or
+   HTTP date. Route returns HTTP429, JSON `error:'rate_limited'` and
+   `retryAfterSeconds`, Retry-After header, exposed through CORS. Do not relabel
+   allowance402 as rate limit or post spend for failed completion. Keep actual
+   text/usage truthful if failure occurs mid-stream; no paid fallback.
+3. Snapshot existing private Netlify env under
+   `/home/robin/Admin-Manual/CREDENTIALS/Natally/` with a dated semantic name,
+   then update only BILLING_ALLOWED_ORIGIN to include purchased apex/www
+   HTTPS origins and localhost/127.0.0.1 ports5180/5192/5194/5195, retaining
+   native Tauri origins and retiring old personal product origins. Site is
+   natally-hosted-chat, id f48513f6-0319-4672-8959-4d3f4c7fd1b5. Use existing
+   legitimate private CLI OAuth/API; app connector currently requires reauth.
+   Existing OPENROUTER_ADMIN_KEY is valid; Firebase service account/encryption
+   key and BILLING_REDEMPTION_CODE/ALLOWANCE_USD are already present. Do not
+   connect/repair Chargebee API credentials in this checkpoint.
+4. Deploy only this existing function using its existing Netlify publication
+   path without building the web/native product separately. If no documented
+   function-only deploy interface exists, return exact gap to root; do not
+   invent an alternate product build entry. Commit+push each coherent source
+   change immediately. No product `build_all.sh` until client proof is ready.
+
+Verify/Accept: focused existing Node/backend tests or new meaningful targeted
+tests verify real gate ordering, model exactness, key cap0, idempotent redemption
+handling and 429 propagation; syntax checks on ownedmjs exit0. No production
+fake accounts/grants/customers. Operator protocol: normal validated CORS for all
+origins; actual operator sign-in→actual code→actual grant/key→complete readable
+free response, record scrubbed evidence. Provider diagnostic already proved
+zero cap200/cost0; it alone does not pass the full journey.
+
+### CHECKPOINT-CLIENT
+
+Own `src/app/TopUpSheet.tsx`, `src/app/chat/{useChat.ts,ChatPanel.tsx,inference.ts}`,
+`src/app/AppShell.tsx` account/status+speech-completion wiring only,
+`src/voice/index.ts`, and
+`src/atelier-original/services/voiceService.ts::prepareSpeechWithOffsets`
+(speech-normalization region only). Read-only
+`src/commerce/billingApi.ts`, `src/shared/credits.ts`, `src/platform/firebase.ts`,
+`src/app/presentation/{state.ts,playback.ts,cues.ts}`. Coordinate AppShell with
+POLISH-OVERLAY before edits; preserve its completed changes and preexisting
+narrow-stage tracker. No Chargebee connection; no new module symbols except
+registered `RateLimitedError` and registered fields.
+
+Do:
+0. Operationally checkpoint the preexisting 53-line AppShell narrow-screen
+   section tracker separately after reading its exact diff against the existing
+   phone card/stage requirements. Preserve all other work. The operator asked
+   to commit/push the previous agent's pending work; do not bury this hunk in
+   a new feature commit or leave it to be swept into a version stamp.
+1. Add an inline accessible “Redeem admin code” form inside existing TopUpSheet,
+   enabled even when Chargebee site is absent. Submit using the existing
+   `redeem(await idToken(), enteredCode, requestId)`; keep requestId stable for
+   same-attempt retry and new for a newcode/attempt. Never embed the secret or
+   assume success. Show actual error/result; clear code on success; dispatch
+   `natally-allowance-changed`. Listen in useAllowance to refresh immediately.
+2. Correct balance to `formatCr(envelope.allowanceUsdMicros, creditDisplayPerUsd())`
+   regardless of key state none. Valid zero displays0Cr; loading/fetcherror
+   stay distinct via `AllowanceView.loading:boolean` and `error:string|null`.
+   Render those truthful states in existing header/account display. Real grant
+   should be visible before first chat provisions the managed key.
+3. Add `RateLimitedError(retryAfterSeconds,message?)` in inference.ts; preserve
+   actual429/retry timing, including streaming error metadata. In useChat keep
+   the unanswered user question, display/speak one authored line:
+   “I need a brief pause before I can answer that. We can keep looking at your
+   chart in the meantime.” Use the existing shared voice; no invented answer.
+   ChatPanel exposes a retry action disabled until Retry-After expires, default
+   30s; no automatic tight loop, no grant bypass, no paid model selection.
+4. Extend `SpeakOptions.onComplete?:()=>void` and the existing controller's
+   utterance epoch. Callback fires once after a flushed utterance completely
+   plays successfully; stop/supersession/error discards it. Shell explanation
+   completion clears old highlighted/selected/selectedPlanet targets and
+   increments focusSequence, guarded against clearing a newer interaction.
+   Renderer task already clears localAspectFocus on that empty reset signal.
+   Keep speech-paced cues and manual view preference; don't switch views just
+   to reset the wheel. Apply reset in signed-out and signed-in explanation paths.
+5. Normalize whole-word atelier in speech input to “ah-tell-yay” in the existing
+   offset-preserving text-preparation seam. Visible/caption text stays atelier;
+   mapped word offsets remain correct. Do not change spoken rate or lip timing.
+
+Verify/Accept: `npx tsc --noEmit` exits0; meaningful voice-completion cancellation
+and word-offset checks if a new seam is needed. Commit+push per coherent slice.
+Operator protocol: actual redeemed balance, actual model response, actual speech
+and neutral reset, actual pronunciation and correct two-line karaoke. All3sizes;
+normal Google browser, no bypass of Google's automation check. Save proof under
+DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/. Never mark a synthetic auth event
+as Google sign-in proof or a rate-limit canned line as a real model response.
+
+### CHECKPOINT-RELEASE — pending journey proof
+
+After server/client and current chart/layout fixes are complete, retire all
+first-party tracked text references to old personal-domain product hosts using
+the DOMAIN-RETIREMENT contract. Then use ONLY `build_all.sh`, automatic version,
+dual purchased web publish first, all native targets. Preserve and stage every
+actual output in dist/natally-v<version>/ with hashes; commit+push stamp/artifacts
+and exact missing/failed inventory. No manual version, no temporary-domain
+publish, no Chargebee connection before this provisional artifact set. Root
+will provide an exact bounded release assignment after the journey is observed.
+
+Queued after this checkpoint: narrated shorter cards (rubric15), adaptive
+half-speed presence and optional pointer/sensor seed (16–17), continuing varied
+story lore (18), proportional FREE FRESH MACARONS/brief musical marquee (19).
+These are requested and pending, not implemented by this checklist paragraph.
