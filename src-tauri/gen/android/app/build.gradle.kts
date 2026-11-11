@@ -16,6 +16,7 @@ val tauriProperties = Properties().apply {
 android {
     compileSdk = 36
     namespace = "mba.robin.astronatally"
+    sourceSets.getByName("main").java.setSrcDirs(listOf("src/main/java/mba/robin/astronatally"))
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
         applicationId = "mba.robin.astronatally"
@@ -83,7 +84,10 @@ dependencies {
 
 apply(from = "tauri.build.gradle.kts")
 
-kotlin { jvmToolchain(21) }
+kotlin {
+    jvmToolchain(21)
+    sourceSets.getByName("main").kotlin.setSrcDirs(listOf("src/main/java/mba/robin/astronatally"))
+}
 
 val natallyVersion = providers.fileContents(rootProject.layout.projectDirectory.file("../../../version.txt")).asText.get().trim()
 android.defaultConfig.versionName = natallyVersion
