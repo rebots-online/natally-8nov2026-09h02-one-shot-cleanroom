@@ -1,0 +1,74 @@
+{
+  "observedAt": "2026-11-11T11:41:01.868759+00:00",
+  "version": "1.30.768",
+  "sourceCommit": "33a682693f7f9fa34bf949437b5186999c583f46",
+  "surgeAccount": "robinsai.world@gmail.com",
+  "surgePlan": "Free",
+  "publishCli": "surge@0.56.0",
+  "httpsForced": true,
+  "routes": [
+    {
+      "url": "https://astronatally.com/",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "12e1fa8c3b3382680b6ec0f40f416422177a716a38ec5c4b6491f9fb0836471a"
+    },
+    {
+      "url": "https://astronatally.com/app.html",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "12e1fa8c3b3382680b6ec0f40f416422177a716a38ec5c4b6491f9fb0836471a"
+    },
+    {
+      "url": "https://astronatally.com/auth/native.html",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "6f7eb122c1651c5e7b5f18fa769dda8c767c8188d995a21d3cb60435c5439330"
+    },
+    {
+      "url": "https://asknatally.online/",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "12e1fa8c3b3382680b6ec0f40f416422177a716a38ec5c4b6491f9fb0836471a"
+    },
+    {
+      "url": "https://asknatally.online/app.html",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "12e1fa8c3b3382680b6ec0f40f416422177a716a38ec5c4b6491f9fb0836471a"
+    },
+    {
+      "url": "https://asknatally.online/auth/native.html",
+      "status": 200,
+      "tls": "certificate validation enabled and passed",
+      "sha256": "6f7eb122c1651c5e7b5f18fa769dda8c767c8188d995a21d3cb60435c5439330"
+    }
+  ],
+  "browserObservation": {
+    "bothRootPages": "actual rendered badge v1.30.768 observed",
+    "viewportSizes": [
+      {
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "horizontalOverflow": false,
+    "screenshots": [
+      "astronatally.com-1440.png",
+      "astronatally.com-390.png",
+      "asknatally.online-1440.png",
+      "asknatally.online-390.png"
+    ],
+    "visualGap": "At 390px on first load, the compact chart inset overlaps the upper-left of Natally's face/eye. This publication task did not change the layout."
+  },
+  "notVerified": [
+    "real Google account sign-in and native return",
+    "direct per-customer OpenRouter provisioning",
+    "real model reading",
+    "real purchase"
+  ]
+}
