@@ -137,3 +137,121 @@ Acceptance: tsc clean; owned files only; orchestrator re-runs the same three-siz
 | ID | Task | Owned files (exclusive) | Status |
 | --- | --- | --- | --- |
 | STAGE-6 | Single stage owner. (1) "Talk with Natally" card and all orientation/instructions move to a side panel beside the stage: never over Natally, never modal, no dismissal required to continue. (2) Click/tap anywhere on the inset without dragging swaps it with the main view (drag moves, never swaps); Natally brings the chart into focus whenever she discusses a component during readings or explanations, highlights that component and de-emphasises other bodies and lines — never the wheel structure (house divisions, house numbers, sign ring, degree marks stay full presence); clears between emphases; every natal↔natal, now↔natal, now↔now line is mouse-over/tap selectable and explained. (3) Docking by dragging near edges/corners works; all four corners resize by dragging within floor–60%; inset is translucent dark-purple acrylic with the background behind it darkened and slightly blurred, fully legible. Also finish or revert the incomplete NAV-1 landing checkpoint ebf1ed9 so the tree typechecks. | `src/app/**` (except `src/app/TopUpSheet.tsx`), `src/landing/**`, `src/landing-original/marketing.tsx`, `src/landing-original/marketing.css`, `src/platform/firebase.ts`, `landing.html`, `index.html`, `app.html` | not started |
+
+## LANDING-POLISH — operator correction 2026-11-11, before publishing
+
+Frozen authority: ARCHITECTURE §12.1 4d/5e/5f and §Domains; observation
+rubric: DOCS/RUBRIC-landing-atelier-2026-11-11.md checkpoints 8–14. This
+supersedes conflicting earlier minimum-size instructions and “never smaller”
+wording for the landing's compact inset. No fresh design interpretation is
+needed. Keep the current atelier design and copy. Status: 🟡 active; all
+acceptance observations remain pending until recorded.
+
+### POLISH-LAYOUT — compact sizing, calmer cards, visible karaoke
+
+Ownership: `src/app/stage/Inset.tsx`, `src/app/stage/inset.css`,
+`src/app/AppShell.tsx` (landing branch/wiring only),
+`src/app/landing/LandingCards.tsx`, `src/app/landing/landing.css`,
+`src/app/app-shell.css` (existing karaoke rules only),
+`src/app/karaokeCaption.tsx` (read-only unless needed for accessible markup).
+The renderer is another coder's file: do not edit it. No new module-scope
+entities except those named below.
+
+Do:
+- Add `InsetProps.compact?: boolean`, default false; private constants
+  `COMPACT_INSET_MIN_PX = 160`, `COMPACT_INSET_DEFAULT_PX = 220`. When compact,
+  preferred first-load width is 220 CSS px on wide screens or 180 px through
+  760 px, floor 160, bounded by the actual stage. Pass `compact={true}` and a
+  `:compact-v1` storage-key suffix from the landing's chart `Inset` only.
+  Consistently use the compact floor in `clampGeometry`, drag/grips, Alt+arrow,
+  restore, resize and automatic placement. Initial compact placement floats at
+  the preferred size in a face-clear corner; do not auto-enlarge/dock/invert
+  using the body-count/glyph floor. Persist manual geometry; after the customer
+  moves/resizes, it wins. Other callers keep existing defaults and behaviour.
+- Keep the focused chart fitting the stage with about 8% breathing margin;
+  the renderer coder owns camera framing. Keep phone's sticky stage and cards
+  below it, wide card column beside the stage, and all panes inside the visible
+  stage/above the voice bar. Preserve pane swap and speech cue behaviour.
+- In existing `.landing-cards`/section rules set minimum page/section gaps
+  48/96 CSS px desktop, 32/64 phones, plus a visible gutter from the stage.
+  Keep one native vertical document scroll; no nested scroller. In
+  `LandingCards`, render `.landing-scroll-cue` with the current scroll direction:
+  start “Scroll down ↓”; middle “↑ Previous” and “Next ↓”; end “↑ Back up”.
+  Buttons target real adjacent section ids in `LANDING_SECTIONS`; keep the
+  existing `onSection` contract, native touch/wheel/key scrolling, header
+  anchors and stage swaps. Use local component state/handlers, accessible
+  names/focus, no new exported API. No dead next control at the end.
+- Raise star/constellation contrast in `inset.css`'s existing black-sky layers:
+  clear bright stars and visible fine constellation lines behind the wheel;
+  keep lines quieter than chart labels, and reduced-motion stillness.
+- For `.karaoke-caption .is-glowing` on both landing and app use `#fff36b`,
+  weight 700, sharp dark edge/shadow and layered yellow halo; active-word
+  contrast at least 7:1 against the caption surface. Keep surrounding words
+  readable and real speech timing unchanged; no new animation or layout jump.
+  Reconcile the landing's override so it cannot restore dim brass.
+
+Verify/Accept: `npx tsc --noEmit` exits 0. Read back each edited region. Do not
+mark visual acceptance from typecheck. Commit each coherent completed change
+with explicit paths and push immediately to GitHub origin/master; preserve
+others' changes. No `build_all.sh` yet while chart/layout defects remain.
+
+Operator verification protocol (coder executes and records, not a checklist
+gate): use the existing dev server or `npx vite --host 127.0.0.1 --port 5194
+--strictPort`; demonstrate rubric 8, 11, 12, 13 at 1440×900, 1280×720 and
+390×844. Resize a corner to 160 px, reload, focus/back; scroll/keyboard/menu
+through first/middle/last cards and back. Record real speech karaoke (a
+synthetic caption event alone is not proof). Save continuous screencast and
+representative screenshots under `DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/`
+with truthful observations/timecodes. You may use Playwright in your own
+isolated browser context; coordinate shared MCP browser access. Do not sweep
+runtime/cache/log files into source commits. Report any observed gap explicitly.
+
+### POLISH-CHART — sharp renderer and exact gold spokes
+
+Exclusive ownership: `src/atelier-original/components/Astrolabe3D.tsx`.
+Read-only: `src/app/stage/Inset.tsx` and `src/app/AppShell.tsx` for the owned
+renderer contract. Use existing `Astrolabe3D` and `Astrolabe3DProps`; preserve
+public props and handlers. Internal effect-local helpers may be adjusted;
+new module-scope entities require an architecture row first.
+
+Do:
+- Draw into a backing canvas matched to the actual displayed CSS box times
+  devicePixelRatio; remeasure/redraw on container resize, compact/focused swap
+  and transition settlement. Do not stretch a stale small bitmap, cap label
+  texture resolution below its displayed footprint, or use a halo that blurs
+  glyph/degree/Earth edges. Keep solid contrasting letter edges.
+- Frame the entire focused wheel with about 8% surrounding margin. At compact
+  widths below 240 px show distinct interactive glyphs; defer only crowded
+  degree annotations to hover/selection or focus rather than forcing the card
+  larger. Full details remain accessible through existing callouts/speech.
+  No overlapping label pile-ups, no darker chart, no new obsolete arc.
+- Replace remaining gold sign-boundary cylinder bars with short precise radial
+  strokes flush with the actual ring band's inner/outer edges at the exact
+  computed boundary angles. House cusp spokes meet their actual inner/outer
+  rings at exact cusp angles. No projecting ends, detached bars, duplicate
+  arcs, z-fighting or floating gap. Preserve the selectable bodies/aspects and
+  related highlights; keep structure visible during highlight dimming.
+- Preserve callouts clear of their target and pane-swap/touch behaviour.
+
+Verify/Accept: `npx tsc --noEmit` exits 0; read back edited regions. Commit only
+the owned renderer, meaningful message, push immediately to origin/master.
+No production build/publish. Concurrent layout work is authoritative for its
+files and new `compact` prop; do not revert it.
+
+Operator verification protocol: use the shared dev server on 5194 when ready,
+or separate Vite port 5195; inspect floating/minimum/focused/back at all three
+rubric sizes and DPR 1/2, rotate and resize the wheel, select a body/aspect and
+observe label clarity/spoke joins. Record checkpoints 9/10 in
+`DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/`; coordinate browser access with
+POLISH-LAYOUT and report actual observations, not static-code confidence.
+
+### DOMAIN-RETIREMENT — pending after the landing corrections
+
+Retire the old personal-domain URLs throughout first-party tracked repository
+text/configuration and scripts, including historical prose. Runtime landing
+entries use astronatally.com/www.astronatally.com and app entries use
+asknatally.online; historical prose uses `retired-product-host` rather than
+rewriting history. Preserve `mba.robin.natally` package identity. No product
+deployment may target an unrelated personal-domain host. The exact migration
+and release assignment follows the landing correction review; no placeholder
+backend destination or unapproved backup-domain role may be invented.
