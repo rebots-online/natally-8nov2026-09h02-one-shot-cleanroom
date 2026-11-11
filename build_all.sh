@@ -37,6 +37,6 @@ cp dist-web/app.html dist-web/index.html
 echo "Web build complete → dist-web/"
 # astronatally.com is the landing; the webapp lands on asknatally.online
 # (ARCHITECTURE §12.1). No temporary subdomains.
-npx surge dist-web astronatally.com
-npx surge dist-web asknatally.online
+npx surge dist-web astronatally.com --force https
+npx surge dist-web asknatally.online --force https
 exec node scripts/build-native.mjs
