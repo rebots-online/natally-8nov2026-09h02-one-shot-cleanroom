@@ -429,7 +429,9 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    click/tap on a hovered planet, sign, house or aspect line brings the chart
    forward and she speaks her passage about that element, highlighting it
    (and every element involved) as she goes — the same `explainTarget` →
-   reply driver path the signed-in stage uses.
+   reply driver path the signed-in stage uses. This includes relationships:
+   selecting an aspect line highlights that line (and its two bodies) exactly
+   as a planet is highlighted — operator observed it does not.
 4c. **The swap is smooth and the atelier inset well placed.** Focusing and
    unfocusing glide — no broken or jarring zoom, no jump, no flash of an
    empty stage, never sudden: both panes animate together over ~450 ms
