@@ -1,0 +1,119 @@
+/* Landing copy cards beside the atelier (ARCHITECTURE §12.1 items 1–5).
+   The signed-out page keeps the atelier as its stage — the fixed
+   .scene-mount behind (app-shell.css) fills the viewport in both states,
+   atelier or focused chart — while this sheet paginates every piece of
+   landing copy onto short cards in a column docked against the right
+   edge of the viewport, like the sign-in card: off to the side, never
+   centred over Natally or the middle of the stage (§12.1 5a). The
+   column scrolls vertically through the document, so it stays at the
+   side for its whole scroll lifetime. Cards keep the app's dark-purple
+   .card surface as-is, so the surface, borders, headings and buttons
+   are inherited from app-shell.css / tokens.css rather than restated
+   here. Static anchors (section ids) keep the page readable and
+   navigable with JS disabled; nothing in this sheet animates, so
+   reduced-motion needs no exception. */
+
+.landing-cards {
+  position: relative;
+  z-index: 1;
+  /* §12.1 5a: a side column the width of a card, docked to the right
+     edge with a gutter (the sign-in card's gutter, app-shell.css
+     .app-intake) — never centred, never over the stage's middle. */
+  width: min(400px, 34vw);
+  margin-left: auto;
+  margin-right: clamp(16px, 6vw, 96px);
+  padding: clamp(48px, 10vh, 96px) 0 96px;
+  display: grid;
+  gap: clamp(64px, 12vh, 128px);
+}
+
+/* Each section is a stack of card pages; the id is the anchor the menu
+   jumps to. Cards stretch to the column width (.card's own
+   min(480px, 100%) resolves to the column), keeping the side column a
+   constant width as the pages scroll by. */
+.landing-cards section {
+  display: grid;
+  gap: 24px;
+  scroll-margin-top: 24px;
+}
+
+/* .card (app-shell.css) already fixes the dark-purple surface, the
+   border and the column rhythm; card pages only add their own text
+   treatment around it. Box-model only: .card sizes its width as
+   min(480px, 100%) in the content box, which would spill its padding
+   past the column edge; border-box keeps the card's look identical
+   while its outer edge meets the column exactly. */
+.landing-card {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.landing-card p {
+  margin: 0;
+  color: var(--parchment-muted);
+}
+
+.landing-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--parchment);
+}
+
+/* The quiet line under the hero's Sign In call-to-action: what the click
+   does, in her plain register. */
+.landing-card-aside {
+  font-size: 13px;
+  text-align: center;
+}
+
+/* §12.1 5a on narrow screens: there is no side to dock to, so the
+   column runs below the stage — the first viewport is Natally's atelier
+   alone (her face uncovered), and the cards scroll up from the bottom
+   portion. Vertical flow is kept on purpose: the section tracker in
+   LandingCards.tsx follows vertical viewport overlap, which a fixed or
+   horizontally paged strip would collapse (clipped content inside a
+   fixed panel still reports viewport overlap), freezing the §12.1
+   item-4/5 stage swap. A consequence, accepted with that trade-off:
+   mid-read on narrow screens the cards pass over the focused chart
+   behind them, as any below-stage column must. */
+@media (max-width: 760px) {
+  .landing-cards {
+    width: auto;
+    margin: 0 clamp(16px, 5vw, 40px);
+    padding-top: min(62dvh, 560px);
+  }
+}
+
+/* §12.1 5a, focused-chart state: when the chart takes the stage
+   (.chart-inset-fill, an absolutely-positioned full-viewport layer owned
+   by the stage swap), its box ends at the card column's left edge so the
+   drawn wheel centres in the stage that remains — the column never
+   covers the chart. The stage re-measures its container on resize, so
+   the wheel re-renders circular and centred (verified). Scoped by
+   :has(.landing-cards) to the signed-out landing only; the
+   atelier-state inset (.chart-inset without -fill) and its face-aware
+   placement (§12.1 item 4 / §Chart inset) are untouched. */
+body:has(.landing-cards) .chart-inset-fill {
+  right: calc(min(400px, 34vw) + clamp(16px, 6vw, 96px));
+}
+
+/* §12.1 5a: on wide screens the chart's stage ends where the right-hand
+   card column begins (column width + its right margin + a gutter), so the
+   cards never cover the focused wheel or the floating chart. */
+.landing-chart-stage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: calc(min(400px, 34vw) + clamp(16px, 6vw, 96px) + 16px);
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .landing-chart-stage {
+    right: 0;
+  }
+}

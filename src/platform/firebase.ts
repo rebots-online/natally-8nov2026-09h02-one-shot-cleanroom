@@ -10,6 +10,7 @@ import {
   getAuth,
   getRedirectResult,
   onAuthStateChanged,
+  signInWithCredential,
   signInWithPopup,
   signInWithRedirect,
   signOut,
@@ -101,6 +102,56 @@ export async function googleSignIn(): Promise<void> {
     }
     throw error;
   }
+}
+
+/** Google sign-in via popup that additionally returns the Google ID token
+ *  (LANDING-C, §12.1 item 7): the landing hands that token to
+ *  asknatally.online in the URL fragment so no second sign-in click is
+ *  needed. Popup-blocked falls back to Google's redirect on the same click;
+ *  the sign-in then completes through the existing redirect path
+ *  (redirectSignInFailure + onAuthChange), never through this promise, so
+ *  the promise stays pending while the browser navigates away. Cancellation
+ *  (the person closed the popup) throws SignInCancelledError; every other
+ *  failure rethrows for describeSignInFailure() to name. */
+export async function googleSignInForIdToken(): Promise<string> {
+  const a = requireAuth();
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(a, provider);
+    const oauthCredential = GoogleAuthProvider.credentialFromResult(result);
+    const googleIdToken = oauthCredential?.idToken;
+    if (!googleIdToken) {
+      // A successful popup sign-in must carry the Google ID token; an absent
+      // one is a real failure, never a silent success.
+      throw new Error('Google sign-in succeeded but returned no ID token.');
+    }
+    return googleIdToken;
+  } catch (error) {
+    if (error instanceof FirebaseError) {
+      if (error.code === 'auth/popup-blocked') {
+        await signInWithRedirect(a, provider);
+        // The page is navigating to Google; the redirect result is consumed
+        // by the existing redirect path after the browser returns. This
+        // promise intentionally never settles.
+        return new Promise<string>(() => {});
+      }
+      if (
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request'
+      ) {
+        throw new SignInCancelledError();
+      }
+    }
+    throw error;
+  }
+}
+
+/** Sign in from a Google ID token handed over from the landing domain
+ *  (LANDING-C, §12.1 item 7): rebuilds the Google credential from the token
+ *  and signs in with it. Failures rethrow for describeSignInFailure(). */
+export async function signInWithGoogleIdToken(idToken: string): Promise<void> {
+  const a = requireAuth();
+  await signInWithCredential(a, GoogleAuthProvider.credential(idToken));
 }
 
 /** Specific, plain-language text for any sign-in outcome short of success —

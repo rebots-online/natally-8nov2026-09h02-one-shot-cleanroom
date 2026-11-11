@@ -22,6 +22,7 @@
 import {
  Suspense,
  lazy,
+ useCallback,
  useEffect,
  useLayoutEffect,
  useMemo,
@@ -35,8 +36,10 @@ import {
  authUnavailable,
  describeSignInFailure,
  googleSignIn,
+ googleSignInForIdToken,
  onAuthChange,
  redirectSignInFailure,
+ signInWithGoogleIdToken,
  signOutNow,
 } from '../platform/firebase';
 import type { BirthInput, NatalChart } from '../shared/types';
@@ -44,6 +47,7 @@ import type { SkyPlacement } from '../chart/liveReading';
 import type { KaraokeDetail, Voice } from '../voice';
 import { getPreloadedVoice } from '../services/supertonicTts';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
+import { natalChart } from '../astro/chart';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import { getLesson } from '../content/lessons';
 import { ReadingStage } from '../atelier-original/components/ReadingStage';
@@ -65,6 +69,7 @@ import { chartTargets } from './chat/context';
 import { useAllowance, type ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
+import { LandingCards, LANDING_SECTIONS } from './landing/LandingCards';
 import VersionBadge from './VersionBadge';
 import TopUpSheet from './TopUpSheet';
 import './app-shell.css';
@@ -252,6 +257,70 @@ function AccountPanel({
 
 const CHART_STORE_PREFIX = 'natally.chart.v1:';
 
+/* The landing (ARCHITECTURE §12.1 + §16 pending LANDING rows): the
+ * signed-out page below is astronatally.com's landing. On the hosts in
+ * PRODUCT_LANDING_HOSTS a successful sign-in continues on the app domain,
+ * asknatally.online, with the Google ID token handed over in the URL
+ * fragment (#gid=… — a fragment is never sent to a server); on any host a
+ * signed-out load carrying that fragment consumes it at once. The natal
+ * chart on the landing stage is cast from the birth data below through the
+ * shared pipeline (computeAstrolabeChart); it carries no person's name. */
+/* The room pane while the chart fills the landing stage (§12.1 4c): a
+ * corner card showing Natally whole, always inside the window. */
+const LANDING_ROOM_PANE_WIDTH = 'min(22vw, 34vh * 1.6, 320px)';
+const LANDING_ROOM_PANE_ASPECT = 1.6;
+const PRODUCT_LANDING_HOSTS: readonly string[] = ['astronatally.com', 'www.astronatally.com'];
+const GID_FRAGMENT = 'gid';
+const EXAMPLE_BIRTH: BirthInput = {
+ dateIso: '1988-08-31',
+ timeIso: '14:30',
+ place: {
+  label: 'Toronto, Ontario, Canada',
+  latitude: 43.6532,
+  longitude: -79.3832,
+  timezoneIana: 'America/Toronto',
+ },
+};
+/* First-load placement of the landing's two floating panes (§12.1 4c, 5a),
+ * seeded through the placement each pane already restores from — never a
+ * second placement system. The chart card opens in a bottom-left corner —
+ * the side away from the card column, clear of Natally (her head sits at
+ * the horizontal middle of the artwork, so the left third of the stage is
+ * empty room) — at a size above the inset's glyph-legibility floor
+ * (min(36vw, 64vh) ≥ 461px at both operator widths, floor 460px); her room
+ * card opens in the same corner when the chart takes the stage. Each pane
+ * keeps its own drag/resize behaviour and the visitor's own saved choice
+ * always wins — this only writes the key when it is absent. */
+const LANDING_INSET_STORAGE_KEY = 'natally.inset.v1:landing';
+const LANDING_ROOM_POSITION_STORAGE_KEY = `${import.meta.env.VITE_APP_NAMESPACE ?? 'natally'}.inset-position.landing`;
+
+function seedLandingPanePlacements(): void {
+  try {
+    if (localStorage.getItem(LANDING_INSET_STORAGE_KEY) === null) {
+      const width = Math.max(1, window.innerWidth);
+      const height = Math.max(1, window.innerHeight);
+      const size = Math.min(width * 0.36, height * 0.64);
+      const marginX = Math.max(16, width * 0.04);
+      const marginY = Math.max(16, height * 0.04);
+      localStorage.setItem(
+        LANDING_INSET_STORAGE_KEY,
+        JSON.stringify({
+          mode: 'floating',
+          x: marginX / width,
+          y: (height - marginY - size) / height,
+          w: size / width,
+        }),
+      );
+    }
+    if (localStorage.getItem(LANDING_ROOM_POSITION_STORAGE_KEY) === null) {
+      localStorage.setItem(LANDING_ROOM_POSITION_STORAGE_KEY, JSON.stringify({ x: 0, y: 1 }));
+    }
+  } catch {
+    // Storage unavailable (private mode): each pane falls back to its own
+    // default placement.
+  }
+}
+
 function isNatalChart(value: unknown): value is NatalChart {
  if (typeof value !== 'object' || value === null) return false;
  const candidate = value as Record<string, unknown>;
@@ -282,11 +351,29 @@ export default function App() {
  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
  const stageRootRef = useRef<HTMLDivElement | null>(null);
  const stageVisualHeight = useStageVisualHeight(stageRootRef);
+ // The landing stage's own root and visual height: the same arrangement
+ // (ReadingStage + inset layer), mounted full-bleed on the signed-out page.
+ const landingStageRootRef = useRef<HTMLDivElement | null>(null);
+ const landingStageVisualHeight = useStageVisualHeight(landingStageRootRef);
  const [paused, setPaused] = useState(false);
  const [topUpOpen, setTopUpOpen] = useState(false);
  const [souvenirOpen, setSouvenirOpen] = useState(false);
  const [signingIn, setSigningIn] = useState(false);
  const [signInError, setSignInError] = useState<string | null>(null);
+ // The landing (§12.1): its own presentation state drives the same stage
+ // arrangement the signed-in page uses — ReadingStage's two panes plus the
+ // clean-room inset — plus the #gid= handoff status, the renderer's chart
+ // and the clean-room NatalChart that explains it.
+ const [landingPresentation, dispatchLanding] = useReducer(
+  presentationReducer,
+  initialPresentation,
+ );
+ // The stage the landing shows: the chart focused (filling the stage, the
+ // room floating) or the atelier, from the landing's presentation state.
+ const landingChartFocused = landingPresentation.view === 'chart';
+ const [gidHandoffSigningIn, setGidHandoffSigningIn] = useState(false);
+ const [exampleChart, setExampleChart] = useState<NatalChartResult | null>(null);
+ const [exampleNatal, setExampleNatal] = useState<NatalChart | null>(null);
  const [accountOpen, setAccountOpen] = useState(false);
  // Header credit balance (NAV-1): the same ledger the chat reads.
  const allowance = useAllowance();
@@ -294,6 +381,9 @@ export default function App() {
  // pipeline from the same birth data the clean-room chart persists.
  const [astrolabe, setAstrolabe] = useState<NatalChartResult | null>(null);
  const skyForChart = useRef<Promise<NatalChartResult> | null>(null);
+ // Today's sky for the landing's click readings (§12.1 4b), kept apart from
+ // the signed-in chart's sky.
+ const landingSkyRef = useRef<Promise<NatalChartResult> | null>(null);
 
  // Her voice, warmed by the onboarding's preload seam.
  const voiceRef = useRef<Voice | null>(null);
@@ -362,12 +452,42 @@ export default function App() {
   else driver.finish();
  };
 
+ // The landing's own driver (§12.1 4b): a tapped component's passage rides
+ // the same cue→speech playback, but drives the landing's presentation
+ // state — highlights, and the view swap a passage's [[view:chart]] cue
+ // asks for when no manual choice has been made yet.
+ const landingDriverRef = useRef<PlaybackDriver | null>(null);
+ if (landingDriverRef.current === null) {
+  landingDriverRef.current = createPlayback((cue: Cue) => {
+   if (cue.action.type === 'view') {
+    dispatchLanding({ type: 'view', view: cue.action.view });
+   } else if (cue.action.type === 'focus') {
+    dispatchLanding({ type: 'focus', targets: cue.action.targets });
+   } else {
+    dispatchLanding({ type: 'clear' });
+   }
+  });
+ }
+ const handleLandingReplyEvent = (event: ReplyEvent) => {
+  const driver = landingDriverRef.current;
+  if (driver === null) return;
+  if (event.phase === 'begin') driver.begin(voice.admitted);
+  else if (event.phase === 'delta') driver.update(event.text, event.cues);
+  else if (event.phase === 'final') driver.end();
+  else driver.finish();
+ };
+
  // Her spoken word boundaries advance the cues.
  useEffect(() => {
   const onKaraoke = (event: Event) => {
    const detail = (event as CustomEvent<KaraokeDetail>).detail;
    if (detail === undefined) return;
    driverRef.current?.spoken({
+    line: detail.line,
+    wordIndex: detail.wordIndex,
+    wordCount: detail.wordCount,
+   });
+   landingDriverRef.current?.spoken({
     line: detail.line,
     wordIndex: detail.wordIndex,
     wordCount: detail.wordCount,
@@ -398,6 +518,7 @@ export default function App() {
    voice.onState(state => {
     if (speakingRef.current && !state.speaking) {
      driverRef.current?.finish();
+     landingDriverRef.current?.finish();
      endOpeningReveal();
     }
     speakingRef.current = state.speaking;
@@ -563,8 +684,102 @@ export default function App() {
    handleStageView(presentation.view === 'chart' ? 'atelier' : 'chart');
   }, 0);
  };
+
+ // ---- The landing stage (§12.1) ----
+ // The sky pipeline, the passage driver and the press-claiming rule the
+ // signed-in stage uses, pointed at the landing's own presentation state
+ // and the example chart: a tap on a wheel component (§12.1 4b) brings the
+ // chart forward and she speaks her passage about it, every involved
+ // element highlighting as her voice reaches it.
+
+ // Today's sky at the example birth place, cast at most once per visit and
+ // shared by every landing tap.
+ const landingSkyToday = (): Promise<NatalChartResult> => {
+  landingSkyRef.current ??= computeAstrolabeChart({
+   ...EXAMPLE_BIRTH,
+   dateIso: new Date().toISOString().slice(0, 10),
+   timeIso: new Date().toTimeString().slice(0, 5),
+  });
+  return landingSkyRef.current;
+ };
+
+ const speakLandingPassage = (target: string, natal: NatalChart, sky: SkyPlacement[] | null) => {
+  let raw: string;
+  try {
+   raw = explainTarget(target, natal, sky);
+  } catch (cause) {
+   console.error('explainTarget: no passage for tapped target', target, cause);
+   return;
+  }
+  const parsed = parseReply(raw, chartTargets(natal, sky));
+  voice.stop();
+  handleLandingReplyEvent({ phase: 'begin' });
+  voice.speakStream(parsed.text, { flush: true });
+  handleLandingReplyEvent({ phase: 'delta', text: parsed.text, cues: parsed.cues });
+  handleLandingReplyEvent({ phase: 'final' });
+ };
+
+ const landingExplainTap = (target: string) => {
+  tapClaimedSeqRef.current = pressSeqRef.current;
+  // The tap is itself the gesture that admits her voice, and it brings the
+  // chart forward at once (§12.1 4b); the passage's cues then highlight
+  // each involved element as she speaks.
+  voice.admit();
+  dispatchLanding({ type: 'view', view: 'chart', manual: true });
+  if (exampleNatal === null) return;
+  void landingSkyToday()
+   .then(today => {
+    // The sky argument is positional over the chart's bodies, matched by
+    // name across the pipelines — the same rule as the signed-in tap.
+    const placements: SkyPlacement[] = [];
+    for (const body of exampleNatal.bodies) {
+     const now = today.natalBodies.find(entry => entry.name === body.key);
+     if (now === undefined) {
+      // Today's sky is incomplete: degrade truthfully, sky: null.
+      speakLandingPassage(target, exampleNatal, null);
+      return;
+     }
+     placements.push({ sign: now.signName, lon: now.lon });
+    }
+    speakLandingPassage(target, exampleNatal, placements);
+   })
+   .catch(() => {
+    // The sky of the moment never arrived: degrade truthfully, sky: null.
+    speakLandingPassage(target, exampleNatal, null);
+   });
+ };
+
+ const landingSwapTimerRef = useRef<number | undefined>(undefined);
+ const landingSwapInsetView = () => {
+  // The same race rule as the signed-in stage: a component tap claims the
+  // press, so the swap fires only when nothing else did.
+  const press = pressSeqRef.current;
+  window.clearTimeout(landingSwapTimerRef.current);
+  landingSwapTimerRef.current = window.setTimeout(() => {
+   if (pressSeqRef.current !== press || tapClaimedSeqRef.current === press) return;
+   dispatchLanding({
+    type: 'view',
+    view: landingPresentation.view === 'chart' ? 'atelier' : 'chart',
+    manual: true,
+   });
+  }, 0);
+ };
+
+ const handleLandingStageView = (next: StageView) => {
+  if (next === 'chart' || next === 'atelier') {
+   dispatchLanding({ type: 'view', view: next, manual: true });
+  }
+ };
+
+ // First-load inversion (§4) only until a view has been chosen; the seeded
+ // floating placement normally keeps both panes usable side by side.
+ const handleLandingAutoInvert = (invert: boolean) => {
+  if (!landingPresentation.follow) return;
+  dispatchLanding({ type: 'view', view: invert ? 'chart' : 'atelier' });
+ };
  useEffect(() => {
   if (authUnavailable) {
+   seedLandingPanePlacements();
    setAuth({ status: 'signedOut', unavailable: true });
    return;
   }
@@ -572,6 +787,13 @@ export default function App() {
    return onAuthChange((user: User | null) => {
     setSignInError(null);
     setSigningIn(false);
+    setGidHandoffSigningIn(false);
+    if (user === null) {
+     // While the page is still on the splash: the landing's panes restore
+     // their placement as they mount (§12.1 4c), so the seed is written
+     // before the landing tree first renders.
+     seedLandingPanePlacements();
+    }
     setAuth(
      user
       ? {
@@ -612,11 +834,20 @@ export default function App() {
   setSigningIn(true);
   setSignInError(null);
   try {
+   if (PRODUCT_LANDING_HOSTS.includes(window.location.hostname)) {
+    // On the landing domain the visit continues on the app domain, already
+    // signed in (§12.1 items 6–7): the Google ID token travels in the URL
+    // fragment — a fragment never reaches a server — and asknatally.online
+    // consumes it the moment it loads (the #gid= effect below).
+    const idToken = await googleSignInForIdToken();
+    window.location.assign(`https://asknatally.online/#${GID_FRAGMENT}=${idToken}`);
+    return;
+   }
    await googleSignIn();
   } catch (error) {
    setSigningIn(false);
-   // Specific, plain-language outcome (cancellation included) shown in
-   // the card, right under the button they tapped.
+   // Specific, plain-language outcome (cancellation included) shown right
+   // where the sign-in click happened.
    setSignInError(describeSignInFailure(error));
   }
  }
@@ -645,6 +876,71 @@ export default function App() {
   };
  }, [auth.status]);
 
+ // The landing's natal chart (§12.1 item 1): cast once through the shared
+ // renderer pipeline for the signed-out stage, and — through the same
+ // clean-room pipeline a birth input runs (BirthForm → natalChart) — as the
+ // NatalChart explainTarget speaks from (§12.1 4b), so a tap on a wheel
+ // component has real passages and highlights. Until the wheel lands the
+ // inset keeps its honest loading line.
+ useEffect(() => {
+  if (auth.status !== 'signedOut') return;
+  let live = true;
+  setExampleChart(null);
+  setExampleNatal(null);
+  landingSkyRef.current = null;
+  computeAstrolabeChart(EXAMPLE_BIRTH)
+   .then(result => {
+    if (live) setExampleChart(result);
+   })
+   .catch(() => {
+    // The ephemeris never loaded: the loading line stays, truthfully.
+    if (live) setExampleChart(null);
+   });
+  natalChart(EXAMPLE_BIRTH)
+   .then(chart => {
+    if (live) setExampleNatal(chart);
+   })
+   .catch(() => {
+    // No clean-room chart, no passages: taps still focus the chart.
+    if (live) setExampleNatal(null);
+   });
+  return () => {
+   live = false;
+  };
+ }, [auth.status]);
+
+ // The #gid= sign-in handoff (§12.1 item 7): a signed-out load carrying a
+ // Google ID token in the fragment strips it before anything else — the
+ // token must not linger in the URL bar through a refresh or a share —
+ // and signs in with it directly. No second sign-in click anywhere; only
+ // a status line shows while it runs. Stripping first also makes this
+ // effect idempotent, so a double invoke cannot sign in twice.
+ useEffect(() => {
+  if (auth.status !== 'signedOut') return;
+  const hash = window.location.hash;
+  if (!hash.startsWith(`#${GID_FRAGMENT}=`)) return;
+  const handedOverToken = hash.slice(GID_FRAGMENT.length + 2);
+  window.history.replaceState(
+   null,
+   '',
+   window.location.pathname + window.location.search,
+  );
+  setGidHandoffSigningIn(true);
+  void signInWithGoogleIdToken(handedOverToken).catch((error: unknown) => {
+   setGidHandoffSigningIn(false);
+   setSignInError(describeSignInFailure(error));
+  });
+ }, [auth.status]);
+
+ // Entering the chart sections swaps the stage to the wheel; leaving them
+ // swaps back to the atelier (§12.1 items 4–5) — by scrolling or a menu
+ // jump, in either direction. Stable identity: LandingCards' section
+ // tracking re-subscribes when this prop changes, and the shell re-renders
+ // often (the credit ledger polls even signed out).
+ const handleLandingSection = useCallback((_id: string, chart: boolean) => {
+  dispatchLanding({ type: 'view', view: chart ? 'chart' : 'atelier', manual: true });
+ }, []);
+
  if (auth.status === 'unknown') {
   return (
    <div className="app-splash" role="status">
@@ -655,21 +951,132 @@ export default function App() {
  }
 
  if (auth.status === 'signedOut') {
+  if (gidHandoffSigningIn) {
+   // The #gid= handoff is signing the visitor in (§12.1 item 7): only a
+   // status line while it runs — no sign-in click is ever asked for again.
+   return (
+    <div className="app-splash" role="status">
+     Signing you in…
+     <VersionBadge />
+    </div>
+   );
+  }
   return (
    <>
-    <div className="scene-mount" aria-hidden="true">
-     <AtelierScene phase="idle" motionEnabled accountUid={null} />
+    {/* This file is the landing stage's only styling surface, so the two
+            pane-swap rules live here with the markup they dress. The landing
+            stage is a full-bleed backdrop, not a reading stage: there is no
+            scene column to re-zoom beside a docked wheel, so a dock (which
+            the inset chooses on any stage wide enough) would only stretch
+            the card across the whole viewport behind its acrylic. The wheel
+            instead stays a floating card in the bottom-left corner —
+            opposite the right-docked copy cards and clear of Natally
+            (§12.1 5a) — in the same corner the room pane takes when the
+            chart fills the stage. Scoped to this stage; a drag still lifts
+            the card out of the dock into a truly floating placement. */}
+    <style>{`
+     .scene-mount .stage-inset-layer[data-inset-dock='side'],
+     .scene-mount .stage-inset-layer[data-inset-dock='stack'] {
+      display: block;
+     }
+     .scene-mount[data-inset-dock='side'] .stage-inset-layer .chart-inset--docked,
+     .scene-mount[data-inset-dock='stack'] .stage-inset-layer .chart-inset--docked {
+      position: absolute;
+      left: max(16px, 4vw);
+      top: auto;
+      bottom: max(16px, 4vh);
+      width: min(32vw, 52vh);
+      height: min(32vw, 52vh);
+      margin: 0;
+     }
+    `}</style>
+    {/* The landing's stage (§12.1 items 1, 4–5a): the atelier with the
+            natal chart in the existing inset — the fixed mount is the inset
+            layer's stage. Entering the chart sections (scroll, menu jump or
+            a tap on the floating chart, item 4a) swaps the two panes: the
+            chart fills the stage and the room becomes the floating pane,
+            bottom-left and off the wheel's middle; leaving them swaps back.
+            Both states are a re-layout of the same scene — never a remount —
+            and the geometry stays on left/top/width/height in either state
+            so the swap glides like the inset's own moves. */}
+    <div className="scene-mount" ref={landingStageRootRef}>
+     <div
+      style={{
+       position: 'absolute',
+       zIndex: 1,
+       display: 'flex',
+       alignItems: 'center',
+       overflow: 'hidden',
+       transition:
+        'left 200ms ease, top 200ms ease, width 200ms ease, height 200ms ease, border-radius 200ms ease, box-shadow 200ms ease',
+       ...(landingChartFocused
+        ? {
+           left: 'max(16px, 4vw)',
+           top: `calc(100% - max(16px, 4vh) - ${LANDING_ROOM_PANE_WIDTH} / ${LANDING_ROOM_PANE_ASPECT})`,
+           width: LANDING_ROOM_PANE_WIDTH,
+           height: `calc(${LANDING_ROOM_PANE_WIDTH} / ${LANDING_ROOM_PANE_ASPECT})`,
+           borderRadius: '12px',
+           boxShadow:
+            'inset 0 0 0 1px rgba(215, 182, 119, 0.28), 0 14px 38px rgba(3, 2, 8, 0.55)',
+          }
+        : {
+           left: '0',
+           top: '0',
+           width: '100%',
+           height: '100%',
+           borderRadius: '0',
+           boxShadow: 'none',
+          })}}
+     >
+      <AtelierScene phase="idle" motionEnabled accountUid={null} />
+     </div>
+     {/* The chart's stage (§12.1 5a): the scene's area left of the card
+             column — the Inset measures its stage from this element — so the
+             cards never cover the focused wheel or the floating chart. */}
+     <div className="landing-chart-stage">
+     <div
+      className="stage-inset-layer"
+      data-mode={landingChartFocused ? 'fill' : 'float'}
+     >
+      <Inset
+       storageKey="natally.inset.v1:landing"
+       label="Natal chart"
+       focused={landingChartFocused}
+       fillHeight={landingStageVisualHeight}
+       targets={landingPresentation.focusTargets}
+       bodyCount={exampleChart?.natalBodies.length}
+       onAutoInvert={handleLandingAutoInvert}
+       onSwap={landingSwapInsetView}
+       onComponentTap={landingExplainTap}
+      >
+       {exampleChart !== null ? (
+        <Astrolabe3D
+         chart={exampleChart}
+         isSpinning
+         resetTrigger={0}
+         highlightedComponents={landingPresentation.focusTargets}
+         onComponentTap={landingExplainTap}
+        />
+       ) : (
+        <div className="chart-loading" role="status">
+         Casting the wheel…
+        </div>
+       )}
+      </Inset>
+     </div>
+     </div>
     </div>
 
-    {/* NAV-1: one top bar — wordmark home at the left, the account
-            action at the right; on narrow screens the action folds into a
-            standard menu button. */}
+    {/* NAV-1: one top bar — wordmark home at the left, the Menu and the
+            sign-in action at the right. The menu items are the landing's
+            sections (every item lands on a real section, rubric 3); each
+            Sign In control is one click (§12.1 item 2). */}
     <header className="app-header app-header--front">
      <a className="app-brand" href="/">
       Natally <span className="app-brand-sub">· the atelier</span>
      </a>
-     {!auth.unavailable && (
-      <div className="app-header-actions">
+     <div className="app-header-actions">
+      {!auth.unavailable && (
        <button
         type="button"
         className="btn primary small app-header__signin"
@@ -678,9 +1085,21 @@ export default function App() {
        >
         {signingIn ? 'Signing in…' : 'Sign in'}
        </button>
-       <details className="app-burger">
-        <summary aria-haspopup="menu" aria-label="Menu">☰</summary>
-        <div className="app-burger__panel">
+      )}
+      <details className="app-burger">
+       <summary aria-haspopup="menu" aria-label="Menu">☰</summary>
+       <div className="app-burger__panel">
+        {LANDING_SECTIONS.map(section => (
+         <a
+          key={section.id}
+          className="app-menuitem"
+          href={`#${section.id}`}
+          onClick={closeMenuDetails}
+         >
+          {section.menuLabel}
+         </a>
+        ))}
+        {!auth.unavailable && (
          <button
           type="button"
           className="btn primary"
@@ -689,47 +1108,35 @@ export default function App() {
          >
           {signingIn ? 'Signing in…' : 'Sign in'}
          </button>
-         {signInError && (
-          <p className="app-burger__error" role="alert">{signInError}</p>
-         )}
-        </div>
-       </details>
-      </div>
-     )}
-    </header>
-    <div className="app-intake">
-     <div className="card">
-      <img
-       className="sign-in-portrait"
-       src="/natally-mascot.webp"
-       alt="Natally, the atelier astrologer"
-      />
-      <h1>Natally</h1>
-      <p className="card-intro">
-       An astrologer who keeps an atelier for your chart. Sign in and she’ll cast it
-       with you, then talk it over — planets, houses, and all.
-      </p>
-      {auth.unavailable ? (
-       <p className="note warn">
-        Sign-in isn’t available on this deployment — Firebase isn’t configured.
-       </p>
-      ) : (
-       <button
-        type="button"
-        className="btn primary wide"
-        disabled={signingIn}
-        onClick={() => void signIn()}
-       >
-        {signingIn ? 'Signing in…' : 'Sign in with Google'}
-       </button>
-      )}
-      {signInError && (
-       <p className="note error" role="alert">
-        {signInError}
-       </p>
-      )}
+        )}
+        {signInError && (
+         <p className="app-burger__error" role="alert">{signInError}</p>
+        )}
+       </div>
+      </details>
      </div>
-    </div>
+    </header>
+
+    {/* Deployment and sign-in truths, right where the click happened —
+            normally nothing shows here (fail-visible, never silent). */}
+    {auth.unavailable && (
+     <p className="note warn">
+      Sign-in isn’t available on this deployment — Firebase isn’t configured.
+     </p>
+    )}
+    {signInError && (
+     <p className="note error" role="alert">
+      {signInError}
+     </p>
+    )}
+
+    {/* The landing copy (§12.1 item 3): every piece of it paginated onto
+            cards that scroll by over the atelier. */}
+    <LandingCards
+     onSection={handleLandingSection}
+     onSignIn={() => void signIn()}
+     signingIn={signingIn}
+    />
     <VersionBadge />
    </>
   );

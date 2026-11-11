@@ -163,7 +163,17 @@ export interface InsetProps {
   onAutoInvert?: (invert: boolean) => void;
 }
 
+/** The stage's visible box: the intersection of the host stage element with
+ *  the browser window, in stage-local coordinates — `left`/`top` are where
+ *  the visible area begins inside the stage (0 when the stage starts at or
+ *  beyond the window's top-left corner). Every floating position, size
+ *  clamp, placement and focused fill is computed inside this box, so no
+ *  inset can hang past the visible window's bottom or any other edge even
+ *  when the stage element itself is taller or wider than the window (a
+ *  100vh mobile stage under browser chrome, or a page that scrolls). */
 interface StageBox {
+  left: number;
+  top: number;
   width: number;
   height: number;
 }
@@ -181,6 +191,18 @@ const CORNERS: readonly Corner[] = ['br', 'bl', 'tr', 'tl'];
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
+}
+
+/** True when two visible boxes match within half a pixel, so measurement
+ *  noise (sub-pixel scroll/resize jitter) does not re-render the stage. */
+function sameStageBox(a: StageBox | null, b: StageBox): boolean {
+  return (
+    a !== null &&
+    Math.abs(a.left - b.left) < 0.5 &&
+    Math.abs(a.top - b.top) < 0.5 &&
+    Math.abs(a.width - b.width) < 0.5 &&
+    Math.abs(a.height - b.height) < 0.5
+  );
 }
 
 /**
@@ -393,9 +415,14 @@ function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: numbe
  * stages large enough (the stage and host layer are laid out through the
  * `data-inset-dock` attribute and `--inset-dock-size` this component sets
  * on them). Positions itself inside its parent element
- * (`.stage-inset-layer`, which fills the stage); measures that parent via
- * ResizeObserver so window resizes re-clamp the pane into the stage — or,
- * before the customer's first move, re-evaluate the placement.
+ * (`.stage-inset-layer`, which fills the stage); measures that parent's
+ * VISIBLE box (its intersection with the browser window) via
+ * ResizeObserver plus window resize/scroll, so the pane is re-clamped
+ * wholly inside the visible window whenever any of those changes — or,
+ * before the customer's first move, the placement is re-evaluated. A
+ * drag or a grip press is the customer's move from its first pixel: the
+ * auto placement yields at once (a docked card lifts to floating), so
+ * moving and resizing always work in every mode.
  */
 export function Inset({
   storageKey,
@@ -415,6 +442,12 @@ export function Inset({
   const [mode, setMode] = useState<InsetMode>('floating');
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
+  // Synchronous mirrors of the gesture states: the pointer handlers must
+  // not read the React state (a down→move→up that lands before the next
+  // render commit would still see the gesture unarmed — e.g. a quick flick
+  // read as a tap and swapped). The state stays for rendering only.
+  const draggingRef = useRef(false);
+  const resizingRef = useRef(false);
   // False until the customer moves or resizes the pane: until then the
   // placement is ours to re-evaluate on every stage resize.
   const userMovedRef = useRef(false);
@@ -424,21 +457,47 @@ export function Inset({
   const invertRef = useRef(false);
   const floorPx = insetFloorPx(bodyCount);
 
-  // Measure the host stage (the layer's parent): floating, the layer fills
-  // it exactly; docked, the layer is confined to the dock slot while the
-  // stage remains the space the chart is placed within.
+  // Measure the host stage (the layer's parent) as its VISIBLE box — the
+  // intersection with the browser window — so every clamp keeps the card
+  // wholly on screen even when the stage element is taller or wider than
+  // the window (a 100vh mobile stage under browser chrome, or a page that
+  // scrolls). Re-measured on stage resize, window resize and any scroll
+  // (captured, so inner scroll containers count too), coalesced to one
+  // frame; sub-pixel jitter is swallowed by sameStageBox.
   useLayoutEffect(() => {
     const stageEl = rootRef.current?.parentElement?.parentElement;
-    if (stageEl === null || stageEl === undefined) return;
-    const observer = new ResizeObserver(entries => {
-      const box = entries[entries.length - 1];
-      if (box !== undefined) {
-        const { width, height } = box.contentRect;
-        if (width > 0 && height > 0) setStage({ width, height });
-      }
-    });
+    if (!(stageEl instanceof HTMLElement)) return;
+    let frame = 0;
+    const measure = () => {
+      if (frame !== 0) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const rect = stageEl.getBoundingClientRect();
+        const visibleLeft = Math.max(rect.left, 0);
+        const visibleTop = Math.max(rect.top, 0);
+        const width = Math.min(rect.right, window.innerWidth) - visibleLeft;
+        const height = Math.min(rect.bottom, window.innerHeight) - visibleTop;
+        if (width < 1 || height < 1) return;
+        const box: StageBox = {
+          left: visibleLeft - rect.left,
+          top: visibleTop - rect.top,
+          width,
+          height,
+        };
+        setStage(current => (sameStageBox(current, box) ? current : box));
+      });
+    };
+    const observer = new ResizeObserver(measure);
     observer.observe(stageEl);
-    return () => observer.disconnect();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, { capture: true, passive: true });
+    measure();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, { capture: true });
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const hostLayer = useCallback((): HTMLElement | null => {
@@ -502,7 +561,19 @@ export function Inset({
       return;
     }
     setMode('floating');
-    const placement = computeAutoPlacement(stage, faceRectInStage(stageElement()), floorPx);
+    // Her face is measured in stage coordinates; the placement works in the
+    // visible box's coordinates, so shift it before comparing.
+    const face = faceRectInStage(stageElement());
+    const faceInBox =
+      face === null
+        ? null
+        : {
+            x1: face.x1 - stage.left,
+            y1: face.y1 - stage.top,
+            x2: face.x2 - stage.left,
+            y2: face.y2 - stage.top,
+          };
+    const placement = computeAutoPlacement(stage, faceInBox, floorPx);
     reportInvert(placement.kind === 'invert');
     if (placement.kind === 'dock') setGeometry(placement.geometry);
   }, [stage, mode, floorPx, stageElement, reportInvert]);
@@ -605,21 +676,26 @@ export function Inset({
     null,
   );
 
+  /** Pointer position in visible-box coordinates (live against the current
+   *  scroll/zoom, not the last measured state). */
   const pointInStage = (event: ReactPointerEvent<HTMLElement>): { x: number; y: number } => {
     const rect = stageElement()?.getBoundingClientRect();
-    const x = rect === undefined ? event.clientX : event.clientX - rect.left;
-    const y = rect === undefined ? event.clientY : event.clientY - rect.top;
-    return { x, y };
+    if (rect === undefined) return { x: event.clientX, y: event.clientY };
+    return {
+      x: event.clientX - Math.max(rect.left, 0),
+      y: event.clientY - Math.max(rect.top, 0),
+    };
   };
 
-  /** The card's current on-stage position, floating or docked. */
+  /** The card's current position in visible-box coordinates, floating or
+   *  docked. */
   const cardRectInStage = (): { x: number; y: number; w: number; h: number } | null => {
     const card = rootRef.current?.getBoundingClientRect();
     const host = stageElement()?.getBoundingClientRect();
     if (card === undefined || host === undefined || stage === null) return null;
     return {
-      x: card.left - host.left,
-      y: card.top - host.top,
+      x: card.left - Math.max(host.left, 0),
+      y: card.top - Math.max(host.top, 0),
       w: card.width,
       h: card.height,
     };
@@ -650,6 +726,17 @@ export function Inset({
       held: false,
       cancelled: false,
     };
+    if (!onWheel) {
+      // A press on the card's chrome owns the pointer from the start: a drag
+      // whose first move already leaves the card (pulling it up off its top
+      // bar) must still reach this card, or it never begins. Presses on the
+      // wheel stay the wheel's own gesture.
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // A pointer the browser does not know cannot be captured.
+      }
+    }
     if (touch) {
       const pointerId = event.pointerId;
       holdTimerRef.current = window.setTimeout(() => {
@@ -664,7 +751,7 @@ export function Inset({
   const onSurfacePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (stage === null || geometry === null) return;
     const arm = armRef.current;
-    if (arm !== null && arm.pointerId === event.pointerId && !dragging) {
+    if (arm !== null && arm.pointerId === event.pointerId && !draggingRef.current) {
       const point = pointInStage(event);
       const distance = Math.hypot(point.x - arm.x, point.y - arm.y);
       if (arm.touch && !arm.held) {
@@ -688,6 +775,12 @@ export function Inset({
         // cannot be captured; the drag still tracks through move events.
       }
       setDragging(true);
+      draggingRef.current = true;
+      // The customer is moving the card NOW: their choice wins from this
+      // moment, so the auto-placement effect cannot dock the card back out
+      // from under the pointer mid-drag (mode is one of its dependencies,
+      // and the lift below changes it).
+      userMovedRef.current = true;
       if (mode !== 'floating') {
         // Lift the docked card out under the pointer.
         const card = cardRectInStage();
@@ -701,8 +794,12 @@ export function Inset({
           });
         }
       }
+      // The lift above already placed the card under the pointer; position
+      // tracking continues from the committed state on the next move, never
+      // from this handler's stale closure.
+      return;
     }
-    if (!dragging || arm === null || arm.pointerId !== event.pointerId) return;
+    if (!draggingRef.current || arm === null || arm.pointerId !== event.pointerId) return;
     const point = pointInStage(event);
     const width = geometry.w * stage.width;
     const height = width * ASPECT;
@@ -718,10 +815,17 @@ export function Inset({
       window.clearTimeout(holdTimerRef.current);
       holdTimerRef.current = null;
     }
-    if (dragging && arm !== null && arm.pointerId === event.pointerId && stage !== null && geometry !== null) {
+    if (
+      draggingRef.current &&
+      arm !== null &&
+      arm.pointerId === event.pointerId &&
+      stage !== null &&
+      geometry !== null
+    ) {
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
+      draggingRef.current = false;
       setDragging(false);
 
       const width = geometry.w * stage.width;
@@ -777,7 +881,11 @@ export function Inset({
   };
 
   /** Resize from any corner grip: aspect-locked, anchored on the opposite
-   *  corner, clamped to the floor→cap span. */
+   *  corner, clamped to the floor→cap span. A grip is the customer's move:
+   *  from here their choice wins, and a docked card lifts to floating on
+   *  the grip itself — docked geometry is laid out by CSS, so only a
+   *  floating card can show the resize — keeping its measured on-screen
+   *  rect so nothing jumps under the pointer. */
   const onGripPointerDown = (event: ReactPointerEvent<HTMLDivElement>, corner: Corner) => {
     if (focused) return;
     if (event.button !== 0 || stage === null || geometry === null) return;
@@ -790,18 +898,31 @@ export function Inset({
     }
     const point = pointInStage(event);
     const card = cardRectInStage();
+    userMovedRef.current = true;
+    if (mode !== 'floating' && card !== null) {
+      setMode('floating');
+      setGeometry(
+        clampGeometry(
+          { x: card.x / stage.width, y: card.y / stage.height, w: card.w / stage.width },
+          stage,
+          floorPx,
+        ),
+      );
+    }
     resizeRef.current = {
       corner,
       startX: point.x,
-      startW: geometry.w * stage.width,
+      startW: card === null ? geometry.w * stage.width : card.w,
       startLeft: card === null ? geometry.x * stage.width : card.x,
       startTop: card === null ? geometry.y * stage.height : card.y,
     };
+    resizingRef.current = true;
     setResizing(true);
   };
 
   const onGripPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!resizing || stage === null || geometry === null || resizeRef.current === null) return;
+    if (!resizingRef.current || stage === null || geometry === null || resizeRef.current === null)
+      return;
     const point = pointInStage(event);
     const start = resizeRef.current;
     const grow =
@@ -823,11 +944,12 @@ export function Inset({
   };
 
   const onGripPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!resizing || geometry === null) return;
+    if (!resizingRef.current || geometry === null) return;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     resizeRef.current = null;
+    resizingRef.current = false;
     setResizing(false);
     persist(mode, geometry);
   };
@@ -894,13 +1016,33 @@ export function Inset({
       data-chart-inset={focused ? undefined : 'true'}
       style={
         focused
-          ? fillHeight !== null && fillHeight > 0
-            ? { height: fillHeight }
-            : undefined
+          ? stage === null
+            ? // Not measured yet: the caller's fill height, or the CSS fill.
+              fillHeight !== null && fillHeight > 0
+              ? { height: fillHeight }
+              : undefined
+            : {
+                // The fill IS the visible window box (never taller than the
+                // caller's measured visual area), so the whole wheel fits on
+                // screen with nothing cut off at the bottom.
+                left: stage.left,
+                top: stage.top,
+                width: stage.width,
+                height:
+                  fillHeight !== null && fillHeight > 0
+                    ? Math.min(fillHeight, stage.height)
+                    : stage.height,
+              }
           : mode === 'floating'
             ? {
-                left: geometry === null || stage === null ? undefined : geometry.x * stage.width,
-                top: geometry === null || stage === null ? undefined : geometry.y * stage.height,
+                left:
+                  geometry === null || stage === null
+                    ? undefined
+                    : stage.left + geometry.x * stage.width,
+                top:
+                  geometry === null || stage === null
+                    ? undefined
+                    : stage.top + geometry.y * stage.height,
                 width: geometry === null || stage === null ? undefined : geometry.w * stage.width,
                 height:
                   geometry === null || stage === null ? undefined : geometry.w * stage.width * ASPECT,
