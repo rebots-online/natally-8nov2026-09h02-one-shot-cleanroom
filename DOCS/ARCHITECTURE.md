@@ -489,10 +489,13 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    (`authoredNudges` / `content/backstory` `nextSpontaneousStory`), spoken
    with lipsync and shown as her words; her voice and register in every line.
    The scene, the swap and the cards never replace her presence.
-5c. **Easter eggs stay hidden (standing operator rule).** The shelf items,
-   grabbing them and their breakage are an Easter egg: nothing anywhere names,
-   hints at or exposes them — no "Rehearse breakage" control (not even in
-   dev builds), no copy, welcome, greeting, card, story or caption mentioning
+5c. **Immersion: nothing points at the room's magic (standing operator
+   rule).** The shelf items, grabbing them and their breakage — and the room's
+   other discoverable delights — are immersion, and immersion dies the moment
+   it is pointed at. Nothing anywhere names, labels, hints at or exposes them:
+   no "Rehearse breakage" control (not even in dev builds); no meta captions
+   or status labels on the scene ("Here with you", "An imagined sky" and the
+   like); no copy, welcome, greeting, card, story or caption mentioning
    shelves, trinkets, grabbing or breaking. Discovery is the customer's.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
