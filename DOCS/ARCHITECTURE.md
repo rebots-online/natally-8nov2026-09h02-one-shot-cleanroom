@@ -409,7 +409,9 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 5a. **Layout: big atelier, cards off to the side.** The atelier fills the
    stage, big. The cards look like the sign-in card and sit off to the side —
    never in the middle over Natally — and neither the cards nor the chart
-   cover her; the chart inset keeps its face-aware placement (§4).
+   cover her; the chart inset keeps its face-aware placement (§4). In both
+   states — atelier on the stage or the focused chart on the stage — the cards
+   stay off to the side and never obscure the main view.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
