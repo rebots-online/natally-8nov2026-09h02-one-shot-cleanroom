@@ -152,20 +152,21 @@ acceptance observations remain pending until recorded.
 Ownership: `src/app/stage/Inset.tsx`, `src/app/stage/inset.css`,
 `src/app/AppShell.tsx` (landing branch/wiring only),
 `src/app/landing/LandingCards.tsx`, `src/app/landing/landing.css`,
-`src/app/app-shell.css` (existing karaoke rules only),
-`src/app/karaokeCaption.tsx` (read-only unless needed for accessible markup).
+`src/app/app-shell.css` (karaoke selector rules only; append if absent),
+`src/app/karaokeCaption.tsx` (rolling two-line caption window).
 The renderer is another coder's file: do not edit it. No new module-scope
 entities except those named below.
 
 Do:
 - Add `InsetProps.compact?: boolean`, default false; private constants
-  `COMPACT_INSET_MIN_PX = 160`, `COMPACT_INSET_DEFAULT_PX = 220`. When compact,
+  `COMPACT_INSET_MIN_PX = 96`, `COMPACT_INSET_DEFAULT_PX = 220`. When compact,
   preferred first-load width is 220 CSS px on wide screens or 180 px through
-  760 px, floor 160, bounded by the actual stage. Pass `compact={true}` and a
+  760 px, floor 96, bounded by the actual stage. Pass `compact={true}` and a
   `:compact-v1` storage-key suffix from the landing's chart `Inset` only.
   Consistently use the compact floor in `clampGeometry`, drag/grips, Alt+arrow,
   restore, resize and automatic placement. Initial compact placement floats at
-  the preferred size in a face-clear corner; do not auto-enlarge/dock/invert
+  the preferred size at the TOP LEFT, with the existing margin and below
+  the header; do not auto-enlarge/dock/invert
   using the body-count/glyph floor. Persist manual geometry; after the customer
   moves/resizes, it wins. Other callers keep existing defaults and behaviour.
 - Keep the focused chart fitting the stage with about 8% breathing margin;
@@ -181,14 +182,19 @@ Do:
   existing `onSection` contract, native touch/wheel/key scrolling, header
   anchors and stage swaps. Use local component state/handlers, accessible
   names/focus, no new exported API. No dead next control at the end.
-- Raise star/constellation contrast in `inset.css`'s existing black-sky layers:
-  clear bright stars and visible fine constellation lines behind the wheel;
-  keep lines quieter than chart labels, and reduced-motion stillness.
+- Keep `inset.css`'s black-sky stars and fine constellation lines subdued
+  behind the wheel: visible at ordinary brightness without bright foreground
+  zigzags. Tone down the over-bright first pass. Retain reduced-motion stillness.
 - For `.karaoke-caption .is-glowing` on both landing and app use `#fff36b`,
   weight 700, sharp dark edge/shadow and layered yellow halo; active-word
   contrast at least 7:1 against the caption surface. Keep surrounding words
   readable and real speech timing unchanged; no new animation or layout jump.
   Reconcile the landing's override so it cannot restore dim brass.
+- In existing `KaraokeCaption`, measure the available caption width/font and
+  paginate its words into windows of at most two actual lines; on resize
+  remeasure. Display the window containing the original `wordIndex` and use
+  original indices for the active highlight. No clipping-only solution, wall
+  of text or caption scrollbar. Use component-local helpers/state only.
 
 Verify/Accept: `npx tsc --noEmit` exits 0. Read back each edited region. Do not
 mark visual acceptance from typecheck. Commit each coherent completed change
@@ -198,7 +204,7 @@ others' changes. No `build_all.sh` yet while chart/layout defects remain.
 Operator verification protocol (coder executes and records, not a checklist
 gate): use the existing dev server or `npx vite --host 127.0.0.1 --port 5194
 --strictPort`; demonstrate rubric 8, 11, 12, 13 at 1440×900, 1280×720 and
-390×844. Resize a corner to 160 px, reload, focus/back; scroll/keyboard/menu
+390×844. Resize a corner to 96 px, reload, focus/back; scroll/keyboard/menu
 through first/middle/last cards and back. Record real speech karaoke (a
 synthetic caption event alone is not proof). Save continuous screencast and
 representative screenshots under `DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/`
@@ -221,10 +227,20 @@ Do:
   texture resolution below its displayed footprint, or use a halo that blurs
   glyph/degree/Earth edges. Keep solid contrasting letter edges.
 - Frame the entire focused wheel with about 8% surrounding margin. At compact
-  widths below 240 px show distinct interactive glyphs; defer only crowded
+  widths below 160 px use a clean interactive thumbnail, deferring detailed
+  annotations to focus/selection. Below 240 px show distinct interactive
+  glyphs; defer crowded
   degree annotations to hover/selection or focus rather than forcing the card
   larger. Full details remain accessible through existing callouts/speech.
   No overlapping label pile-ups, no darker chart, no new obsolete arc.
+- Zodiac badge fill/glyph contrast is at least 4.5:1, never pale-on-pale.
+  Preserve/restore smooth thick UFO/doughnut geometry, perspective tilt and
+  a shaded rounded rim with moving sun/specular glint, not a flat disc.
+  Existing scene-effect-local generated environment/reflection resources
+  must be disposed at cleanup; no new module API. Keep text materials crisp.
+  Sign ticks follow the torus cross-section height, not a flat slab at its
+  crown: y=sqrt(max(0,tubeRadius^2-(r-trackRadius)^2))+tiny offset.
+  Match the existing longitude mapping; inspect top/back alignment explicitly.
 - Replace remaining gold sign-boundary cylinder bars with short precise radial
   strokes flush with the actual ring band's inner/outer edges at the exact
   computed boundary angles. House cusp spokes meet their actual inner/outer

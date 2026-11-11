@@ -30,11 +30,13 @@ and 390×844 before publication. These are observation requirements, not
 claims that the current page passes.
 
 8. **Compact wheel and usable resizing.** First load leaves Natally and the
-   cards room to breathe. The floating chart starts at about 220 CSS px on
-   desktop and 180 CSS px on a phone, subject to the available stage. Drag a
-   corner down to 160 CSS px: no old body-count or glyph-size calculation
+   cards room to breathe. The floating chart starts at the top-left at about 220 CSS px on
+   desktop and 180 CSS px on a phone (about half to a third of its prior size),
+   subject to the available stage. Drag a
+   corner down to 96 CSS px: no old body-count or glyph-size calculation
    forces it larger, no automatic view inversion defeats the choice, and the
-   compact geometry survives reload. Focus restores the detailed wheel.
+   compact geometry survives reload. Below 160 px it is a clean thumbnail;
+   focus or selection restores detailed annotations without crowding it.
 9. **Crisp chart.** Observe floating, minimum-size, focused, and swapped-back
    states at device pixel ratios 1 and 2. The canvas is rendered at its actual
    displayed size and pixel ratio; glyphs, degree text and Earth are crisp.
@@ -42,14 +44,21 @@ claims that the current page passes.
    selection, but visible glyphs remain distinct and their labels accessible.
 10. **Precise gold structure.** Turn and resize the wheel. Gold sign ticks and
     house spokes meet their intended rings at the exact calculated angles,
-    with no detached bars, protruding ends, duplicate arcs or flickering.
+    especially across the top/back, with no detached bars, protruding ends,
+    duplicate arcs or flickering. Zodiac badge glyphs contrast at least 4.5:1
+    against their fills. The smooth, thick 3D UFO/doughnut profile, tilted
+    rounded rim and moving sun/specular glint remain visible while rotating;
+    a flat disc is a failure.
 11. **Visible constellations.** Both the compact and focused chart have a black
     sky with distinguishable stars and constellation lines at ordinary screen
-    brightness. Their visibility persists during motion; labels retain priority.
+    brightness, subdued behind the wheel rather than bright foreground zigzags.
+    Their visibility persists during motion; labels retain priority.
 12. **Bright yellow karaoke.** Let Natally speak on the landing and in the app.
     The current word is bright warm yellow, visibly higher contrast than the
     surrounding words, with a clear luminous halo and a crisp letter edge.
     The highlight follows real speech; reduced motion preserves the contrast.
+    Captions show at most two actual text lines, rolling with the active word;
+    long passages never become a wall of text or clip the speaking word.
 13. **Uncrowded cards with directional guidance.** First load visibly offers
     “Scroll down ↓”; after scrolling, guidance indicates the available up/down
     directions and the end stops offering a nonexistent next card. Cards have

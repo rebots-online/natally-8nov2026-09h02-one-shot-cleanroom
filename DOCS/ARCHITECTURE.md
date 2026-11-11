@@ -472,9 +472,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 4d. **Compact landing inset (operator correction 2026-11-11 — FROZEN).**
    The landing passes `compact={true}` to `Inset`. This opt-in supersedes the
    earlier body-count/glyph-derived floor for this landing inset only: its
-   minimum outer width is 160 CSS px, its initial preferred width is 220 px
-   on wide screens and 180 px at widths up to 760 px, bounded by the actual
-   visible stage. It starts floating in a face-clear corner; automatic
+   minimum outer width is 96 CSS px, its initial preferred width is 220 px
+   on wide screens and 180 px at widths up to 760 px (about half to a third
+   of the old initial inset), bounded by the actual
+   visible stage. It starts floating at the TOP LEFT, using the existing
+   stage margin and remaining below the header; automatic
    largest-size docking/inversion must not enlarge it. All four corner grips
    and Alt+arrow resizing can reach the new minimum; a customer's move/size
    persists and wins over automatic placement. The landing's compact geometry
@@ -485,14 +487,25 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    Render backing size follows the displayed canvas at devicePixelRatio,
    including during resize and after transitions. Crisp text has a solid
    high-contrast edge; excessive halo/linear texture upscaling must not soften
-   it. At compact widths below 240 px, crowded degree annotations may defer
+   it. Below 160 px the wheel is a clean interactive thumbnail, with detailed
+   annotations deferred until focus or selection. At compact widths below 240 px, crowded degree annotations may defer
    to selected/hovered targets or the focused view; glyphs remain visible and
    interactive, with full information through the existing callout/explanation.
    Sign ticks are precise radial strokes on the ring band and house spokes
    terminate on their actual rings at the calculated cusps: no projecting
    cylinders, detached bars, duplicate arcs, z-fighting or label pile-ups.
-   Stars and constellation lines remain visibly distinct against black in
-   compact and focused states, without outshining the labels.
+   Zodiac badges use a dark/saturated fill with a light glyph or the inverse,
+   with glyph-to-fill contrast at least 4.5:1. Preserve the smooth thick
+   three-dimensional UFO/doughnut profile, perspective tilt, rounded shaded
+   rim and moving sun/specular reflection; never flatten it into a disc.
+   Sign ticks follow the actual torus surface: at radius r use height
+   sqrt(max(0, tubeRadius^2 - (r-trackRadius)^2)) plus a tiny surface offset,
+   at the same angular mapping as the ring. Inspect top/back spokes explicitly.
+   Restore a bounded warm environment/specular source in the existing scene
+   effect so the metal/clearcoat reflects a sun-like glint while turning;
+   dispose its generated resources with the renderer. Text materials remain
+   unlit/crisp. Stars and constellation lines are visible but subdued against
+   black in compact and focused states; no bright foreground zigzag pattern.
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
@@ -545,7 +558,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    unmistakable against the dark caption surface (at least 7:1 contrast).
    Glow must not blur the letter edge or shift the line layout. Existing real
    speech word-boundary timing is retained. Reduced-motion mode retains the
-   same static luminous treatment without new animation.
+   same static luminous treatment without new animation. Caption text is a
+   rolling window of at most two rendered lines. Measure the available width
+   and font on resize, paginate the words, and display the page containing
+   the original active-word index. Never clip the speaking word out of view,
+   show a long paragraph, or add a caption scrollbar.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
@@ -698,7 +715,7 @@ contract.
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
 | `KaraokeCaption` (default), `KaraokeState` ·priv | comp, iface ·priv | `app/karaokeCaption.tsx:14,9` | spoken-word caption |
-| `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (160, 220) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
+| `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (96, 220) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
 | `.landing-scroll-cue`, `.landing-card`, `.landing-cards`, `.karaoke-caption .is-glowing` | CSS/UI selectors | `app/landing/LandingCards.tsx:157`, `app/landing/landing.css:19`, `app/app-shell.css` existing karaoke rule | LANDING-POLISH layout: directional section controls, card rhythm, static bright-yellow speaking-word glow; existing component-local state/handlers only |
 | `VersionBadge` (default) | comp | `app/VersionBadge.tsx:7` | build stamp display |
 | `TopUpSheet` (default), `TopUpSheetProps`, `describeLoadError` ·priv | comp, iface, fn ·priv | `app/TopUpSheet.tsx:35,20,~25` | packs + souvenir sheet |
