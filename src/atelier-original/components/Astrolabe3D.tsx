@@ -16,9 +16,9 @@ type AstrolabeRenderer = THREE.WebGLRenderer | SVGRenderer;
 // from the renderer's own pixel size — so nothing shrinks with the canvas,
 // and nothing is ever darker or blurrier than before.
 const LABEL_TEXTURE_CSS_PX = 256;
-const MIN_GLYPH_CSS_PX = 14;
+const MIN_GLYPH_CSS_PX = 12;
 const MIN_DEGREE_CSS_PX = 11;
-const GLYPH_FACE_FRACTION = 0.42; // glyph face height as a fraction of the sprite
+const GLYPH_FACE_FRACTION = 0.72; // glyph face height as a fraction of the sprite
 const DEGREE_FACE_FRACTION = 0.22; // degree/subtext face height as a fraction of the sprite
 const HOUSE_NUMBER_FACE_FRACTION = 0.58; // house numeral face height as a fraction of the sprite
 const labelDevicePixelRatio = () => Math.max(1, window.devicePixelRatio || 1);
@@ -183,8 +183,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
   useEffect(() => {
     focusStartRef.current = performance.now();
+    if (!highlightedComponents.length && !selectedComponents.length && !selectedPlanetName) setLocalAspectFocus(null);
     wakeRendererRef.current();
-  }, [focusSequence, highlightedComponents.join('\0'), selectedComponents.join('\0')]);
+  }, [focusSequence]);
   useEffect(() => { if (!visible) dismissHoverRef.current(); wakeRendererRef.current(); }, [visible, reducedMotion, motionPaused]);
   useEffect(() => {
     // A CSS transform changes the visual viewport without notifying ResizeObserver.
@@ -1075,10 +1076,13 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           const onScreenPx = base.y * boost * pxPerWorld;
           if (onScreenPx <= 0) return;
           const minimum = compact && sprite.userData.compactTexture
-            ? (bounds.width < 160 ? 6 : bounds.width < 240 ? 10 : 14) / 0.72
+            ? (bounds.width < 160 ? 6 : bounds.width < 240 ? 9 : 11) / GLYPH_FACE_FRACTION
+            : sprite.userData.minimumTextCss ? sprite.userData.minimumTextCss * 2
             : compact ? Math.min(minCssPx, bounds.width < 160 ? 8 : 13) : minCssPx;
           const floor = Math.max(1, minimum / onScreenPx);
           sprite.scale.set(base.x * boost * floor, base.y * boost * floor, 1);
+          const marker = sprite.userData.markerMesh as THREE.Mesh | undefined;
+          if (marker) marker.scale.setScalar(Math.max(1, sprite.scale.y / base.y));
         });
       }
       // AUDIT2-CHART: degree labels, house numbers and cusp badges never sit
@@ -1120,12 +1124,13 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
             const box = boxOf(movable.sprite, movable.sprite.scale.x / 2, movable.sprite.scale.y / 2);
             if (!placed.some(other => overlaps(box, other))) { target = offset;targetBox = box;break; }
           }
-          movable.current += (target - movable.current) * 0.35;
-          if (Math.abs(target - movable.current) < 0.004) movable.current = target;
+          // The tested box must be the box actually drawn this frame; easing
+          // a label through another label made the valid target still overlap.
+          movable.current = target;
           movable.sprite.position.copy(movable.origin).addScaledVector(movable.axis, movable.current);
           // If there is no collision-free slot, details wait for focus or
           // selection instead of piling up or drifting outside the wheel.
-          movable.sprite.visible = Boolean(targetBox) || movable.sprite.userData.focused;
+          movable.sprite.visible = Boolean(targetBox);
           if (targetBox) placed.push(targetBox);
         });
       }
@@ -1303,148 +1308,52 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const declutterObstacles: NonNullable<typeof declutterRef.current>['obstacles'] = [];
     function createGlyphSprite(
       text: string,
-      subText: string,
-      colorHex: string,
-      scale = 0.36,
+      _subText: string,
+      _colorHex: string,
+      scale = 0.24,
       isHighlighted = false,
       earthSymbol = false
     ): THREE.Sprite {
-      // AUDIT-CHART: drawn at 256 logical px × devicePixelRatio — dense
-      // enough that the sprite is never sampled above its native density, so
-      // glyphs and degree text stay crisp at every inset and focus size.
       const dpr = labelDevicePixelRatio();
       const S = LABEL_TEXTURE_CSS_PX;
       const canvas = document.createElement('canvas');
-      canvas.width = Math.round(S * dpr);
-      canvas.height = Math.round(S * dpr);
+      canvas.width = Math.round(S * dpr); canvas.height = Math.round(S * dpr);
       const ctx = canvas.getContext('2d')!;
       ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, S, S);
-
-      // 1. Christmas bauble golden metallic hanger crown & loop at top
-      ctx.fillStyle = '#ffd700';
-      ctx.fillRect(114, 8, 28, 20);
-      ctx.beginPath();
-      ctx.arc(128, 10, 10, 0, Math.PI * 2);
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = '#ffe57f';
-      ctx.stroke();
-
-      // 2. Bold, rich jewel-toned Christmas bauble spherical disc base
-      const cx = 128, cy = 116, r = 84;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = isHighlighted ? '#fef08a' : colorHex;
-      ctx.fill();
-
-      // 3. Outer golden metallic ornament rim
-      ctx.lineWidth = isHighlighted ? 10 : 7;
-      ctx.strokeStyle = isHighlighted ? '#ffffff' : '#ffd875';
-      ctx.stroke();
-
-      // 4. Spherical radial gloss specular highlight — kept light at the rim
-      // so the saturated fill and its glyph never read darker than before.
-      const grad = ctx.createRadialGradient(96, 76, 8, cx, cy, r);
-      grad.addColorStop(0, 'rgba(255,255,255,0.70)');
-      grad.addColorStop(0.35, 'rgba(255,255,255,0.20)');
-      grad.addColorStop(0.75, 'rgba(0,0,0,0.06)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.28)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 5. High-contrast symbol: dark glyph surrounded by a crisp light border
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+      // Only the crisp glyph is painted. Its dark jewel is actual lit 3D
+      // geometry, so neither compact nor focused views become flat stickers.
+      const ink = isHighlighted ? '#fffbd3' : '#fff4da';
       if (earthSymbol) {
-        // The astronomical Earth symbol drawn as geometry: the codepoint is
-        // missing from many serif faces (a tofu box is never crisp).
-        const R = 46, arm = 58;
         const pass = (color: string, width: number) => {
-          ctx.strokeStyle = color;
-          ctx.lineWidth = width;
-          ctx.beginPath();
-          ctx.arc(cx, cy, R, 0, Math.PI * 2);
-          ctx.moveTo(cx - arm, cy);ctx.lineTo(cx + arm, cy);
-          ctx.moveTo(cx, cy - R);ctx.lineTo(cx, cy + R);
-          ctx.stroke();
+          ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath();
+          ctx.arc(128, 128, 66, 0, Math.PI * 2);
+          ctx.moveTo(44, 128); ctx.lineTo(212, 128);
+          ctx.moveTo(128, 62); ctx.lineTo(128, 194); ctx.stroke();
         };
-        pass('#ffffff', 12);
-        pass('#080214', 5);
+        pass('#08040f', 20); pass(ink, 9);
       } else {
-        ctx.font = `bold ${Math.round(S * GLYPH_FACE_FRACTION)}px "Cinzel", "Cinzel Decorative", "Times New Roman", Georgia, serif`;
-        ctx.lineJoin = 'round';
-        ctx.miterLimit = 2;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#ffffff';
-        ctx.strokeText(text, cx, cy);
-        ctx.fillStyle = '#080214';
-        ctx.fillText(text, cx, cy);
+        ctx.font = 'bold 184px "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", serif';
+        ctx.lineWidth = 12; ctx.strokeStyle = '#08040f';
+        ctx.strokeText(text, 128, 138, 220);
+        ctx.fillStyle = ink; ctx.fillText(text, 128, 138, 220);
       }
-
-      // Subtext degree text with high-contrast dual outline
-      if (subText) {
-        ctx.font = `bold ${Math.round(S * DEGREE_FACE_FRACTION)}px "IBM Plex Mono", monospace`;
-        ctx.lineWidth = 7;
-        ctx.strokeStyle = '#05020a';
-        ctx.strokeText(subText, cx, 238);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(subText, cx, 238);
-      }
-
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.generateMipmaps = false;
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      // AUDIT2-CHART: ACES filmic tone mapping was lifting and desaturating
-      // every authored sprite colour — the saturated sign fills painted as
-      // pale mint/peach and the near-black glyphs washed toward white. Text
-      // sprites paint exactly the colours the canvas drew.
-      const mat = new THREE.SpriteMaterial({
-        map: texture,
-        transparent: true,
-        depthTest: false,
-        toneMapped: false,
-      });
-      const sprite = new THREE.Sprite(mat);
+      texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: texture, transparent: true, depthTest: false, toneMapped: false,
+      }));
+      const finalScale = isHighlighted ? scale * 1.1 : scale;
+      sprite.scale.set(finalScale, finalScale, 1);
+      sprite.userData.baseScale = sprite.scale.clone();
       sprite.userData.focused = isHighlighted;
       sprite.userData.crispLabel = true;
       sprite.userData.detailTexture = texture;
-      // A thumbnail keeps the glyph itself, without hanging crowns or tiny
-      // degree subtext consuming its entire orbit. Details stay in callouts.
-      const compactCanvas = document.createElement('canvas');
-      compactCanvas.width = canvas.width; compactCanvas.height = canvas.height;
-      const compact = compactCanvas.getContext('2d')!;
-      compact.scale(dpr, dpr);
-      compact.beginPath(); compact.arc(128, 128, 118, 0, Math.PI * 2);
-      compact.fillStyle = isHighlighted ? '#fff36b' : colorHex; compact.fill();
-      compact.lineWidth = 6; compact.strokeStyle = '#ffdf80'; compact.stroke();
-      compact.fillStyle = '#080214'; compact.strokeStyle = '#080214';
-      compact.textAlign = 'center'; compact.textBaseline = 'middle';
-      if (earthSymbol) {
-        compact.lineWidth = 11; compact.beginPath();
-        compact.arc(128, 128, 64, 0, Math.PI * 2);
-        compact.moveTo(46, 128); compact.lineTo(210, 128);
-        compact.moveTo(128, 64); compact.lineTo(128, 192); compact.stroke();
-      } else {
-        compact.font = 'bold 184px "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", serif';
-        compact.fillText(text, 128, 138, 218);
-      }
-      const compactTexture = new THREE.CanvasTexture(compactCanvas);
-      compactTexture.colorSpace = THREE.SRGBColorSpace;
-      compactTexture.generateMipmaps = false;
-      compactTexture.minFilter = THREE.LinearFilter;
-      compactTexture.magFilter = THREE.LinearFilter;
-      sprite.userData.compactTexture = compactTexture;
-      const finalScale = isHighlighted ? scale * 1.3 : scale;
-      sprite.scale.set(finalScale, finalScale, 1);
-      sprite.userData.baseScale = new THREE.Vector3(finalScale, finalScale, 1);
-      sprite.userData.minCssPx = Math.max(
-        MIN_GLYPH_CSS_PX / GLYPH_FACE_FRACTION,
-        subText ? MIN_DEGREE_CSS_PX / DEGREE_FACE_FRACTION : 0
-      );
+      sprite.userData.compactTexture = texture;
+      sprite.userData.minCssPx = MIN_GLYPH_CSS_PX / GLYPH_FACE_FRACTION;
       sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
       return sprite;
     }
@@ -1508,7 +1417,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const R_CENTER_RETICLE = 0.22;
     const earthGeo = new THREE.SphereGeometry(R_CENTER_RETICLE, 32, 32);
     const earthMat = new THREE.MeshStandardMaterial({
-      color: 0x228be6, // Celestial Earth ocean azure
+      color: 0x0c3d68, // A dark ocean jewel under the high-contrast Earth glyph.
       emissive: 0x0c325c,
       emissiveIntensity: 0.5,
       metalness: 0.85,
@@ -1536,11 +1445,16 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     // Floating Billboard Label above Earth Center
     const isEarthSelected = activeSelections.includes('Earth') || activeSelections.includes('Earth (Geocentric Origin)');
-    const earthSprite = createGlyphSprite('⊕', 'Earth', '#38bdf8', 0.36, isEarthSelected, true);
-    earthSprite.position.set(0, 0.36, 0);
+    const earthSprite = createGlyphSprite('⊕', '', '#38bdf8', 0.28, isEarthSelected, true);
+    earthSprite.position.copy(earthSphere.position);
+    earthSprite.userData.markerMesh = earthSphere;
     dynamicGroup.add(earthSprite);
     declutterObstacles.push({ object: earthSprite, radius: 0.2 });
     addGlyphLabel('⊕', earthSprite.position.clone());
+    const earthName = createDegreeLabel('Earth', isEarthSelected);
+    earthName.userData.visibilityWidth = 240;
+    earthName.userData.minimumTextCss = 11;
+    earthName.position.set(0, 0.05, 0.42); dynamicGroup.add(earthName);
 
     // Interactive Hit Sphere for Earth Origin (Tested first)
     const hitEarth = new THREE.Mesh(
@@ -1590,9 +1504,20 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const isSelected = activeSelections.includes(sign.name);
 
       // AUDIT-CHART: a saturated element fill under the dark, outlined glyph.
-      const zSprite = createGlyphSprite(sign.glyph, '', SIGN_ELEMENT_FILL[sign.element] || '#f5d77f', 0.32, isSelected);
+      const jewel = new THREE.Mesh(
+        new THREE.SphereGeometry(0.105, 24, 18),
+        new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color(SIGN_ELEMENT_FILL[sign.element] || '#f5d77f').multiplyScalar(0.2),
+          roughness: 0.22, metalness: 0.55, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 0.7,
+        })
+      );
+      jewel.position.set(zx, Y_SUPERIMPOSED + 0.08, zz);
+      jewel.userData.focused = isSelected; jewel.userData.crispLabel = true;
+      dynamicGroup.add(jewel);
+      const zSprite = createGlyphSprite(sign.glyph, '', SIGN_ELEMENT_FILL[sign.element] || '#f5d77f', 0.22, isSelected);
+      zSprite.userData.markerMesh = jewel;
       zSprite.userData.targetId = sign.name;
-      zSprite.position.set(zx, Y_SUPERIMPOSED + 0.1, zz);
+      zSprite.position.copy(jewel.position);
       dynamicGroup.add(zSprite);
       addGlyphLabel(sign.glyph, zSprite.position.clone());
       declutterObstacles.push({ object: zSprite, radius: 0.16 });
@@ -1610,7 +1535,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         accent: '#f2ca50',
       };
       dynamicGroup.add(hitMesh);
-      interactiveObjectsRef.current.push(hitMesh);
+      Object.assign(zSprite.userData, hitMesh.userData);
+      interactiveObjectsRef.current.push(zSprite, hitMesh);
     });
 
     // 2. HOUSE CUSPS & SPOKES
@@ -1650,7 +1576,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
       const badgeSprite = createGlyphSprite(
         h.label,
-        h.formattedDeg.split(' ')[0],
+        '',
         isSelected ? '#fff' : isCardo ? '#f2ca50' : '#d4af37',
         isSelected ? 0.35 : isCardo ? 0.3 : 0.24,
         isSelected || isCardo
@@ -1711,12 +1637,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       hCanvas.height = Math.round(LABEL_TEXTURE_CSS_PX * hDpr);
       const hCtx = hCanvas.getContext('2d')!;
       hCtx.scale(hDpr, hDpr);
-      hCtx.beginPath();hCtx.arc(128,128,102,0,Math.PI*2);
-      hCtx.fillStyle=isSelected?'#634618':'#100c1c';hCtx.fill();
-      hCtx.lineWidth=isSelected?14:8;hCtx.strokeStyle=isSelected?'#fff1ac':'#d4af37';hCtx.stroke();
       hCtx.font = `bold ${Math.round(LABEL_TEXTURE_CSS_PX * HOUSE_NUMBER_FACE_FRACTION)}px "IBM Plex Mono", monospace`;
-      hCtx.textAlign = 'center';hCtx.textBaseline = 'middle';
-      hCtx.fillStyle = '#fff2bd';hCtx.fillText(h.num.toString(),128,133);
+      hCtx.textAlign = 'center'; hCtx.textBaseline = 'middle';
+      hCtx.lineJoin = 'round'; hCtx.lineWidth = 15; hCtx.strokeStyle = '#08040f';
+      hCtx.strokeText(h.num.toString(), 128, 133);
+      hCtx.fillStyle = '#fff2bd'; hCtx.fillText(h.num.toString(), 128, 133);
 
       const hTex = new THREE.CanvasTexture(hCanvas);
       hTex.colorSpace = THREE.SRGBColorSpace;
@@ -1784,58 +1709,72 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     // 3. PLANETARY PLACEMENTS
     const bodyCoordinates: Record<string, { x: number; z: number; rad: number; r: number }> = {};
+    const bodyLanes = new Map<string, number>();
+    const placedBodies: Array<{ lon: number; lane: number }> = [];
+    [...chart.natalBodies].sort((left, right) => left.lon - right.lon).forEach(body => {
+      const used = new Set(placedBodies.filter(other => Math.abs(((body.lon - other.lon + 540) % 360) - 180) <= 12).map(other => other.lane));
+      const lane = [0, 3, 1, 2].find(candidate => !used.has(candidate)) ?? body.tier % 4;
+      bodyLanes.set(body.name, lane);
+      placedBodies.push({ lon: body.lon, lane });
+    });
 
     chart.natalBodies.forEach((body) => {
       const baseRad = lonToRad(body.lon);
-      const adjustedRad = baseRad + (body.clusterAngle || 0);
+      const adjustedRad = baseRad;
       const rTrack = R_PLANETS_TRACK - body.tier * 0.13;
 
       const x = Math.cos(adjustedRad) * rTrack;
       const z = Math.sin(adjustedRad) * rTrack;
 
-      bodyCoordinates[body.name] = { x, z, rad: baseRad, r: rTrack };
+      const anchor = new THREE.Vector3(Math.cos(baseRad) * R_PLANETS_TRACK, 0.08, Math.sin(baseRad) * R_PLANETS_TRACK);
+      bodyCoordinates[body.name] = { x: anchor.x, z: anchor.z, rad: baseRad, r: R_PLANETS_TRACK };
 
       const isSelected = activeSelections.includes(body.name);
-      const beadColorInt = parseInt(body.color.replace('#', '0x'), 16);
-
-      // Bold Christmas tree bauble 3D spherical ornament
-      const beadRadius = isSelected ? 0.11 : 0.082;
+      const beadRadius = isSelected ? 0.11 : 0.10;
       const beadGeo = new THREE.SphereGeometry(beadRadius, 24, 24);
       const beadMat = new THREE.MeshPhysicalMaterial({
-        color: beadColorInt,
-        emissive: beadColorInt,
-        emissiveIntensity: isSelected ? 0.9 : 0.45,
-        roughness: 0.1,
-        metalness: 0.88,
+        color: new THREE.Color(body.color).multiplyScalar(0.18),
+        emissive: new THREE.Color(body.color).multiplyScalar(0.035),
+        emissiveIntensity: isSelected ? 0.7 : 0.25,
+        roughness: 0.22,
+        metalness: 0.55,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.06,
+        clearcoatRoughness: 0.08,
+        envMapIntensity: 0.7,
       });
       const bead = new THREE.Mesh(beadGeo, beadMat);
       bead.name = body.name;
       bead.userData.focused = isSelected;
-      bead.position.set(x, 0.08, z);
+      bead.userData.crispLabel = true;
+      bead.position.set(x, 0.18 + (bodyLanes.get(body.name) || 0) * 0.12, z);
       dynamicGroup.add(bead);
+      const leader = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([anchor, bead.position.clone()]),
+        new THREE.LineBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.65, toneMapped: false, depthWrite: false })
+      );
+      leader.userData.focused = isSelected;
+      dynamicGroup.add(leader);
 
       const uncertainMoon = chart.input.birthTimeUnknown && body.name === 'Moon';
-      const sprite = createGlyphSprite(body.glyph, '', body.color, 0.4, isSelected);
-      sprite.position.set(x, 0.36, z);
+      const sprite = createGlyphSprite(body.glyph, '', body.color, 0.22, isSelected);
+      sprite.position.copy(bead.position);
+      sprite.userData.markerMesh = bead;
       dynamicGroup.add(sprite);
-      sprite.userData.glyphLabel = true;
-      declutterMovables.push({ sprite, origin: sprite.position.clone(), axis: new THREE.Vector3(Math.cos(adjustedRad), 0, Math.sin(adjustedRad)), offsets: [0, -0.24, 0.24, -0.48, 0.48, -0.72, 0.72], current: 0 });
+      declutterObstacles.push({ object: sprite, radius: beadRadius });
       const degreeLabel = createDegreeLabel(uncertainMoon ? '?' : body.degText, isSelected);
       const labelAxis = new THREE.Vector3(Math.cos(adjustedRad), 0, Math.sin(adjustedRad));
       degreeLabel.position.copy(sprite.position).addScaledVector(labelAxis, 0.32);
       dynamicGroup.add(degreeLabel);
       declutterMovables.push({ sprite: degreeLabel, origin: degreeLabel.position.clone(), axis: labelAxis, offsets: [0, 0.12, 0.24, 0.36, 0.48], current: 0 });
       addGlyphLabel(body.glyph, sprite.position.clone());
-      addEndpointLabel('NATAL', body.name, body.glyph, uncertainMoon ? 'Birth time needed' : body.fullDegText, new THREE.Vector3(x, 0.36, z), body.name, isSelected);
+      addEndpointLabel('NATAL', body.name, body.glyph, uncertainMoon ? 'Birth time needed' : body.fullDegText, bead.position.clone(), body.name, isSelected);
       bead.userData.targetId = sprite.userData.targetId = body.name;
 
       const hitPlanet = new THREE.Mesh(
-        new THREE.SphereGeometry(0.24, 10, 10),
+        new THREE.SphereGeometry(0.13, 12, 12),
         new THREE.MeshBasicMaterial({ visible: false })
       );
-      hitPlanet.position.set(x, 0.32, z);
+      hitPlanet.position.copy(bead.position);
       hitPlanet.userData = {
         componentId: body.name,
         selectable: !uncertainMoon,
@@ -1849,7 +1788,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       };
       dynamicGroup.add(hitPlanet);
       Object.assign(sprite.userData, hitPlanet.userData);
-      interactiveObjectsRef.current.push(sprite, hitPlanet);
+      Object.assign(bead.userData, hitPlanet.userData);
+      interactiveObjectsRef.current.push(sprite, bead, hitPlanet);
     });
 
     // Current sky is a separate cyan orbit. Longitudes use the same orientation as
@@ -1869,16 +1809,19 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const nearby = placed.filter(lon => Math.abs(((body.lon - lon + 540) % 360) - 180) < 11).length;
         placed.push(body.lon);
         const radius = 2.68 + Math.min(nearby, 2) * 0.24;
-        const position = new THREE.Vector3(Math.cos(rad) * radius, 0.10, Math.sin(rad) * radius);
-        currentCoordinates[body.target] = position;
+        const position = new THREE.Vector3(Math.cos(rad) * radius, 0.18 + Math.min(nearby, 3) * 0.12, Math.sin(rad) * radius);
+        const anchor = new THREE.Vector3(Math.cos(rad) * 2.68, 0.10, Math.sin(rad) * 2.68);
+        currentCoordinates[body.target] = anchor;
         const focused = activeSelections.includes(body.target);
         const bead = new THREE.Mesh(
           new THREE.SphereGeometry(focused ? 0.11 : 0.075, 20, 16),
-          new THREE.MeshPhysicalMaterial({ color: 0x8aefff, emissive: 0x26cde2, emissiveIntensity: focused ? 1.1 : 0.5, metalness: 0.5, roughness: 0.18 })
+          new THREE.MeshPhysicalMaterial({ color: 0x093d4d, emissive: 0x032530, emissiveIntensity: focused ? 0.7 : 0.25, metalness: 0.55, roughness: 0.22, clearcoat: 1, envMapIntensity: 0.7 })
         );
-        bead.position.copy(position); bead.userData.focused = focused; dynamicGroup.add(bead);
-        const sprite = createGlyphSprite(body.glyph, showAnnotations ? 'NOW ' + body.name : '', '#67e8f9', 0.34, focused);
-        sprite.position.copy(position); sprite.position.y = 0.37;
+        bead.position.copy(position); bead.userData.focused = focused; bead.userData.crispLabel = true; dynamicGroup.add(bead);
+        const leader = new THREE.Line(new THREE.BufferGeometry().setFromPoints([anchor, position]), new THREE.LineBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.6, toneMapped: false, depthWrite: false }));
+        leader.userData.focused = focused; dynamicGroup.add(leader);
+        const sprite = createGlyphSprite(body.glyph, '', '#67e8f9', 0.22, focused);
+        sprite.position.copy(position); sprite.userData.markerMesh = bead;
         sprite.userData.focused = focused; dynamicGroup.add(sprite);
         addGlyphLabel(body.glyph, sprite.position.clone());
         addEndpointLabel('NOW', body.name, body.glyph, body.fullDegText, sprite.position.clone(), body.target, focused);
@@ -1978,7 +1921,6 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     endpointLabelsRef.current = endpointLabels;
     glyphLabelsRef.current = glyphLabels;
     sizedSpritesRef.current = sizedLabels;
-    declutterMovables.sort((left, right) => Number(Boolean(right.sprite.userData.glyphLabel)) - Number(Boolean(left.sprite.userData.glyphLabel)));
     declutterRef.current = { movables: declutterMovables, obstacles: declutterObstacles };
     // Structural frame meshes are exempt and stay vivid at their recorded
     // focusBaseOpacity; only non-focused representational elements dim. The
