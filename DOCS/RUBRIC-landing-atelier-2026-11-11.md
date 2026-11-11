@@ -105,3 +105,21 @@ claims that the current page passes.
     another account's lore. Storage failure is reported honestly. Stories
     yield to questions, chart explanations and card narration, never overlap,
     and do not reveal the room's discoverable mechanics.
+19. **Table sign and brief marquee.** Outside seasonal cookie periods, the
+    proportional idle sign reads “FREE FRESH MACARONS”. During a reading it
+    briefly becomes the cinema-style souvenir marquee, with visible lights
+    and a short original parade-music flourish when room sound is admitted;
+    the real offer is US$30. Clicking opens the existing souvenir flow; no
+    invented coupon or payment success. It returns to the idle sign, fits the
+    table in full and inset rooms, respects mute/reduced motion, and leaves
+    Natally, her caption and the chart usable.
+20. **Status never moves the viewport.** Observe real voice download,
+    preparation and synthesis start/finish. The small status/progress surface
+    superimposes as translucent acrylic. Stage/inset bounds and scrollY stay
+    unchanged as it appears/disappears; the MB/percentage and retry remain
+    truthful. No whole-viewport reflow or jarring jump.
+21. **Reading cleanup.** Complete a planet/aspect explanation, interrupt one
+    with a new card/selection, then switch back to the atelier. At completion
+    the old explanation's selection/highlights/dimming clear and the whole
+    wheel returns to its neutral presentation. A stale completion never clears
+    the newer interaction's highlights. Verify in focused and floating views.
