@@ -1,0 +1,10 @@
+{
+  "authorization": "operator-approved-product",
+  "approvalRecord": "Robin 2026-11-11: restore voice loading bar + %, calibrate, pre-render; symbols illegible \u2014 ARCHITECTURE \u00a78.1/\u00a712.1 (5f0f784)",
+  "task": "VOICE-A",
+  "sourceRevision": "5f0f784afc4d5dd5e7b674f5083569cce88c50ff",
+  "ownedPaths": [
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/app/VoiceDownloadStatus.tsx",
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/main.tsx"
+  ]
+}
