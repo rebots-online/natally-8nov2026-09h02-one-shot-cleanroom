@@ -20,6 +20,24 @@
       "path": "dist/natally-v1.30.768/natally-v1.30.768-linux-x64.rpm",
       "bytes": 44298476,
       "sha256": "abbdb4021cda59ab48a8b9a3a99d52414177da5e9fd99e72749b7fa1aa4aa65d"
+    },
+    {
+      "kind": "windows-executable",
+      "path": "dist/natally-v1.30.768/natally-v1.30.768-windows-x64.exe",
+      "bytes": 27450368,
+      "sha256": "15b27fe4fb487c011fef10ec414d17eff2b5bb94a39e8c24def181cad84360c8"
+    },
+    {
+      "kind": "windows-x64-installer.exe",
+      "path": "dist/natally-v1.30.768/natally-v1.30.768-windows-x64-installer.exe",
+      "bytes": 20292097,
+      "sha256": "9c861640d31a539741c9cc1f1042fb0606d419151c2695dc6c0d53bede28995a"
+    },
+    {
+      "kind": "windows-msi",
+      "path": "dist/natally-v1.30.768/natally-v1.30.768-windows-x64.msi",
+      "bytes": 21527552,
+      "sha256": "114f812ae93f90bed0de5e63ae6808fca3785a860d282e905445051e4d016b75"
     }
   ],
   "targets": {
@@ -29,6 +47,16 @@
       "finishedAt": "2026-11-11T11:50:18.604Z"
     },
     "windows": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T11:50:18.604Z",
+      "finishedAt": "2026-11-11T11:53:02.431Z"
+    },
+    "windows-msi": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T11:53:02.431Z",
+      "finishedAt": "2026-11-11T11:53:03.691Z"
+    },
+    "android": {
       "state": "running"
     }
   }
