@@ -484,11 +484,16 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 5b. **Her ethos is present — she is a character, not a widget.** On the
    landing Natally is alive in her room exactly as the original landing had
    her (`src/landing-original/marketing.tsx`) and as `src/SOUL.md` defines
-   her: her welcome ("Come in. You can explore my room…") spoken once voice is
-   on; her authored stories and asides arriving when the room is quiet
+   her: her welcome spoken once voice is on — with NO reference to her
+   shelves, the things on them, grabbing, breaking or rehearsing; her authored stories and asides arriving when the room is quiet
    (`authoredNudges` / `content/backstory` `nextSpontaneousStory`), spoken
    with lipsync and shown as her words; her voice and register in every line.
    The scene, the swap and the cards never replace her presence.
+5c. **Easter eggs stay hidden (standing operator rule).** The shelf items,
+   grabbing them and their breakage are an Easter egg: nothing anywhere names,
+   hints at or exposes them — no "Rehearse breakage" control (not even in
+   dev builds), no copy, welcome, greeting, card, story or caption mentioning
+   shelves, trinkets, grabbing or breaking. Discovery is the customer's.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
