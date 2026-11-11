@@ -313,7 +313,7 @@ foot; increase stage height within visible viewport only as needed. Keep
 whole Natally, readable chart and two-line current-sentence caption clear of
 one another. Preserve the customer's manual geometry. Same type/proof gates.
 
-### DOMAIN-RETIREMENT — pending after the landing corrections
+### DOMAIN-RETIREMENT — [X] tracked reference migration written; runtime proof follows deployment
 
 Retire the old personal-domain URLs throughout first-party tracked repository
 text/configuration and scripts, including historical prose. Runtime landing

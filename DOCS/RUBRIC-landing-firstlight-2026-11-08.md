@@ -64,8 +64,8 @@ wordmark and primary action remain readable on narrow and wide screens.
 R6. Greeting, lesson and closing speech do not contain the immersion-breaking
 example/prediction disclaimers or pitch framing the operator ordered out.
 R7. Each finished change has its own meaningful commit and confirmed GitHub
-push. Only build_all.sh generates the next version; both dated staging hosts
-receive the same build. natally.robin.mba remains untouched.
+push. Only build_all.sh generates the next version; canonical publication
+targets astronatally.com and asknatally.online under the current rule 11.
 
 ## Native packaging run
 

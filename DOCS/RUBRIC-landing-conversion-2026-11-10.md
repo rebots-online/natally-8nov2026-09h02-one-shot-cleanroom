@@ -40,9 +40,9 @@ inspection and lint never substitute.
    entertainment-purpose notice remains the single footer line.
 8. **Reduced motion / no-JS truth** — with JS disabled the sections and CTAs
    still read and navigate (static anchors); noscript line still present.
-9. **Both dated hosts unchanged in role** — natally-8nov2026.robin.mba and
-   .surge.sh still deploy the same build first (rule 11), with landing CTAs
-   pointing to asknatally.online.
+9. **Purchased domains retain their roles** — astronatally.com serves the
+   landing and asknatally.online the app; canonical publication targets both
+   purchased domains (rule 11).
 10. **Version badge** — every surface (both new domains + dated hosts) shows
     the same new version stamp bottom-right after the deploy.
 

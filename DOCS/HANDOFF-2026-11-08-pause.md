@@ -2,7 +2,7 @@
 
 Repo: ~/natally-current → ~/github/natally-8nov2026-09h02-yetanothercleanroomrestart
 (origin github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom, PUBLIC;
-staging https://natally-8nov2026.robin.mba + https://natally-8nov2026.surge.sh, last
+staging https://retired-product-host + https://natally-8nov2026.surge.sh, last
 deployed build v1.12.765; journey screencast still pending Robin's sign-in.)
 
 ## In flight at pause (self-committing, no deploy after)
@@ -22,7 +22,7 @@ deployed build v1.12.765; journey screencast still pending Robin's sign-in.)
 1. git pull; check both slices landed (individual commits).
 2. npm run lint → bash build_all.sh → dual-publish both hosts (version stamp
    auto-increments).
-3. Live-verify against https://natally.robin.mba (the parity bar): scene,
+3. Live-verify against https://retired-product-host (the parity bar): scene,
    inset present at all scrolls, explore-placement selector works, CTA,
    badge; then Robin auditions voices via ?voice=FN.
 4. Then the F-journey screencast (sign-in authorized on staging).
@@ -36,3 +36,5 @@ deployed build v1.12.765; journey screencast still pending Robin's sign-in.)
 - Original repo (CascadeProjects/natally-ai-studio) untouched since the
   billing-repair morning; its own CHECKLIST items (BILLING-HOST purchase
   proof etc.) remain as recorded there.
+
+<!-- Historical retired product hostnames redacted 2026-11-11; unredacted operational originals retained in Admin-Manual. These records do not authorize deployment. -->

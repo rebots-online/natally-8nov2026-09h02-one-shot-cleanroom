@@ -101,7 +101,7 @@ inspection and lint never substitute.
    entertainment-purpose notice remains the single footer line.
 8. **Reduced motion / no-JS truth** — with JS disabled the sections and CTAs
    still read and navigate (static anchors); noscript line still present.
-9. **Both dated hosts unchanged in role** — natally-8nov2026.robin.mba and
+9. **Both dated hosts unchanged in role** — retired-product-host and
    .surge.sh still deploy the same build first (rule 11), with landing CTAs
    pointing to asknatally.online.
 10. **Version badge** — every surface (both new domains + dated hosts) shows
@@ -117,3 +117,5 @@ inspection and lint never substitute.
 
 
 VERIFY: run the dev server (`npm run dev`, port shown in output; open /app.html signed out) and exercise the contract; state exactly what you observed. Acceptance is by observed behaviour, not by code presence.
+
+<!-- Historical retired product hostnames redacted 2026-11-11; unredacted operational originals retained in Admin-Manual. These records do not authorize deployment. -->

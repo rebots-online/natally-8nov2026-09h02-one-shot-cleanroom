@@ -74,15 +74,15 @@ for birth place → coordinates/timezone. Frozen chart types in
 
 Canonical `build_all.sh` only. Every run stamps a new version
 (`version.json`/`version.txt`, shown bottom-right on every surface), deploys
-the web build first to both production hosts — natally-8nov2026.robin.mba and
+the web build first to both production hosts — retired-product-host and
 natally-8nov2026.surge.sh — then builds the native matrix (Linux, Windows via
-cross-compilation, Android). natally.robin.mba is cut over only by the
+cross-compilation, Android). retired-product-host is cut over only by the
 operator.
 
 ## Native packaging
 
 The canonical build is deploy-first and full-matrix: stamp once; compile web;
-publish to natally-8nov2026.robin.mba and natally-8nov2026.surge.sh; then run
+publish to retired-product-host and natally-8nov2026.surge.sh; then run
 Linux AppImage/deb/rpm, Windows x64 executable/NSIS and Android arm64 APK/AAB/
 native-symbol packaging. Native output lives in dist/natally-v<version>/.
 The original Tauri Rust host, capabilities, mascot icons and generated
@@ -145,3 +145,5 @@ current rewrite's dist-web/app.html is the bundled native entry.
 | Header placement | landing and app | **Intent:** people find navigation where every site puts it, without thinking. One header bar at the top: wordmark at the left (returns home), menu items inline beside it on wide screens, the account action at the top right; on narrow screens the items collapse into a standard menu button at the top right. No navigation stacked below the header or centred in its own rows. |
 | Menu items work | landing and app | Every item does what its label says the moment it is used — each section link scrolls to or opens that real section; an item with no real destination does not exist. No dead links, no items that only look clickable. |
 | One-click sign-in | landing and app | **Intent:** signing in is one action. "Sign in" starts Google sign-in directly (popup, with redirect fallback where popups are blocked) and, on success, lands the person in the app at their chart or first light — never an intermediate page with a second sign-in button. Every outcome is visible: success shows them signed in; cancellation returns them to where they were, saying so; any failure (popup blocked, unauthorised domain, network, configuration missing) shows a specific message where they clicked, naming what went wrong. Never silent. |
+
+<!-- Historical retired product hostnames redacted 2026-11-11; unredacted operational originals retained in Admin-Manual. These records do not authorize deployment. -->

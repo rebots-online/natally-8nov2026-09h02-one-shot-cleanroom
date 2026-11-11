@@ -1,1 +1,15 @@
-{"authorizedDomains": ["gen-lang-client-0714568880.firebaseapp.com", "gen-lang-client-0714568880.web.app", "localhost", "natally-8nov2026.robin.mba", "natally-astro-358982402678.us-west2.run.app", "natally-astro.ai.studio", "natally-chatterbox.surge.sh", "natally-test.surge.sh", "natally.robin.mba", "natally.surge.sh", "tauri.localhost"]}
+{
+  "authorizedDomains": [
+    "gen-lang-client-0714568880.firebaseapp.com",
+    "gen-lang-client-0714568880.web.app",
+    "localhost",
+    "natally-astro-358982402678.us-west2.run.app",
+    "natally-astro.ai.studio",
+    "natally-chatterbox.surge.sh",
+    "natally-test.surge.sh",
+    "natally.surge.sh",
+    "tauri.localhost"
+  ],
+  "_historicalSnapshot": "Retired product hostnames redacted on 2026-11-11; not live Firebase configuration.",
+  "_redactedRetiredProductHosts": 2
+}
