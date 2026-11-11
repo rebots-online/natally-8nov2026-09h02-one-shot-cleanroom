@@ -21,7 +21,7 @@ import OriginalFirstLight from '../../onboarding-original/FirstLight';
 import './onboarding.css';
 
 const GREETING =
- "Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table. Oh, and the stuff on my shelves? Grabbable. All of it. I only side-eye a little.";
+ "Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table for you, and the candles are behaving.";
 
 type Phase = 'welcome' | 'intake' | 'casting';
 

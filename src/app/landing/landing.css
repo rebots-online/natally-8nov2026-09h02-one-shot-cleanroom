@@ -1,17 +1,20 @@
 /* Landing copy cards beside the atelier (ARCHITECTURE §12.1 items 1–5).
    The signed-out page keeps the atelier as its stage — the fixed
    .scene-mount behind (app-shell.css) fills the viewport in both states,
-   atelier or focused chart — while this sheet paginates every piece of
-   landing copy onto short cards in a column docked against the right
-   edge of the viewport, like the sign-in card: off to the side, never
-   centred over Natally or the middle of the stage (§12.1 5a). The
-   column scrolls vertically through the document, so it stays at the
-   side for its whole scroll lifetime. Cards keep the app's dark-purple
-   .card surface as-is, so the surface, borders, headings and buttons
-   are inherited from app-shell.css / tokens.css rather than restated
-   here. Static anchors (section ids) keep the page readable and
-   navigable with JS disabled; nothing in this sheet animates, so
-   reduced-motion needs no exception. */
+   atelier or focused chart, on wide screens; on narrow screens the stage
+   is an in-flow top band with the cards after it (the narrow block
+   below) — while this sheet paginates every piece of landing copy onto
+   short cards in a column docked against the right edge of the viewport,
+   like the sign-in card: off to the side, never centred over Natally or
+   the middle of the stage (§12.1 5a). The column scrolls vertically
+   through the document, so it stays at the side for its whole scroll
+   lifetime. Cards keep the app's dark-purple .card surface as-is, so the
+   surface, borders, headings and buttons are inherited from
+   app-shell.css / tokens.css rather than restated here. Static anchors
+   (section ids) keep the page readable and navigable with JS disabled.
+   This sheet's two animations — the 450 ms pane-swap glide and the
+   karaoke caption's stillness — each carry their own reduced-motion
+   handling where they are defined. */
 
 .landing-cards {
   position: relative;
@@ -70,35 +73,144 @@
   text-align: center;
 }
 
-/* §12.1 5a on narrow screens: there is no side to dock to, so the
-   column runs below the stage — the first viewport is Natally's atelier
-   alone (her face uncovered), and the cards scroll up from the bottom
-   portion. Vertical flow is kept on purpose: the section tracker in
-   LandingCards.tsx follows vertical viewport overlap, which a fixed or
-   horizontally paged strip would collapse (clipped content inside a
-   fixed panel still reports viewport overlap), freezing the §12.1
-   item-4/5 stage swap. A consequence, accepted with that trade-off:
-   mid-read on narrow screens the cards pass over the focused chart
-   behind them, as any below-stage column must. */
+/* §12.1 5a on narrow screens: there is no side to dock to, so the stage
+   becomes an in-flow band pinned to the top of the document — the atelier
+   fills it from the viewport's top edge (no empty band above), and the
+   cards run below it in the document, after the stage, so they can never
+   cover the wheel in either state (operator: the cards covered the wheel
+   in chart view). The band is min(62dvh, 560px) tall; the artwork's 1.6
+   composition scales to the band's height (cropping the room's side
+   margins, never Natally at its centre) so no letterbox band can open
+   above or below it. Vertical flow is kept on purpose: the section
+   tracker in LandingCards.tsx follows vertical viewport overlap, which a
+   fixed or horizontally paged strip would collapse (clipped content
+   inside a fixed panel still reports viewport overlap), freezing the
+   §12.1 item-4/5 stage swap. The header moves to a fixed overlay so the
+   in-flow stage still starts at the viewport's top edge. */
 @media (max-width: 760px) {
+  body:has(.landing-cards) .scene-mount {
+    position: relative;
+    inset: auto;
+    height: min(62dvh, 560px);
+  }
+  body:has(.landing-cards) .scene-mount .atelier-scene__composition {
+    /* Scale to the band's height (its own aspect-ratio keeps the art
+       true); never narrower than the viewport, so the band is always
+       full. */
+    width: max(100%, calc(min(62dvh, 560px) * 1.6));
+  }
+  body:has(.landing-cards) .app-header--front {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+  }
   .landing-cards {
     width: auto;
     margin: 0 clamp(16px, 5vw, 40px);
-    padding-top: min(62dvh, 560px);
+    padding-top: clamp(12px, 3vh, 24px);
+  }
+  /* The wide-screen focused-chart inset (reserved clear of the card
+     column) does not apply here — the cards are below the stage, so the
+     fill takes the whole stage band. */
+  body:has(.landing-cards) .chart-inset-fill {
+    right: 0;
   }
 }
 
-/* §12.1 5a, focused-chart state: when the chart takes the stage
-   (.chart-inset-fill, an absolutely-positioned full-viewport layer owned
-   by the stage swap), its box ends at the card column's left edge so the
-   drawn wheel centres in the stage that remains — the column never
-   covers the chart. The stage re-measures its container on resize, so
-   the wheel re-renders circular and centred (verified). Scoped by
-   :has(.landing-cards) to the signed-out landing only; the
-   atelier-state inset (.chart-inset without -fill) and its face-aware
-   placement (§12.1 item 4 / §Chart inset) are untouched. */
-body:has(.landing-cards) .chart-inset-fill {
-  right: calc(min(400px, 34vw) + clamp(16px, 6vw, 96px));
+/* §12.1 4c, the glide: on this stage both panes animate together over
+   ~450 ms (eased) — the room pane carries its duration inline from
+   AppShell; this rule lifts the chart pane's own 200 ms default (inset.css)
+   to the same 450 ms for every re-layout: focus, unfocus, snap-back. A
+   pointer-tracked drag or resize still tracks 1:1 (data-dragging). */
+body:has(.landing-cards) .chart-inset:not([data-dragging='true']) {
+  transition:
+    left 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    top 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    width 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    height 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.landing-cards) .chart-inset:not([data-dragging='true']) {
+    transition: none;
+  }
+}
+
+/* The bottom voice-loading bar (.nv-bar, fixed, mounted by the entry):
+   while it is up, the landing's stage yields its strip — AppShell
+   publishes the bar's live height as --landing-voice-bar-h — so the
+   floating chart, the room pane and the focused fill all stay clear of
+   it (operator: the bar covered the floating chart's bottom). Wide fixed
+   stage only: on narrow screens the stage is the in-flow top band (its
+   bottom never reaches the bar), and a bottom offset there would shift
+   the relative band instead of sizing it. */
+@media (min-width: 761px) {
+  body:has(.landing-cards) .scene-mount {
+    bottom: var(--landing-voice-bar-h, 0px);
+  }
+}
+
+/* Her words shown as she speaks them (§12.1 5b): the karaoke caption over
+   the stage's foot, clear of the bottom bar, one line at a time with the
+   current word glowing brass. Renders nothing while she is silent. */
+.landing-caption .karaoke-caption {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(20px + var(--landing-voice-bar-h, 0px));
+  z-index: 60;
+  margin: 0;
+  max-width: min(680px, calc(100vw - 32px));
+  padding: 10px 18px;
+  border: 1px solid var(--plum-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--plum-deep) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--parchment);
+  box-shadow: 0 14px 38px rgba(3, 2, 8, 0.55);
+  pointer-events: none;
+}
+
+/* Wide screens: the caption centres on the stage — the area left of the
+   card column (its width + gutter, the same reservation the chart stage
+   uses) — so her words never sit under the cards (§12.1 5a). */
+@media (min-width: 761px) {
+  .landing-caption .karaoke-caption {
+    left: calc((100vw - (min(400px, 34vw) + clamp(16px, 6vw, 96px))) / 2);
+    max-width: min(
+      680px,
+      calc(100vw - min(400px, 34vw) - clamp(16px, 6vw, 96px) - 32px)
+    );
+  }
+}
+
+.landing-caption .karaoke-caption .is-glowing {
+  color: var(--brass-bright);
+}
+
+/* §12.1 5a, focused-chart state on wide screens: when the chart takes the
+   stage (.chart-inset-fill, an absolutely-positioned full-viewport layer
+   owned by the stage swap), its box ends at the card column's left edge so
+   the drawn wheel centres in the stage that remains — the column never
+   covers the chart. The stage re-measures its container on resize, so the
+   wheel re-renders circular and centred (verified). Scoped by
+   :has(.landing-cards) to the signed-out landing only, and to the wide
+   layout — on narrow screens the fill takes the whole in-flow stage band
+   (the override in the narrow block above). The atelier-state inset
+   (.chart-inset without -fill) and its face-aware placement (§12.1 item 4
+   / §Chart inset) are untouched. */
+@media (min-width: 761px) {
+  body:has(.landing-cards) .chart-inset-fill {
+    right: calc(min(400px, 34vw) + clamp(16px, 6vw, 96px));
+  }
 }
 
 /* §12.1 5a: on wide screens the chart's stage ends where the right-hand

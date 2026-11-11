@@ -69,6 +69,8 @@ import { chartTargets } from './chat/context';
 import { useAllowance, type ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
+import KaraokeCaption from './karaokeCaption';
+import { nextSpontaneousStory } from '../content/backstory';
 import { LandingCards, LANDING_SECTIONS } from './landing/LandingCards';
 import VersionBadge from './VersionBadge';
 import TopUpSheet from './TopUpSheet';
@@ -266,9 +268,33 @@ const CHART_STORE_PREFIX = 'natally.chart.v1:';
  * chart on the landing stage is cast from the birth data below through the
  * shared pipeline (computeAstrolabeChart); it carries no person's name. */
 /* The room pane while the chart fills the landing stage (§12.1 4c): a
- * corner card showing Natally whole, always inside the window. */
+ * corner card showing Natally whole, always inside the window. On narrow
+ * screens the stage is the top band (landing.css), so the pane floors at a
+ * readable size instead of the desktop formula's ~86 px sliver. */
 const LANDING_ROOM_PANE_WIDTH = 'min(22vw, 34vh * 1.6, 320px)';
+const LANDING_ROOM_PANE_WIDTH_NARROW = 'min(42vw, 200px)';
 const LANDING_ROOM_PANE_ASPECT = 1.6;
+/* §12.1 4c: focusing and unfocusing glide — both panes animate together
+ * over ~450 ms (eased). The room pane carries this duration on its inline
+ * transition; the chart's matching 450 ms rule lives in landing.css
+ * (scoped to this stage) beside the inset's own 200 ms default. */
+const LANDING_SWAP_MS = 450;
+const LANDING_SWAP_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+/* §12.1 5b: her welcome once voice is admitted — her register, and (5c) no
+ * word about shelves, trinkets, grabbing or breaking anywhere in it. */
+const LANDING_WELCOME =
+  "Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.";
+/* §12.1 5b: her authored stories arrive when the room is quiet — the same
+ * sparing cadence the signed-in conversation uses (useChat's idle story). */
+const LANDING_STORY_IDLE_MS = 60_000;
+/* §12.1 5c (standing operator rule): no story that mentions shelves,
+ * trinkets, grabbing, breaking or rehearsing is ever spoken on the landing;
+ * discovery stays the customer's. nextSpontaneousStory serves the shared
+ * round-robin cursor, so blocked entries are skipped, not deleted. */
+const LANDING_STORY_BLOCKLIST = /\b(shel(f|ves)|trinkets?|grab(bed|bing)?|broke(n)?|break(ing|s)?|rehears\w*)\b/i;
+const LANDING_STORY_MAX_PICKS = 12;
+/* The narrow-screen media query landing.css keys its in-flow stage band to. */
+const LANDING_NARROW_QUERY = '(max-width: 760px)';
 const PRODUCT_LANDING_HOSTS: readonly string[] = ['astronatally.com', 'www.astronatally.com'];
 const GID_FRAGMENT = 'gid';
 const EXAMPLE_BIRTH: BirthInput = {
@@ -299,15 +325,21 @@ function seedLandingPanePlacements(): void {
     if (localStorage.getItem(LANDING_INSET_STORAGE_KEY) === null) {
       const width = Math.max(1, window.innerWidth);
       const height = Math.max(1, window.innerHeight);
-      const size = Math.min(width * 0.36, height * 0.64);
+      // The inset measures the chart stage's box, and on narrow screens the
+      // stage is the in-flow top band (landing.css), not the window — seed
+      // fractions against the box the card will actually restore into.
+      const stageHeight = window.matchMedia(LANDING_NARROW_QUERY).matches
+        ? Math.min(height * 0.62, 560)
+        : height;
+      const size = Math.min(width * 0.36, stageHeight * 0.64);
       const marginX = Math.max(16, width * 0.04);
-      const marginY = Math.max(16, height * 0.04);
+      const marginY = Math.max(16, stageHeight * 0.04);
       localStorage.setItem(
         LANDING_INSET_STORAGE_KEY,
         JSON.stringify({
           mode: 'floating',
           x: marginX / width,
-          y: (height - marginY - size) / height,
+          y: (stageHeight - marginY - size) / stageHeight,
           w: size / width,
         }),
       );
@@ -384,11 +416,120 @@ export default function App() {
  // Today's sky for the landing's click readings (§12.1 4b), kept apart from
  // the signed-in chart's sky.
  const landingSkyRef = useRef<Promise<NatalChartResult> | null>(null);
+ // Narrow-screen layout (landing.css lays the stage out in flow as a top
+ // band): drives the room pane's corner size so Natally stays readable when
+ // the chart fills the stage (§12.1 4c).
+ const [landingNarrow, setLandingNarrow] = useState(
+  () => typeof window.matchMedia === 'function' && window.matchMedia(LANDING_NARROW_QUERY).matches,
+ );
+ useEffect(() => {
+  if (typeof window.matchMedia !== 'function') return;
+  const query = window.matchMedia(LANDING_NARROW_QUERY);
+  const onChange = () => setLandingNarrow(query.matches);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+ }, []);
 
  // Her voice, warmed by the onboarding's preload seam.
  const voiceRef = useRef<Voice | null>(null);
  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
  const voice = voiceRef.current;
+
+ // ---- Her living room on the landing (§12.1 5b) ----
+ // Once voice is admitted she welcomes the visitor (once); after that,
+ // each time the room falls quiet again for LANDING_STORY_IDLE_MS she
+ // speaks one of her authored stories. Every word she says on the landing
+ // is lipsynced by the atelier scene (the verbatim character follows the
+ // voice engine's word events) and shown as her words by the karaoke
+ // caption at the page's foot. A tap's passage stands the welcome down
+ // for the race — see landingExplainTap.
+ const landingWelcomeSpokenRef = useRef(false);
+ const landingStoryTimerRef = useRef<number | undefined>(undefined);
+ const clearLandingStoryTimer = () => {
+  window.clearTimeout(landingStoryTimerRef.current);
+  landingStoryTimerRef.current = undefined;
+ };
+ const speakLandingLine = (line: string) => {
+  voice.speakStream(line, { flush: true });
+ };
+ const scheduleLandingStory = useCallback(() => {
+  clearLandingStoryTimer();
+  landingStoryTimerRef.current = window.setTimeout(() => {
+   landingStoryTimerRef.current = undefined;
+   // The next authored story the standing immersion rule allows (§12.1
+   // 5c); if the whole round-robin turn is blocked, this quiet moment
+   // passes in silence — never a word about the room's magic.
+   for (let pick = 0; pick < LANDING_STORY_MAX_PICKS; pick += 1) {
+    const story = nextSpontaneousStory();
+    if (!LANDING_STORY_BLOCKLIST.test(story)) {
+     speakLandingLine(story);
+     return;
+    }
+   }
+  }, LANDING_STORY_IDLE_MS);
+ }, [voice]);
+ useEffect(() => {
+  if (auth.status !== 'signedOut') return;
+  const unsubscribe = voice.onState(state => {
+   if (!state.admitted) return;
+   if (state.speaking) {
+    clearLandingStoryTimer();
+    return;
+   }
+   // Voice admitted and the room just went quiet: her welcome first
+   // (once), then a story each further time the quiet settles.
+   if (!landingWelcomeSpokenRef.current) {
+    landingWelcomeSpokenRef.current = true;
+    speakLandingLine(LANDING_WELCOME);
+    return;
+   }
+   scheduleLandingStory();
+  });
+  return () => {
+   unsubscribe();
+   clearLandingStoryTimer();
+  };
+ }, [auth.status, voice, scheduleLandingStory]);
+
+ // The landing's first gesture admits her voice — the same rule as the
+ // signed-in opening — so her welcome can arrive (§12.1 5b); a first
+ // gesture that is a chart tap explains instead (see landingExplainTap).
+ useEffect(() => {
+  if (auth.status !== 'signedOut' || voice.admitted) return;
+  const admit = () => voice.admit();
+  window.addEventListener('pointerdown', admit, { once: true });
+  window.addEventListener('keydown', admit, { once: true });
+  return () => {
+   window.removeEventListener('pointerdown', admit);
+   window.removeEventListener('keydown', admit);
+  };
+ }, [auth.status, voice]);
+
+ // The bottom voice-loading bar (.nv-bar, mounted by the entry beside
+ // #root) overlays the viewport while her voice downloads. The landing's
+ // stage yields that strip — its live height is published as
+ // --landing-voice-bar-h (landing.css shrinks the stage by it) so both
+ // floating panes stay clear of the bar at every width (operator: the bar
+ // covered the floating chart's bottom at 1280×720).
+ useEffect(() => {
+  if (auth.status !== 'signedOut') return;
+  const apply = () => {
+   const bar = document.querySelector('.nv-bar');
+   const px = bar instanceof HTMLElement ? Math.round(bar.offsetHeight) : 0;
+   document.documentElement.style.setProperty('--landing-voice-bar-h', `${px}px`);
+  };
+  const observer = new MutationObserver(() => {
+   window.requestAnimationFrame(apply);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('resize', apply);
+  apply();
+  return () => {
+   observer.disconnect();
+   window.removeEventListener('resize', apply);
+   document.documentElement.style.removeProperty('--landing-voice-bar-h');
+  };
+ }, [auth.status]);
 
  const chartKey =
   chart === null
@@ -452,15 +593,19 @@ export default function App() {
   else driver.finish();
  };
 
- // The landing's own driver (§12.1 4b): a tapped component's passage rides
- // the same cue→speech playback, but drives the landing's presentation
- // state — highlights, and the view swap a passage's [[view:chart]] cue
- // asks for when no manual choice has been made yet.
+ // The landing's own driver (§12.1 4b, 4c): a tapped component's passage
+ // rides the same cue→speech playback, but drives the landing's
+ // presentation state — highlights, and the view swaps her passage asks
+ // for as her voice reaches them. Her view cues are dispatched as manual
+ // choices: the passage began with the visitor's tap, and while she
+ // explains her words own the view — to the chart when she points at it,
+ // back to her when she speaks to you — regardless of any earlier manual
+ // choice (which would otherwise turn cue-following off for good).
  const landingDriverRef = useRef<PlaybackDriver | null>(null);
  if (landingDriverRef.current === null) {
   landingDriverRef.current = createPlayback((cue: Cue) => {
    if (cue.action.type === 'view') {
-    dispatchLanding({ type: 'view', view: cue.action.view });
+    dispatchLanding({ type: 'view', view: cue.action.view, manual: true });
    } else if (cue.action.type === 'focus') {
     dispatchLanding({ type: 'focus', targets: cue.action.targets });
    } else {
@@ -711,6 +856,11 @@ export default function App() {
    console.error('explainTarget: no passage for tapped target', target, cause);
    return;
   }
+  // §12.1 4c on the landing: the passage closes speaking to the visitor
+  // (its last line is her question to them), so the stage returns to her
+  // as those words end — a trailing view cue the driver applies when her
+  // voice reaches it (or flushes when speech ends).
+  raw = `${raw} [[view:atelier]]`;
   const parsed = parseReply(raw, chartTargets(natal, sky));
   voice.stop();
   handleLandingReplyEvent({ phase: 'begin' });
@@ -723,7 +873,10 @@ export default function App() {
   tapClaimedSeqRef.current = pressSeqRef.current;
   // The tap is itself the gesture that admits her voice, and it brings the
   // chart forward at once (§12.1 4b); the passage's cues then highlight
-  // each involved element as she speaks.
+  // each involved element as she speaks. When this tap is the visit's
+  // first gesture, her answer is her first words — the welcome would only
+  // race and cut across it, so it stands down for this visit.
+  landingWelcomeSpokenRef.current = true;
   voice.admit();
   dispatchLanding({ type: 'view', view: 'chart', manual: true });
   if (exampleNatal === null) return;
@@ -951,6 +1104,12 @@ export default function App() {
  }
 
  if (auth.status === 'signedOut') {
+  // The room pane's corner size follows the layout: the desktop formula
+  // shrinks to an ~86 px sliver on a phone, so narrow screens keep her
+  // whole and readable at a floored width instead (§12.1 4c).
+  const roomPaneWidth = landingNarrow
+   ? LANDING_ROOM_PANE_WIDTH_NARROW
+   : LANDING_ROOM_PANE_WIDTH;
   if (gidHandoffSigningIn) {
    // The #gid= handoff is signing the visitor in (§12.1 item 7): only a
    // status line while it runs — no sign-in click is ever asked for again.
@@ -999,22 +1158,35 @@ export default function App() {
             Both states are a re-layout of the same scene — never a remount —
             and the geometry stays on left/top/width/height in either state
             so the swap glides like the inset's own moves. */}
-    <div className="scene-mount" ref={landingStageRootRef}>
+    <div
+     className="scene-mount"
+     ref={landingStageRootRef}
+     onPointerDownCapture={() => {
+      pressSeqRef.current += 1;
+     }}
+    >
      <div
+      title={landingChartFocused ? 'Back to the atelier' : undefined}
+      onClick={() => {
+       // §12.1 4a, the way back: while the chart fills the stage, a tap on
+       // Natally's corner card returns the atelier to the stage — the same
+       // press-claimed swap a tap on the floating chart uses to focus it.
+       if (landingChartFocused) landingSwapInsetView();
+      }}
       style={{
        position: 'absolute',
        zIndex: 1,
        display: 'flex',
        alignItems: 'center',
        overflow: 'hidden',
-       transition:
-        'left 200ms ease, top 200ms ease, width 200ms ease, height 200ms ease, border-radius 200ms ease, box-shadow 200ms ease',
+       cursor: landingChartFocused ? 'pointer' : undefined,
+       transition: `left ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, top ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, width ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, height ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, border-radius ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, box-shadow ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}`,
        ...(landingChartFocused
         ? {
            left: 'max(16px, 4vw)',
-           top: `calc(100% - max(16px, 4vh) - ${LANDING_ROOM_PANE_WIDTH} / ${LANDING_ROOM_PANE_ASPECT})`,
-           width: LANDING_ROOM_PANE_WIDTH,
-           height: `calc(${LANDING_ROOM_PANE_WIDTH} / ${LANDING_ROOM_PANE_ASPECT})`,
+           top: `calc(100% - max(16px, 4vh) - ${roomPaneWidth} / ${LANDING_ROOM_PANE_ASPECT})`,
+           width: roomPaneWidth,
+           height: `calc(${roomPaneWidth} / ${LANDING_ROOM_PANE_ASPECT})`,
            borderRadius: '12px',
            boxShadow:
             'inset 0 0 0 1px rgba(215, 182, 119, 0.28), 0 14px 38px rgba(3, 2, 8, 0.55)',
@@ -1137,6 +1309,11 @@ export default function App() {
      onSignIn={() => void signIn()}
      signingIn={signingIn}
     />
+    {/* Her words shown as she speaks them (§12.1 5b): welcome, a tapped
+            passage, a quiet story — karaoke-paced, above the bottom bar. */}
+    <div className="landing-caption">
+     <KaraokeCaption />
+    </div>
     <VersionBadge />
    </>
   );

@@ -9,6 +9,29 @@ import { beginInteractionEpisode, chartAnalyticsTarget, trackInteraction } from 
 
 type AstrolabeRenderer = THREE.WebGLRenderer | SVGRenderer;
 
+// Deliberate local additions (§16.12 pending AUDIT-CHART): the legibility
+// floor for every glyph and label sprite on the wheel. Textures are drawn at
+// 256 logical px × devicePixelRatio (never upscaled into sampling blur), and
+// sprites are held to a minimum on-screen CSS-pixel size derived each frame
+// from the renderer's own pixel size — so nothing shrinks with the canvas,
+// and nothing is ever darker or blurrier than before.
+const LABEL_TEXTURE_CSS_PX = 256;
+const MIN_GLYPH_CSS_PX = 14;
+const MIN_DEGREE_CSS_PX = 11;
+const GLYPH_FACE_FRACTION = 0.42; // glyph face height as a fraction of the sprite
+const DEGREE_FACE_FRACTION = 0.22; // degree/subtext face height as a fraction of the sprite
+const HOUSE_NUMBER_FACE_FRACTION = 0.58; // house numeral face height as a fraction of the sprite
+const labelDevicePixelRatio = () => Math.min(window.devicePixelRatio || 1, 2);
+// Saturated sign-bauble fills by element (AUDIT-CHART): a dark, outlined
+// glyph on a bright saturated disc reads at every inset size — pale-on-pale
+// did not.
+const SIGN_ELEMENT_FILL: Record<string, string> = {
+  Fire: '#ff6a3d',
+  Earth: '#46c26a',
+  Air: '#54a8ff',
+  Water: '#35c3f2',
+};
+
 const hideTier3Sprites = (scene: THREE.Scene) => {
   scene.traverse(object => {
     if ((object as THREE.Sprite).isSprite) object.visible = false;
@@ -106,6 +129,14 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   // chart rebuild and every new pointerdown.
   const pendingInsetSelectionRef = useRef<(() => void) | null>(null);
   const chartEpochRef = useRef<NatalChartResult | null>(null);
+  // Deliberate local additions (§16.12 pending AUDIT-CHART): a tapped aspect
+  // owns the wheel's highlight until something else is tapped — the shell's
+  // spoken echo may lag or omit the aspect, but the operator sees the line
+  // and both its bodies light up on the tap itself.
+  const [localAspectFocus, setLocalAspectFocus] = useState<string | null>(null);
+  // Every glyph/label sprite with its on-screen minimum, re-clamped each
+  // frame by the render loop (AUDIT-CHART).
+  const sizedSpritesRef = useRef<Array<{ sprite: THREE.Sprite; minCssPx: number }>>([]);
   const queueInsetSelection = (fire: () => void) => {
     if (reducedMotionRef.current) { pendingInsetSelectionRef.current = null; fire(); return; }
     pendingInsetSelectionRef.current = fire;
@@ -161,8 +192,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   // Expand exact, calculated relationships for manual selections and spoken cues alike.
   // A lone planet does not imply every aspect touching it is the current subject.
   const activeSelections = useMemo(() => {
-    const seeds = highlightedComponents.length ? highlightedComponents : [
-      ...selectedComponents, ...(selectedPlanetName ? [selectedPlanetName] : []),
+    const localFocus = localAspectFocus ? [localAspectFocus] : [];
+    const seeds = highlightedComponents.length ? [
+      ...highlightedComponents, ...localFocus,
+    ] : [
+      ...selectedComponents, ...(selectedPlanetName ? [selectedPlanetName] : []), ...localFocus,
     ];
     // Deliberate local addition (§16.12 pending INSET): highlightedComponents
     // arrives as interface target names ("Sun trine Moon", "now Mars square
@@ -192,7 +226,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     aspects.forEach(a => { if (selected.has(a.name)) { selected.add(a.from); selected.add(a.to); } });
     aspects.forEach(a => { if (selected.has(a.from) && selected.has(a.to)) selected.add(a.name); });
     return Array.from(selected);
-  }, [chart, selectedComponents.join('\0'), selectedPlanetName, highlightedComponents.join('\0')]);
+  }, [chart, selectedComponents.join('\0'), selectedPlanetName, highlightedComponents.join('\0'), localAspectFocus]);
   const activeSelectionsRef = useRef(activeSelections);
   activeSelectionsRef.current = activeSelections;
   const toggleComponentRef = useRef(onToggleComponent);
@@ -439,10 +473,14 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     let clickInput: 'pointer' | 'touch' | 'unknown' = 'unknown';
     let hoverTarget: THREE.Object3D | null = null;
     let hoverPointer: { x: number; y: number } | null = null;
+    // Deliberate local addition (§16.12 pending AUDIT-CHART): the hovered
+    // element's own world hit point and extent anchor the callout, so it can
+    // sit clear of the element with a visible gap instead of on top of it.
+    let hoverAnchor: { point: THREE.Vector3; extent: number } | null = null;
     const boundary = container.closest<HTMLElement>('[data-chart-callout-boundary]');
     const isInset = () => boundary?.dataset.chartInset === 'true';
     const dismissHover = () => {
-      hoverTarget = null;hoverPointer = null;isHovered = false;
+      hoverTarget = null;hoverPointer = null;hoverAnchor = null;isHovered = false;
       setAspectHoverRef.current(null);endChartHover('cancelled');
       tooltipEl.style.opacity = '0';tooltipEl.style.visibility = 'hidden';
       renderer.domElement.style.cursor = 'default';
@@ -582,6 +620,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       if (!report) return false;
       const name = componentTapNameRef.current(data);
       if (!name) return false;
+      // AUDIT-CHART: a tapped aspect owns the wheel's highlight (the line and
+      // both its bodies, via activeSelections) until something else is tapped;
+      // a tapped non-aspect releases it.
+      if (data.aspectName) setLocalAspectFocus(previous => (previous === name ? null : name));
+      else setLocalAspectFocus(null);
       const analytics = chartAnalyticsTarget(data.componentId || data.planetName || data.houseName || data.aspectName || '');
       if (isTrusted && analytics) trackInteraction('chart_item_select', {
         ...analytics, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
@@ -600,7 +643,27 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       raycaster.setFromCamera(mouse, camera);
       if (pickChartTargets()[0]?.object !== hoverTarget) { dismissHover();return; }
       tooltipEl.style.transition = reducedMotionRef.current ? 'none' : 'opacity 0.15s ease';
-      if (!placeChartCallout(tooltipEl, hoverPointer, isInset() && boundary ? boundary.getBoundingClientRect() : null)) dismissHover();
+      // AUDIT-CHART: hand the placement helper a point derived from the
+      // hovered element's projected screen extent, not the raw pointer — the
+      // callout then sits one visible gap beyond the element, on the side
+      // with room inside the pane.
+      let placePoint = hoverPointer;
+      if (hoverAnchor) {
+        const projected = hoverAnchor.point.clone().project(camera);
+        const centerX = (projected.x + 1) * rect.width / 2 + rect.left;
+        const centerY = (1 - projected.y) * rect.height / 2 + rect.top;
+        const distance = camera.position.distanceTo(hoverAnchor.point);
+        const pxPerWorld = distance > 0
+          ? rect.height / (2 * distance * Math.tan((camera.fov * Math.PI) / 360))
+          : 0;
+        if (pxPerWorld > 0) {
+          const gap = Math.max(12, hoverAnchor.extent * pxPerWorld + 6);
+          const cardHeight = tooltipEl.offsetHeight || 110;
+          const roomAbove = centerY - gap - cardHeight >= rect.top;
+          placePoint = { x: centerX, y: roomAbove ? centerY - gap : centerY + gap };
+        }
+      }
+      if (!placeChartCallout(tooltipEl, placePoint, isInset() && boundary ? boundary.getBoundingClientRect() : null)) dismissHover();
     };
 
     const onMouseMove = (event: MouseEvent) => {
@@ -629,6 +692,14 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         if (event.isTrusted) observeChartHover(data.componentId || data.planetName || data.houseName || data.aspectName);
         setAspectHoverRef.current(data.aspectName || (isInset() ? data.componentId || data.planetName || data.houseName : null) || null);
         hoverTarget = intersects[0].object;hoverPointer = {x:event.clientX,y:event.clientY};
+        // AUDIT-CHART: remember what is being described, not just where the
+        // pointer sits, so the callout can keep a gap off of it.
+        hoverAnchor = {
+          point: intersects[0].point.clone(),
+          extent: intersects[0].object instanceof THREE.Sprite
+            ? Math.max(intersects[0].object.scale.x, intersects[0].object.scale.y) * 0.5
+            : intersects[0].object.userData.aspectName ? 0.1 : 0.26,
+        };
         isHovered = true;
         renderer.domElement.style.cursor = data.selectable === false ? 'help' : 'pointer';
 
@@ -870,6 +941,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     let disposed = false;
     let contextLost = false;
     let lastTier3Render = 0;
+    const sizedSpriteWorld = new THREE.Vector3();
     const renderFrame = () => {
       renderer.render(scene, camera);
       if (tier === 3) renderer.domElement.style.backgroundColor = 'transparent';
@@ -906,11 +978,32 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         }
       }
 
+      const bounds = container.getBoundingClientRect();
+      // Deliberate local addition (§16.12 pending AUDIT-CHART): every glyph
+      // and label sprite is held to its minimum on-screen size, measured from
+      // the renderer's actual pixel size each frame — zoom, the pane swap and
+      // inset resizes all re-derive it, so symbols never shrink with the
+      // canvas into illegibility and never grow blurrier than their texture.
+      if (bounds.height > 0) {
+        const halfFovTan = Math.tan((camera.fov * Math.PI) / 360);
+        sizedSpritesRef.current.forEach(({ sprite, minCssPx }) => {
+          const base = sprite.userData.baseScale as THREE.Vector3 | undefined;
+          if (!base || !sprite.parent) return;
+          sprite.getWorldPosition(sizedSpriteWorld);
+          const distance = camera.position.distanceTo(sizedSpriteWorld);
+          if (distance <= 0) return;
+          const pxPerWorld = bounds.height / (2 * distance * halfFovTan);
+          const boost = typeof sprite.userData.hoverScaleFactor === 'number' ? sprite.userData.hoverScaleFactor : 1;
+          const onScreenPx = base.y * boost * pxPerWorld;
+          if (onScreenPx <= 0) return;
+          const floor = Math.max(1, minCssPx / onScreenPx);
+          sprite.scale.set(base.x * boost * floor, base.y * boost * floor, 1);
+        });
+      }
       renderFrame();
       refreshCallout();
       // HTML text retains real screen-pixel size when the whole chart becomes the inset.
       // It sits above the WebGL halo rather than being blurred into its texture.
-      const bounds = container.getBoundingClientRect();
       const inverseScale = bounds.width > 0 ? container.clientWidth / bounds.width : 1;
       const labelWidth = Math.min(178, Math.max(110, bounds.width - 16));
       const occupied: Array<{ x: number; y: number }> = [];
@@ -1062,6 +1155,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     }
     interactiveObjectsRef.current = [];
     haloMaterialsRef.current = [];
+    sizedSpritesRef.current = [];
 
     const R_TORUS_TRACK = 2.05;
     const R_TORUS_TUBE = 0.38;
@@ -1078,84 +1172,99 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     }
 
     const glyphLabels: typeof glyphLabelsRef.current = [];
-    const addGlyphLabel = (text: string, point: THREE.Vector3) => {
-      if (rendererTierRef.current !== 3) return;
-      if (containerRef.current?.closest<HTMLElement>('[data-chart-callout-boundary]')?.dataset.chartInset === 'true') return;
-      const element = document.createElement('div');
-      element.textContent = text;
-      Object.assign(element.style, { position: 'absolute', top: '0', left: '0', zIndex: '13', pointerEvents: 'none', transformOrigin: '50% 50%', color: '#fff8e1', fontFamily: '"Cinzel", Georgia, serif', fontWeight: '700', fontSize: '17px', textShadow: '0 0 4px #000000, 0 1px 3px #000000', whiteSpace: 'nowrap' });
-      containerRef.current?.append(element);
-      glyphLabels.push({ element, point });
-    }
-
+    // AUDIT-CHART: every authored label sprite registers here with its
+    // on-screen minimum; the render loop holds each to it.
+    const sizedLabels: Array<{ sprite: THREE.Sprite; minCssPx: number }> = [];
     function createGlyphSprite(
       text: string,
       subText: string,
       colorHex: string,
       scale = 0.36,
-      isHighlighted = false
+      isHighlighted = false,
+      earthSymbol = false
     ): THREE.Sprite {
+      // AUDIT-CHART: drawn at 256 logical px × devicePixelRatio — dense
+      // enough that the sprite is never sampled above its native density, so
+      // glyphs and degree text stay crisp at every inset and focus size.
+      const dpr = labelDevicePixelRatio();
+      const S = LABEL_TEXTURE_CSS_PX;
       const canvas = document.createElement('canvas');
-      canvas.width = 128;
-      canvas.height = 128;
+      canvas.width = Math.round(S * dpr);
+      canvas.height = Math.round(S * dpr);
       const ctx = canvas.getContext('2d')!;
-      ctx.clearRect(0, 0, 128, 128);
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, S, S);
 
       // 1. Christmas bauble golden metallic hanger crown & loop at top
       ctx.fillStyle = '#ffd700';
-      ctx.fillRect(57, 4, 14, 10);
+      ctx.fillRect(114, 8, 28, 20);
       ctx.beginPath();
-      ctx.arc(64, 5, 5, 0, Math.PI * 2);
-      ctx.lineWidth = 2.5;
+      ctx.arc(128, 10, 10, 0, Math.PI * 2);
+      ctx.lineWidth = 5;
       ctx.strokeStyle = '#ffe57f';
       ctx.stroke();
 
       // 2. Bold, rich jewel-toned Christmas bauble spherical disc base
+      const cx = 128, cy = 116, r = 84;
       ctx.beginPath();
-      ctx.arc(64, 52, 42, 0, Math.PI * 2);
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = isHighlighted ? '#fef08a' : colorHex;
       ctx.fill();
 
       // 3. Outer golden metallic ornament rim
-      ctx.lineWidth = isHighlighted ? 5 : 3.5;
+      ctx.lineWidth = isHighlighted ? 10 : 7;
       ctx.strokeStyle = isHighlighted ? '#ffffff' : '#ffd875';
       ctx.stroke();
 
-      // 4. Spherical radial gloss specular highlight (Christmas bauble glass reflection)
-      const grad = ctx.createRadialGradient(48, 38, 4, 64, 52, 42);
-      grad.addColorStop(0, 'rgba(255,255,255,0.72)');
-      grad.addColorStop(0.35, 'rgba(255,255,255,0.22)');
-      grad.addColorStop(0.75, 'rgba(0,0,0,0.12)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.58)');
+      // 4. Spherical radial gloss specular highlight — kept light at the rim
+      // so the saturated fill and its glyph never read darker than before.
+      const grad = ctx.createRadialGradient(96, 76, 8, cx, cy, r);
+      grad.addColorStop(0, 'rgba(255,255,255,0.70)');
+      grad.addColorStop(0.35, 'rgba(255,255,255,0.20)');
+      grad.addColorStop(0.75, 'rgba(0,0,0,0.06)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.28)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(64, 52, 42, 0, Math.PI * 2);
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fill();
 
-      // 5. High-contrast symbol: Dark glyph surrounded by a crisp thin light border
-      ctx.font = 'bold 54px "Cinzel", "Cinzel Decorative", "Times New Roman", Georgia, serif';
+      // 5. High-contrast symbol: dark glyph surrounded by a crisp light border
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-
-      // Crisp thin light/white border for immediate visual pop on any background
-      ctx.lineWidth = 6;
-      ctx.lineJoin = 'round';
-      ctx.miterLimit = 2;
-      ctx.strokeStyle = '#ffffff';
-      ctx.strokeText(text, 64, 52);
-
-      // Deep bold dark glyph fill for maximum contrast
-      ctx.fillStyle = '#080214'; // deep dark cosmic ink
-      ctx.fillText(text, 64, 52);
+      if (earthSymbol) {
+        // The astronomical Earth symbol drawn as geometry: the codepoint is
+        // missing from many serif faces (a tofu box is never crisp).
+        const R = 46, arm = 58;
+        const pass = (color: string, width: number) => {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          ctx.arc(cx, cy, R, 0, Math.PI * 2);
+          ctx.moveTo(cx - arm, cy);ctx.lineTo(cx + arm, cy);
+          ctx.moveTo(cx, cy - R);ctx.lineTo(cx, cy + R);
+          ctx.stroke();
+        };
+        pass('#ffffff', 12);
+        pass('#080214', 5);
+      } else {
+        ctx.font = `bold ${Math.round(S * GLYPH_FACE_FRACTION)}px "Cinzel", "Cinzel Decorative", "Times New Roman", Georgia, serif`;
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = 11;
+        ctx.strokeStyle = '#ffffff';
+        ctx.strokeText(text, cx, cy);
+        ctx.fillStyle = '#080214';
+        ctx.fillText(text, cx, cy);
+      }
 
       // Subtext degree text with high-contrast dual outline
       if (subText) {
-        ctx.font = 'bold 20px "IBM Plex Mono", monospace';
-        ctx.lineWidth = 4;
+        ctx.font = `bold ${Math.round(S * DEGREE_FACE_FRACTION)}px "IBM Plex Mono", monospace`;
+        ctx.lineWidth = 7;
         ctx.strokeStyle = '#05020a';
-        ctx.strokeText(subText, 64, 108);
+        ctx.strokeText(subText, cx, 238);
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(subText, 64, 108);
+        ctx.fillText(subText, cx, 238);
       }
 
       const texture = new THREE.CanvasTexture(canvas);
@@ -1168,7 +1277,22 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       sprite.userData.focused = isHighlighted;
       const finalScale = isHighlighted ? scale * 1.3 : scale;
       sprite.scale.set(finalScale, finalScale, 1);
+      sprite.userData.baseScale = new THREE.Vector3(finalScale, finalScale, 1);
+      sprite.userData.minCssPx = Math.max(
+        MIN_GLYPH_CSS_PX / GLYPH_FACE_FRACTION,
+        subText ? MIN_DEGREE_CSS_PX / DEGREE_FACE_FRACTION : 0
+      );
+      sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
       return sprite;
+    }
+    const addGlyphLabel = (text: string, point: THREE.Vector3) => {
+      if (rendererTierRef.current !== 3) return;
+      if (containerRef.current?.closest<HTMLElement>('[data-chart-callout-boundary]')?.dataset.chartInset === 'true') return;
+      const element = document.createElement('div');
+      element.textContent = text;
+      Object.assign(element.style, { position: 'absolute', top: '0', left: '0', zIndex: '13', pointerEvents: 'none', transformOrigin: '50% 50%', color: '#fff8e1', fontFamily: '"Cinzel", Georgia, serif', fontWeight: '700', fontSize: '17px', textShadow: '0 0 4px #000000, 0 1px 3px #000000', whiteSpace: 'nowrap' });
+      containerRef.current?.append(element);
+      glyphLabels.push({ element, point });
     }
 
     // 0. GEOCENTRIC CENTER: 🜨 EARTH (TERRA) FOCAL OBSERVER
@@ -1204,10 +1328,10 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     // Floating Billboard Label above Earth Center
     const isEarthSelected = activeSelections.includes('Earth') || activeSelections.includes('Earth (Geocentric Origin)');
-    const earthSprite = createGlyphSprite('🜨', 'Earth', '#38bdf8', 0.36, isEarthSelected);
+    const earthSprite = createGlyphSprite('⊕', 'Earth', '#38bdf8', 0.36, isEarthSelected, true);
     earthSprite.position.set(0, 0.36, 0);
     dynamicGroup.add(earthSprite);
-    addGlyphLabel('🜨', earthSprite.position.clone());
+    addGlyphLabel('⊕', earthSprite.position.clone());
 
     // Interactive Hit Sphere for Earth Origin (Tested first)
     const hitEarth = new THREE.Mesh(
@@ -1229,15 +1353,18 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     // 1. ZODIAC SIGNS (Superimposed on torus)
     ZODIAC_SIGNS.forEach((sign) => {
       const cuspRad = lonToRad(sign.lon);
-      const tickGeo = new THREE.CylinderGeometry(0.012, 0.012, R_TORUS_TUBE * 1.8, 8);
+      // Deliberate local addition (§16.12 pending AUDIT-CHART): cusp ticks
+      // are short flat bars lying on the ring's crown, confined to its width
+      // between the bezels — never cylinders that cross the ring and stick
+      // out on both sides.
+      const tickGeo = new THREE.BoxGeometry(R_TORUS_TUBE * 2 - 0.1, 0.012, 0.03);
       const tickMat = new THREE.MeshBasicMaterial({ color: 0xd4af37 });
       const tick = new THREE.Mesh(tickGeo, tickMat);
       tick.position.set(
         Math.cos(cuspRad) * R_TORUS_TRACK,
-        Y_SUPERIMPOSED,
+        R_TORUS_TUBE + 0.012,
         Math.sin(cuspRad) * R_TORUS_TRACK
       );
-      tick.rotation.z = Math.PI / 2;
       tick.rotation.y = -cuspRad;
       tick.userData.focused = activeSelections.includes(sign.name);
       // Deliberate local addition (§16.12 pending INSET): sign ring ticks are
@@ -1250,7 +1377,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const zz = Math.sin(centerRad) * R_TORUS_TRACK;
       const isSelected = activeSelections.includes(sign.name);
 
-      const zSprite = createGlyphSprite(sign.glyph, '', '#f5d77f', 0.32, isSelected);
+      // AUDIT-CHART: a saturated element fill under the dark, outlined glyph.
+      const zSprite = createGlyphSprite(sign.glyph, '', SIGN_ELEMENT_FILL[sign.element] || '#f5d77f', 0.32, isSelected);
       zSprite.userData.targetId = sign.name;
       zSprite.position.set(zx, Y_SUPERIMPOSED + 0.1, zz);
       dynamicGroup.add(zSprite);
@@ -1279,26 +1407,29 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const houseId = `House ${h.num}`;
       const isSelected = activeSelections.includes(houseId) || activeSelections.includes(h.label);
 
-      const xInner = Math.cos(rad) * R_HOUSE_INNER;
-      const zInner = Math.sin(rad) * R_HOUSE_INNER;
-      const xOuter = Math.cos(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
-      const zOuter = Math.sin(rad) * (R_TORUS_TRACK - R_TORUS_TUBE);
-
-      const spokeGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(xInner, 0.025, zInner),
-        new THREE.Vector3(xOuter, 0.025, zOuter),
-      ]);
-      const spokeMat = new THREE.LineBasicMaterial({
+      // Deliberate local addition (§16.12 pending AUDIT-CHART): cusp
+      // separators are flat radial bars whose ends reach into both rings
+      // (inner guide ring and inner bezel), so each cusp line runs between
+      // the rings, attached — never a hairline floating apart off the wheel.
+      const spokeInner = R_HOUSE_INNER - 0.015;
+      const spokeOuter = R_TORUS_TRACK - R_TORUS_TUBE + 0.015;
+      const spokeGeo = new THREE.BoxGeometry(spokeOuter - spokeInner, 0.01, isSelected ? 0.03 : isCardo ? 0.028 : 0.02);
+      const spokeMat = new THREE.MeshBasicMaterial({
         color: isSelected ? 0xffdf80 : isCardo ? 0xf2ca50 : 0x7c6999,
-        linewidth: isSelected ? 4 : isCardo ? 3 : 1,
         transparent: true,
-        opacity: isSelected ? 1.0 : isCardo ? 0.95 : 0.45,
+        opacity: isSelected ? 1.0 : isCardo ? 0.95 : 0.55,
       });
-      const spokeLine = new THREE.Line(spokeGeo, spokeMat);
-      spokeLine.userData.focused = isSelected;
+      const spokeBar = new THREE.Mesh(spokeGeo, spokeMat);
+      spokeBar.position.set(
+        Math.cos(rad) * (spokeInner + (spokeOuter - spokeInner) / 2),
+        0.03,
+        Math.sin(rad) * (spokeInner + (spokeOuter - spokeInner) / 2)
+      );
+      spokeBar.rotation.y = -rad;
+      spokeBar.userData.focused = isSelected;
       // House spokes are wheel structure (§16.12 pending INSET): never dimmed.
-      spokeLine.userData.wheelStructure = true;
-      dynamicGroup.add(spokeLine);
+      spokeBar.userData.wheelStructure = true;
+      dynamicGroup.add(spokeBar);
 
       // Cusp Badge
       const badgeR = R_TORUS_TRACK - R_TORUS_TUBE - 0.12;
@@ -1359,15 +1490,19 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       const hNumZ = Math.sin(midRad) * hNumR;
 
       const hCanvas = document.createElement('canvas');
-      hCanvas.width = 128;
-      hCanvas.height = 128;
+      // AUDIT-CHART: house numerals drawn at 256 px × devicePixelRatio with
+      // their own on-screen floor (≥ 11 CSS px), never softer or smaller.
+      const hDpr = labelDevicePixelRatio();
+      hCanvas.width = Math.round(LABEL_TEXTURE_CSS_PX * hDpr);
+      hCanvas.height = Math.round(LABEL_TEXTURE_CSS_PX * hDpr);
       const hCtx = hCanvas.getContext('2d')!;
-      hCtx.beginPath();hCtx.arc(64,64,51,0,Math.PI*2);
+      hCtx.scale(hDpr, hDpr);
+      hCtx.beginPath();hCtx.arc(128,128,102,0,Math.PI*2);
       hCtx.fillStyle=isSelected?'#634618':'#100c1c';hCtx.fill();
-      hCtx.lineWidth=isSelected?7:4;hCtx.strokeStyle=isSelected?'#fff1ac':'#d4af37';hCtx.stroke();
-      hCtx.font = 'bold 68px "IBM Plex Mono", monospace';
+      hCtx.lineWidth=isSelected?14:8;hCtx.strokeStyle=isSelected?'#fff1ac':'#d4af37';hCtx.stroke();
+      hCtx.font = `bold ${Math.round(LABEL_TEXTURE_CSS_PX * HOUSE_NUMBER_FACE_FRACTION)}px "IBM Plex Mono", monospace`;
       hCtx.textAlign = 'center';hCtx.textBaseline = 'middle';
-      hCtx.fillStyle = '#fff2bd';hCtx.fillText(h.num.toString(),64,67);
+      hCtx.fillStyle = '#fff2bd';hCtx.fillText(h.num.toString(),128,133);
 
       const hTex = new THREE.CanvasTexture(hCanvas);
       const hMat = new THREE.SpriteMaterial({
@@ -1376,7 +1511,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         depthTest: false,
       });
       const hSprite = new THREE.Sprite(hMat);
-      hSprite.scale.set(isSelected ? 0.34 : 0.28, isSelected ? 0.34 : 0.28, 1);
+      const hScale = isSelected ? 0.34 : 0.28;
+      hSprite.scale.set(hScale, hScale, 1);
+      hSprite.userData.baseScale = new THREE.Vector3(hScale, hScale, 1);
+      hSprite.userData.minCssPx = MIN_DEGREE_CSS_PX / HOUSE_NUMBER_FACE_FRACTION;
+      sizedLabels.push({ sprite: hSprite, minCssPx: hSprite.userData.minCssPx });
       hSprite.position.set(hNumX, 0.04, hNumZ);
       hSprite.userData.focused = isSelected;
       hSprite.userData.targetId = houseId;
@@ -1513,15 +1652,25 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         if (!showAnnotations) {
           sprite = createGlyphSprite(body.glyph, '', '#67e8f9', 0.34, focused);
         } else {
-          const canvas = document.createElement('canvas'); canvas.width = 320; canvas.height = 152;
+          // AUDIT-CHART: NOW labels drawn at 320×152 logical px ×
+          // devicePixelRatio, held to the same glyph/degree floors.
+          const nDpr = labelDevicePixelRatio();
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(320 * nDpr); canvas.height = Math.round(152 * nDpr);
           const ctx = canvas.getContext('2d')!;
+          ctx.scale(nDpr, nDpr);
           ctx.fillStyle = '#062b38'; ctx.strokeStyle = focused ? '#e0fcff' : '#67e8f9'; ctx.lineWidth = 5;
           ctx.beginPath(); ctx.roundRect(5, 5, 310, 142, 22); ctx.fill(); ctx.stroke();
           ctx.textAlign = 'center'; ctx.fillStyle = '#c7faff';
           ctx.font = 'bold 48px Arial'; ctx.fillText('NOW ' + body.glyph, 160, 66);
           ctx.font = 'bold 34px Arial'; ctx.fillText(body.name, 160, 116);
           sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, depthTest: false }));
-          sprite.scale.set(focused ? 0.72 : 0.62, focused ? 0.342 : 0.295, 1);
+          const nScaleX = focused ? 0.72 : 0.62;
+          const nScaleY = focused ? 0.342 : 0.295;
+          sprite.scale.set(nScaleX, nScaleY, 1);
+          sprite.userData.baseScale = new THREE.Vector3(nScaleX, nScaleY, 1);
+          sprite.userData.minCssPx = Math.max(MIN_GLYPH_CSS_PX / (48 / 152), MIN_DEGREE_CSS_PX / (34 / 152));
+          sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
         }
         sprite.position.copy(position); sprite.position.y = 0.37;
         sprite.userData.focused = focused; dynamicGroup.add(sprite);
@@ -1621,6 +1770,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     });
     endpointLabelsRef.current = endpointLabels;
     glyphLabelsRef.current = glyphLabels;
+    sizedSpritesRef.current = sizedLabels;
     // Structural frame meshes are exempt and stay vivid at their recorded
     // focusBaseOpacity; only non-focused representational elements dim. The
     // wheel structure — house spokes, house numbers, cusp degree badges, sign
@@ -1656,8 +1806,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       dynamicGroup.traverse(object => {
         if (!object.userData.targetId) return;
         if (object instanceof THREE.Sprite) {
-          if (!object.userData.hoverBaseScale) object.userData.hoverBaseScale = object.scale.clone();
-          object.scale.copy(object.userData.hoverBaseScale).multiplyScalar(inset && targets.has(object.userData.targetId) ? 1.12 : 1);
+          // AUDIT-CHART: hover emphasis is a factor the per-frame size pass
+          // applies — never a one-shot scale write the pass would overwrite.
+          object.userData.hoverScaleFactor = inset && targets.has(object.userData.targetId) ? 1.12 : 1;
         }
         const item = object as THREE.Mesh;
         const materials = item.material ? (Array.isArray(item.material) ? item.material : [item.material]) : [];
@@ -1698,6 +1849,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       if (endpointLabelsRef.current === endpointLabels) endpointLabelsRef.current = [];
       glyphLabels.forEach(({ element }) => { element.remove(); });
       if (glyphLabelsRef.current === glyphLabels) glyphLabelsRef.current = [];
+      sizedSpritesRef.current = [];
       dynamicGroup.traverse(object => {
         const renderable = object as THREE.Mesh;
         renderable.geometry?.dispose();

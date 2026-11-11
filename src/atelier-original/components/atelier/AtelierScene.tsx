@@ -8,7 +8,6 @@ import { useAtelierTheme } from '../../services/atelierTheme';
 import { unlockAtelierSound } from '../../services/atelierSound';
 
 export type ConversationPhase = 'idle' | 'listening' | 'thinking' | 'speaking';
-const PHASE_LABELS: Record<ConversationPhase, string> = { idle: 'Here with you', listening: 'Listening', thinking: 'Considering your question', speaking: 'Speaking' };
 type IdlePose = {blink:boolean;gesture:'rest'|'tilt'|'massage'};
 
 export function AtelierScene({ phase, motionEnabled, sceneVisible = true, accountUid = null }: { phase: ConversationPhase; motionEnabled: boolean; sceneVisible?: boolean; accountUid?: string | null }) {
@@ -74,6 +73,5 @@ export function AtelierScene({ phase, motionEnabled, sceneVisible = true, accoun
       {imageFailed && posterFailed && <div className="atelier-scene__fallback" role="img" aria-label="A still violet and gold reading room while Natally’s artwork is unavailable"><span aria-hidden="true">✦</span><p>The room is still here.<br />Your conversation can continue.</p></div>}
     </div>
     {imageFailed && <div className="atelier-scene__recovery"><span>{posterFailed ? 'Room artwork is unavailable.' : 'Showing the still room.'}</span><button type="button" onClick={retryArtwork}>Retry artwork</button></div>}
-    <figcaption className="atelier-scene__caption"><span className="atelier-scene__phase-dot" />{PHASE_LABELS[phase]}<span className="atelier-scene__sky-note">An imagined sky</span></figcaption>
   </figure>;
 }

@@ -96,7 +96,7 @@ export function chartFacts(chart: NatalChart): string {
 
 /**
  * Compact backstory digest: her canonical self-answers verbatim plus a
- * one-line anchor for the vignette shelf, so streamed replies never
+ * one-line anchor for the vignette canon, so streamed replies never
  * contradict the authored material.
  */
 function backstoryBlock(): string {
