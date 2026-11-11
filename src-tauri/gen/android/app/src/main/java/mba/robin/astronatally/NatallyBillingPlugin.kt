@@ -1,4 +1,4 @@
-package mba.robin.natally
+package mba.robin.astronatally
 
 import android.app.Activity
 import android.os.Handler

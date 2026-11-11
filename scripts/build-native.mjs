@@ -28,6 +28,7 @@ function prepare() {
   const cargoLock = 'src-tauri/Cargo.lock';
   writeFileSync(cargoLock, readFileSync(cargoLock, 'utf8').replace(/(name = "natally-ai-studio"\nversion = ")[^"]+/, `$1${version}`));
   const config = readJson('src-tauri/tauri.conf.json');
+  config.identifier = 'mba.robin.astronatally';
   config.version = version;
   config.build.beforeBuildCommand = '';
   config.build.frontendDist = '../dist-web';
