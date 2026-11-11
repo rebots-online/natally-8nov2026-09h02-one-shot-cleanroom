@@ -159,15 +159,17 @@ entities except those named below.
 
 Do:
 - Add `InsetProps.compact?: boolean`, default false; private constants
-  `COMPACT_INSET_MIN_PX = 96`, `COMPACT_INSET_DEFAULT_PX = 220`. When compact,
-  preferred first-load width is 220 CSS px on wide screens or 180 px through
+  `COMPACT_INSET_MIN_PX = 96`, `COMPACT_INSET_DEFAULT_PX = 400`. When compact,
+  preferred first-load width is 400 CSS px on wide screens or 180 px through
   760 px, floor 96, bounded by the actual stage. Pass `compact={true}` and a
   `:compact-v1` storage-key suffix from the landing's chart `Inset` only.
   Consistently use the compact floor in `clampGeometry`, drag/grips, Alt+arrow,
   restore, resize and automatic placement. Initial compact placement floats at
   the preferred size at the TOP LEFT, with the existing margin and below
   the header; do not auto-enlarge/dock/invert
-  using the body-count/glyph floor. Persist manual geometry; after the customer
+  using the body-count/glyph floor. Operator screenshot 2026-11-11 04-02-51.png
+  is the good geometry reference (~400 px top-left at 1440 px viewport);
+  do not override the customer's saved manual size/position. Persist manual geometry; after the customer
   moves/resizes, it wins. Other callers keep existing defaults and behaviour.
 - Keep the focused chart fitting the stage with about 8% breathing margin;
   the renderer coder owns camera framing. Keep phone's sticky stage and cards
@@ -232,7 +234,10 @@ Do:
   glyphs; defer crowded
   degree annotations to hover/selection or focus rather than forcing the card
   larger. Full details remain accessible through existing callouts/speech.
-  No overlapping label pile-ups, no darker chart, no new obsolete arc.
+  At the 400 px reference size the sign/body/house badges and degree labels
+  must not pile up: distinct lanes, restrained glyph/badge sizes, suppress
+  secondary annotations where they collide and reveal on hover/selection.
+  No darker chart, no new obsolete arc.
 - Zodiac badge fill/glyph contrast is at least 4.5:1, never pale-on-pale.
   Preserve/restore smooth thick UFO/doughnut geometry, perspective tilt and
   a shaded rounded rim with moving sun/specular glint, not a flat disc.

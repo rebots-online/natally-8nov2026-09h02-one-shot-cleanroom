@@ -472,9 +472,10 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 4d. **Compact landing inset (operator correction 2026-11-11 — FROZEN).**
    The landing passes `compact={true}` to `Inset`. This opt-in supersedes the
    earlier body-count/glyph-derived floor for this landing inset only: its
-   minimum outer width is 96 CSS px, its initial preferred width is 220 px
-   on wide screens and 180 px at widths up to 760 px (about half to a third
-   of the old initial inset), bounded by the actual
+   minimum outer width is 96 CSS px, its initial preferred width is 400 px
+   on wide screens and 180 px at widths up to 760 px. The operator manually
+   sized top-left inset in Screenshot from 2026-11-11 04-02-51.png is the
+   geometry reference; preserve that saved manual choice. Bound defaults by the actual
    visible stage. It starts floating at the TOP LEFT, using the existing
    stage margin and remaining below the header; automatic
    largest-size docking/inversion must not enlarge it. All four corner grips
@@ -490,7 +491,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    it. Below 160 px the wheel is a clean interactive thumbnail, with detailed
    annotations deferred until focus or selection. At compact widths below 240 px, crowded degree annotations may defer
    to selected/hovered targets or the focused view; glyphs remain visible and
-   interactive, with full information through the existing callout/explanation.
+   interactive, with full information through the existing callout/explanation. At the
+   400 px reference size, avoid the observed pile of sign/body/house badges
+   and degree text: maintain distinct visual lanes and suppress overlapping
+   secondary annotations until hover/selection; never solve this by enlarging
+   every badge to the same large minimum.
    Sign ticks are precise radial strokes on the ring band and house spokes
    terminate on their actual rings at the calculated cusps: no projecting
    cylinders, detached bars, duplicate arcs, z-fighting or label pile-ups.
@@ -715,7 +720,7 @@ contract.
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
 | `KaraokeCaption` (default), `KaraokeState` ·priv | comp, iface ·priv | `app/karaokeCaption.tsx:14,9` | spoken-word caption |
-| `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (96, 220) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
+| `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (96, 400) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
 | `.landing-scroll-cue`, `.landing-card`, `.landing-cards`, `.karaoke-caption .is-glowing` | CSS/UI selectors | `app/landing/LandingCards.tsx:157`, `app/landing/landing.css:19`, `app/app-shell.css` existing karaoke rule | LANDING-POLISH layout: directional section controls, card rhythm, static bright-yellow speaking-word glow; existing component-local state/handlers only |
 | `VersionBadge` (default) | comp | `app/VersionBadge.tsx:7` | build stamp display |
 | `TopUpSheet` (default), `TopUpSheetProps`, `describeLoadError` ·priv | comp, iface, fn ·priv | `app/TopUpSheet.tsx:35,20,~25` | packs + souvenir sheet |

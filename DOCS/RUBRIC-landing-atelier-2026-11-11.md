@@ -30,8 +30,9 @@ and 390×844 before publication. These are observation requirements, not
 claims that the current page passes.
 
 8. **Compact wheel and usable resizing.** First load leaves Natally and the
-   cards room to breathe. The floating chart starts at the top-left at about 220 CSS px on
-   desktop and 180 CSS px on a phone (about half to a third of its prior size),
+   cards room to breathe. The floating chart starts at the top-left at about 400 CSS px on
+   desktop and 180 CSS px on a phone. The operator-sized top-left inset in
+   Screenshot from 2026-11-11 04-02-51.png is the geometry reference,
    subject to the available stage. Drag a
    corner down to 96 CSS px: no old body-count or glyph-size calculation
    forces it larger, no automatic view inversion defeats the choice, and the
@@ -41,7 +42,10 @@ claims that the current page passes.
    states at device pixel ratios 1 and 2. The canvas is rendered at its actual
    displayed size and pixel ratio; glyphs, degree text and Earth are crisp.
    Compact presentation may defer crowded degree annotations until focus or
-   selection, but visible glyphs remain distinct and their labels accessible.
+   selection, but visible glyphs remain distinct and their labels accessible. At the
+   approximately 400 px reference size, overlapping sign/body/house badges and
+   degree labels are still a failure: simplify the visual hierarchy and reveal
+   secondary annotations on hover/selection rather than draw a jumble.
 10. **Precise gold structure.** Turn and resize the wheel. Gold sign ticks and
     house spokes meet their intended rings at the exact calculated angles,
     especially across the top/back, with no detached bars, protruding ends,
