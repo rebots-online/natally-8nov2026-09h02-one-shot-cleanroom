@@ -1017,3 +1017,33 @@ Preserve the current MSI upgradeCode, signing identity and Rust crate names;
 none is the application namespace selected by this amendment. Generated
 untracked build outputs are rebuilt by the canonical entry, not edited by a
 repository-wide replacement or swept into source commits.
+
+## 18. Independent speech completion — 2026-11-11, FROZEN
+
+This repair is independent of the rejected Netlify proposal. The existing
+`speakNatallyText` returns Promise<boolean>: true only after successful full
+playback in its current generation, false for cancellation/error. The voice
+controller must use that result; quiet state alone does not prove success.
+
+| Exact entity | Target | Contract / engaged by |
+| --- | --- | --- |
+| `SpeakOptions.onComplete?:()=>void` | `src/voice/index.ts:34` | Once after the flushed current utterance's whole queue succeeds; dropped on false/error/stop/supersession; VOICE-COMPLETE |
+| `createVoice` / effect-local queue, epoch and completion state | `src/voice/index.ts:83` | Capture callback on flush; run only after all queued text played true with matching epoch; VOICE-COMPLETE |
+| `ChatStage.onSpeechComplete?:()=>void` | `src/app/chat/useChat.ts:65` | Callback captured for a streamed reply and passed to its successful final voice flush; VOICE-COMPLETE |
+| `App`, `speakPassage`, existing landing explanation/opening paths | `src/app/AppShell.tsx:380` | Clear presentation only after current complete reading; new target stops old voice immediately before async sky lookup; VOICE-COMPLETE |
+| `presentationReducer` clear action | `src/app/presentation/state.ts:46` | Clear both selectedTargets/focusTargets and always increment sequence so renderer resets local latch; preserve view/follow; VOICE-COMPLETE |
+| `prepareSpeechWithOffsets` | `src/atelier-original/services/voiceService.ts:116` | Whole-word case-insensitive atelier -> ah-tell-yay in speech only, monotonic source offset map; VOICE-COMPLETE |
+| `src/voice/index.test.mjs` | new isolated node:test file | Actual TypeScript module execution with controlled external voice imports; completion/cancellation and offset tests; VOICE-COMPLETE |
+
+CodeGraph resolved the voice controller and reducer, but selected the duplicate
+landing-original pronunciation symbol and trimmed the useChat body. Named reads
+of the actual atelier-original prepareSpeechWithOffsets/speakNatallyText and
+useChat:58–295 closed those specific coverage gaps. No other port is edited.
+The original display sentence remains authoritative for karaoke source indices.
+Use component-local interaction epochs to reject stale cleanup; no new
+module-level helpers beyond registered interfaces/test file. Completion clears
+focus after the playback driver finishes, preserving manual pane/view choices.
+
+Rejected, unpublished server/client work is retained as a byte-exact transport
+backup under Admin-Manual, then only those owned task edits are restored to the
+published source. This preserves the evidence without publishing cancelled code.

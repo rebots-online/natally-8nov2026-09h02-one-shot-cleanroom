@@ -497,3 +497,68 @@ retaining exact domains, automatic stamp and web-before-native sequencing.
 Verify `bash -n build_all.sh` exits0 and read back both command lines. Commit
 and push separately after the namespace commit, with explicit path only.
 Do not invoke the full build until root releases it after direct-key recovery.
+
+## ISOLATE-SUPERSEDED — operational source recovery, current
+
+Own only billing/openrouter.mjs, netlify/functions/chargebee.mjs,
+billing/checkpoint-server.test.mjs, src/app/AppShell.tsx,
+src/app/TopUpSheet.tsx, src/app/chat/useChat.ts. These are the exact unpublished
+CHECKPOINT-SERVER and CHECKPOINT-CLIENT slices reported by their owners.
+You are not alone; restore nothing else and preserve all other work.
+
+Do: Before mutation, inspect each exact diff and confirm it is the reported
+cancelled slice. Save a binary-capable git diff of the five tracked files,
+HEAD SHA, SHA-256 source hashes, and full bytes of the new untracked test in
+/home/robin/Admin-Manual/.staging/natally-cancelled-netlify-checkpoint-2026-11-11/.
+Verify backup bytes/hashes before restoring these five tracked files to their
+published HEAD content. Recheck source hashes before each restore to avoid
+clobbering a concurrent writer. Preserve the new test at the named backup path
+and remove only its just-created original after verified byte match. Restore
+recipe is git apply of the saved patch and copying back that test. No checkout
+of other paths, external service actions, product build, source commit or sweep.
+Report exact backup/restore observations to root, then release ownership.
+
+## VOICE-COMPLETE — execute after ISOLATE-SUPERSEDED acknowledgement
+
+Authority §18 and rubric21/24. Own src/voice/index.ts,
+src/voice/index.test.mjs, src/atelier-original/services/voiceService.ts
+(prepareSpeechWithOffsets only), src/app/AppShell.tsx (completion wiring only),
+src/app/chat/useChat.ts (ChatStage and successful final voice flush only), and
+src/app/presentation/state.ts (clear action only). Read-only
+src/app/presentation/playback.ts and the existing renderer reset prop contract.
+You are not alone: preserve current layout/geometry/overlay work and do not
+restore cancelled billing source or touch billing/model/provisioning code.
+
+Do: Implement SpeakOptions.onComplete and ChatStage.onSpeechComplete exactly
+as §18. Existing speakNatallyText returns boolean; use it rather than guessing
+from onState. Callback belongs to the current epoch, fires once only after the
+whole flushed queue succeeds, and is discarded on stop/supersession/false/error.
+Do not treat a temporary empty queue during an unfinished stream as completion.
+Pass success completion through streamed replies, opening reading and both
+signed-in/landing chart explanation paths. Finish that path's playback driver,
+then dispatch clear; keep the current view/follow preference. New user targets
+stop old speech before async sky work begins; component-local interaction
+epochs prevent an old completion from clearing newer focus. Reducer clear empties
+both selectedTargets and focusTargets and always increments sequence, triggering
+renderer localAspectFocus cleanup even if outer focus is already empty.
+
+Normalize whole-word atelier (case-insensitive) to ah-tell-yay in the existing
+atelier prepareSpeechWithOffsets character-map pipeline. Preserve exact display
+text and monotonic offsets, using the same proportional source-character map
+as the existing angular expansion. Do not edit the unused duplicate landing
+port. Preserve speech rate, lipsync, prefetch and the measured two-line caption.
+
+Use Node built-in tests in the named new test file to execute actual modules
+(transpile TypeScript in memory with the installed compiler and controlled VM
+imports). Test last queued chunk/flush exactly-once success, not-yet-flushed
+stream gaps, unadmitted speech, false result/error, stop/supersession, and
+pronunciation offsets including atelier beside degrees and unchanged display.
+No product fixture account, network mock journey, new dependency or temp file.
+Verify/Accept: node --experimental-vm-modules --test src/voice/index.test.mjs
+and npx tsc --noEmit exit0. Read back edits; commit+push each coherent slice with
+explicit paths after requesting root's Git window.
+Operator protocol: record real speech to successful neutral chart, interruption
+by a different target (old completion cannot clear it), focused/floating reset
+and actual atelier speech with original-word karaoke. Save under existing
+DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/. Synthetic unit completion alone
+is not the real speech observation. No full build or deploy until root releases.
