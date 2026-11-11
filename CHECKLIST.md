@@ -362,10 +362,15 @@ Do:
    Existing OPENROUTER_ADMIN_KEY is valid; Firebase service account/encryption
    key and BILLING_REDEMPTION_CODE/ALLOWANCE_USD are already present. Do not
    connect/repair Chargebee API credentials in this checkpoint.
-4. Deploy only this existing function using its existing Netlify publication
-   path without building the web/native product separately. If no documented
-   function-only deploy interface exists, return exact gap to root; do not
-   invent an alternate product build entry. Commit+push each coherent source
+4. Publish the existing Netlify API functions with supported
+   `netlify deploy --no-build --prod --functions netlify/functions --dir
+   /home/robin/Admin-Manual/.staging/natally-hosted-chat-precheckpoint-static-2026-11-11/`.
+   Before that command, read the actual currently published deploy ID/manifest,
+   download its immutable static bytes to that exact known directory and verify
+   manifest hashes. Pass the correct existing site ID/auth through the existing
+   private CLI context. Retain old/new deploy IDs, manifest and static hashes
+   as rollback evidence. No new Vite/native build and no invented function-only
+   CLI. Preserve the other existing API function(s). Commit+push each coherent source
    change immediately. No product `build_all.sh` until client proof is ready.
 
 Verify/Accept: `node --test billing/checkpoint-server.test.mjs` exits0; isolated

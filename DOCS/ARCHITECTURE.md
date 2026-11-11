@@ -402,6 +402,16 @@ confirmed purchased hosts + localhost authorized and Google enabled. Google
 refusal of an automation-controlled browser is not an unauthorized-domain
 failure and must never be worked around by bypassing Google's checks.
 
+Backend publication uses the supported Netlify deploy command with `--no-build`
+and `--functions netlify/functions`. Because that command also deploys static
+files, first read the actual currently published deploy ID and its file
+manifest, download its immutable static files byte-for-byte into
+`/home/robin/Admin-Manual/.staging/natally-hosted-chat-precheckpoint-static-2026-11-11/`,
+and verify their manifest hashes. Pass that preserved directory as `--dir`
+with `--prod`; record old/new deploy IDs and retained static hashes. This
+publishes the existing API functions without an alternate web/native build or
+silently replacing its static content. Retain the rollback snapshot.
+
 Temporary upstream 429 is distinct from allowance denial. Preserve 429 and
 Retry-After through the backend, expose a typed `RateLimitedError` in the
 client, retain the unanswered question, speak/display one short authored
