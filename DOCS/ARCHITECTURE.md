@@ -497,6 +497,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    or status labels on the scene ("Here with you", "An imagined sky" and the
    like); no copy, welcome, greeting, card, story or caption mentioning
    shelves, trinkets, grabbing or breaking. Discovery is the customer's.
+5d. **Seasonal treats.** Cookies are only seasonal (Halloween, Christmas);
+   outside those seasons her table offers macarons instead — the treat, its
+   bite sound and its sign follow the season (operator: this part was lost).
+   The wheel's legibility work never makes the chart darker or blurrier than
+   before (operator observed a coder's interim build doing both).
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
