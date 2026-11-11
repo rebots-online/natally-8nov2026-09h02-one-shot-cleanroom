@@ -1120,3 +1120,31 @@ stays exact. The native response's existing no-referrer policy remains.
 Source: https://fetch.spec.whatwg.org/#append-a-request-origin-header.
 Observe a real browser-generated loopback cancellation POST header as a
 transport protocol check; it is not proof of Google sign-in or native login.
+
+## 20. Publish the current checkpoint now — operator 2026-11-11, FROZEN
+
+Latest operator steering is to deploy to astronatally.com now, use the existing
+Surge account, and document build/deploy instructions in README.md with only
+one build command, ./build_all.sh. This current publication instruction takes
+precedence over the earlier wait for issuer discovery. Preserve and report the
+remaining direct-key/reading verification gap; never call a static deployment
+proof of an end-to-end paid/redeemed model reading. No Firebase-account lookup
+is required for this publication. Chargebee connection remains deferred.
+
+| Entity | Target | Exact contract / engaged by |
+| --- | --- | --- |
+| build/deploy instructions | README.md | Sole build command ./build_all.sh; account robinsai.world@gmail.com; purchased domains; automatic shared stamp; web-first native matrix; outputs/status; PUBLISH-CURRENT |
+| build_all.sh | existing canonical entry | Execute current pipeline, both named domains with forced HTTPS, then all native targets; no inner build entry; PUBLISH-CURRENT |
+| shared version/native projection | version.json, version.txt, package.json/package-lock.json, src-tauri/Cargo.toml/Cargo.lock/tauri.conf.json | Only canonical automatic stamp, preserve namespace mba.robin.astronatally; PUBLISH-CURRENT |
+| wildcard CNAME | Namecheap host * in astronatally.com and asknatally.online | geo.surge.world, preserve every other record; DNS-WILDCARDS |
+
+Surge account was actually observed by whoami/list/domain status to be
+robinsai.world@gmail.com (Free), owner/last publisher of both purchased domains.
+Authoritative/public apex+www CNAMEs now equal geo.surge.world and ordinary TLS
+passes. Literal wildcard records still target the retired personal host;
+correct exactly those two wildcard CNAMEs after full-zone operational backup,
+without changing MX/TXT/apex/www/other records. This is independent of building.
+No unrelated domain or temporary hosting destination is introduced.
+CodeGraph was healthy (155 files, SQLite quick_check ok) but did not return
+README/shell configuration; named reads of README.md, build_all.sh and
+scripts/build-environment.mjs closed this specific coverage gap.

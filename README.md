@@ -85,20 +85,57 @@ from KStore / Admin-Manual and never committed. Public settings the browser
 needs: `VITE_BILLING_API_URL`, `VITE_CHARGEBEE_SITE`, `VITE_FIREBASE_CONFIG`,
 `VITE_CREDIT_DISPLAY_PER_USD`.
 
-## Build and release
+## Build and deploy
 
-`build_all.sh` is the only build and release entry (never run the inner steps
-by hand). Each run: resolves credentials through KStore
-(`scripts/build-environment.mjs`), stamps a new version (`version.json`,
-`version.txt`), type-checks, builds Vite (inputs `landing.html` + `app.html`;
-`app.html` is copied to `index.html`), publishes `dist-web/` to
-astronatally.com (the landing) and asknatally.online (the webapp), then
-builds the native matrix via `scripts/build-native.mjs` (Linux AppImage/deb/rpm,
-Windows x64 exe/NSIS/MSI cross-compiled, Android arm64 APK/AAB), staged with
-SHA-256 inventories under `dist/natally-v<version>/`. A release is accepted
-only when the version badge on both domains shows the new stamp.
+From the repository root, run the single supported build-and-deploy command:
+
+```bash
+./build_all.sh
+```
+
+The script performs the whole pipeline: resolves the configured credentials,
+automatically increments the shared `MAJOR.MINOR.BUILD` version, commits and
+pushes that stamp, validates the source, builds the web assets, publishes both
+purchased domains with HTTPS forced, then packages Linux, Windows and Android.
+Use this entry for every attempt, including a retry after a fix. Version numbers
+are assigned by the script. The native application namespace is
+`mba.robin.astronatally`.
+
+### Surge deployment account and domains
+
+The existing Surge deployment account is **`robinsai.world@gmail.com`**
+(Free plan; ownership of both domains verified on 2026-11-11). Run the pipeline
+with that account's authorized Surge CLI context. Keep its token/password in
+private credential configuration, outside this repository.
+
+| Public destination | Purpose | Expected DNS target |
+| --- | --- | --- |
+| `astronatally.com` / `www.astronatally.com` | Landing and atelier introduction | `geo.surge.world` |
+| `asknatally.online` / `www.asknatally.online` | Web app | `geo.surge.world` |
+
+Wildcard CNAME records, where configured, use that same target. The spelling is
+`geo.surge.world`, with one `geo`. The pipeline publishes the named purchased
+domains directly. Surge manages their custom-domain certificates; correct DNS
+routing and valid certificates are both required for HTTPS.
+
+### Outputs and verification
+
+The web bundle includes the app, preserved landing entry and
+`/auth/native.html` browser handoff. Web publication must succeed before native
+packaging starts. Native outputs are staged under `dist/natally-v<version>/`
+with a SHA-256 inventory and per-target logs: Linux AppImage/deb/rpm, Windows
+x64 executable/NSIS/MSI, and signed Android arm64 APK/AAB plus native symbols.
+A failed or incomplete target remains recorded in the inventory; it is not a
+complete platform set. Verify the actual version badge on both deployed sites
+and report the produced artifacts and any failed targets. Build success and
+functional sign-in/reading acceptance are recorded separately in CHECKLIST.md.
 
 ## Billing and inference (server)
+
+**Legacy implementation reference:** the Netlify routing below is deprecated
+by the operator's direct per-user OpenRouter-key decision. It describes the
+remaining source wiring, not an instruction to deploy another Netlify service.
+The current migration and functional verification status is in CHECKLIST.md.
 
 The Netlify function `netlify/functions/chargebee.mjs` (site
 `natally-hosted-chat`, locally hostable via `billing/server.mjs`) serves:

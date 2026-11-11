@@ -12,7 +12,9 @@ login + actual paid/admin-redemption allowance + direct per-user OpenRouter
 inference with exact model openrouter/free and provider cap0, then the sole
 build_all.sh publishes both purchased domains and builds the native matrix.
 Chargebee connection follows that artifact checkpoint; it is not its gate.
-No full build/deployment has run in this repair session.
+Operator's latest instruction is to publish the current checkpoint now under
+PUBLISH-CURRENT. Earlier issuer discovery is not a gate for that publication;
+remaining direct-key/reading gaps must be reported honestly.
 
 | Task | Current state | Actual source / proof |
 | --- | --- | --- |
@@ -24,7 +26,7 @@ No full build/deployment has run in this repair session.
 | Personal product host references | [X] tracked migration written | 3be3421; exact originals retained in Admin-Manual operational backup; runtime request observation follows new deployment |
 | Cancelled Netlify patches | [X] isolated and restored to published source | exact patch/test backup + SHA readback in Admin-Manual/.staging/natally-cancelled-netlify-checkpoint-2026-11-11 |
 | Direct-key issuance / reading | Pending replacement issuer configuration and wiring | Current active inference.ts still posts to old /billing/chat; no replacement issuer endpoint recovered from available KStore/config/Cloud Run/Hostinger access. Async operator clarification pending. Never put management key/admin code in client. |
-| Full checkpoint build and deployment | Pending working login/redemption/direct-key reading | No build_all.sh invocation, no manual version stamp; no claim of public release |
+| Full checkpoint build and deployment | Requested now: PUBLISH-CURRENT | Canonical automatic stamp and dual purchased-domain publish/native matrix; functional reading verification remains separate |
 | Chargebee checkout activation | Explicitly after checkpoint | No dummy flow, purchase or automatic allowance |
 
 ## Original 2026-11-08 task history — superseded where the frontier differs
@@ -674,3 +676,61 @@ Operator protocol: actual callback utility at desktop/390px and invalid-flow
 message, then normal system-browser Google/native return after web deployment;
 record separately from synthetic module/Rust tests. Do not label the Google
 journey verified until performed. No full build/deploy until root releases.
+
+## PUBLISH-CURRENT — execute now, operator 2026-11-11
+
+Authority: latest explicit deploy instruction and ARCHITECTURE §20. The
+operator asks full build/deployment now and README with only ./build_all.sh
+as its build command. README now records existing Surge deployment account
+robinsai.world@gmail.com (Free), actual owner of both purchased domains.
+Own execution/artifact inventory under build/, dist-web/, dist/natally-v<version>/;
+canonical automatic version projection files; correction of literal build
+failures within existing build_all.sh, scripts/build-{environment,native}.mjs,
+src-tauri/Cargo.toml/Cargo.lock/tauri.conf.json and the NATIVE-AUTH source paths
+only when needed to satisfy their already-frozen interfaces. No new behavior,
+Netlify deploy, Firebase/customer/grant writes or Chargebee connection. You are
+not alone: preserve the three existing dirty VOICE dispatch logs and other
+untracked records; stage only owned source/version/artifacts.
+
+Do: Read the named canonical entry and README. Confirm the already-observed
+Surge context account/owned destinations; execute ./build_all.sh now. Do not
+invoke inner web/native build commands or manually set a version. The script
+stamps/commits/pushes automatically, publishes astronatally.com and
+asknatally.online first, and only then runs the whole native matrix. Preserve
+actual console output and every produced target in the canonical versioned
+inventory. If a command fails, report exact stage/error promptly, correct a
+literal implementation/configuration failure only within the already frozen
+contracts/owned paths, commit+push it immediately, then retry only by running
+./build_all.sh (a new automatic stamp). A missing new design decision returns
+to root; it is not permission to improvise. Do not clean historical artifacts.
+
+Verify/Accept: committed automatic version files agree; versioned inventory
+lists all produced artifacts with actual SHA256 and exact target status; the
+configured identity remains mba.robin.astronatally. After successful publication,
+observe normal TLS and the new actual version badge on both purchased sites,
+root/app/auth utility route responses and real browser layout at desktop/phone.
+Read the produced APK application ID with available SDK tooling and compare to
+mba.robin.astronatally; verify signer through the existing builder. These
+operator observations are recorded separately from the source/type gates.
+Never claim Google/native sign-in, direct-key provisioning or model reading
+verified merely because the page/build is delivered. Record any functional gap.
+Commit+push each coherent source fix and available artifact checkpoint with
+explicit paths. Use Git window from root around these commits; the canonical
+stamp is explicitly authorized to commit/push its own exact projection files.
+Report URLs, final source/stamp, complete/partial platform matrix, inventory and
+actual output paths. No repeat deployment permission is needed.
+
+## DNS-WILDCARDS — exact operator-requested Surge target
+
+External operational ownership only: literal host * CNAME in astronatally.com
+and asknatally.online. Existing authoritative evidence shows their apex/www
+already geo.surge.world, but their literal * still uses a retired personal host.
+Using the connected Namecheap service, first save exact complete record sets
+and metadata under /home/robin/Admin-Manual/.staging/natally-dns-wildcards-2026-11-11/.
+Change only each existing * CNAME target to geo.surge.world, preserving every
+other record/TTL/setting. Prefer a record-specific API; if replacement of a
+whole set is required, include the complete original set plus only that target
+change. Read back through API and both authoritative NS. No registrar/account/
+plan/mail changes, no root/apex/www edits, no unrelated-domain publication.
+If connector approval or access fails, report its actual reason and leave the
+working apex build/deployment proceeding. No source or Git ownership.
