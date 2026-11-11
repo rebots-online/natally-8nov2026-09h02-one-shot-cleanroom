@@ -406,6 +406,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 4a. **A tap focuses the chart** — primary inset behaviour (§4): a tap on the
    floating chart brings it to focus, filling the stage, with the atelier as
    the inset; scrolling and menu items drive the same swap.
+4b. **Clicking an element on the chart makes Natally explain it** (§4): a
+   click/tap on a hovered planet, sign, house or aspect line brings the chart
+   forward and she speaks her passage about that element, highlighting it
+   (and every element involved) as she goes — the same `explainTarget` →
+   reply driver path the signed-in stage uses.
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
