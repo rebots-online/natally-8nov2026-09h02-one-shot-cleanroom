@@ -471,6 +471,14 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    cover her; the chart inset keeps its face-aware placement (§4). In both
    states — atelier on the stage or the focused chart on the stage — the cards
    stay off to the side and never obscure the main view.
+5b. **Her ethos is present — she is a character, not a widget.** On the
+   landing Natally is alive in her room exactly as the original landing had
+   her (`src/landing-original/marketing.tsx`) and as `src/SOUL.md` defines
+   her: her welcome ("Come in. You can explore my room…") spoken once voice is
+   on; her authored stories and asides arriving when the room is quiet
+   (`authoredNudges` / `content/backstory` `nextSpontaneousStory`), spoken
+   with lipsync and shown as her words; her voice and register in every line.
+   The scene, the swap and the cards never replace her presence.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
