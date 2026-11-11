@@ -21,7 +21,7 @@ const MIN_DEGREE_CSS_PX = 11;
 const GLYPH_FACE_FRACTION = 0.42; // glyph face height as a fraction of the sprite
 const DEGREE_FACE_FRACTION = 0.22; // degree/subtext face height as a fraction of the sprite
 const HOUSE_NUMBER_FACE_FRACTION = 0.58; // house numeral face height as a fraction of the sprite
-const labelDevicePixelRatio = () => Math.min(window.devicePixelRatio || 1, 2);
+const labelDevicePixelRatio = () => Math.max(1, window.devicePixelRatio || 1);
 // Saturated sign-bauble fills by element (AUDIT-CHART): a dark, outlined
 // glyph on a bright saturated disc reads at every inset size — pale-on-pale
 // did not.
@@ -137,6 +137,22 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   // Every glyph/label sprite with its on-screen minimum, re-clamped each
   // frame by the render loop (AUDIT-CHART).
   const sizedSpritesRef = useRef<Array<{ sprite: THREE.Sprite; minCssPx: number }>>([]);
+  // AUDIT2-CHART: movable labels (degree text, house numbers, cusp badges)
+  // and fixed glyph obstacles for the per-frame screen-space declutter. A
+  // colliding label steps along its own radius until its screen box clears
+  // every glyph and every label placed before it — so degree text sits
+  // radially outward of its body and clustered bodies stagger, at every
+  // wheel angle, zoom and inset size.
+  const declutterRef = useRef<{
+    movables: Array<{
+      sprite: THREE.Sprite;
+      origin: THREE.Vector3;
+      axis: THREE.Vector3;
+      offsets: number[];
+      current: number;
+    }>;
+    obstacles: Array<{ object: THREE.Object3D; radius: number }>;
+  } | null>(null);
   const queueInsetSelection = (fire: () => void) => {
     if (reducedMotionRef.current) { pendingInsetSelectionRef.current = null; fire(); return; }
     pendingInsetSelectionRef.current = fire;
@@ -290,6 +306,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       wheelGroupRef.current.rotation.set(0.38, 0, -0.02);
       cameraRef.current.position.set(0, 6.8, 6.2);
       cameraRef.current.lookAt(0, -0.15, 0);
+      cameraRef.current.userData.manualZoom = 1;
+      resizeRendererRef.current();
       velocityYRef.current = 0.00022;
       velocityXRef.current = 0;
     }
@@ -299,8 +317,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || window.innerWidth || 1200;
-    const height = container.clientHeight || window.innerHeight || 800;
+    const initialBounds = container.getBoundingClientRect();
+    const width = Math.max(1, Math.round(initialBounds.width || container.clientWidth));
+    const height = Math.max(1, Math.round(initialBounds.height || container.clientHeight));
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -312,13 +331,35 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     const { renderer, tier } = createAstrolabeRenderer(forceSoftware);
     const webglRenderer = tier === 3 ? null : (renderer as THREE.WebGLRenderer);
-    if (webglRenderer) webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    if (webglRenderer) webglRenderer.setPixelRatio(labelDevicePixelRatio());
     if (webglRenderer) webglRenderer.setSize(width, height, false);
     else renderer.setSize(width, height);
     Object.assign(renderer.domElement.style, { width: '100%', height: '100%', display: 'block' });
     if (webglRenderer) {
       webglRenderer.toneMapping = THREE.ACESFilmicToneMapping;
       webglRenderer.toneMappingExposure = 1.15;
+    }
+    // The polished torus needs a bright source to reflect; direct lamps alone
+    // left its metal inner shoulder black. This is an actual environment
+    // reflection, while glyph materials keep their authored colours.
+    let reflectionTarget: THREE.WebGLRenderTarget | null = null;
+    if (webglRenderer) {
+      const environmentCanvas = document.createElement('canvas');
+      environmentCanvas.width = 1024; environmentCanvas.height = 512;
+      const context = environmentCanvas.getContext('2d')!;
+      context.fillStyle = '#65556f'; context.fillRect(0, 0, 1024, 512);
+      const sun = context.createRadialGradient(270, 155, 10, 270, 155, 160);
+      sun.addColorStop(0, '#ffffff'); sun.addColorStop(0.12, '#fff9df');
+      sun.addColorStop(0.36, '#d8b67f'); sun.addColorStop(1, 'rgba(216,182,127,0)');
+      context.fillStyle = sun; context.fillRect(0, 0, 1024, 512);
+      context.fillStyle = '#f5e8d6'; context.fillRect(650, 90, 150, 22);
+      const source = new THREE.CanvasTexture(environmentCanvas);
+      source.mapping = THREE.EquirectangularReflectionMapping;
+      source.colorSpace = THREE.SRGBColorSpace;
+      const generator = new THREE.PMREMGenerator(webglRenderer);
+      reflectionTarget = generator.fromEquirectangular(source);
+      scene.environment = reflectionTarget.texture;
+      source.dispose(); generator.dispose();
     }
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
@@ -392,7 +433,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
 
     const torusGeo = new THREE.TorusGeometry(R_TORUS_TRACK, R_TORUS_TUBE, 48, 160);
     const torusMat = new THREE.MeshPhysicalMaterial({
-      color: 0x1f1430,
+      color: 0x4c3568,
       emissive: 0x11071c,
       roughness: 0.16,
       metalness: 0.88,
@@ -400,6 +441,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       clearcoatRoughness: 0.06,
       reflectivity: 0.95,
       ior: 1.55,
+      envMapIntensity: 1.6,
     });
     const torusMesh = new THREE.Mesh(torusGeo, torusMat);
     torusMesh.rotation.x = Math.PI / 2;
@@ -733,6 +775,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       dismissHover();
       const distance = camera.position.length();
       camera.position.multiplyScalar(getTorusZoomDistance(distance, factor) / distance);
+      camera.userData.manualZoom = camera.position.length() / (camera.userData.frameDistance || camera.position.length());
       camera.lookAt(0, -0.15, 0);
     };
     const touchBinding = bindTorusTouch(renderer.domElement as unknown as HTMLElement, {
@@ -942,6 +985,27 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     let contextLost = false;
     let lastTier3Render = 0;
     const sizedSpriteWorld = new THREE.Vector3();
+    const declutterWorld = new THREE.Vector3();
+    const renderSize = new THREE.Vector2(width, height);
+    let renderDpr = labelDevicePixelRatio();
+    const syncRenderSize = (bounds: DOMRect) => {
+      const w = Math.round(bounds.width), h = Math.round(bounds.height);
+      if (w <= 0 || h <= 0) return;
+      const dpr = labelDevicePixelRatio();
+      camera.aspect = w / h;
+      const frameDistance = (scene.userData.wheelRadius || 2.75) * 1.08 / (Math.sin(camera.fov * Math.PI / 360) * Math.min(1, camera.aspect));
+      camera.userData.frameDistance = frameDistance;
+      camera.position.set(0, 6.8, 6.2).normalize().multiplyScalar(frameDistance * (camera.userData.manualZoom || 1));
+      camera.lookAt(0, -0.15, 0);
+      camera.updateProjectionMatrix();
+      if (renderSize.x === w && renderSize.y === h && renderDpr === dpr) return;
+      if (webglRenderer) {
+        webglRenderer.setPixelRatio(dpr);
+        webglRenderer.setSize(w, h, false);
+      } else renderer.setSize(w, h);
+      renderSize.set(w, h);
+      renderDpr = dpr;
+    };
     const renderFrame = () => {
       renderer.render(scene, camera);
       if (tier === 3) renderer.domElement.style.backgroundColor = 'transparent';
@@ -955,6 +1019,14 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const now = performance.now();
         if (now - lastTier3Render < 66) return;
         lastTier3Render = now;
+      }
+      const bounds = container.getBoundingClientRect();
+      // CSS transforms change the displayed box without changing clientWidth.
+      // Keep the backing pixels matched throughout the pane transition.
+      syncRenderSize(bounds);
+      if (!reducedMotionRef.current) {
+        const sunAngle = performance.now() / 17000;
+        glintPoint1.position.set(Math.cos(sunAngle) * 4, 6, Math.sin(sunAngle) * 4);
       }
       const haloOpacity = chartHaloOpacity(performance.now() - focusStartRef.current, reducedMotionRef.current);
       haloMaterialsRef.current.forEach(material => { material.opacity = haloOpacity; });
@@ -978,7 +1050,6 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         }
       }
 
-      const bounds = container.getBoundingClientRect();
       // Deliberate local addition (§16.12 pending AUDIT-CHART): every glyph
       // and label sprite is held to its minimum on-screen size, measured from
       // the renderer's actual pixel size each frame — zoom, the pane swap and
@@ -987,6 +1058,13 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       if (bounds.height > 0) {
         const halfFovTan = Math.tan((camera.fov * Math.PI) / 360);
         sizedSpritesRef.current.forEach(({ sprite, minCssPx }) => {
+          if (tier === 3) { sprite.visible = false; return; }
+          const compact = bounds.width < 440;
+          const visibilityWidth = sprite.userData.visibilityWidth || 0;
+          sprite.visible = bounds.width >= visibilityWidth || sprite.userData.focused;
+          if (!sprite.visible) return;
+          const map = compact ? sprite.userData.compactTexture : sprite.userData.detailTexture;
+          if (map && sprite.material.map !== map) { sprite.material.map = map; sprite.material.needsUpdate = true; }
           const base = sprite.userData.baseScale as THREE.Vector3 | undefined;
           if (!base || !sprite.parent) return;
           sprite.getWorldPosition(sizedSpriteWorld);
@@ -996,8 +1074,59 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           const boost = typeof sprite.userData.hoverScaleFactor === 'number' ? sprite.userData.hoverScaleFactor : 1;
           const onScreenPx = base.y * boost * pxPerWorld;
           if (onScreenPx <= 0) return;
-          const floor = Math.max(1, minCssPx / onScreenPx);
+          const minimum = compact && sprite.userData.compactTexture
+            ? (bounds.width < 160 ? 6 : bounds.width < 240 ? 10 : 14) / 0.72
+            : compact ? Math.min(minCssPx, bounds.width < 160 ? 8 : 13) : minCssPx;
+          const floor = Math.max(1, minimum / onScreenPx);
           sprite.scale.set(base.x * boost * floor, base.y * boost * floor, 1);
+        });
+      }
+      // AUDIT2-CHART: degree labels, house numbers and cusp badges never sit
+      // on a glyph or each other. Their screen boxes are tested against every
+      // fixed glyph and each previously placed label; a colliding label steps
+      // along its own radius (outward for degree text, staggering clustered
+      // bodies) until it clears. The wheel is rigid, so a chosen offset holds
+      // steady; the lerp only eases transitions when the view changes.
+      const declutter = declutterRef.current;
+      if (declutter && bounds.height > 0 && declutter.movables.length) {
+        const fovTan = Math.tan((camera.fov * Math.PI) / 360);
+        const boxOf = (object: THREE.Object3D, halfWidth: number, halfHeight: number) => {
+          object.updateWorldMatrix(true, false);
+          const world = object.getWorldPosition(declutterWorld);
+          const distance = camera.position.distanceTo(world);
+          const pxPerWorld = distance > 0 ? bounds.height / (2 * distance * fovTan) : 0;
+          const projected = world.project(camera);
+          return {
+            x: (projected.x + 1) * bounds.width / 2,
+            y: (1 - projected.y) * bounds.height / 2,
+            hw: halfWidth * pxPerWorld,
+            hh: halfHeight * pxPerWorld,
+          };
+        };
+        const overlaps = (a: { x: number; y: number; hw: number; hh: number }, b: { x: number; y: number; hw: number; hh: number }) =>
+          Math.abs(a.x - b.x) < a.hw + b.hw + 2 && Math.abs(a.y - b.y) < a.hh + b.hh + 2;
+        const placed = declutter.obstacles.filter(entry => entry.object.visible).map(entry => {
+          const sprite = entry.object as THREE.Sprite;
+          return sprite.isSprite
+            ? boxOf(entry.object, sprite.scale.x / 2, sprite.scale.y / 2)
+            : boxOf(entry.object, entry.radius, entry.radius);
+        });
+        declutter.movables.forEach(movable => {
+          if (!movable.sprite.visible) return;
+          let target = movable.offsets[movable.offsets.length - 1];
+          let targetBox: { x: number; y: number; hw: number; hh: number } | null = null;
+          for (const offset of movable.offsets) {
+            movable.sprite.position.copy(movable.origin).addScaledVector(movable.axis, offset);
+            const box = boxOf(movable.sprite, movable.sprite.scale.x / 2, movable.sprite.scale.y / 2);
+            if (!placed.some(other => overlaps(box, other))) { target = offset;targetBox = box;break; }
+          }
+          movable.current += (target - movable.current) * 0.35;
+          if (Math.abs(target - movable.current) < 0.004) movable.current = target;
+          movable.sprite.position.copy(movable.origin).addScaledVector(movable.axis, movable.current);
+          // If there is no collision-free slot, details wait for focus or
+          // selection instead of piling up or drifting outside the wheel.
+          movable.sprite.visible = Boolean(targetBox) || movable.sprite.userData.focused;
+          if (targetBox) placed.push(targetBox);
         });
       }
       renderFrame();
@@ -1045,21 +1174,10 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     document.addEventListener('visibilitychange', wake);
     wake();
 
-    const renderSize = new THREE.Vector2(width, height);
     const handleResize = () => {
       dismissHover();
       if (disposed || contextLost) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      // Do not replace a valid canvas with viewport-sized pixels while layout is pending.
-      if (!w || !h) return;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      if (renderSize.x !== w || renderSize.y !== h) {
-        if (webglRenderer) webglRenderer.setSize(w, h, false);
-        else renderer.setSize(w, h);
-        renderSize.set(w, h);
-      }
+      syncRenderSize(container.getBoundingClientRect());
       // setSize clears the drawing buffer: repaint in the same callback.
       renderFrame();
       wake();
@@ -1132,6 +1250,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       });
       textures.forEach(texture => texture.dispose());
       materials.forEach(material => material.dispose());
+      scene.environment = null;
+      reflectionTarget?.dispose();
       webglRenderer?.dispose();
       tooltipEl.remove();
     };
@@ -1148,6 +1268,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     }
     const dynamicGroup = dynamicGroupRef.current;
     if (!dynamicGroup) return;
+    if (sceneRef.current) sceneRef.current.userData.wheelRadius = chart.currentSky ? 3.5 : 2.75;
 
     while (dynamicGroup.children.length > 0) {
       const child = dynamicGroup.children[0];
@@ -1175,6 +1296,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     // AUDIT-CHART: every authored label sprite registers here with its
     // on-screen minimum; the render loop holds each to it.
     const sizedLabels: Array<{ sprite: THREE.Sprite; minCssPx: number }> = [];
+    // AUDIT2-CHART: registries for the per-frame label declutter (see the
+    // render loop). Glyphs, beads and sign baubles are fixed obstacles; the
+    // movable labels dodge them along their own radii.
+    const declutterMovables: NonNullable<typeof declutterRef.current>['movables'] = [];
+    const declutterObstacles: NonNullable<typeof declutterRef.current>['obstacles'] = [];
     function createGlyphSprite(
       text: string,
       subText: string,
@@ -1250,7 +1376,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         ctx.font = `bold ${Math.round(S * GLYPH_FACE_FRACTION)}px "Cinzel", "Cinzel Decorative", "Times New Roman", Georgia, serif`;
         ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
-        ctx.lineWidth = 11;
+        ctx.lineWidth = 4;
         ctx.strokeStyle = '#ffffff';
         ctx.strokeText(text, cx, cy);
         ctx.fillStyle = '#080214';
@@ -1268,13 +1394,50 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       }
 
       const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.generateMipmaps = false;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      // AUDIT2-CHART: ACES filmic tone mapping was lifting and desaturating
+      // every authored sprite colour — the saturated sign fills painted as
+      // pale mint/peach and the near-black glyphs washed toward white. Text
+      // sprites paint exactly the colours the canvas drew.
       const mat = new THREE.SpriteMaterial({
         map: texture,
         transparent: true,
         depthTest: false,
+        toneMapped: false,
       });
       const sprite = new THREE.Sprite(mat);
       sprite.userData.focused = isHighlighted;
+      sprite.userData.crispLabel = true;
+      sprite.userData.detailTexture = texture;
+      // A thumbnail keeps the glyph itself, without hanging crowns or tiny
+      // degree subtext consuming its entire orbit. Details stay in callouts.
+      const compactCanvas = document.createElement('canvas');
+      compactCanvas.width = canvas.width; compactCanvas.height = canvas.height;
+      const compact = compactCanvas.getContext('2d')!;
+      compact.scale(dpr, dpr);
+      compact.beginPath(); compact.arc(128, 128, 118, 0, Math.PI * 2);
+      compact.fillStyle = isHighlighted ? '#fff36b' : colorHex; compact.fill();
+      compact.lineWidth = 6; compact.strokeStyle = '#ffdf80'; compact.stroke();
+      compact.fillStyle = '#080214'; compact.strokeStyle = '#080214';
+      compact.textAlign = 'center'; compact.textBaseline = 'middle';
+      if (earthSymbol) {
+        compact.lineWidth = 11; compact.beginPath();
+        compact.arc(128, 128, 64, 0, Math.PI * 2);
+        compact.moveTo(46, 128); compact.lineTo(210, 128);
+        compact.moveTo(128, 64); compact.lineTo(128, 192); compact.stroke();
+      } else {
+        compact.font = 'bold 184px "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", serif';
+        compact.fillText(text, 128, 138, 218);
+      }
+      const compactTexture = new THREE.CanvasTexture(compactCanvas);
+      compactTexture.colorSpace = THREE.SRGBColorSpace;
+      compactTexture.generateMipmaps = false;
+      compactTexture.minFilter = THREE.LinearFilter;
+      compactTexture.magFilter = THREE.LinearFilter;
+      sprite.userData.compactTexture = compactTexture;
       const finalScale = isHighlighted ? scale * 1.3 : scale;
       sprite.scale.set(finalScale, finalScale, 1);
       sprite.userData.baseScale = new THREE.Vector3(finalScale, finalScale, 1);
@@ -1282,6 +1445,51 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         MIN_GLYPH_CSS_PX / GLYPH_FACE_FRACTION,
         subText ? MIN_DEGREE_CSS_PX / DEGREE_FACE_FRACTION : 0
       );
+      sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
+      return sprite;
+    }
+    // AUDIT2-CHART: a body's degree readout is its own label, offset
+    // radially outward from the body — never printed inside the glyph sprite,
+    // where it piled onto glyphs and neighbouring degree text. Same texture
+    // density and the same ≥ 11 CSS px floor as every other label.
+    function createDegreeLabel(text: string, highlighted = false): THREE.Sprite {
+      const dpr = labelDevicePixelRatio();
+      const W = 232, H = 112;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      const ctx = canvas.getContext('2d')!;
+      ctx.scale(dpr, dpr);
+      ctx.font = 'bold 56px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = '#05020a';
+      ctx.strokeText(text, W / 2, H / 2);
+      ctx.fillStyle = highlighted ? '#fff1ac' : '#ffe9b8';
+      ctx.fillText(text, W / 2, H / 2);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.generateMipmaps = false;
+      texture.minFilter = THREE.LinearFilter;
+      const mat = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false,
+        toneMapped: false,
+      });
+      const sprite = new THREE.Sprite(mat);
+      sprite.userData.crispLabel = true;
+      const scaleY = 0.18;
+      const scaleX = 0.18 * (W / H);
+      sprite.scale.set(scaleX, scaleY, 1);
+      sprite.userData.baseScale = new THREE.Vector3(scaleX, scaleY, 1);
+      sprite.userData.minCssPx = MIN_DEGREE_CSS_PX / (56 / 112);
+      sprite.userData.visibilityWidth = 600;
+      sprite.userData.focused = highlighted;
+      sprite.renderOrder = 20;
       sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
       return sprite;
     }
@@ -1331,6 +1539,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const earthSprite = createGlyphSprite('⊕', 'Earth', '#38bdf8', 0.36, isEarthSelected, true);
     earthSprite.position.set(0, 0.36, 0);
     dynamicGroup.add(earthSprite);
+    declutterObstacles.push({ object: earthSprite, radius: 0.2 });
     addGlyphLabel('⊕', earthSprite.position.clone());
 
     // Interactive Hit Sphere for Earth Origin (Tested first)
@@ -1353,19 +1562,22 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     // 1. ZODIAC SIGNS (Superimposed on torus)
     ZODIAC_SIGNS.forEach((sign) => {
       const cuspRad = lonToRad(sign.lon);
-      // Deliberate local addition (§16.12 pending AUDIT-CHART): cusp ticks
-      // are short flat bars lying on the ring's crown, confined to its width
-      // between the bezels — never cylinders that cross the ring and stick
-      // out on both sides.
-      const tickGeo = new THREE.BoxGeometry(R_TORUS_TUBE * 2 - 0.1, 0.012, 0.03);
-      const tickMat = new THREE.MeshBasicMaterial({ color: 0xd4af37 });
-      const tick = new THREE.Mesh(tickGeo, tickMat);
-      tick.position.set(
-        Math.cos(cuspRad) * R_TORUS_TRACK,
-        R_TORUS_TUBE + 0.012,
-        Math.sin(cuspRad) * R_TORUS_TRACK
+      // Follow the actual torus cross-section all the way to both bezels.
+      // Depth testing hides the back of each fine stroke behind the rim.
+      const tickHalfSpan = R_TORUS_TUBE;
+      const tickPoints: THREE.Vector3[] = [];
+      for (let step = 0; step <= 48; step++) {
+        const d = -tickHalfSpan + (tickHalfSpan * 2 * step) / 48;
+        tickPoints.push(new THREE.Vector3(
+          Math.cos(cuspRad) * (R_TORUS_TRACK + d),
+          Math.sqrt(Math.max(0, R_TORUS_TUBE * R_TORUS_TUBE - d * d)) + 0.02,
+          Math.sin(cuspRad) * (R_TORUS_TRACK + d)
+        ));
+      }
+      const tick = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(tickPoints),
+        new THREE.LineBasicMaterial({ color: 0xffd875, toneMapped: false, depthWrite: false })
       );
-      tick.rotation.y = -cuspRad;
       tick.userData.focused = activeSelections.includes(sign.name);
       // Deliberate local addition (§16.12 pending INSET): sign ring ticks are
       // wheel structure; the focus-dim traverse never dims them.
@@ -1383,6 +1595,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       zSprite.position.set(zx, Y_SUPERIMPOSED + 0.1, zz);
       dynamicGroup.add(zSprite);
       addGlyphLabel(sign.glyph, zSprite.position.clone());
+      declutterObstacles.push({ object: zSprite, radius: 0.16 });
 
       const hitMesh = new THREE.Mesh(
         new THREE.SphereGeometry(0.24, 8, 8),
@@ -1411,21 +1624,20 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       // separators are flat radial bars whose ends reach into both rings
       // (inner guide ring and inner bezel), so each cusp line runs between
       // the rings, attached — never a hairline floating apart off the wheel.
-      const spokeInner = R_HOUSE_INNER - 0.015;
-      const spokeOuter = R_TORUS_TRACK - R_TORUS_TUBE + 0.015;
-      const spokeGeo = new THREE.BoxGeometry(spokeOuter - spokeInner, 0.01, isSelected ? 0.03 : isCardo ? 0.028 : 0.02);
-      const spokeMat = new THREE.MeshBasicMaterial({
-        color: isSelected ? 0xffdf80 : isCardo ? 0xf2ca50 : 0x7c6999,
+      const spokeInner = R_HOUSE_INNER;
+      const spokeOuter = R_TORUS_TRACK - R_TORUS_TUBE;
+      const spokeGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(Math.cos(rad) * spokeInner, 0.03, Math.sin(rad) * spokeInner),
+        new THREE.Vector3(Math.cos(rad) * spokeOuter, 0.03, Math.sin(rad) * spokeOuter),
+      ]);
+      const spokeMat = new THREE.LineBasicMaterial({
+        color: isSelected ? 0xffdf80 : 0xf2ca50,
         transparent: true,
-        opacity: isSelected ? 1.0 : isCardo ? 0.95 : 0.55,
+        opacity: isSelected ? 1.0 : isCardo ? 0.95 : 0.75,
+        toneMapped: false,
+        depthWrite: false,
       });
-      const spokeBar = new THREE.Mesh(spokeGeo, spokeMat);
-      spokeBar.position.set(
-        Math.cos(rad) * (spokeInner + (spokeOuter - spokeInner) / 2),
-        0.03,
-        Math.sin(rad) * (spokeInner + (spokeOuter - spokeInner) / 2)
-      );
-      spokeBar.rotation.y = -rad;
+      const spokeBar = new THREE.Line(spokeGeo, spokeMat);
       spokeBar.userData.focused = isSelected;
       // House spokes are wheel structure (§16.12 pending INSET): never dimmed.
       spokeBar.userData.wheelStructure = true;
@@ -1446,10 +1658,12 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       badgeSprite.position.set(badgeX, 0.08, badgeZ);
       badgeSprite.userData.targetId = houseId;
       badgeSprite.userData.focused = isSelected;
+      badgeSprite.userData.visibilityWidth = isCardo ? 700 : Number.POSITIVE_INFINITY;
       // The cusp badge carries the degree mark (its subtext); wheel structure
       // (§16.12 pending INSET) keeps it legible through any focus dim.
       badgeSprite.userData.wheelStructure = true;
       dynamicGroup.add(badgeSprite);
+      declutterMovables.push({ sprite: badgeSprite, origin: badgeSprite.position.clone(), axis: new THREE.Vector3(Math.cos(rad), 0, Math.sin(rad)), offsets: [0, -0.08, -0.16], current: 0 });
 
       const hitCusp = new THREE.Mesh(
         new THREE.SphereGeometry(0.2, 8, 8),
@@ -1505,10 +1719,14 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       hCtx.fillStyle = '#fff2bd';hCtx.fillText(h.num.toString(),128,133);
 
       const hTex = new THREE.CanvasTexture(hCanvas);
+      hTex.colorSpace = THREE.SRGBColorSpace;
+      hTex.generateMipmaps = false;
+      hTex.minFilter = THREE.LinearFilter;
       const hMat = new THREE.SpriteMaterial({
         map: hTex,
         transparent: true,
         depthTest: false,
+        toneMapped: false,
       });
       const hSprite = new THREE.Sprite(hMat);
       const hScale = isSelected ? 0.34 : 0.28;
@@ -1518,12 +1736,15 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       sizedLabels.push({ sprite: hSprite, minCssPx: hSprite.userData.minCssPx });
       hSprite.position.set(hNumX, 0.04, hNumZ);
       hSprite.userData.focused = isSelected;
+      hSprite.userData.visibilityWidth = 160;
       hSprite.userData.targetId = houseId;
       // House numbers are wheel structure (§16.12 pending INSET): never dimmed.
       hSprite.userData.wheelStructure = true;
+      hSprite.userData.crispLabel = true;
       hSprite.userData.orientationAnchor = true;
       hSprite.renderOrder = 20;
       dynamicGroup.add(hSprite);
+      declutterMovables.push({ sprite: hSprite, origin: hSprite.position.clone(), axis: new THREE.Vector3(Math.cos(midRad), 0, Math.sin(midRad)), offsets: [0, -0.12, -0.24, 0.12], current: 0 });
 
       const hitSector = new THREE.Mesh(
         new THREE.SphereGeometry(0.19, 8, 8),
@@ -1596,9 +1817,16 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       dynamicGroup.add(bead);
 
       const uncertainMoon = chart.input.birthTimeUnknown && body.name === 'Moon';
-      const sprite = createGlyphSprite(body.glyph, uncertainMoon ? '?' : body.degText, body.color, 0.4, isSelected);
+      const sprite = createGlyphSprite(body.glyph, '', body.color, 0.4, isSelected);
       sprite.position.set(x, 0.36, z);
       dynamicGroup.add(sprite);
+      sprite.userData.glyphLabel = true;
+      declutterMovables.push({ sprite, origin: sprite.position.clone(), axis: new THREE.Vector3(Math.cos(adjustedRad), 0, Math.sin(adjustedRad)), offsets: [0, -0.24, 0.24, -0.48, 0.48, -0.72, 0.72], current: 0 });
+      const degreeLabel = createDegreeLabel(uncertainMoon ? '?' : body.degText, isSelected);
+      const labelAxis = new THREE.Vector3(Math.cos(adjustedRad), 0, Math.sin(adjustedRad));
+      degreeLabel.position.copy(sprite.position).addScaledVector(labelAxis, 0.32);
+      dynamicGroup.add(degreeLabel);
+      declutterMovables.push({ sprite: degreeLabel, origin: degreeLabel.position.clone(), axis: labelAxis, offsets: [0, 0.12, 0.24, 0.36, 0.48], current: 0 });
       addGlyphLabel(body.glyph, sprite.position.clone());
       addEndpointLabel('NATAL', body.name, body.glyph, uncertainMoon ? 'Birth time needed' : body.fullDegText, new THREE.Vector3(x, 0.36, z), body.name, isSelected);
       bead.userData.targetId = sprite.userData.targetId = body.name;
@@ -1620,7 +1848,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         accent: body.color,
       };
       dynamicGroup.add(hitPlanet);
-      interactiveObjectsRef.current.push(hitPlanet);
+      Object.assign(sprite.userData, hitPlanet.userData);
+      interactiveObjectsRef.current.push(sprite, hitPlanet);
     });
 
     // Current sky is a separate cyan orbit. Longitudes use the same orientation as
@@ -1648,35 +1877,13 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           new THREE.MeshPhysicalMaterial({ color: 0x8aefff, emissive: 0x26cde2, emissiveIntensity: focused ? 1.1 : 0.5, metalness: 0.5, roughness: 0.18 })
         );
         bead.position.copy(position); bead.userData.focused = focused; dynamicGroup.add(bead);
-        let sprite: THREE.Sprite;
-        if (!showAnnotations) {
-          sprite = createGlyphSprite(body.glyph, '', '#67e8f9', 0.34, focused);
-        } else {
-          // AUDIT-CHART: NOW labels drawn at 320×152 logical px ×
-          // devicePixelRatio, held to the same glyph/degree floors.
-          const nDpr = labelDevicePixelRatio();
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(320 * nDpr); canvas.height = Math.round(152 * nDpr);
-          const ctx = canvas.getContext('2d')!;
-          ctx.scale(nDpr, nDpr);
-          ctx.fillStyle = '#062b38'; ctx.strokeStyle = focused ? '#e0fcff' : '#67e8f9'; ctx.lineWidth = 5;
-          ctx.beginPath(); ctx.roundRect(5, 5, 310, 142, 22); ctx.fill(); ctx.stroke();
-          ctx.textAlign = 'center'; ctx.fillStyle = '#c7faff';
-          ctx.font = 'bold 48px Arial'; ctx.fillText('NOW ' + body.glyph, 160, 66);
-          ctx.font = 'bold 34px Arial'; ctx.fillText(body.name, 160, 116);
-          sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, depthTest: false }));
-          const nScaleX = focused ? 0.72 : 0.62;
-          const nScaleY = focused ? 0.342 : 0.295;
-          sprite.scale.set(nScaleX, nScaleY, 1);
-          sprite.userData.baseScale = new THREE.Vector3(nScaleX, nScaleY, 1);
-          sprite.userData.minCssPx = Math.max(MIN_GLYPH_CSS_PX / (48 / 152), MIN_DEGREE_CSS_PX / (34 / 152));
-          sizedLabels.push({ sprite, minCssPx: sprite.userData.minCssPx });
-        }
+        const sprite = createGlyphSprite(body.glyph, showAnnotations ? 'NOW ' + body.name : '', '#67e8f9', 0.34, focused);
         sprite.position.copy(position); sprite.position.y = 0.37;
         sprite.userData.focused = focused; dynamicGroup.add(sprite);
         addGlyphLabel(body.glyph, sprite.position.clone());
         addEndpointLabel('NOW', body.name, body.glyph, body.fullDegText, sprite.position.clone(), body.target, focused);
         bead.userData.targetId = sprite.userData.targetId = body.target;
+        declutterObstacles.push({ object: sprite, radius: 0.17 });
         const hit = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), new THREE.MeshBasicMaterial({ visible: false }));
         hit.position.copy(sprite.position);
         hit.userData = {
@@ -1771,6 +1978,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     endpointLabelsRef.current = endpointLabels;
     glyphLabelsRef.current = glyphLabels;
     sizedSpritesRef.current = sizedLabels;
+    declutterMovables.sort((left, right) => Number(Boolean(right.sprite.userData.glyphLabel)) - Number(Boolean(left.sprite.userData.glyphLabel)));
+    declutterRef.current = { movables: declutterMovables, obstacles: declutterObstacles };
     // Structural frame meshes are exempt and stay vivid at their recorded
     // focusBaseOpacity; only non-focused representational elements dim. The
     // wheel structure — house spokes, house numbers, cusp degree badges, sign
@@ -1787,7 +1996,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           material.userData.focusBaseTransparent = material.transparent;
         }
         material.transparent = focusActive || material.userData.focusBaseTransparent;
-        material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !object.userData.orientationAnchor && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
+        material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !object.userData.crispLabel && !object.userData.orientationAnchor && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
         material.needsUpdate = true;
       });
     });
@@ -1814,7 +2023,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const materials = item.material ? (Array.isArray(item.material) ? item.material : [item.material]) : [];
         materials.forEach(material => {
           // Wheel structure never dims, on focus or hover (§16.12 pending INSET).
-          material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !targets.has(object.userData.targetId) && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
+          material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !object.userData.crispLabel && !targets.has(object.userData.targetId) && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
         });
       });
     };
@@ -1850,15 +2059,21 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       glyphLabels.forEach(({ element }) => { element.remove(); });
       if (glyphLabelsRef.current === glyphLabels) glyphLabelsRef.current = [];
       sizedSpritesRef.current = [];
+      if (declutterRef.current?.movables === declutterMovables) declutterRef.current = null;
+      const textures = new Set<THREE.Texture>();
       dynamicGroup.traverse(object => {
         const renderable = object as THREE.Mesh;
         renderable.geometry?.dispose();
         const materials = renderable.material ? (Array.isArray(renderable.material) ? renderable.material : [renderable.material]) : [];
         materials.forEach(material => {
-          (material as THREE.SpriteMaterial).map?.dispose();
+          const texture = (material as THREE.SpriteMaterial).map;
+          if (texture) textures.add(texture);
           material.dispose();
         });
+        if (object.userData.detailTexture) textures.add(object.userData.detailTexture);
+        if (object.userData.compactTexture) textures.add(object.userData.compactTexture);
       });
+      textures.forEach(texture => texture.dispose());
       dynamicGroup.clear();
     };
   }, [chart, activeSelections, showAnnotations, layoutKey]);
