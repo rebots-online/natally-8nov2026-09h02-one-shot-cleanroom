@@ -421,6 +421,8 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    chart is sized to the visible window: the whole wheel fits, nothing cut
    off at the bottom. The wheel's background is black, not purple — focused
    or floating.
+   Every inset — the floating chart and Natally's card — sits wholly inside
+   the visible window, never cut off at the bottom or any edge.
    From first load, the floating chart is placed just as well: a corner on
    the side away from the cards, clear of Natally's face, at a size where
    every glyph reads (§4 face-aware placement, measured with the card column
