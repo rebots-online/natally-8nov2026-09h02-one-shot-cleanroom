@@ -70,8 +70,7 @@ export function presentationReducer(
       };
     }
     case 'clear':
-      if (state.focusTargets.length === 0) return state;
-      return { ...state, focusTargets: [], sequence: state.sequence + 1 };
+      return { ...state, selectedTargets: [], focusTargets: [], sequence: state.sequence + 1 };
     case 'view': {
       // A manual choice turns follow off; automatic view cues stop after
       // that (they arrive here without `manual` and are dropped).

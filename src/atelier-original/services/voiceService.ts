@@ -140,6 +140,23 @@ export function prepareSpeechWithOffsets(rawText: string): { text: string; sourc
     copied = start + match[0].length;
   }
   if(copied){expanded.push(...characters.slice(copied));characters=expanded;}
+  const pronunciationText = characters.map(item => item.char).join('');
+  const pronounced: typeof characters = [];
+  let pronunciationCopied = 0;
+  for (const match of pronunciationText.matchAll(/\batelier\b/gi)) {
+    const start = match.index!;
+    const spoken = 'ah-tell-yay';
+    pronounced.push(...characters.slice(pronunciationCopied, start));
+    pronounced.push(...spoken.split('').map((char, offset) => ({
+      char,
+      index: characters[start + Math.min(match[0].length - 1, Math.floor(offset * match[0].length / spoken.length))].index,
+    })));
+    pronunciationCopied = start + match[0].length;
+  }
+  if (pronunciationCopied) {
+    pronounced.push(...characters.slice(pronunciationCopied));
+    characters = pronounced;
+  }
   const compact: typeof characters = [];
   for (const item of characters) {
     if (/\s/.test(item.char)) {

@@ -38,6 +38,8 @@ export interface SpeakOptions {
   * utterance and supersedes anything still audible.
   */
  flush?: boolean;
+ /** Successful completion of this whole flushed utterance, never a cancelled one. */
+ onComplete?: () => void;
 }
 
 export interface VoiceState {
@@ -93,9 +95,21 @@ export function createVoice(): Voice {
  let fresh = true;
  let epoch = 0;
  let running = false;
+ let flushed = false;
+ let played = false;
+ let failed = false;
+ let completion: (() => void) | undefined;
  // First-chunk audio pre-synthesised for the next queued sentence while the
  // current one plays (§8.1 item 4). Always belongs to the current epoch.
  let preparedNext: Promise<LocalSpeech> | null = null;
+
+ const completeIfReady = () => {
+  if (!flushed || running || queue.length > 0 || pending.trim() !== '' || !played) return;
+  const callback = completion;
+  completion = undefined;
+  flushed = false;
+  callback?.();
+ };
 
  /** The first worker chunk speakNatallyText would split this line into, or
   *  null when prefetching is off or the line has nothing to speak. */
@@ -139,11 +153,33 @@ export function createVoice(): Voice {
     // sentence starts playing (§8.1 item 4); the worker serialises it
     // behind this sentence's own chunks so it is ready at the boundary.
     const upcomingPrepared = mine === epoch && queue[0] ? firstSpeechChunk(queue[0]) : null;
-    await speakNatallyText(line, loadVoiceSettings(), undefined, undefined, (charIndex: number) => {
+    void upcomingPrepared?.catch(() => {});
+    const completed = await speakNatallyText(line, loadVoiceSettings(), undefined, undefined, (charIndex: number) => {
      const wordIndex = Math.max(0, words.findIndex(word => word.index! >= charIndex));
      dispatchKaraoke({ line, wordIndex, wordCount: words.length });
     }, prepared ? { preparedAudio: prepared } : undefined);
-    if (mine === epoch && upcomingPrepared) preparedNext = upcomingPrepared;
+    if (mine !== epoch) return;
+    if (!completed) {
+     completion = undefined;
+     flushed = false;
+     queue = [];
+     pending = '';
+     failed = true;
+     preparedNext = null;
+     return;
+    }
+    played = true;
+    if (upcomingPrepared) preparedNext = upcomingPrepared;
+   }
+  } catch (cause) {
+   if (mine === epoch) {
+    completion = undefined;
+    flushed = false;
+    queue = [];
+    pending = '';
+    failed = true;
+    preparedNext = null;
+    state.error = cause instanceof Error ? cause.message : 'Voice playback failed.';
    }
   } finally {
    running = false;
@@ -151,6 +187,7 @@ export function createVoice(): Voice {
    else if (mine === epoch) {
     state.speaking = false;
     emit();
+    completeIfReady();
    }
   }
  };
@@ -160,6 +197,10 @@ export function createVoice(): Voice {
   queue = [];
   pending = '';
   fresh = true;
+  flushed = false;
+  played = false;
+  failed = false;
+  completion = undefined;
   preparedNext = null;
   stopSpeaking();
   if (state.speaking) {
@@ -174,12 +215,18 @@ export function createVoice(): Voice {
     stop();
     fresh = false;
    }
+   if (failed) {
+    if (opts?.flush) fresh = true;
+    return;
+   }
    pending += text;
    const complete = opts?.flush ? pending : (COMPLETE_SENTENCES.exec(pending)?.[0] ?? '');
    pending = pending.slice(complete.length);
    if (complete.trim() !== '') queue.push(complete.trim());
-   if (opts?.flush) fresh = true;
+   if (opts?.onComplete) completion = opts.onComplete;
+   if (opts?.flush) { fresh = true; flushed = true; }
    void pump();
+   completeIfReady();
   },
   stop,
   admit() {

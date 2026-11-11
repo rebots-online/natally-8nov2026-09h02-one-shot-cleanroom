@@ -72,6 +72,8 @@ export interface ChatStage {
   revealedOpening?: string | null;
   /** Presentation progress of every reply, for the stage to drive. */
   onReply: (event: ReplyEvent) => void;
+  /** Capture this reply's successful speech cleanup before another interaction. */
+  captureSpeechCompletion?: () => (() => void);
 }
 
 export interface UseChat {
@@ -229,6 +231,7 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
         { id: replyId, role: 'natally', text: '', at: Date.now() },
       ]);
       stageRef.current?.onReply({ phase: 'begin' });
+      const speechComplete = stageRef.current?.captureSpeechCompletion?.();
 
       let failed = false;
       try {
@@ -253,7 +256,7 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
             ),
           );
         }
-        stageRef.current?.voice.speakStream('', { flush: true });
+        stageRef.current?.voice.speakStream('', { flush: true, onComplete: speechComplete });
         stageRef.current?.onReply({ phase: 'final' });
       } catch (cause) {
         failed = true;

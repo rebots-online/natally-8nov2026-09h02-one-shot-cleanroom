@@ -381,6 +381,7 @@ export default function App() {
  const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
  const [chart, setChart] = useState<NatalChart | null>(null);
  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
+ const interactionEpochRef = useRef(0);
  const stageRootRef = useRef<HTMLDivElement | null>(null);
  const stageVisualHeight = useStageVisualHeight(stageRootRef);
  // The landing stage's own root and visual height: the same arrangement
@@ -559,12 +560,22 @@ export default function App() {
   const driver = driverRef.current;
   if (driver === null) return;
   if (event.phase === 'begin') {
+   interactionEpochRef.current += 1;
    // A new utterance supersedes the opening: her words are all visible.
    endOpeningReveal();
    driver.begin(voice.admitted);
   } else if (event.phase === 'delta') driver.update(event.text, event.cues);
   else if (event.phase === 'final') driver.end();
   else driver.finish();
+ };
+
+ const captureSpeechCompletion = () => {
+  const epoch = interactionEpochRef.current;
+  return () => {
+   if (epoch !== interactionEpochRef.current) return;
+   driverRef.current?.finish();
+   dispatch({ type: 'clear' });
+  };
  };
 
  // The landing's own driver (§12.1 4b, 4c): a tapped component's passage
@@ -590,10 +601,22 @@ export default function App() {
  const handleLandingReplyEvent = (event: ReplyEvent) => {
   const driver = landingDriverRef.current;
   if (driver === null) return;
-  if (event.phase === 'begin') driver.begin(voice.admitted);
+  if (event.phase === 'begin') {
+   interactionEpochRef.current += 1;
+   driver.begin(voice.admitted);
+  }
   else if (event.phase === 'delta') driver.update(event.text, event.cues);
   else if (event.phase === 'final') driver.end();
   else driver.finish();
+ };
+
+ const captureLandingSpeechCompletion = () => {
+  const epoch = interactionEpochRef.current;
+  return () => {
+   if (epoch !== interactionEpochRef.current) return;
+   landingDriverRef.current?.finish();
+   dispatchLanding({ type: 'clear' });
+  };
  };
 
  // Her spoken word boundaries advance the cues.
@@ -636,8 +659,6 @@ export default function App() {
   () =>
    voice.onState(state => {
     if (speakingRef.current && !state.speaking) {
-     driverRef.current?.finish();
-     landingDriverRef.current?.finish();
      endOpeningReveal();
     }
     speakingRef.current = state.speaking;
@@ -659,7 +680,7 @@ export default function App() {
    openingSpokenRef.current = true;
    voice.admit();
    beginOpeningReveal();
-   voice.speakStream(openingClean, { flush: true });
+   voice.speakStream(openingClean, { flush: true, onComplete: captureSpeechCompletion() });
   };
   window.addEventListener('pointerdown', admit, { once: true });
   window.addEventListener('keydown', admit, { once: true });
@@ -672,7 +693,7 @@ export default function App() {
   if (openingClean !== null && voice.admitted && !openingSpokenRef.current) {
    openingSpokenRef.current = true;
    beginOpeningReveal();
-   voice.speakStream(openingClean, { flush: true });
+   voice.speakStream(openingClean, { flush: true, onComplete: captureSpeechCompletion() });
   }
  }, [openingClean, voice]);
 
@@ -697,6 +718,7 @@ export default function App() {
    voice,
    opening,
    onReply: handleReplyEvent,
+   captureSpeechCompletion,
    revealedOpening:
     openingReveal === null || openingClean === null ? null : openingClean.slice(0, openingReveal),
   }),
@@ -762,16 +784,20 @@ export default function App() {
   const parsed = parseReply(raw, chartTargets(liveChart, sky));
   voice.stop();
   handleReplyEvent({ phase: 'begin' });
-  voice.speakStream(parsed.text, { flush: true });
+  const speechComplete = captureSpeechCompletion();
+  voice.speakStream(parsed.text, { flush: true, onComplete: speechComplete });
   handleReplyEvent({ phase: 'delta', text: parsed.text, cues: parsed.cues });
   handleReplyEvent({ phase: 'final' });
  };
 
  const explainTap = (target: string) => {
   tapClaimedSeqRef.current = pressSeqRef.current;
+  voice.stop();
+  const epoch = ++interactionEpochRef.current;
   if (chart === null) return;
   void skyToday(chart.input)
    .then(today => {
+    if (epoch !== interactionEpochRef.current) return;
     // The sky argument is positional over the chart's bodies: entry i is
     // chart.bodies[i] placed now, matched by name across the pipelines.
     const placements: SkyPlacement[] = [];
@@ -787,6 +813,7 @@ export default function App() {
     speakPassage(target, chart, placements);
    })
    .catch(() => {
+    if (epoch !== interactionEpochRef.current) return;
     // The sky of the moment never arrived: degrade truthfully, sky: null.
     speakPassage(target, chart, null);
    });
@@ -838,13 +865,16 @@ export default function App() {
   const parsed = parseReply(raw, chartTargets(natal, sky));
   voice.stop();
   handleLandingReplyEvent({ phase: 'begin' });
-  voice.speakStream(parsed.text, { flush: true });
+  const speechComplete = captureLandingSpeechCompletion();
+  voice.speakStream(parsed.text, { flush: true, onComplete: speechComplete });
   handleLandingReplyEvent({ phase: 'delta', text: parsed.text, cues: parsed.cues });
   handleLandingReplyEvent({ phase: 'final' });
  };
 
  const landingExplainTap = (target: string) => {
   tapClaimedSeqRef.current = pressSeqRef.current;
+  voice.stop();
+  const epoch = ++interactionEpochRef.current;
   // The tap is itself the gesture that admits her voice, and it brings the
   // chart forward at once (§12.1 4b); the passage's cues then highlight
   // each involved element as she speaks. When this tap is the visit's
@@ -856,6 +886,7 @@ export default function App() {
   if (exampleNatal === null) return;
   void landingSkyToday()
    .then(today => {
+    if (epoch !== interactionEpochRef.current) return;
     // The sky argument is positional over the chart's bodies, matched by
     // name across the pipelines — the same rule as the signed-in tap.
     const placements: SkyPlacement[] = [];
@@ -871,6 +902,7 @@ export default function App() {
     speakLandingPassage(target, exampleNatal, placements);
    })
    .catch(() => {
+    if (epoch !== interactionEpochRef.current) return;
     // The sky of the moment never arrived: degrade truthfully, sky: null.
     speakLandingPassage(target, exampleNatal, null);
    });
@@ -1255,6 +1287,7 @@ export default function App() {
          isSpinning
          resetTrigger={0}
          highlightedComponents={landingPresentation.focusTargets}
+         focusSequence={landingPresentation.sequence}
          onComponentTap={landingExplainTap}
         />
        ) : (
@@ -1454,6 +1487,7 @@ export default function App() {
          resetTrigger={0}
          selectedPlanetName={focusBody}
          highlightedComponents={presentation.focusTargets}
+         focusSequence={presentation.sequence}
          onComponentTap={explainTap}
         />
        ) : (
