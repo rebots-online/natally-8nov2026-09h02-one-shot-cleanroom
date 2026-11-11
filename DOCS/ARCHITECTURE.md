@@ -1096,7 +1096,8 @@ memory; none in URL/storage/logs. No fetch/CORS bypass. On a returned redirect
 without credentials show a truthful retry, never an automatic redirect loop.
 Cancel sends only {state,provider:'google',cancelled:true}. The Rust verifier
 checks nonce/provider and absence of credential fields before ending the wait.
-Use no-store/no-referrer metadata and no third-party analytics on this page.
+Use no-store metadata and referrer policy origin (origin only), with no
+third-party analytics on this page.
 Invalid flow says Open Natally and choose Sign in again. Configuration/Google
 errors remain visible, with retry/cancel where a valid flow still exists.
 
@@ -1109,3 +1110,13 @@ Rust tests remain; add cancellation coverage there. Configuration/parser gaps
 were closed by named reads of Cargo.toml, vite.config.ts and the previously
 trimmed Firebase helper region107–193 after CodeGraph. Native HTTP origin,
 loopback-only peer/host, size/header limits and nonce checks remain binding.
+
+Callback policy correction: WHATWG Fetch §3.2 append-Origin rules make a
+no-referrer form navigation send Origin:null; strict-origin policies also
+suppress Origin for HTTPS-to-HTTP. The auth utility therefore sets referrer
+policy origin, which preserves exactly https://asknatally.online for its
+loopback POST while sharing no path/query/token. Rust's required Origin check
+stays exact. The native response's existing no-referrer policy remains.
+Source: https://fetch.spec.whatwg.org/#append-a-request-origin-header.
+Observe a real browser-generated loopback cancellation POST header as a
+transport protocol check; it is not proof of Google sign-in or native login.

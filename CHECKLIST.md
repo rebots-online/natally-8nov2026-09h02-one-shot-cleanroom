@@ -624,7 +624,12 @@ Do:
    session flow before submission. Returned-null credentials show real retry
    rather than redirect loops. Missing/invalid/expired flow says Open Natally
    and choose Sign in again. Valid flow keeps real retry/cancel on errors.
-   No-referrer/no-store metadata; no invented sign-in success.
+   Referrer meta policy origin (not no-referrer or strict-origin variants),
+   no-store metadata; no invented sign-in success. Keep native response's
+   existing no-referrer policy and exact Rust Origin validation. Observe an
+   actual browser-generated loopback cancellation POST carrying
+   Origin:https://asknatally.online (isolated transport protocol only, no
+   synthetic Google/native-login claim).
 5. Registered Node test executes actual TypeScript modules in memory via
    installed Node stripTypeScriptTypes/controlled imports. Cover native wrapper
    invoking real command name/provider and Firebase credential installation;
