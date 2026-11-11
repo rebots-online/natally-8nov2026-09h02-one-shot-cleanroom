@@ -449,8 +449,7 @@ changes). **Backup rule:** Namecheap's DNS write (`setHosts`) replaces the
 entire host-records set at once — every write MUST be preceded by a `getHosts`
 read whose full snapshot is saved (with timestamp) as the rollback before any
 `setHosts` call; writes are serialized, never concurrent. Current deploys
-go to `natally-8nov2026.surge.sh` only (no robin.mba dependency);
-`astronatally.com` is the landing domain.
+are CI/CD (`build_all.sh`), not architecture.
 Wiring, when ordered, touches: static root split (the bundle's `/` is the
 landing copy and `src/main.tsx` dispatches on a pathname containing
 `landing`, so the app domain needs `app.html` at root or a redirect),

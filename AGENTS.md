@@ -13,10 +13,9 @@
     code; acceptance is a recorded screencast against every rubric checkpoint
     (DOCS/DEMONSTRATIONS/). Static inspection and lint never substitute.
 
-11. Every web publish goes to the product domains: astronatally.com
-    (landing at /, app at /app.html) and asknatally.online (app at /).
-    No deploy depends on temporary hosts — no robin.mba subdomain, no
-    dated surge.sh alias (operator 2026-11-11).
+11. Every web publish goes to astronatally.com (the landing) and
+    asknatally.online (the webapp). No deploy depends on temporary
+    subdomains (operator 2026-11-11).
 4. No placeholder functionality, mock customer experiences, dummy payments,
    or invented customer data.
 5. No greps; no verification runs by the orchestrator; coders locate only

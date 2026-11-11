@@ -33,13 +33,10 @@ git commit -qm "Stamp shared web, desktop and Android release identity" || true
 git push origin HEAD
 npm run lint
 npx vite build --outDir dist-web
-cp dist-web/landing.html dist-web/index.html
+cp dist-web/app.html dist-web/index.html
 echo "Web build complete → dist-web/"
-# Both product domains receive this exact frontend before any native compiler
-# starts (operator 2026-11-11: no temporary/dated hosts). astronatally.com
-# serves the landing at / (app at /app.html, same origin so sign-in carries);
-# asknatally.online serves the app itself at /.
-rm -rf dist-app && cp -r dist-web dist-app && cp dist-app/app.html dist-app/index.html
+# astronatally.com is the landing; the webapp lands on asknatally.online
+# (ARCHITECTURE §12.1). No temporary subdomains.
 npx surge dist-web astronatally.com
-npx surge dist-app asknatally.online
+npx surge dist-web asknatally.online
 exec node scripts/build-native.mjs
