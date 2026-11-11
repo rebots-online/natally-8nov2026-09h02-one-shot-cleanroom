@@ -424,7 +424,8 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
 5a. **Layout: big atelier, cards off to the side.** The atelier fills the
-   stage, big. The cards look like the sign-in card and sit off to the side —
+   stage, big, never cropped: Natally and her crystal ball are always whole —
+   nothing is cut in half by the viewport, the card column or the inset. The cards look like the sign-in card and sit off to the side —
    never in the middle over Natally — and neither the cards nor the chart
    cover her; the chart inset keeps its face-aware placement (§4). In both
    states — atelier on the stage or the focused chart on the stage — the cards
