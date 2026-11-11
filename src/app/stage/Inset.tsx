@@ -81,7 +81,7 @@ export const BODY_TARGET_PX = 44;
 /** Inset width cap as a fraction of stage width (the architecture's 60%). */
 export const INSET_MAX_W = 0.6;
 const COMPACT_INSET_MIN_PX = 96;
-const COMPACT_INSET_DEFAULT_PX = 180;
+const COMPACT_INSET_DEFAULT_PX = 400;
 /** Height = width × aspect; the wheel is square. */
 const ASPECT = 1;
 /** Inset chrome that is not wheel: the drag bar plus both borders, px. */
@@ -340,8 +340,8 @@ type AutoPlacement =
  * Overlap with size is monotone per corner, so each corner's best sits at
  * the size breakpoints where the growing inset edges cross her face edges.
  */
-function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: number, preferredWidthPx?: number): AutoPlacement {
-  const cap = Math.min(allowedWidthPx(stage), preferredWidthPx ?? Number.POSITIVE_INFINITY);
+function computeAutoPlacement(stage: StageBox, face: Rect | null, floorPx: number): AutoPlacement {
+  const cap = allowedWidthPx(stage);
   // The stage cannot offer a useful floating chart at all.
   if (floorPx > cap) return { kind: 'invert' };
 
@@ -551,6 +551,19 @@ export function Inset({
       setGeometry(current => (current === null ? current : clampGeometry(current, stage, floorPx)));
       return;
     }
+    if (compact) {
+      const width = Math.min(
+        window.innerWidth <= 760 ? 180 : COMPACT_INSET_DEFAULT_PX,
+        allowedWidthPx(stage),
+      );
+      const header = document.querySelector('.app-header--front')?.getBoundingClientRect();
+      const host = stageElement()?.getBoundingClientRect();
+      const top = Math.max(DOCK_MARGIN, (header?.bottom ?? 0) - (host?.top ?? 0) - stage.top + DOCK_MARGIN);
+      reportInvert(false);
+      setMode('floating');
+      setGeometry(clampGeometry({ x: DOCK_MARGIN / stage.width, y: top / stage.height, w: width / stage.width }, stage, floorPx));
+      return;
+    }
     if (!compact && (sideFits(stage, floorPx) || stackFits(stage, floorPx))) {
       // Large enough to dock beside the scene: neither obscures the other,
       // the scene re-zooms into the remaining space.
@@ -578,16 +591,9 @@ export function Inset({
             x2: face.x2 - stage.left,
             y2: face.y2 - stage.top,
           };
-    const preferredWidthPx = compact
-      ? Math.min(window.innerWidth <= 760 ? 144 : COMPACT_INSET_DEFAULT_PX, allowedWidthPx(stage))
-      : undefined;
-    const placement = computeAutoPlacement(stage, faceInBox, compact ? Math.min(floorPx, allowedWidthPx(stage)) : floorPx, preferredWidthPx);
-    reportInvert(!compact && placement.kind === 'invert');
+    const placement = computeAutoPlacement(stage, faceInBox, floorPx);
+    reportInvert(placement.kind === 'invert');
     if (placement.kind === 'dock') setGeometry(placement.geometry);
-    else if (compact) {
-      const width = preferredWidthPx ?? COMPACT_INSET_DEFAULT_PX;
-      setGeometry(clampGeometry({ x: 1 - (width + DOCK_MARGIN) / stage.width, y: 1 - (width + DOCK_MARGIN) / stage.height, w: width / stage.width }, stage, floorPx));
-    }
   }, [stage, mode, floorPx, compact, stageElement, reportInvert]);
 
   // Lay out the host stage and layer for the current mode. While the chart
