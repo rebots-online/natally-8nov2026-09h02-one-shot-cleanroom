@@ -1,0 +1,10 @@
+{
+  "authorization": "operator-approved-product",
+  "approvalRecord": "Robin 2026-11-11: \"ASSIGN TO CODERS FROM CHECKLIST\" \u2014 ARCHITECTURE \u00a712.1 frozen, CHECKLIST LANDING (e576500)",
+  "task": "LANDING-B",
+  "sourceRevision": "e5765004491e6c7516c05f23369d10ecacc5bcb0",
+  "ownedPaths": [
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/landing-original/marketing.tsx",
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/landing-original/marketing.css"
+  ]
+}
