@@ -1,0 +1,16 @@
+        Info Looking up installed tauri packages to check mismatched versions...
+   Compiling natally-ai-studio v1.31.768 (/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri)
+warning: natally-ai-studio@1.31.768: STATIC_VCRUNTIME is deprecated; use build.windows.staticVCRuntime in tauri.conf.json or tauri_build::WindowsAttributes::static_vc_runtime instead.
+    Finished `release` profile [optimized + debuginfo] target(s) in 1m 06s
+       Built application at: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/natally-ai-studio
+        Info Patching /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/natally-ai-studio with bundle type information: appimage
+    Bundling Natally_1.31.768_amd64.AppImage (/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/appimage/Natally_1.31.768_amd64.AppImage)
+        Info Patching /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/natally-ai-studio with bundle type information: deb
+    Bundling Natally_1.31.768_amd64.deb (/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/deb/Natally_1.31.768_amd64.deb)
+        Info Patching /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/natally-ai-studio with bundle type information: rpm
+    Bundling Natally-1.31.768-1.x86_64.rpm (/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/rpm/Natally-1.31.768-1.x86_64.rpm)
+    Finished 3 bundles at:
+        /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/appimage/Natally_1.31.768_amd64.AppImage
+        /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/deb/Natally_1.31.768_amd64.deb
+        /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/release/bundle/rpm/Natally-1.31.768-1.x86_64.rpm
+

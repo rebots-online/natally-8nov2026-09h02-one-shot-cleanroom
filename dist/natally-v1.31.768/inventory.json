@@ -1,0 +1,35 @@
+{
+  "version": "1.31.768",
+  "builtAt": "2026-11-11T12:05:21.865Z",
+  "sourceCommit": "d7a60737d6f0702185c9ec5466b6ed8f34ba6cca",
+  "artifacts": [
+    {
+      "kind": "linux-x64.AppImage",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-linux-x64.AppImage",
+      "bytes": 117660152,
+      "sha256": "a9d203de53a49cae78b34f0e7d22e8f5405cec94e9f374fc78c881abde18ed7d"
+    },
+    {
+      "kind": "linux-x64.deb",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-linux-x64.deb",
+      "bytes": 44303978,
+      "sha256": "5a915141b44f696ecd412e85f1adb77a20e3a9b34a4d178adf484576f576e009"
+    },
+    {
+      "kind": "linux-x64.rpm",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-linux-x64.rpm",
+      "bytes": 44300091,
+      "sha256": "4f54fdd2b53ed72adeed1d5fa7f1ab8969a1d11a518aa34281f38555e8d98532"
+    }
+  ],
+  "targets": {
+    "linux": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T12:05:45.936Z",
+      "finishedAt": "2026-11-11T12:16:19.867Z"
+    },
+    "windows": {
+      "state": "running"
+    }
+  }
+}
