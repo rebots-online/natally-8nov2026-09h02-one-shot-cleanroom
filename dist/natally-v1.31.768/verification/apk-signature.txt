@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=SanctissiMissa Upload, O=Robin L M Cheung MBA, C=CA
+Signer #1 certificate SHA-256 digest: 56c13674ef22df95deb1e5c468820e8cfa3ea2f522511749ab7b6e5bde3bd943
+Signer #1 certificate SHA-1 digest: fecea2abd61295c2efb17415c468c26f5182f939
+Signer #1 certificate MD5 digest: 4f0ef43edc918514f0ecfc2b56f503e3
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 0b62d87fd107d1cc5d27eacb0f293199b8edaa737fdcf436b5060afa87745b29
+Signer #1 public key SHA-1 digest: 1ab8e6e5679b1b88f72757c8040f8388be6603bd
+Signer #1 public key MD5 digest: c1eaa326c4e5e85e73241597c4977c75

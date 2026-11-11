@@ -1,0 +1,31 @@
+{
+  "observedAt": "2026-11-11T12:22:10.569121+00:00",
+  "version": "1.31.768",
+  "sourceCommit": "d7a60737d6f0702185c9ec5466b6ed8f34ba6cca",
+  "apkPath": "dist/natally-v1.31.768/natally-v1.31.768-android-arm64.apk",
+  "applicationId": "mba.robin.astronatally",
+  "versionName": "1.31.768",
+  "versionCode": "100310768",
+  "sdkApkSignatureVerification": "exit0",
+  "canonicalConfiguredProductionCertificateComparison": "passed before builder staged APK",
+  "canonicalZipalign16KiB": "passed",
+  "canonicalAabJarsignerVerification": "passed",
+  "versionProjections": {
+    "version.json": "1.31.768",
+    "version.txt": "1.31.768",
+    "package.json": "1.31.768",
+    "package-lock.json": "1.31.768",
+    "Cargo.toml": "1.31.768",
+    "Cargo.lock": "1.31.768",
+    "tauri.conf.json": "1.31.768"
+  },
+  "windowsInstallerSigning": "Tauri cross-build log explicitly says signing skipped; Windows packaging success is not signing acceptance",
+  "nativeArtifactsGitDelivery": "bytes preserved locally in versioned dist; no artifact filter or LFS endpoint configured; no raw oversized blobs, GitHub LFS, Forgejo contact or remote changes",
+  "notVerified": [
+    "real Google account sign-in and native return",
+    "native install/runtime journey",
+    "direct per-customer OpenRouter provisioning",
+    "real model reading",
+    "real purchase"
+  ]
+}

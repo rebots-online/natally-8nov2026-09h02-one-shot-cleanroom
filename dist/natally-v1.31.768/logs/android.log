@@ -1,0 +1,57 @@
+        Info Using installed NDK: /home/robin/Android/Sdk/ndk/27.2.12479018
+        Info Looking up installed tauri packages to check mismatched versions...
+[1m[92m   Compiling[0m natally-ai-studio v1.31.768 (/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri)
+[1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 59.60s
+        Info symlinking lib "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" in jniLibs dir "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/jniLibs/arm64-v8a"
+        Info "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "liblog.so"
+        Info "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libandroid.so"
+        Info "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libdl.so"
+        Info "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libm.so"
+        Info "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libc.so"
+        Info symlink at "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/jniLibs/arm64-v8a/libnatally_ai_studio_lib.so" points to "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so"
+w: file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/build.gradle.kts:62:9: 'jvmTarget: String' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+        Info connection; remote_addr=127.0.0.1:45462 conn_id=0
+[1m[32m        Info[0m Using installed NDK: /home/robin/Android/Sdk/ndk/27.2.12479018
+[1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 0.30s
+[1m[32m        Info[0m symlinking lib "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" in jniLibs dir "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/jniLibs/arm64-v8a"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "liblog.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libandroid.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libdl.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libm.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libc.so"
+w: file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/java/mba/robin/astronatally/generated/RustWebView.kt:26:18 'var databaseEnabled: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/java/mba/robin/astronatally/generated/WryActivity.kt:69:46 'fun onBackPressed(): Unit' is deprecated. This method has been deprecated in favor of using the
+      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.
+      The OnBackPressedDispatcher controls how back button events are dispatched
+      to one or more {@link OnBackPressedCallback} objects.
+
+[Incubating] Problems report is available at: file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+        Info connection; remote_addr=127.0.0.1:45306 conn_id=1
+[1m[32m        Info[0m Using installed NDK: /home/robin/Android/Sdk/ndk/27.2.12479018
+[1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 0.36s
+[1m[32m        Info[0m symlinking lib "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" in jniLibs dir "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/src/main/jniLibs/arm64-v8a"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "liblog.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libandroid.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libdl.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libm.so"
+[1m[32m        Info[0m "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/aarch64-linux-android/release/libnatally_ai_studio_lib.so" requires shared lib "libc.so"
+
+[Incubating] Problems report is available at: file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+    Finished 1 APK at:
+        /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
+
+    Finished 1 AAB at:
+        /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab
+

@@ -38,6 +38,24 @@
       "path": "dist/natally-v1.31.768/natally-v1.31.768-windows-x64.msi",
       "bytes": 21527552,
       "sha256": "737bb7eded0c951a7cfbb02cd3a5e7fb335f49c2579bdaf61c98c4feab3c7e15"
+    },
+    {
+      "kind": "android-apk",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-android-arm64.apk",
+      "bytes": 103270143,
+      "sha256": "24d826f923bf7ae8dd921bd65f0ea2f0f506881d505319d7e9f66ee76ccd467f"
+    },
+    {
+      "kind": "android-aab",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-android-arm64.aab",
+      "bytes": 41153381,
+      "sha256": "660faf9280d6109eb671da99a91072579a754211fd2323bad7957e188051d51e"
+    },
+    {
+      "kind": "android-symbols",
+      "path": "dist/natally-v1.31.768/natally-v1.31.768-android-arm64-native-debug-symbols.zip",
+      "bytes": 13587782,
+      "sha256": "f603861cdf53412fa8b12ae91ffd4c97e3f38540986828a9ea8d72797d6d4262"
     }
   ],
   "targets": {
@@ -57,7 +75,11 @@
       "finishedAt": "2026-11-11T12:17:47.056Z"
     },
     "android": {
-      "state": "running"
+      "state": "packaged",
+      "startedAt": "2026-11-11T12:17:47.056Z",
+      "finishedAt": "2026-11-11T12:21:33.176Z"
     }
-  }
+  },
+  "finishedAt": "2026-11-11T12:21:33.176Z",
+  "complete": true
 }
