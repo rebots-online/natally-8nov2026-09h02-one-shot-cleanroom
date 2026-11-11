@@ -403,6 +403,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    it or by choosing its menu item.
 5. **Leaving the natal-chart content swaps back to the atelier** — by
    scrolling out of it or by choosing a menu item outside it.
+5a. **Nothing in the middle.** Neither the cards nor the chart sit in the
+   middle of the stage over Natally: she and her chart are both always
+   visible, neither covering the other — the chart keeps the inset's
+   face-aware placement (§4), and the cards scroll by beside her, never over
+   her face.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
