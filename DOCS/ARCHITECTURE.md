@@ -403,6 +403,9 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    chart** — when the cards talking about the chart scroll into view (or its
    menu item is chosen), the chart takes focus and fills the stage and the
    atelier becomes the inset (the existing swap, `swapInsetView`).
+4a. **A tap focuses the chart** — primary inset behaviour (§4): a tap on the
+   floating chart brings it to focus, filling the stage, with the atelier as
+   the inset; scrolling and menu items drive the same swap.
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
