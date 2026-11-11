@@ -78,11 +78,38 @@ function requireAuth(): Auth {
   return auth;
 }
 
+async function nativeGoogleIdToken(): Promise<string> {
+  try {
+    const { invoke } = await import('@tauri-apps/api/core');
+    const value = await invoke<unknown>('native_sign_in', { provider: 'google' });
+    if (typeof value !== 'object' || value === null || !('provider' in value)
+      || value.provider !== 'google' || !('idToken' in value)
+      || typeof value.idToken !== 'string' || !value.idToken || value.idToken.length > 16384) {
+      throw new Error('The native browser returned an invalid Google credential.');
+    }
+    const accessToken = 'accessToken' in value ? value.accessToken : undefined;
+    if (accessToken != null && (typeof accessToken !== 'string' || !accessToken || accessToken.length > 16384)) {
+      throw new Error('The native browser returned an invalid Google access token.');
+    }
+    await signInWithCredential(requireAuth(), GoogleAuthProvider.credential(value.idToken, typeof accessToken === 'string' ? accessToken : undefined));
+    return value.idToken;
+  } catch (error) {
+    if (error === 'Sign-in cancelled' || (error instanceof Error && error.message === 'Sign-in cancelled')) {
+      throw new SignInCancelledError();
+    }
+    throw error;
+  }
+}
+
 /** Google sign-in via popup, falling back to redirect when the popup is
  *  blocked. Cancellation (the person closed the popup) throws
  *  SignInCancelledError; every other failure rethrows for
  *  describeSignInFailure() to name. */
 export async function googleSignIn(): Promise<void> {
+  if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+    await nativeGoogleIdToken();
+    return;
+  }
   const a = requireAuth();
   const provider = new GoogleAuthProvider();
   try {
@@ -114,6 +141,7 @@ export async function googleSignIn(): Promise<void> {
  *  (the person closed the popup) throws SignInCancelledError; every other
  *  failure rethrows for describeSignInFailure() to name. */
 export async function googleSignInForIdToken(): Promise<string> {
+  if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) return nativeGoogleIdToken();
   const a = requireAuth();
   const provider = new GoogleAuthProvider();
   try {

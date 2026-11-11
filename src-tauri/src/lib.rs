@@ -1,20 +1,15 @@
 mod native_billing;
 
-#[cfg(desktop)]
 mod native_auth;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-  let builder = tauri::Builder::default().plugin(native_billing::init());
-  #[cfg(desktop)]
-  let builder = builder.invoke_handler(tauri::generate_handler![
+  let builder = tauri::Builder::default()
+    .plugin(native_billing::init())
+    .plugin(tauri_plugin_opener::init())
+    .invoke_handler(tauri::generate_handler![
     native_auth::native_sign_in,
     native_auth::cancel_native_sign_in,
-    native_billing::native_billing_platform,
-    native_billing::native_billing
-  ]);
-  #[cfg(mobile)]
-  let builder = builder.invoke_handler(tauri::generate_handler![
     native_billing::native_billing_platform,
     native_billing::native_billing
   ]);

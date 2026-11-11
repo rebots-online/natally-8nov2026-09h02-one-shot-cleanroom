@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      input: { landing: 'landing.html', app: 'app.html' },
+      input: { landing: 'landing.html', app: 'app.html', nativeAuth: 'auth/native.html' },
       output: { manualChunks: id => id.includes('three') ? 'three' : id.includes('firebase') ? 'firebase' : undefined },
     },
   },

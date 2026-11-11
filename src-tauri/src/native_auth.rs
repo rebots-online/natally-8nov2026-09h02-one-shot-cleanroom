@@ -1,5 +1,6 @@
 use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, sync::atomic::{AtomicBool, Ordering}, time::{Duration, Instant}};
 use serde::{Deserialize, Serialize};
+use tauri_plugin_opener::OpenerExt;
 
 const ORIGIN: &str = "https://asknatally.online";
 const LIMIT: usize = 32768;
@@ -16,11 +17,20 @@ pub struct Credentials {
     access_token: Option<String>,
     verification_id: Option<String>,
     code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cancelled: Option<bool>,
 }
 
 fn validate(body: &str, state: &str, provider: &str) -> Result<Credentials, String> {
     let value: Credentials = serde_json::from_str(body).map_err(|_| "Invalid callback body")?;
     if value.state != state || value.provider != provider { return Err("Invalid sign-in state".into()); }
+    if value.cancelled == Some(true) {
+        if (provider == "google" || provider == "phone") && value.id_token.is_none()
+            && value.access_token.is_none() && value.verification_id.is_none() && value.code.is_none() {
+            return Ok(value);
+        }
+        return Err("Invalid sign-in cancellation".into());
+    }
     let valid = match provider {
         "google" => value.id_token.as_ref().is_some_and(|v| !v.is_empty() && v.len() < 16384)
             && value.verification_id.is_none() && value.code.is_none(),
@@ -73,11 +83,12 @@ fn receive(stream: &mut TcpStream, port: u16, state: &str, provider: &str) -> Re
     validate(&fields[0].1, state, provider)
 }
 
-fn respond(stream: &mut TcpStream, valid: bool) {
+fn respond(stream: &mut TcpStream, valid: bool, cancelled: bool) {
     let config: serde_json::Value = serde_json::from_str(include_str!("../tauri.conf.json")).expect("projected application configuration");
     let name = config["productName"].as_str().expect("required configured application name")
         .replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;").replace('\'', "&#39;");
-    let message = if valid { format!("Sign-in returned to {name}. Return to the app to see the result. You can close this tab.") }
+    let message = if cancelled { format!("Sign-in cancelled. Return to {name} whenever you are ready to try again. You can close this tab.") }
+        else if valid { format!("Sign-in returned to {name}. Return to the app to see the result. You can close this tab.") }
         else { format!("This sign-in callback was rejected. Return to {name} and try again.") };
     let body = format!("<!doctype html><html lang=\"en\"><meta name=\"viewport\" content=\"width=device-width\"><title>{name} sign-in</title><h1>{name}</h1><p>{message}</p></html>");
     let status = if valid { "200 OK" } else { "400 Bad Request" };
@@ -85,7 +96,7 @@ fn respond(stream: &mut TcpStream, valid: bool) {
     let _ = write!(stream, "HTTP/1.1 {status}\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{}", body.len(), body);
 }
 
-fn flow(provider: String) -> Result<Credentials, String> {
+fn flow(app: tauri::AppHandle, provider: String) -> Result<Credentials, String> {
     if provider != "google" && provider != "phone" { return Err("Unsupported sign-in provider".into()); }
     let listener = loop {
         let candidate = TcpListener::bind("127.0.0.1:0").map_err(|_| "Cannot start secure sign-in callback")?;
@@ -97,7 +108,8 @@ fn flow(provider: String) -> Result<Credentials, String> {
     getrandom::fill(&mut random).map_err(|_| "Cannot generate secure sign-in state")?;
     let state: String = random.iter().map(|v| format!("{v:02x}")).collect();
     let url = format!("{ORIGIN}/auth/native.html#port={port}&state={state}&provider={provider}");
-    open::that(&url).map_err(|_| "Cannot open your system browser. Check the default browser setting.")?;
+    app.opener().open_url(&url, None::<&str>)
+        .map_err(|_| "Cannot open your system browser. Check the default browser setting.")?;
     wait_for_callback(listener, &state, &provider, Duration::from_secs(300), &CANCELLED)
 }
 
@@ -109,8 +121,12 @@ fn wait_for_callback(listener: TcpListener, state: &str, provider: &str, timeout
             Ok((mut stream, peer)) => {
                 if !peer.ip().is_loopback() { continue; }
                 let result = receive(&mut stream, port, state, provider);
-                respond(&mut stream, result.is_ok());
-                if let Ok(value) = result { return Ok(value); }
+                let browser_cancelled = result.as_ref().is_ok_and(|value| value.cancelled == Some(true));
+                respond(&mut stream, result.is_ok(), browser_cancelled);
+                if let Ok(value) = result {
+                    if browser_cancelled { return Err("Sign-in cancelled".into()); }
+                    return Ok(value);
+                }
             },
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => std::thread::sleep(Duration::from_millis(50)),
             Err(_) => return Err("Sign-in callback failed".into()),
@@ -121,10 +137,10 @@ fn wait_for_callback(listener: TcpListener, state: &str, provider: &str, timeout
 
 #[cfg(not(test))]
 #[tauri::command]
-pub async fn native_sign_in(provider: String) -> Result<Credentials, String> {
+pub async fn native_sign_in(app: tauri::AppHandle, provider: String) -> Result<Credentials, String> {
     if ACTIVE.swap(true, Ordering::AcqRel) { return Err("A sign-in is already running".into()); }
     CANCELLED.store(false, Ordering::Release);
-    let result = tauri::async_runtime::spawn_blocking(move || flow(provider)).await;
+    let result = tauri::async_runtime::spawn_blocking(move || flow(app, provider)).await;
     ACTIVE.store(false, Ordering::Release);
     result.map_err(|_| "Sign-in task failed".to_string())?
 }
@@ -147,6 +163,41 @@ mod tests {
     }
     #[test]
     fn rejects_credentials_for_unknown_provider() { assert!(validate(r#"{"state":"n","provider":"email","idToken":"t"}"#, "n", "email").is_err()); }
+
+    #[test]
+    fn cancellation_requires_matching_flow_and_no_credentials() {
+        let cancelled = r#"{"state":"nonce","provider":"google","cancelled":true}"#;
+        assert!(validate(cancelled, "nonce", "google").unwrap().cancelled == Some(true));
+        assert!(validate(cancelled, "wrong", "google").is_err());
+        assert!(validate(cancelled, "nonce", "phone").is_err());
+        for field in [r#""idToken":"token""#, r#""accessToken":"token""#, r#""verificationId":"id""#, r#""code":"123456""#] {
+            let body = format!(r#"{{"state":"nonce","provider":"google","cancelled":true,{field}}}"#);
+            assert!(validate(&body, "nonce", "google").is_err());
+        }
+        assert!(validate(r#"{"state":"nonce","provider":"email","cancelled":true}"#, "nonce", "email").is_err());
+    }
+
+    #[test]
+    fn invalid_cancellation_does_not_end_waiting_login() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        listener.set_nonblocking(true).unwrap();
+        let sender = std::thread::spawn(move || {
+            for credential in [r#"{"state":"wrong","provider":"google","cancelled":true}"#,
+                r#"{"state":"nonce","provider":"google","cancelled":true}"#] {
+                let body = format!("credential={}", url::form_urlencoded::byte_serialize(credential.as_bytes()).collect::<String>());
+                let wire = format!("POST /natally-auth HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nOrigin: {ORIGIN}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\n\r\n{body}", body.len());
+                let mut stream = TcpStream::connect(("127.0.0.1", port)).unwrap();
+                stream.write_all(wire.as_bytes()).unwrap();
+                let mut response = String::new();
+                stream.read_to_string(&mut response).unwrap();
+                assert!(response.contains(if credential.contains("wrong") { "400 Bad Request" } else { "Sign-in cancelled" }));
+            }
+        });
+        let result = wait_for_callback(listener, "nonce", "google", Duration::from_secs(3), &AtomicBool::new(false));
+        assert!(matches!(result, Err(message) if message == "Sign-in cancelled"));
+        sender.join().unwrap();
+    }
 
     fn request(origin: &str, host_override: Option<&str>, state: &str, route: &str) -> bool {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
