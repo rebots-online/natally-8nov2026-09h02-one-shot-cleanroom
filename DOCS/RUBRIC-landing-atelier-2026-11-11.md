@@ -46,6 +46,10 @@ claims that the current page passes.
    approximately 400 px reference size, overlapping sign/body/house badges and
    degree labels are still a failure: simplify the visual hierarchy and reveal
    secondary annotations on hover/selection rather than draw a jumble.
+    Markers retain their sculpted three-dimensional bead/medallion appearance:
+    smaller high-contrast glyphs, no large flat cartoon stickers. Close bodies
+    may occupy different modest heights above the ecliptic with fine leaders
+    to their true longitudes. Every body remains visible and selectable.
 10. **Precise gold structure.** Turn and resize the wheel. Gold sign ticks and
     house spokes meet their intended rings at the exact calculated angles,
     especially across the top/back, with no detached bars, protruding ends,

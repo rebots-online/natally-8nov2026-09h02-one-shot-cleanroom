@@ -495,7 +495,13 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    400 px reference size, avoid the observed pile of sign/body/house badges
    and degree text: maintain distinct visual lanes and suppress overlapping
    secondary annotations until hover/selection; never solve this by enlarging
-   every badge to the same large minimum.
+   every badge to the same large minimum. Preserve sculpted 3D beads/medallions
+   with small transparent glyph-only labels over dark jewel surfaces. No
+   flat painted circle/sticker replacement. Separate close body markers with
+   height lanes spaced about 0.12 world units (at most four lanes), keeping
+   each body's true longitude and drawing a fine leader to its original
+   ecliptic anchor. Every body remains visible/selectable; decluttering may
+   suppress secondary text, never a body. Text contrast remains at least 4.5:1.
    Sign ticks are precise radial strokes on the ring band and house spokes
    terminate on their actual rings at the calculated cusps: no projecting
    cylinders, detached bars, duplicate arcs, z-fighting or label pile-ups.
@@ -568,6 +574,24 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    and font on resize, paginate the words, and display the page containing
    the original active-word index. Never clip the speaking word out of view,
    show a long paragraph, or add a caption scrollbar.
+   Restrict each rolling window to the current sentence (at most one adjacent
+   sentence if it fits). On phones the caption occupies the sticky stage's
+   foot; the whole room inset has a separate top band below the header and
+   the focused chart uses the intervening canvas band, with at least 160 px
+   of usable chart height when the viewport permits. The private CSS property
+   `--landing-stage-height` owns the shared height formula used by the sticky
+   scene, anchor offsets, card cue and caption. Increase the focused band only
+   as needed to fit the room + chart + caption within the visible viewport;
+   no element covers another.
+5g. **Overlay speech status (operator correction 2026-11-11 — FROZEN).**
+   `VoiceDownloadStatus`/`VoiceProgress` remain truthful but superimpose as a
+   small fixed acrylic status surface, max-width min(360px,100vw - 24px), with
+   about 70% plum tint, backdrop blur and a subtle border. Voice download MB,
+   percent, preparation, synthesis and retry remain observable. Appearing or
+   disappearing must never change stage/inset dimensions or scroll position.
+   Remove stage bottom/height reservation driven by `--landing-voice-bar-h`;
+   keep the status away from controls, with pointer events only for its own
+   interactive controls. Synthesis is a quiet status in production too.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
@@ -722,6 +746,7 @@ contract.
 | `KaraokeCaption` (default), `KaraokeState` ·priv | comp, iface ·priv | `app/karaokeCaption.tsx:14,9` | spoken-word caption |
 | `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (96, 400) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
 | `.landing-scroll-cue`, `.landing-card`, `.landing-cards`, `.karaoke-caption .is-glowing` | CSS/UI selectors | `app/landing/LandingCards.tsx:157`, `app/landing/landing.css:19`, `app/app-shell.css` existing karaoke rule | LANDING-POLISH layout: directional section controls, card rhythm, static bright-yellow speaking-word glow; existing component-local state/handlers only |
+| `--landing-stage-height` | private CSS property | `app/landing/landing.css` narrow landing selectors | POLISH-LAYOUT: one shared sticky-stage/anchor/caption height; nonoverlapping phone room/chart/caption bands |
 | `VersionBadge` (default) | comp | `app/VersionBadge.tsx:7` | build stamp display |
 | `TopUpSheet` (default), `TopUpSheetProps`, `describeLoadError` ·priv | comp, iface, fn ·priv | `app/TopUpSheet.tsx:35,20,~25` | packs + souvenir sheet |
 | `BirthForm` (default), `BirthFormProps`, `MIN_QUERY_CHARS`/`SEARCH_DEBOUNCE_MS`/`MAX_SUGGESTIONS`/`DATE_RE`/`TIME_RE` ·priv | comp, iface, const ·priv | `app/intake/BirthForm.tsx:23,20,20–21` | clean-room intake |

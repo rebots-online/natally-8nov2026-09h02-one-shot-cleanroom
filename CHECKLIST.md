@@ -268,6 +268,55 @@ POLISH-LAYOUT and report actual observations, not static-code confidence.
 
 ### DOMAIN-RETIREMENT — pending after the landing corrections
 
+### POLISH-CHART-3D — operator's sculpted-marker correction
+
+Exclusive owner: `src/atelier-original/components/Astrolabe3D.tsx`. Same
+renderer/props as POLISH-CHART; no new module API. Keep checkpoint 109e40e's
+exact surface-following ticks, ring joins, full-DPR rendering and PMREM sun
+reflection. Replace its provisional flat painted circle/sticker treatment
+with the existing sculpted 3D beads/medallions, dark jewel surfaces and smaller
+transparent glyph-only labels (at least 4.5:1 glyph/surface contrast). Keep the
+smooth rounded rim and perspective. Group neighbouring body longitudes within
+12 degrees into up to four height lanes separated by about 0.12 world units;
+retain every body's exact longitude, use fine leaders to its actual ecliptic
+anchor and keep picks at the displayed marker. Decluttering suppresses only
+secondary text, NEVER a body (including Neptune). At 400 px the result has
+clear space between bodies/glyphs, not enlarged overlapping badges.
+
+When `focusSequence` changes and external highlighted/selected/selectedPlanet
+are all empty, clear the renderer's existing `localAspectFocus` latch too;
+this is the neutral-reset signal the next shell task will send. Glyphs and
+structure retain contrast during narration/hover; no pale-on-pale or excessive
+alpha dimming. Typecheck `npx tsc --noEmit` exit0; commit+push owned file. Record
+rubric9/10/21 at floating/focused400px, all three viewport sizes and DPR1/2,
+including close-body selection then neutral reset. Do not claim style accepted
+until observed. No build/publish yet.
+
+### POLISH-OVERLAY — speech status superimposes
+
+Own `src/app/VoiceDownloadStatus.tsx`, `src/app/AppShell.tsx` landing voice-bar
+measurement/reservation only, `src/app/landing/landing.css` voice-bar offset
+rules only. Read POLISH-LAYOUT's current code before edits; coordinate the
+same owner for both tasks. §12.1 5g: make `.nv-bar` a small fixed acrylic
+surface (max-width min(360px,100vw - 24px), ~70% plum tint, blur, subtle border),
+preserving truthful MB/percentage, prepare/synthesis status and retry. Show
+quiet synthesis status in production. Do not move the stage/inset or scrollY:
+remove measurement-driven stage bottom/height reservations and corresponding
+`--landing-voice-bar-h` layout offsets. Keep interactive status controls usable
+and never cover the chart's grips/caption/card controls. No new module symbols.
+Typecheck exit0, commit+push. Record rubric20 through real synthesis start/end,
+compare observed stage/inset rectangles and scrollY, and inspect all3sizes.
+
+POLISH-LAYOUT phone completion addendum: `--landing-stage-height` is authorized
+in `landing.css` as the single shared private height formula for the sticky
+scene, card anchor/cue and caption. In focused narrow mode reserve top room
+band below the header, chart middle band (>=160px when available) and caption
+foot; increase stage height within visible viewport only as needed. Keep
+whole Natally, readable chart and two-line current-sentence caption clear of
+one another. Preserve the customer's manual geometry. Same type/proof gates.
+
+### DOMAIN-RETIREMENT — pending after the landing corrections
+
 Retire the old personal-domain URLs throughout first-party tracked repository
 text/configuration and scripts, including historical prose. Runtime landing
 entries use astronatally.com/www.astronatally.com and app entries use
