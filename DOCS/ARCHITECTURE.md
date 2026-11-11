@@ -399,15 +399,17 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    background of the card that today carries the second "click here to sign
    in" (that card's look is kept; its second-click role is removed per item
    2). The cards scroll by; no landing copy remains as plain scrolling text.
-4. **Entering the natal-chart content swaps to the chart** — by scrolling into
-   it or by choosing its menu item.
-5. **Leaving the natal-chart content swaps back to the atelier** — by
-   scrolling out of it or by choosing a menu item outside it.
-5a. **Nothing in the middle.** Neither the cards nor the chart sit in the
-   middle of the stage over Natally: she and her chart are both always
-   visible, neither covering the other — the chart keeps the inset's
-   face-aware placement (§4), and the cards scroll by beside her, never over
-   her face.
+4. **Entering the natal-chart content swaps the atelier for the focused
+   chart** — when the cards talking about the chart scroll into view (or its
+   menu item is chosen), the chart takes focus and fills the stage and the
+   atelier becomes the inset (the existing swap, `swapInsetView`).
+5. **Leaving the natal-chart content swaps back** — scrolling out of it or
+   choosing a menu item outside it returns the big atelier to the stage and
+   the chart to the inset.
+5a. **Layout: big atelier, cards off to the side.** The atelier fills the
+   stage, big. The cards look like the sign-in card and sit off to the side —
+   never in the middle over Natally — and neither the cards nor the chart
+   cover her; the chart inset keeps its face-aware placement (§4).
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
