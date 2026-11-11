@@ -1,19 +1,24 @@
 // The dockable, resizable chart inset (DOCS/ARCHITECTURE.md §Chart inset —
 // clean-room, written from the architecture words only). Whichever pane is
 // not in focus floats over the stage from first load; drag anywhere across
-// the full stage and it docks near an edge or corner on release; a corner
-// grip and Alt+arrow keys resize, arrow keys move; position, size and
-// docked/floating mode persist per account in localStorage.
+// the full stage and it docks near an edge or corner on release; corner
+// grips on all four corners and Alt+arrow keys resize, arrow keys move;
+// position, size and docked/floating mode persist per account in
+// localStorage.
 //
 // Size is set by usefulness, not by a percentage: the floor is the smallest
 // inset at which every individual house number and every individual planet
 // symbol on the wheel can be told apart and read, with every body a
 // fingertip-sized (~44 CSS px) target. N bodies sit around the wheel's rim,
 // so packing N 44 px targets on the circumference 2πr needs a wheel
-// diameter of about N·44/π (≈196 px for a full 14-body wheel) — house
-// numbers, evenly spaced at 30°, are comfortably readable inside that.
-// Above the floor the inset prefers larger, up to 60% of the stage; the
-// customer can resize anywhere from the floor to that cap.
+// diameter of about N·44/π (≈196 px for a full 14-body wheel). Glyph
+// legibility usually demands more: house numbers are 68 px digits on a
+// 128 px sprite at 0.28 world scale and planet symbols 54 px at 0.34–0.40,
+// and the wheel's 4.86-unit diameter fills about 0.74 of the card's
+// content width — the smallest glyph is only GLYPH_MIN_PX tall once the
+// card reaches ~46 px per legibility pixel. Above the floor the inset
+// prefers larger, up to 60% of the stage; the customer can resize anywhere
+// from the floor to that cap.
 //
 // On stages large enough, the chart docks BESIDE the scene — side by side
 // or stacked, whichever fits — and the scene re-zooms into the remaining
@@ -24,10 +29,25 @@
 // beneath (bottom edge) docks it beside again. Smaller stages fall back to
 // the floating-card ranges.
 //
-// The inset moves like a card: picked up anywhere on its surface, with a
-// short move threshold so a tap without movement still selects the
-// planet/sign/house/aspect under the pointer — moving and exploring never
-// fight.
+// The inset moves like a card: picked up by its chrome (bar, border,
+// anywhere off the wheel), with a short move threshold so a tap without
+// movement still selects the planet/sign/house/aspect under the pointer.
+// A mouse/pen grab on the wheel itself is the wheel's own gesture — 3D tilt
+// and momentum spin — never a card drag, so moving and exploring never
+// fight. Touch pointers cannot hover, so they follow the press-hold rule:
+// holding LONG_PRESS_MS arms the card drag (then any movement drags);
+// moving sooner hands the gesture to the wheel beneath; a quick tap acts
+// as hover+click on the component it lands on, and a tap where no
+// component sits reports `onSwap` — after a tick, so a component tap the
+// chart claims through `onComponentTap` cancels the swap. A drag never
+// swaps or selects.
+//
+// The card is the chart's inset boundary (`data-chart-callout-boundary` +
+// `data-chart-inset`), so the chart clamps its tooltip to the card and
+// runs its two-path inset clicks. Focused (the chart view) the boundary
+// marker drops away and the same pane fills the stage's visual area — one
+// element throughout, so a view swap re-lays-out the chart without ever
+// remounting it.
 //
 // First-load floating placement serves one intent: the customer can always
 // see both Natally and her chart well enough to use them — neither defeats
@@ -39,10 +59,11 @@
 // the stage inverts — the chart takes focus and Natally becomes the inset,
 // the same swap a reading uses. Placement re-evaluates on resize until the
 // customer moves the pane; after that the customer's own choice always
-// wins. When the chart is focused (`focused`) the same pane fills the
-// stage's visual area.
+// wins.
 
 import {
+  cloneElement,
+  isValidElement,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -50,6 +71,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactElement,
   type ReactNode,
 } from 'react';
 import './inset.css';
@@ -62,6 +84,15 @@ export const INSET_MAX_W = 0.6;
 const ASPECT = 1;
 /** Inset chrome that is not wheel: the drag bar plus both borders, px. */
 const CHROME_PX = 32;
+/**
+ * Smallest on-screen height (CSS px) at which every individual house
+ * number and planet symbol on the wheel is still readable; drives the
+ * glyph-legibility term of the size floor.
+ */
+const GLYPH_MIN_PX = 10;
+/** Touch press-hold that arms a card drag (movement before it is the
+ *  wheel's gesture, not the card's). */
+const LONG_PRESS_MS = 500;
 /** Breathing room between a docked inset and the stage edge, in px. */
 const DOCK_MARGIN = 12;
 /** How close to an edge (fraction of that axis) a release must land to dock. */
@@ -117,6 +148,14 @@ export interface InsetProps {
   /** Bodies drawn on this wheel; sets the usefulness size floor. */
   bodyCount?: number;
   /**
+   * Click/tap on the inset where no chart component was hit: swap the two
+   * views. Component taps the chart claims (through `onComponentTap`)
+   * cancel the pending swap.
+   */
+  onSwap?: () => void;
+  /** Chart component taps, forwarded to the chart child element. */
+  onComponentTap?: (target: string) => void;
+  /**
    * First-load evaluation: true when the stage is too small for both panes
    * and the chart should take focus (Natally becomes the inset). Reported
    * on every change until the customer moves the pane.
@@ -145,12 +184,23 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 /**
- * The usefulness floor: the smallest inset width at which every body on the
- * wheel is a ~44 px target on the rim — N·44/π of wheel plus the chrome.
+ * The usefulness floor: the larger of the fingertip rim — the smallest
+ * inset at which every body on the wheel is a ~44 px target on the rim,
+ * N·44/π of wheel plus the chrome — and the glyph-legibility floor, the
+ * smallest card at which the wheel's smallest glyph (a live-sky planet
+ * symbol: 54 px on a 128 px sprite at 0.34 world scale = 18.36/128 ≈ 0.143
+ * world units, against house numbers at 68 px × 0.28 = 0.149) still stands
+ * GLYPH_MIN_PX tall on screen. The wheel's 2 × 2.43 = 4.86-unit diameter
+ * fills ≈0.74 of the card's content width (fov 38°, camera ~9.2 units out;
+ * 0.736 measured pixel-wise on the dev build), so the glyph is GLYPH_MIN_PX
+ * tall only at GLYPH_MIN_PX × 4.86 × 128 / (18.36 × 0.74) ≈ 46 px per
+ * legibility pixel.
  */
 export function insetFloorPx(bodyCount: number): number {
   const count = Math.max(1, Math.min(isFiniteNumber(bodyCount) ? bodyCount : DEFAULT_BODY_COUNT, 40));
-  return Math.ceil((count * BODY_TARGET_PX) / Math.PI) + CHROME_PX;
+  const rim = Math.ceil((count * BODY_TARGET_PX) / Math.PI) + CHROME_PX;
+  const glyph = Math.ceil((GLYPH_MIN_PX * 4.86 * 128) / (54 * 0.34 * 0.74)) + 2;
+  return Math.max(rim, glyph);
 }
 
 /** Read and validate the stored state; null when absent or corrupt. */
@@ -355,6 +405,8 @@ export function Inset({
   fillHeight = null,
   targets = [],
   bodyCount = DEFAULT_BODY_COUNT,
+  onSwap = undefined,
+  onComponentTap = undefined,
   onAutoInvert = undefined,
 }: InsetProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -488,11 +540,70 @@ export function Inset({
     [storageKey],
   );
 
-  /** Card drag: armed on press anywhere, live after a short move threshold,
-   *  so a plain tap still reaches the chart under the pointer. Dragging a
-   *  docked card lifts it out beside the scene to floating. */
-  const armRef = useRef<{ pointerId: number; x: number; y: number; grabX: number; grabY: number } | null>(null);
-  const resizeRef = useRef<{ startX: number; startW: number } | null>(null);
+  // A tap where no component sits becomes a swap only after the chart's own
+  // click for the same tap has had its chance to claim the target: the
+  // chart's click fires after pointerup, and cancels this timer through the
+  // onComponentTap forwarded into it.
+  const swapTimerRef = useRef<number | null>(null);
+  const onSwapRef = useRef(onSwap);
+  onSwapRef.current = onSwap;
+  const cancelPendingSwap = useCallback(() => {
+    if (swapTimerRef.current !== null) {
+      window.clearTimeout(swapTimerRef.current);
+      swapTimerRef.current = null;
+    }
+  }, []);
+  const onComponentTapRef = useRef(onComponentTap);
+  onComponentTapRef.current = onComponentTap;
+  const handleChartComponentTap = useCallback(
+    (target: string) => {
+      cancelPendingSwap();
+      onComponentTapRef.current?.(target);
+    },
+    [cancelPendingSwap],
+  );
+  // Forward onComponentTap into the chart element itself. A plain host
+  // element (a loading placeholder, or a caller's wrapper div) has no prop
+  // to receive it, so it is left untouched.
+  const forwardedChart =
+    isValidElement(children) && typeof children.type !== 'string'
+      ? cloneElement(children as ReactElement<{ onComponentTap?: (target: string) => void }>, {
+          onComponentTap: handleChartComponentTap,
+        })
+      : children;
+
+  // The touch hold that arms a card drag, plus any pending swap, must never
+  // fire after the card goes away.
+  const holdTimerRef = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      cancelPendingSwap();
+      if (holdTimerRef.current !== null) window.clearTimeout(holdTimerRef.current);
+    },
+    [cancelPendingSwap],
+  );
+
+  /** Card drag: armed on press anywhere, live after a short move threshold
+   *  (mouse/pen) or a LONG_PRESS_MS hold (touch), so a plain tap still
+   *  reaches the chart under the pointer and a touch that moves before the
+   *  hold stays the wheel's gesture. Dragging a docked card lifts it out
+   *  beside the scene to floating. */
+  const armRef = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+    grabX: number;
+    grabY: number;
+    touch: boolean;
+    /** Pressed on the wheel itself (its canvas): a mouse/pen move there is
+     *  the wheel's tilt/spin gesture, never a card drag. */
+    onWheel: boolean;
+    held: boolean;
+    cancelled: boolean;
+  } | null>(null);
+  const resizeRef = useRef<{ corner: Corner; startX: number; startW: number; startLeft: number; startTop: number } | null>(
+    null,
+  );
 
   const pointInStage = (event: ReactPointerEvent<HTMLElement>): { x: number; y: number } => {
     const rect = stageElement()?.getBoundingClientRect();
@@ -515,17 +626,39 @@ export function Inset({
   };
 
   const onSurfacePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (focused) return;
     if (event.button !== 0 || stage === null || geometry === null) return;
     // The resizer stops propagation before this; the bar is chrome only.
+    cancelPendingSwap();
+    if (holdTimerRef.current !== null) {
+      window.clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
     const point = pointInStage(event);
     const card = cardRectInStage();
+    const touch = event.pointerType === 'touch';
+    const target = event.target instanceof Element ? event.target : null;
+    const onWheel = target !== null && target.closest('.chart-inset__content canvas') !== null;
     armRef.current = {
       pointerId: event.pointerId,
       x: point.x,
       y: point.y,
       grabX: card === null ? 0 : point.x - card.x,
       grabY: card === null ? 0 : point.y - card.y,
+      touch,
+      onWheel,
+      held: false,
+      cancelled: false,
     };
+    if (touch) {
+      const pointerId = event.pointerId;
+      holdTimerRef.current = window.setTimeout(() => {
+        holdTimerRef.current = null;
+        const arm = armRef.current;
+        if (arm === null || arm.pointerId !== pointerId) return;
+        arm.held = true;
+      }, LONG_PRESS_MS);
+    }
   };
 
   const onSurfacePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -533,8 +666,27 @@ export function Inset({
     const arm = armRef.current;
     if (arm !== null && arm.pointerId === event.pointerId && !dragging) {
       const point = pointInStage(event);
-      if (Math.hypot(point.x - arm.x, point.y - arm.y) < DRAG_THRESHOLD_PX) return;
-      event.currentTarget.setPointerCapture(event.pointerId);
+      const distance = Math.hypot(point.x - arm.x, point.y - arm.y);
+      if (arm.touch && !arm.held) {
+        // Moved before the hold completed: the wheel's own gesture (rotate,
+        // pinch), never a card drag — for the rest of this touch.
+        if (distance >= DRAG_THRESHOLD_PX) arm.cancelled = true;
+        return;
+      }
+      if (arm.cancelled) return;
+      if (!arm.touch && distance < DRAG_THRESHOLD_PX) return;
+      if (!arm.touch && arm.onWheel) {
+        // Grabbed the wheel itself: the move is the wheel's 3D tilt and
+        // momentum spin. The card stays put, and the release never swaps.
+        arm.cancelled = true;
+        return;
+      }
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // A pointer the browser does not know (synthetic test events)
+        // cannot be captured; the drag still tracks through move events.
+      }
       setDragging(true);
       if (mode !== 'floating') {
         // Lift the docked card out under the pointer.
@@ -559,74 +711,115 @@ export function Inset({
     setGeometry({ ...geometry, x: x / stage.width, y: y / stage.height });
   };
 
-  const onSurfacePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const onSurfacePointerUp = (event: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
     const arm = armRef.current;
     armRef.current = null;
-    if (!dragging || arm === null || arm.pointerId !== event.pointerId || stage === null || geometry === null) {
-      // A tap without movement: release silently so the chart's own click
-      // lands on the planet, sign, house or aspect under the pointer.
+    if (holdTimerRef.current !== null) {
+      window.clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (dragging && arm !== null && arm.pointerId === event.pointerId && stage !== null && geometry !== null) {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      setDragging(false);
+
+      const width = geometry.w * stage.width;
+      const height = width * ASPECT;
+      const centerX = geometry.x * stage.width + width / 2;
+      const centerY = geometry.y * stage.height + height / 2;
+      const nearLeft = centerX < DOCK_REACH * stage.width;
+      const nearRight = centerX > (1 - DOCK_REACH) * stage.width;
+      const nearTop = centerY < DOCK_REACH * stage.height;
+      const nearBottom = centerY > (1 - DOCK_REACH) * stage.height;
+
+      // Released at the scene side or beneath: dock beside the scene again.
+      if (nearRight && !nearTop && !nearBottom && sideFits(stage, floorPx)) {
+        const next = clampGeometry(
+          { ...geometry, w: dockedWidthPx(stage, floorPx) / stage.width },
+          stage,
+          floorPx,
+        );
+        setGeometry(next);
+        setMode('side');
+        persist('side', next);
+        return;
+      }
+      if (nearBottom && !nearLeft && !nearRight && stackFits(stage, floorPx)) {
+        setMode('stack');
+        persist('stack', clampGeometry(geometry, stage, floorPx));
+        return;
+      }
+
+      let x = geometry.x * stage.width;
+      let y = geometry.y * stage.height;
+      if (nearLeft || nearRight || nearTop || nearBottom) {
+        if (nearLeft) x = DOCK_MARGIN;
+        if (nearRight) x = stage.width - width - DOCK_MARGIN;
+        if (nearTop) y = DOCK_MARGIN;
+        if (nearBottom) y = stage.height - height - DOCK_MARGIN;
+      }
+      const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage, floorPx);
+      setGeometry(next);
+      persist('floating', next);
       return;
     }
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setDragging(false);
-
-    const width = geometry.w * stage.width;
-    const height = width * ASPECT;
-    const centerX = geometry.x * stage.width + width / 2;
-    const centerY = geometry.y * stage.height + height / 2;
-    const nearLeft = centerX < DOCK_REACH * stage.width;
-    const nearRight = centerX > (1 - DOCK_REACH) * stage.width;
-    const nearTop = centerY < DOCK_REACH * stage.height;
-    const nearBottom = centerY > (1 - DOCK_REACH) * stage.height;
-
-    // Released at the scene side or beneath: dock beside the scene again.
-    if (nearRight && !nearTop && !nearBottom && sideFits(stage, floorPx)) {
-      setGeometry(clampGeometry({ ...geometry, w: dockedWidthPx(stage, floorPx) / stage.width }, stage, floorPx));
-      setMode('side');
-      persist('side', clampGeometry(geometry, stage, floorPx));
-      return;
-    }
-    if (nearBottom && !nearLeft && !nearRight && stackFits(stage, floorPx)) {
-      setMode('stack');
-      persist('stack', clampGeometry(geometry, stage, floorPx));
-      return;
-    }
-
-    let x = geometry.x * stage.width;
-    let y = geometry.y * stage.height;
-    if (nearLeft || nearRight || nearTop || nearBottom) {
-      if (nearLeft) x = DOCK_MARGIN;
-      if (nearRight) x = stage.width - width - DOCK_MARGIN;
-      if (nearTop) y = DOCK_MARGIN;
-      if (nearBottom) y = stage.height - height - DOCK_MARGIN;
-    }
-    const next = clampGeometry({ x: x / stage.width, y: y / stage.height, w: geometry.w }, stage, floorPx);
-    setGeometry(next);
-    persist('floating', next);
+    // A tap without movement: hand it to the chart's own click first — a
+    // tap on a component it claims cancels the swap — and swap only if
+    // nothing claims it. Cancelled gestures (the wheel's rotation) and the
+    // focused stage view never swap.
+    if (arm === null || arm.cancelled || cancelled || focused) return;
+    cancelPendingSwap();
+    swapTimerRef.current = window.setTimeout(() => {
+      swapTimerRef.current = null;
+      onSwapRef.current?.();
+    }, 0);
   };
 
-  /** Resize from the corner grip, keeping the aspect and the floor→cap span. */
-  const onGripPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+  /** Resize from any corner grip: aspect-locked, anchored on the opposite
+   *  corner, clamped to the floor→cap span. */
+  const onGripPointerDown = (event: ReactPointerEvent<HTMLDivElement>, corner: Corner) => {
+    if (focused) return;
     if (event.button !== 0 || stage === null || geometry === null) return;
     event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    cancelPendingSwap();
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Synthetic pointers cannot be captured; moves still track.
+    }
     const point = pointInStage(event);
-    resizeRef.current = { startX: point.x, startW: geometry.w * stage.width };
+    const card = cardRectInStage();
+    resizeRef.current = {
+      corner,
+      startX: point.x,
+      startW: geometry.w * stage.width,
+      startLeft: card === null ? geometry.x * stage.width : card.x,
+      startTop: card === null ? geometry.y * stage.height : card.y,
+    };
     setResizing(true);
   };
 
   const onGripPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!resizing || stage === null || geometry === null || resizeRef.current === null) return;
     const point = pointInStage(event);
-    const delta = point.x - resizeRef.current.startX;
+    const start = resizeRef.current;
+    const grow =
+      start.corner === 'tr' || start.corner === 'br' ? point.x - start.startX : start.startX - point.x;
     const cap = allowedWidthPx(stage);
-    const width = Math.min(
-      Math.max(resizeRef.current.startW + delta, Math.min(floorPx, cap)),
-      cap,
+    const width = Math.min(Math.max(start.startW + grow, Math.min(floorPx, cap)), cap);
+    // The opposite corner stays put: a square card grows along both axes,
+    // so the top shifts with the top grips and the left with the left ones.
+    const shift = start.startW - width;
+    const left = start.corner.endsWith('l') ? start.startLeft + shift : start.startLeft;
+    const top = start.corner.startsWith('t') ? start.startTop + shift : start.startTop;
+    setGeometry(
+      clampGeometry(
+        { x: left / stage.width, y: top / stage.height, w: width / stage.width },
+        stage,
+        floorPx,
+      ),
     );
-    setGeometry(clampGeometry({ ...geometry, w: width / stage.width }, stage, floorPx));
   };
 
   const onGripPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -641,6 +834,7 @@ export function Inset({
 
   /** Arrow keys move the floating pane; Alt+arrow keys resize it anywhere. */
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (focused) return;
     if (!event.key.startsWith('Arrow') || stage === null || geometry === null) return;
     if (mode !== 'floating' && !event.altKey) return;
     event.preventDefault();
@@ -667,54 +861,58 @@ export function Inset({
     persist(mode, next);
   };
 
-  if (focused) {
-    return (
-      <div
-        className="chart-inset-fill"
-        style={fillHeight !== null && fillHeight > 0 ? { height: fillHeight } : undefined}
-      >
-        <div className="chart-inset__content">{children}</div>
-      </div>
-    );
-  }
-
-  if (stage === null || geometry === null) {
-    // Awaiting first stage metrics (or inverted): reserve the footprint
-    // invisibly so the host layer still has a measurable child.
-    return (
-      <div ref={rootRef} className="chart-inset" style={{ visibility: 'hidden' }} aria-hidden="true">
-        <div className="chart-inset__content" />
-      </div>
-    );
-  }
-
-  const width = geometry.w * stage.width;
-  const height = width * ASPECT;
-  const docked = mode !== 'floating';
+  // One element in every state (awaiting metrics, focused fill, floating,
+  // docked) with the same children in the same order: the chart mounts once
+  // and a view swap re-lays-out this card without remounting the chart.
+  const cornerGrip = (corner: Corner) => (
+    <div
+      key={corner}
+      className={`chart-inset__resizer chart-inset__resizer--${corner}`}
+      aria-hidden="true"
+      onPointerDown={event => onGripPointerDown(event, corner)}
+      onPointerMove={onGripPointerMove}
+      onPointerUp={onGripPointerUp}
+      onPointerCancel={onGripPointerUp}
+    />
+  );
 
   return (
     <div
       ref={rootRef}
-      className={docked ? 'chart-inset chart-inset--docked' : 'chart-inset'}
+      className={
+        focused
+          ? 'chart-inset chart-inset-fill'
+          : mode !== 'floating'
+            ? 'chart-inset chart-inset--docked'
+            : 'chart-inset'
+      }
       role="region"
       aria-label={`${label} — drag to move, arrow keys to move, Alt and arrow keys to resize`}
       tabIndex={0}
       data-dragging={dragging || resizing}
+      data-chart-callout-boundary=""
+      data-chart-inset={focused ? undefined : 'true'}
       style={
-        docked
-          ? undefined
-          : {
-              left: geometry.x * stage.width,
-              top: geometry.y * stage.height,
-              width,
-              height,
-            }
+        focused
+          ? fillHeight !== null && fillHeight > 0
+            ? { height: fillHeight }
+            : undefined
+          : mode === 'floating'
+            ? {
+                left: geometry === null || stage === null ? undefined : geometry.x * stage.width,
+                top: geometry === null || stage === null ? undefined : geometry.y * stage.height,
+                width: geometry === null || stage === null ? undefined : geometry.w * stage.width,
+                height:
+                  geometry === null || stage === null ? undefined : geometry.w * stage.width * ASPECT,
+                visibility: stage === null || geometry === null ? 'hidden' : undefined,
+              }
+            : undefined
       }
       onKeyDown={onKeyDown}
       onPointerDown={onSurfacePointerDown}
       onPointerMove={onSurfacePointerMove}
-      onPointerUp={onSurfacePointerUp}
-      onPointerCancel={onSurfacePointerUp}
+      onPointerUp={event => onSurfacePointerUp(event, false)}
+      onPointerCancel={event => onSurfacePointerUp(event, true)}
     >
       <div className="chart-inset__bar">
         <span className="chart-inset__gripdots" aria-hidden="true" />
@@ -729,15 +927,10 @@ export function Inset({
           </span>
         )}
       </div>
-      <div className="chart-inset__content">{children}</div>
-      <div
-        className="chart-inset__resizer"
-        aria-hidden="true"
-        onPointerDown={onGripPointerDown}
-        onPointerMove={onGripPointerMove}
-        onPointerUp={onGripPointerUp}
-        onPointerCancel={onGripPointerUp}
-      />
+      <div className="chart-inset__content">
+        {focused || (stage !== null && geometry !== null) ? forwardedChart : null}
+      </div>
+      {CORNERS.map(cornerGrip)}
     </div>
   );
 }

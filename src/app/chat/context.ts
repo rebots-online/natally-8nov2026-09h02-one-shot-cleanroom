@@ -4,7 +4,9 @@
 
 import { BACKSTORY_ANSWERS, type BackstoryAnswer } from '../../content/backstory';
 import { NATALLY_SYSTEM_PROMPT } from '../../content/persona';
-import type { ChatMessage, NatalChart, ZodiacSign } from '../../shared/types';
+import { aspectTargetName } from '../presentation/explain';
+import type { SkyPlacement } from '../../chart/liveReading';
+import type { AspectKind, ChatMessage, NatalChart, ZodiacSign } from '../../shared/types';
 
 /** Roles carried on the inference wire. */
 export type ContextRole = 'system' | 'user' | 'assistant';
@@ -128,24 +130,75 @@ export function backstoryAnswerFor(text: string): BackstoryAnswer | null {
  return null;
 }
 
-/** Every target a presentation cue may name for this chart. */
-export function chartTargets(chart: NatalChart): Set<string> {
+/**
+ * Every target a presentation cue may name for this chart: bodies, signs,
+ * houses (known birth time only), natal aspect lines, and — when today's
+ * sky is supplied — current-sky-to-natal aspect lines ("now Mars square
+ * Venus"; no now-to-now lines exist by design). `sky` must be parallel to
+ * `chart.bodies` — `sky[i]` is where `chart.bodies[i].key` stands right
+ * now — or a TypeError is thrown; absent sky simply offers no now-lines,
+ * never guessed ones.
+ */
+export function chartTargets(chart: NatalChart, sky?: SkyPlacement[] | null): Set<string> {
  const targets = new Set<string>(chart.bodies.map(body => body.key));
  for (const sign of SIGNS) targets.add(sign);
  if (chart.input.timeIso !== null) for (let house = 1; house <= 12; house++) targets.add(`House ${house}`);
+
+ for (const aspect of chart.aspects) {
+  targets.add(aspectTargetName(aspect.a, aspect.kind, aspect.b, false));
+ }
+
+ if (sky) {
+  if (sky.length !== chart.bodies.length) {
+   throw new TypeError(
+    `sky must be parallel to chart.bodies (${chart.bodies.length} placements, got ${sky.length})`,
+   );
+  }
+  // The five aspect angles with the tightest orb within 7° — the same
+  // standard chart/liveReading's live check uses, so the inventory only
+  // names lines the live passages can verify.
+  const angles: readonly { kind: AspectKind; angle: number }[] = [
+   { kind: 'conjunction', angle: 0 },
+   { kind: 'sextile', angle: 60 },
+   { kind: 'square', angle: 90 },
+   { kind: 'trine', angle: 120 },
+   { kind: 'opposition', angle: 180 },
+  ];
+  for (let i = 0; i < chart.bodies.length; i++) {
+   const moving = chart.bodies[i]!;
+   // The angles of the moment do not head transit lines; the moving sky does.
+   if (moving.key === 'Ascendant' || moving.key === 'Midheaven') continue;
+   for (let j = 0; j < chart.bodies.length; j++) {
+    const natal = chart.bodies[j]!;
+    const raw = Math.abs((((sky[i]!.lon - natal.position.longitude) % 360) + 360) % 360);
+    const separation = Math.min(raw, 360 - raw);
+    let best: { kind: AspectKind; orb: number } | null = null;
+    for (const { kind, angle } of angles) {
+     const orb = Math.abs(separation - angle);
+     if (orb <= 7 && (best === null || orb < best.orb)) best = { kind, orb };
+    }
+    if (best) targets.add(aspectTargetName(moving.key, best.kind, natal.key, true));
+   }
+  }
+ }
+
  return targets;
 }
 
 /** Instructions for driving the live stage while she narrates. */
-function presentationBlock(chart: NatalChart): string {
+function presentationBlock(chart: NatalChart, sky: SkyPlacement[] | null): string {
  return [
   'You control the live stage while you talk, with hidden commands that are never shown or spoken:',
   '[[view:chart]] brings the wheel forward (you become the small inset); [[view:atelier]] brings you back.',
   '[[chart:TARGET;TARGET]] highlights up to 6 targets; [[chart:clear]] un-highlights.',
   'Place each command immediately before the passage it governs, never all at the start.',
-  'Use [[view:chart]] when explaining geometry, highlight what you name, [[chart:clear]] between points,',
-  'and [[view:atelier]] when you turn to reflection or to yourself. For an aspect, highlight both of its bodies together.',
-  `Exact targets for this chart: ${JSON.stringify([...chartTargets(chart)])}`,
+  'Bring the wheel forward before you explain any part of the chart, highlight each element as you reach it — a body, its sign, its house — and [[chart:clear]] between emphases.',
+  'Aspect lines are targets too: name the relationship exactly as listed and the line lights on the wheel.' +
+   (sky === null
+    ? ''
+    : " Lines that begin with \"now\" run from today's sky to the natal chart."),
+  'Use [[view:atelier]] when you turn to reflection or to yourself.',
+  `Exact targets for this chart: ${JSON.stringify([...chartTargets(chart, sky)])}`,
  ].join('\n');
 }
 
@@ -153,11 +206,12 @@ function presentationBlock(chart: NatalChart): string {
 export function buildMessages(
  history: ChatMessage[],
  chart: NatalChart,
+ sky?: SkyPlacement[] | null,
 ): ContextMessage[] {
  const messages: ContextMessage[] = [
   {
    role: 'system',
-   content: `${NATALLY_SYSTEM_PROMPT}\n\nNATAL CHART FACTS\n${chartFacts(chart)}\n\nLIVE STAGE\n${presentationBlock(chart)}\n\nNATALLY'S OWN STORY\n${backstoryBlock()}`,
+   content: `${NATALLY_SYSTEM_PROMPT}\n\nNATAL CHART FACTS\n${chartFacts(chart)}\n\nLIVE STAGE\n${presentationBlock(chart, sky ?? null)}\n\nNATALLY'S OWN STORY\n${backstoryBlock()}`,
   },
  ];
 

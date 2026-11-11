@@ -14,8 +14,10 @@
 // message (gesture-gated audio, truthful note when not admitted); her
 // hidden cues drive highlight → focus → un-highlight and the chart⇄inset
 // swap as her voice reaches them; a manual view choice stops automatic
-// view cues. The chart is kept per-customer in localStorage so a reload
-// doesn't demand re-entering birth data.
+// view cues. A tap on a chart component rides that same driver through
+// explainTarget; a tap on empty inset swaps the panes. The chart is kept
+// per-customer in localStorage so a reload doesn't demand re-entering
+// birth data.
 
 import {
  Suspense,
@@ -37,8 +39,8 @@ import {
  redirectSignInFailure,
  signOutNow,
 } from '../platform/firebase';
-import type { BirthInput, ChartBodyKey, NatalChart } from '../shared/types';
-import { composeLiveReading } from '../chart/liveReading';
+import type { BirthInput, NatalChart } from '../shared/types';
+import type { SkyPlacement } from '../chart/liveReading';
 import type { KaraokeDetail, Voice } from '../voice';
 import { getPreloadedVoice } from '../services/supertonicTts';
 import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabeInput';
@@ -58,6 +60,7 @@ import {
 import { createPlayback, type PlaybackDriver } from './presentation/playback';
 import { parseReply, type Cue } from './presentation/cues';
 import { openingReading } from './presentation/opening';
+import { explainTarget } from './presentation/explain';
 import { chartTargets } from './chat/context';
 import { useAllowance, type ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
@@ -276,7 +279,6 @@ function loadStoredChart(uid: string): NatalChart | null {
 export default function App() {
  const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
  const [chart, setChart] = useState<NatalChart | null>(null);
- const [hoveredKey, setHoveredKey] = useState<ChartBodyKey | null>(null);
  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
  const stageRootRef = useRef<HTMLDivElement | null>(null);
  const stageVisualHeight = useStageVisualHeight(stageRootRef);
@@ -291,9 +293,6 @@ export default function App() {
  // The original renderer's view of the same sky: computed with its own
  // pipeline from the same birth data the clean-room chart persists.
  const [astrolabe, setAstrolabe] = useState<NatalChartResult | null>(null);
- // Bespoke click reading: authored lesson + today's sky, computed on the
- // spot when a body is clicked in the wheel.
- const [liveReading, setLiveReading] = useState<{ planet: string; text: string | null } | null>(null);
  const skyForChart = useRef<Promise<NatalChartResult> | null>(null);
 
  // Her voice, warmed by the onboarding's preload seam.
@@ -495,43 +494,74 @@ export default function App() {
   };
  }, [chart]);
 
- // Clicks in the wheel get a bespoke reading: authored lesson + today's
- // sky computed on the spot, spoken in her voice (mouth follows via the
- // performance bridge).
- const explainPlanet = (name: string | null) => {
-  const key = (name as ChartBodyKey | null) ?? null;
-  setHoveredKey(key);
-  if (!key || chart === null) {
-   setLiveReading(null);
+ // A tap on a chart component (INSET): her passage about it — authored
+ // material + live placement, cues embedded — rides the same reply driver
+ // as a chat reply, so the view swap, the highlights and her lipsynced
+ // speech move together as her voice reaches each cue.
+ // One pointer press on the inset layer is one sequence; a component tap
+ // claims it, and an onSwap from the same press is ignored: the passage's
+ // [[view:chart]] cue drives the view, where a manual swap would race it
+ // and turn cue-following off.
+ const pressSeqRef = useRef(0);
+ const tapClaimedSeqRef = useRef(-1);
+ const swapTimerRef = useRef<number | undefined>(undefined);
+
+ // Compose and speak one tapped target's passage through the reply driver.
+ // The sky is the exact array handed to explainTarget, so the cue
+ // inventory (which needs it for now-line names) can never disagree with
+ // the passage. A target with no verifiable passage throws inside
+ // explainTarget: the failure is reported, never spoken around.
+ const speakPassage = (target: string, liveChart: NatalChart, sky: SkyPlacement[] | null) => {
+  let raw: string;
+  try {
+   raw = explainTarget(target, liveChart, sky);
+  } catch (cause) {
+   console.error('explainTarget: no passage for tapped target', target, cause);
    return;
   }
-  const natalBody = chart.bodies.find(body => body.key === key);
-  if (!natalBody) {
-   setLiveReading(null);
-   return;
-  }
-  setLiveReading({ planet: key, text: null });
+  const parsed = parseReply(raw, chartTargets(liveChart, sky));
+  voice.stop();
+  handleReplyEvent({ phase: 'begin' });
+  voice.speakStream(parsed.text, { flush: true });
+  handleReplyEvent({ phase: 'delta', text: parsed.text, cues: parsed.cues });
+  handleReplyEvent({ phase: 'final' });
+ };
+
+ const explainTap = (target: string) => {
+  tapClaimedSeqRef.current = pressSeqRef.current;
+  if (chart === null) return;
   void skyToday(chart.input)
    .then(today => {
-    const current = today.natalBodies.find(body => body.name === key) ?? null;
-    const text = composeLiveReading(
-     key,
-     { sign: natalBody.sign, lon: natalBody.position.longitude },
-     current ? { sign: current.signName, lon: current.lon } : null,
-    );
-    setLiveReading({ planet: key, text });
-    if (voice.admitted) {
-     voice.stop();
-     voice.speakStream(text, { flush: true });
+    // The sky argument is positional over the chart's bodies: entry i is
+    // chart.bodies[i] placed now, matched by name across the pipelines.
+    const placements: SkyPlacement[] = [];
+    for (const body of chart.bodies) {
+     const now = today.natalBodies.find(entry => entry.name === body.key);
+     if (now === undefined) {
+      // Today's sky is incomplete: degrade truthfully, sky: null.
+      speakPassage(target, chart, null);
+      return;
+     }
+     placements.push({ sign: now.signName, lon: now.lon });
     }
+    speakPassage(target, chart, placements);
    })
    .catch(() => {
-    // Degrade truthfully to the authored lesson alone.
-    setLiveReading({
-     planet: key,
-     text: composeLiveReading(key, { sign: natalBody.sign, lon: natalBody.position.longitude }, null),
-    });
+    // The sky of the moment never arrived: degrade truthfully, sky: null.
+    speakPassage(target, chart, null);
    });
+ };
+
+ const swapInsetView = () => {
+  // The chart's click lands after the pointerup that reports the tap, so
+  // the swap waits one task for a component tap to claim the sequence —
+  // whichever of the two arrives first.
+  const press = pressSeqRef.current;
+  window.clearTimeout(swapTimerRef.current);
+  swapTimerRef.current = window.setTimeout(() => {
+   if (pressSeqRef.current !== press || tapClaimedSeqRef.current === press) return;
+   handleStageView(presentation.view === 'chart' ? 'atelier' : 'chart');
+  }, 0);
  };
  useEffect(() => {
   if (authUnavailable) {
@@ -741,7 +771,7 @@ export default function App() {
   );
  }
 
- const lesson = getLesson(hoveredKey ?? 'general');
+ const lesson = getLesson('general');
  const view = presentation.view;
  // The body she is highlighting (if any) lights up in the wheel itself;
  // every target also rides the inset's bar as brass chips.
@@ -773,18 +803,10 @@ export default function App() {
        <>
         <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} stage={chatStage} />
         <section className="lesson-card" aria-live="polite">
-         <p className="lesson-kicker">
-          {liveReading
-           ? `Her reading · ${liveReading.planet}, live`
-           : hoveredKey !== null
-            ? `You’re hovering · ${hoveredKey}`
-            : 'From Natally’s notebook'}
-         </p>
+         <p className="lesson-kicker">From Natally’s notebook</p>
          <h3>{lesson.title}</h3>
-         <p className="lesson-body">
-          {liveReading?.text ?? lesson.what}
-         </p>
-         {!liveReading && <p className="lesson-question">{lesson.question}</p>}
+         <p className="lesson-body">{lesson.what}</p>
+         <p className="lesson-question">{lesson.question}</p>
         </section>
        </>
       }
@@ -792,10 +814,15 @@ export default function App() {
      {/* The clean-room inset (ARCHITECTURE §Chart inset): the chart
               floats over the stage here, in place of the verbatim stage's
               own chart pane; when the chart is focused the wheel fills the
-              visual area and Natally becomes the floating pane. */}
+              visual area and Natally becomes the floating pane. A tap on a
+              hovered chart component brings it forward and she explains it;
+              a tap on empty inset chrome swaps the panes. */}
      <div
       className="stage-inset-layer"
       data-mode={view === 'chart' ? 'fill' : 'float'}
+      onPointerDownCapture={() => {
+       pressSeqRef.current += 1;
+      }}
      >
       <Inset
        storageKey={`natally.inset.v1:${auth.uid}`}
@@ -805,14 +832,17 @@ export default function App() {
        targets={presentation.focusTargets}
        bodyCount={chart.bodies.length}
        onAutoInvert={handleAutoInvert}
+       onSwap={swapInsetView}
+       onComponentTap={explainTap}
       >
        {astrolabe ? (
         <Astrolabe3D
          chart={astrolabe}
          isSpinning={false}
          resetTrigger={0}
-         selectedPlanetName={hoveredKey ?? focusBody}
-         onSelectPlanet={explainPlanet}
+         selectedPlanetName={focusBody}
+         highlightedComponents={presentation.focusTargets}
+         onComponentTap={explainTap}
         />
        ) : (
         <div className="chart-loading" role="status">

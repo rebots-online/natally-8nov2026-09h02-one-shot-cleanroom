@@ -30,8 +30,12 @@
   display: none !important;
 }
 
-/* ---------- The floating inset ---------- */
+/* ---------- The inset card ---------- */
 
+/* Acrylic: a translucent dark-purple pane — the stage art behind is
+   blurred and darkened by the plum tint, while the wheel, its numbers and
+   symbols stay fully legible on it. Docked and focused keep this same
+   material (the variants below only change geometry and chrome). */
 .chart-inset {
   position: absolute;
   pointer-events: auto;
@@ -39,11 +43,40 @@
   flex-direction: column;
   border: 1px solid var(--plum-line);
   border-radius: 12px;
-  background: rgba(6, 7, 17, 0.92);
-  box-shadow: 0 14px 38px rgba(3, 2, 8, 0.55);
+  background: linear-gradient(
+    165deg,
+    rgba(54, 33, 65, 0.58) 0%,
+    rgba(42, 26, 51, 0.68) 45%,
+    rgba(26, 15, 32, 0.78) 100%
+  );
+  -webkit-backdrop-filter: blur(14px) saturate(1.12) brightness(0.92);
+  backdrop-filter: blur(14px) saturate(1.12) brightness(0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(243, 234, 216, 0.06),
+    0 14px 38px rgba(3, 2, 8, 0.55);
   overflow: hidden;
   touch-action: none;
   transition: box-shadow 160ms ease;
+}
+
+/* Re-layouts (dock snap, corner snap, view swap into the fill) glide; a
+   pointer-tracked drag or resize tracks 1:1 with no transition. The
+   transitionend this emits is also what tells the chart its pane settled,
+   so it can re-resolve its canvas after the move. */
+.chart-inset:not([data-dragging='true']) {
+  transition:
+    left 200ms ease,
+    top 200ms ease,
+    width 200ms ease,
+    height 200ms ease,
+    box-shadow 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-inset,
+  .chart-inset:not([data-dragging='true']) {
+    transition: none;
+  }
 }
 
 .chart-inset:focus-visible {
@@ -52,11 +85,14 @@
 }
 
 .chart-inset[data-dragging='true'] {
-  box-shadow: 0 22px 52px rgba(3, 2, 8, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(243, 234, 216, 0.08),
+    0 22px 52px rgba(3, 2, 8, 0.7);
   cursor: grabbing;
 }
 
-/* Drag bar: the whole strip grabs the inset; the label names the pane. */
+/* Drag bar: the whole strip grabs the inset; the label names the pane.
+   Translucent so the acrylic material reads through the chrome too. */
 .chart-inset__bar {
   display: flex;
   align-items: center;
@@ -64,7 +100,7 @@
   flex: 0 0 auto;
   height: 30px;
   padding: 0 10px;
-  background: rgba(25, 18, 31, 0.94);
+  background: rgba(25, 18, 31, 0.55);
   border-bottom: 1px solid var(--plum-line);
   cursor: grab;
   user-select: none;
@@ -113,21 +149,24 @@
   white-space: nowrap;
 }
 
-/* The visible corner grip: resize by dragging, 20–60% of stage width. */
+/* The wheel itself. */
+.chart-inset__content {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Corner resize grips (one per corner) ---------- */
+
+/* All four corners carry a grip: aspect-locked resize anchored on the
+   opposite corner, clamped to the floor→cap span by the component. */
 .chart-inset__resizer {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 20px;
-  height: 20px;
-  cursor: nwse-resize;
+  width: 22px;
+  height: 22px;
   color: var(--brass);
   opacity: 0.9;
-  background: linear-gradient(
-    135deg,
-    transparent 0 55%,
-    rgba(215, 182, 119, 0.22) 55% 100%
-  );
 }
 
 .chart-inset__resizer::before {
@@ -139,36 +178,68 @@
     linear-gradient(45deg, transparent 64%, currentColor 64% 76%, transparent 76%);
 }
 
-.chart-inset__content {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
+.chart-inset__resizer--tl {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, rgba(215, 182, 119, 0.22) 0 45%, transparent 45% 100%);
+}
+
+.chart-inset__resizer--tr {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+  background: linear-gradient(225deg, rgba(215, 182, 119, 0.22) 0 45%, transparent 45% 100%);
+}
+
+.chart-inset__resizer--tr::before {
+  transform: rotate(90deg);
+}
+
+.chart-inset__resizer--bl {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+  background: linear-gradient(45deg, rgba(215, 182, 119, 0.22) 0 45%, transparent 45% 100%);
+}
+
+.chart-inset__resizer--bl::before {
+  transform: rotate(90deg);
+}
+
+.chart-inset__resizer--br {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+  background: linear-gradient(315deg, rgba(215, 182, 119, 0.22) 0 45%, transparent 45% 100%);
 }
 
 /* ---------- Focused (chart view): the wheel fills the stage visual ---------- */
 
+/* The same card element, laid out as the stage's full visual area: no
+   chrome, same acrylic material. Hosts with a measured visual area pass
+   fillHeight; without it the fill covers its host layer completely. */
 .chart-inset-fill {
-  position: absolute;
   left: 0;
   right: 0;
   top: 0;
-  /* Hosts with a measured visual area (the app stage) pass fillHeight;
-     without it the fill covers its host layer completely. */
+  width: auto;
   height: 100%;
-  pointer-events: auto;
-  border: 1px solid var(--plum-line);
   border-radius: 12px;
-  background: rgba(6, 7, 17, 0.96);
-  overflow: hidden;
+}
+
+.chart-inset-fill .chart-inset__bar,
+.chart-inset-fill .chart-inset__resizer {
+  display: none;
 }
 
 .chart-inset-fill .chart-inset__content {
   position: absolute;
   inset: 0;
+  flex: none;
 }
 
-/* Small-stage behaviour: keep the minimum inset usable at 344px. */
+/* Small-stage behaviour: keep the minimum inset usable. */
 @media (max-width: 480px) {
   .chart-inset__label {
     display: none;

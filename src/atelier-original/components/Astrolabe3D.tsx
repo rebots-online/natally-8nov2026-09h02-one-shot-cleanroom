@@ -53,6 +53,7 @@ interface Astrolabe3DProps {
   showAnnotations?: boolean;
   onActivate?: () => void;
   onToggleComponent?: (id: string, isMulti: boolean) => void;
+  onComponentTap?: (target: string) => void;
   selectedPlanetName?: string | null;
   onSelectPlanet?: (name: string | null) => void;
 }
@@ -71,6 +72,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   showAnnotations = true,
   onActivate,
   onToggleComponent,
+  onComponentTap,
   selectedPlanetName,
   onSelectPlanet,
 }) => {
@@ -162,7 +164,24 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     const seeds = highlightedComponents.length ? highlightedComponents : [
       ...selectedComponents, ...(selectedPlanetName ? [selectedPlanetName] : []),
     ];
-    const selected = new Set(seeds);
+    // Deliberate local addition (§16.12 pending INSET): highlightedComponents
+    // arrives as interface target names ("Sun trine Moon", "now Mars square
+    // Venus", "now Mars"), which must highlight the same objects the frozen
+    // ids do. Resolve each name against the chart; anything unrecognized
+    // passes through unchanged so the presentation rail's own ids keep working.
+    const chordIdsByTargetName = new Map<string, string>();
+    chart.aspectChords.forEach(a => chordIdsByTargetName.set(`${a.from} ${a.type.toLowerCase()} ${a.to}`, a.name));
+    chart.currentSky?.aspects.forEach(a => {
+      const transitBody = chart.currentSky?.bodies.find(body => body.target === a.from);
+      if (transitBody) chordIdsByTargetName.set(`now ${transitBody.name} ${a.type.toLowerCase()} ${a.to}`, a.name);
+    });
+    const selected = new Set<string>();
+    seeds.forEach(seed => {
+      const chordId = chordIdsByTargetName.get(seed);
+      if (chordId) { selected.add(chordId); return; }
+      const nowBody = chart.currentSky?.bodies.find(body => `now ${body.name}` === seed);
+      selected.add(nowBody ? nowBody.target : seed);
+    });
     if (!chart.input.birthTimeUnknown) {
       chart.natalBodies.forEach(body => { if (selected.has(`House ${body.house}`)) selected.add(body.name); });
     }
@@ -178,6 +197,32 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
   activeSelectionsRef.current = activeSelections;
   const toggleComponentRef = useRef(onToggleComponent);
   toggleComponentRef.current = onToggleComponent;
+  const componentTapRef = useRef(onComponentTap);
+  componentTapRef.current = onComponentTap;
+  // Deliberate local addition (§16.12 pending INSET). The shell speaks
+  // interface target names — bodies "Sun", current-sky bodies "now Mars",
+  // natal aspects "Sun trine Moon", now↔natal "now Mars square Venus" — while
+  // this scene's ids are the frozen port's symbol-decorated chord names
+  // ("Sun △ Moon (120°)") and timestamped Now-targets ("Now Mars @ …").
+  // A tapped hit resolves to its interface name from the chart itself; ids
+  // that already match the vocabulary (bodies, signs, houses) pass through,
+  // and an unresolvable hit reports nothing rather than a made-up name.
+  const componentTapNameRef = useRef<(data: THREE.Object3D['userData']) => string | null>(() => null);
+  componentTapNameRef.current = (data) => {
+    const aspectName = typeof data.aspectName === 'string' ? data.aspectName : '';
+    if (aspectName) {
+      const natal = chart.aspectChords.find(a => a.name === aspectName);
+      if (natal) return `${natal.from} ${natal.type.toLowerCase()} ${natal.to}`;
+      const transit = chart.currentSky?.aspects.find(a => a.name === aspectName);
+      const transitBody = transit ? chart.currentSky?.bodies.find(body => body.target === transit.from) : undefined;
+      if (transit && transitBody) return `now ${transitBody.name} ${transit.type.toLowerCase()} ${transit.to}`;
+      return null;
+    }
+    const id = data.componentId || data.planetName || data.houseName;
+    if (typeof id !== 'string' || !id) return null;
+    const nowBody = chart.currentSky?.bodies.find(body => body.target === id);
+    return nowBody ? `now ${nowBody.name}` : id;
+  };
   const selectPlanetRef = useRef(onSelectPlanet);
   selectPlanetRef.current = onSelectPlanet;
   const activateRef = useRef(onActivate);
@@ -523,6 +568,29 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       });
     };
 
+    // Deliberate local addition (§16.12 pending INSET): a click or tap on a
+    // hovered component reports the hit to the shell by its interface target
+    // name, and the shell swaps the view and speaks (§4) — instead of
+    // selection only. Callers run inside the drag-guarded click/tap paths, so
+    // a rotation never reports. Telemetry keeps the frozen internal ids.
+    const reportComponentTap = (
+      data: THREE.Object3D['userData'],
+      inputMethod: string,
+      isTrusted: boolean
+    ): boolean => {
+      const report = componentTapRef.current;
+      if (!report) return false;
+      const name = componentTapNameRef.current(data);
+      if (!name) return false;
+      const analytics = chartAnalyticsTarget(data.componentId || data.planetName || data.houseName || data.aspectName || '');
+      if (isTrusted && analytics) trackInteraction('chart_item_select', {
+        ...analytics, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
+        input_method: inputMethod,
+      });
+      report(name);
+      return true;
+    };
+
     const refreshCallout = () => {
       if (!hoverTarget || !hoverPointer) return;
       if (isDraggingRef.current || !pointerCanHover(hoverPointer.x, hoverPointer.y)) { dismissHover();return; }
@@ -648,6 +716,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           const inputMethod = pointerType === 'touch' ? 'touch'
             : pointerType === 'mouse' || pointerType === 'pen' ? 'pointer'
             : event.detail > 0 ? observedInput : 'unknown';
+          if (reportComponentTap(data, inputMethod, event.isTrusted)) return;
           const reportSelection = () => {
             if (event.isTrusted && target) trackInteraction('chart_item_select', {
               ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
@@ -659,6 +728,24 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         }
         activateRef.current?.();
         return;
+      }
+
+      // A click over a hovered component reports to the shell (swap + speak,
+      // §4) before bare activation or selection. Without onComponentTap the
+      // frozen path below is untouched.
+      if (componentTapRef.current) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hitData = pickChartTargets()[0]?.object.userData;
+        if (hitData && hitData.selectable !== false) {
+          const pointerType = (event as PointerEvent).pointerType;
+          const inputMethod = pointerType === 'touch' ? 'touch'
+            : pointerType === 'mouse' || pointerType === 'pen' ? 'pointer'
+            : event.detail > 0 ? observedInput : 'unknown';
+          if (reportComponentTap(hitData, inputMethod, event.isTrusted)) return;
+        }
       }
 
       if (activateRef.current) { activateRef.current();return; }
@@ -714,6 +801,11 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const data = pickChartTargets()[0]?.object.userData;
         if (data && data.selectable !== false) {
           const target = chartAnalyticsTarget(data.componentId || data.planetName || data.houseName || data.aspectName || '');
+          if (reportComponentTap(data, 'touch', event.isTrusted)) {
+            activatedTouchUntil = Date.now() + 700;
+            if (event.cancelable) event.preventDefault();
+            return;
+          }
           const reportSelection = () => {
             if (event.isTrusted && target) trackInteraction('chart_item_select', {
               ...target, activity_kind: 'education', response_mode: 'no_response', entry_point: 'chart_object',
@@ -723,6 +815,20 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           activatedTouchUntil = Date.now() + 700;
           if (event.cancelable) event.preventDefault();
           queueInsetObjectSelection(data, false, reportSelection);
+          return;
+        }
+      }
+      // Foreground touch taps report the same way mouse clicks do; without
+      // onComponentTap the activation-only path below is untouched.
+      if (componentTapRef.current) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hitData = pickChartTargets()[0]?.object.userData;
+        if (hitData && hitData.selectable !== false && reportComponentTap(hitData, 'touch', event.isTrusted)) {
+          activatedTouchUntil = Date.now() + 700;
+          if (event.cancelable) event.preventDefault();
           return;
         }
       }
@@ -1134,6 +1240,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       tick.rotation.z = Math.PI / 2;
       tick.rotation.y = -cuspRad;
       tick.userData.focused = activeSelections.includes(sign.name);
+      // Deliberate local addition (§16.12 pending INSET): sign ring ticks are
+      // wheel structure; the focus-dim traverse never dims them.
+      tick.userData.wheelStructure = true;
       dynamicGroup.add(tick);
 
       const centerRad = lonToRad(sign.lon + 15);
@@ -1187,6 +1296,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       });
       const spokeLine = new THREE.Line(spokeGeo, spokeMat);
       spokeLine.userData.focused = isSelected;
+      // House spokes are wheel structure (§16.12 pending INSET): never dimmed.
+      spokeLine.userData.wheelStructure = true;
       dynamicGroup.add(spokeLine);
 
       // Cusp Badge
@@ -1204,6 +1315,9 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       badgeSprite.position.set(badgeX, 0.08, badgeZ);
       badgeSprite.userData.targetId = houseId;
       badgeSprite.userData.focused = isSelected;
+      // The cusp badge carries the degree mark (its subtext); wheel structure
+      // (§16.12 pending INSET) keeps it legible through any focus dim.
+      badgeSprite.userData.wheelStructure = true;
       dynamicGroup.add(badgeSprite);
 
       const hitCusp = new THREE.Mesh(
@@ -1266,6 +1380,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
       hSprite.position.set(hNumX, 0.04, hNumZ);
       hSprite.userData.focused = isSelected;
       hSprite.userData.targetId = houseId;
+      // House numbers are wheel structure (§16.12 pending INSET): never dimmed.
+      hSprite.userData.wheelStructure = true;
       hSprite.userData.orientationAnchor = true;
       hSprite.renderOrder = 20;
       dynamicGroup.add(hSprite);
@@ -1506,7 +1622,10 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
     endpointLabelsRef.current = endpointLabels;
     glyphLabelsRef.current = glyphLabels;
     // Structural frame meshes are exempt and stay vivid at their recorded
-    // focusBaseOpacity; only non-focused representational elements dim.
+    // focusBaseOpacity; only non-focused representational elements dim. The
+    // wheel structure — house spokes, house numbers, cusp degree badges, sign
+    // ticks, all carrying userData.wheelStructure (§16.12 pending INSET) — is
+    // exempt the same way, so only bodies, glyphs and aspect lines de-emphasise.
     const focusActive = activeSelections.length > 0;
     wheelGroupRef.current?.traverse(object => {
       const item = object as THREE.Mesh;
@@ -1518,7 +1637,7 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
           material.userData.focusBaseTransparent = material.transparent;
         }
         material.transparent = focusActive || material.userData.focusBaseTransparent;
-        material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !object.userData.orientationAnchor && !object.userData.structureFrame ? CHART_FOCUS.dim : 1);
+        material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !object.userData.orientationAnchor && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
         material.needsUpdate = true;
       });
     });
@@ -1543,7 +1662,8 @@ export const Astrolabe3D: React.FC<Astrolabe3DProps> = ({
         const item = object as THREE.Mesh;
         const materials = item.material ? (Array.isArray(item.material) ? item.material : [item.material]) : [];
         materials.forEach(material => {
-          material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !targets.has(object.userData.targetId) && !object.userData.structureFrame ? CHART_FOCUS.dim : 1);
+          // Wheel structure never dims, on focus or hover (§16.12 pending INSET).
+          material.opacity = material.userData.focusBaseOpacity * (focusActive && !object.userData.focused && !targets.has(object.userData.targetId) && !object.userData.structureFrame && !object.userData.wheelStructure ? CHART_FOCUS.dim : 1);
         });
       });
     };
