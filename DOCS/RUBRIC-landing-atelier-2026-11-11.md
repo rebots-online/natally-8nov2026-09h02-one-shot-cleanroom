@@ -61,7 +61,8 @@ claims that the current page passes.
     The current word is bright warm yellow, visibly higher contrast than the
     surrounding words, with a clear luminous halo and a crisp letter edge.
     The highlight follows real speech; reduced motion preserves the contrast.
-    Captions show at most two actual text lines, rolling with the active word;
+    Captions show the current sentence (at most one adjacent sentence if it
+    fits), capped at two actual text lines and rolling with the active word;
     long passages never become a wall of text or clip the speaking word.
 13. **Uncrowded cards with directional guidance.** First load visibly offers
     “Scroll down ↓”; after scrolling, guidance indicates the available up/down
@@ -73,3 +74,34 @@ claims that the current page passes.
     address bar and requests. Only the purchased product domains are used for
     product entry/deployment; no retired personal-domain host is requested.
     Normal HTTPS validation succeeds for the apex and www forms of both sites.
+15. **Cards are short spoken steps.** After a real audio-admitting gesture,
+    settle on each landing card: Natally reads that card with mouth movement
+    and bright word-synced karaoke. Cards carry one idea in no more than two
+    short sentences; prices and required facts remain exact. Move quickly
+    across cards: only the settled card speaks, with no stale queue or second
+    simultaneous voice. The active card's text highlights in time and the
+    stage caption remains the two-line current-sentence window. Returning to
+    a card reads it again after a real leave/re-entry; stationary cards do
+    not repeat. A chart selection outranks automatic card narration.
+16. **Slow, irregular presence.** Observe at rest and with slow/fast pointer
+    movement. Natally's decorative gestures run at half their former baseline
+    speed, with smooth bounded irregular variations rather than a short
+    repeating loop or jitter. Pointer/touch activity gradually influences
+    movement and the time between spontaneous stories. Lipsync stays in real
+    speech time; reduced motion, pause and hidden-tab behaviour still work.
+17. **Optional device seed.** Pointer/touch input and fresh local randomness
+    work without sensor permission. On a supporting secure device, explicitly
+    enable device motion once: actual events perturb the same local seed.
+    Denial, unsupported sensors and no events retain working behaviour; no
+    automatic or repeated permission prompt. No raw pointer/sensor trail is
+    stored or transmitted. Record an actual device grant separately from
+    synthetic development probes.
+18. **Varied stories with continuing lore.** Across repeated quiet episodes,
+    observe different story premises and internal details in Natally's voice.
+    An actually completed spoken story records its exact resolved version in
+    her character lore; cancelled/never-spoken stories do not. Reload and ask
+    about that episode: its recorded detail remains consistent. Guest and
+    signed-in accounts have separate local lore; account change never exposes
+    another account's lore. Storage failure is reported honestly. Stories
+    yield to questions, chart explanations and card narration, never overlap,
+    and do not reveal the room's discoverable mechanics.
