@@ -4,6 +4,31 @@
 frozen contracts. ⬜ · 🔧 · ✅ · 🛑. Acceptance: section complete, `tsc
 --noEmit` clean, owned files only, no placeholders, commit+push.
 
+## Current operator frontier — 2026-11-11
+
+Current explicit corrections supersede the historical recipes below. Netlify
+repair/deployment recipes are cancelled. The requested checkpoint is working
+login + actual paid/admin-redemption allowance + direct per-user OpenRouter
+inference with exact model openrouter/free and provider cap0, then the sole
+build_all.sh publishes both purchased domains and builds the native matrix.
+Chargebee connection follows that artifact checkpoint; it is not its gate.
+No full build/deployment has run in this repair session.
+
+| Task | Current state | Actual source / proof |
+| --- | --- | --- |
+| Namespace | [X] written, targeted assertions passed | 80e2d7f; mba.robin.astronatally in Tauri/Gradle/Kotlin/build preparation; actual APK observation awaits build |
+| Purchased HTTPS publication option | [X] written, bash syntax gate passed | 308a4a4; both Surge commands force HTTPS on next canonical publication; certificates previously observed valid |
+| Compact layout / exact 3D chart / acrylic status | [X] written, recorded visual observations | source 3d73829/b6b1b88/4401e7d/29cc530; proof in landing-polish-2026-11-11 |
+| Neutral reset / sentence speech mapping | [X] written; 11 actual-source tests and tsc passed | source4e19107, proof8073639; actual completion/interruption observed; pronunciation audition remains unverified without audio |
+| Native browser sign-in bridge | [X] written; 8 actual-source tests, tsc and locked Cargo metadata passed | source8ba564a, proof2c2e138; real browser cancellation POST headers observed; native compilation/actual Google return pending |
+| Personal product host references | [X] tracked migration written | 3be3421; exact originals retained in Admin-Manual operational backup; runtime request observation follows new deployment |
+| Cancelled Netlify patches | [X] isolated and restored to published source | exact patch/test backup + SHA readback in Admin-Manual/.staging/natally-cancelled-netlify-checkpoint-2026-11-11 |
+| Direct-key issuance / reading | Pending replacement issuer configuration and wiring | Current active inference.ts still posts to old /billing/chat; no replacement issuer endpoint recovered from available KStore/config/Cloud Run/Hostinger access. Async operator clarification pending. Never put management key/admin code in client. |
+| Full checkpoint build and deployment | Pending working login/redemption/direct-key reading | No build_all.sh invocation, no manual version stamp; no claim of public release |
+| Chargebee checkout activation | Explicitly after checkpoint | No dummy flow, purchase or automatic allowance |
+
+## Original 2026-11-08 task history — superseded where the frontier differs
+
 | ID | Task | Owned files (exclusive) | Depends | Status |
 | --- | --- | --- | --- | --- |
 | W0 | SHELL | package.json, tsconfig.json, vite.config.ts, landing.html, app.html, .env.example, version.json, build_all.sh, .gitignore, netlify.toml | — | ✅ 982edfb/75b8807/53b0694 |
@@ -147,7 +172,7 @@ wording for the landing's compact inset. No fresh design interpretation is
 needed. Keep the current atelier design and copy. Status: 🟡 active; all
 acceptance observations remain pending until recorded.
 
-### POLISH-LAYOUT — compact sizing, calmer cards, visible karaoke
+### POLISH-LAYOUT — [X] source/proof recorded — compact sizing, calmer cards, visible karaoke
 
 Ownership: `src/app/stage/Inset.tsx`, `src/app/stage/inset.css`,
 `src/app/AppShell.tsx` (landing branch/wiring only),
@@ -214,7 +239,7 @@ with truthful observations/timecodes. You may use Playwright in your own
 isolated browser context; coordinate shared MCP browser access. Do not sweep
 runtime/cache/log files into source commits. Report any observed gap explicitly.
 
-### POLISH-CHART — sharp renderer and exact gold spokes
+### POLISH-CHART — [X] source/proof recorded — sharp renderer and exact gold spokes
 
 Exclusive ownership: `src/atelier-original/components/Astrolabe3D.tsx`.
 Read-only: `src/app/stage/Inset.tsx` and `src/app/AppShell.tsx` for the owned
@@ -266,7 +291,7 @@ observe label clarity/spoke joins. Record checkpoints 9/10 in
 `DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/`; coordinate browser access with
 POLISH-LAYOUT and report actual observations, not static-code confidence.
 
-### POLISH-CHART-3D — operator's sculpted-marker correction
+### POLISH-CHART-3D — [X] source/proof recorded — operator's sculpted-marker correction
 
 Exclusive owner: `src/atelier-original/components/Astrolabe3D.tsx`. Same
 renderer/props as POLISH-CHART; no new module API. Keep checkpoint 109e40e's
@@ -290,7 +315,7 @@ rubric9/10/21 at floating/focused400px, all three viewport sizes and DPR1/2,
 including close-body selection then neutral reset. Do not claim style accepted
 until observed. No build/publish yet.
 
-### POLISH-OVERLAY — speech status superimposes
+### POLISH-OVERLAY — [X] source/proof recorded — speech status superimposes
 
 Own `src/app/VoiceDownloadStatus.tsx`, `src/app/AppShell.tsx` landing voice-bar
 measurement/reservation only, `src/app/landing/landing.css` voice-bar offset
@@ -462,7 +487,7 @@ half-speed presence and optional pointer/sensor seed (16–17), continuing varie
 story lore (18), proportional FREE FRESH MACARONS/brief musical marquee (19).
 These are requested and pending, not implemented by this checklist paragraph.
 
-## NAMESPACE — current release preparation (operator 2026-11-11)
+## NAMESPACE — [X] source and targeted gates complete (operator 2026-11-11)
 
 Authority: ARCHITECTURE.md §17; rubric26. Exclusive ownership:
 `src-tauri/tauri.conf.json`, `scripts/build-native.mjs`,
@@ -489,7 +514,7 @@ change immediately using explicit paths; report SHA and actual remote equality.
 Native compile/package and actual APK identity observation belong to the full
 `build_all.sh` run after the direct-key frontier is ready, not a separate build.
 
-## RELEASE-HTTPS — purchased-domain publication option
+## RELEASE-HTTPS — [X] purchased-domain publication option
 
 Authority §17, existing rubric14. Own only the two Surge invocation lines in
 `build_all.sh`. Add `--force https` to each existing purchased-domain publish,
@@ -498,7 +523,7 @@ Verify `bash -n build_all.sh` exits0 and read back both command lines. Commit
 and push separately after the namespace commit, with explicit path only.
 Do not invoke the full build until root releases it after direct-key recovery.
 
-## ISOLATE-SUPERSEDED — operational source recovery, current
+## ISOLATE-SUPERSEDED — [X] operational source recovery complete
 
 Own only billing/openrouter.mjs, netlify/functions/chargebee.mjs,
 billing/checkpoint-server.test.mjs, src/app/AppShell.tsx,
@@ -518,7 +543,7 @@ recipe is git apply of the saved patch and copying back that test. No checkout
 of other paths, external service actions, product build, source commit or sweep.
 Report exact backup/restore observations to root, then release ownership.
 
-## VOICE-COMPLETE — execute after ISOLATE-SUPERSEDED acknowledgement
+## VOICE-COMPLETE — [X] source and visual reset proof complete; auditory pronunciation pending
 
 Authority §18 and rubric21/24. Own src/voice/index.ts,
 src/voice/index.test.mjs, src/atelier-original/services/voiceService.ts
@@ -571,7 +596,7 @@ and actual atelier speech with original-word karaoke. Save under existing
 DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/. Synthetic unit completion alone
 is not the real speech observation. No full build or deploy until root releases.
 
-## NATIVE-AUTH — restore existing browser handoff, current
+## NATIVE-AUTH — [X] source and transport protocol complete; native/Google journey pending
 
 Authority §19 / rubric27. Own src/platform/firebase.ts, new
 src/platform/nativeAuthPage.ts, new src/platform/nativeAuth.test.mjs,
