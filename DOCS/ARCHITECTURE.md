@@ -456,7 +456,10 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    illegibility (operator: "the symbols are illegible"). A component's callout
    never covers the component it describes or its neighbours: it sits clear
    of the hovered element with a visible gap, on the side with room, inside
-   the inset (operator: "callout covers, too close").
+   the inset (operator: "callout covers, too close"). The golden house
+   separators are part of the wheel: each cusp line runs between the wheel's
+   rings, attached to them — never floating apart, detached or off the wheel
+   (operator observed them floating apart off the wheel).
    From first load, the floating chart is placed just as well: a corner on
    the side away from the cards, clear of Natally's face, at a size where
    every glyph reads (§4 face-aware placement, measured with the card column
