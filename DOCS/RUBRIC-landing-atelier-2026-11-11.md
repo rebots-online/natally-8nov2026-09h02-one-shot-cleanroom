@@ -156,3 +156,11 @@ claims that the current page passes.
     bridge all resolve to `mba.robin.astronatally`. The production APK reports
     that application ID and the release inventory identifies the same bundle.
     The shared version is still assigned only by `build_all.sh`.
+27. **Native sign-in completes in the system browser.** In a built Linux,
+    Windows or Android app, Sign in opens the normal system browser at
+    asknatally.online/auth/native.html. Google credentials return only to that
+    invocation's loopback listener, and Firebase signs in the app. A different
+    state/origin/port is rejected; cancellation releases the waiting app.
+    The callback page never puts tokens in its URL, logs or durable storage.
+    Report actual Google/native-device observations separately from isolated
+    callback tests; an automation-browser refusal is not a successful login.

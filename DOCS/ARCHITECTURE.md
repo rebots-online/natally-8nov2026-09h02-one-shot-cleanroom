@@ -1053,3 +1053,59 @@ only version metadata, not transpileModule. The isolated in-memory tests use
 the installed Node24 `node:module.stripTypeScriptTypes` API, executing the
 actual controller module with controlled imports and the exact named pure
 pronunciation function region. No dependency installation or temporary file.
+
+## 19. Complete the existing native sign-in bridge — FROZEN 2026-11-11
+
+The active native bridge opens asknatally.online/auth/native.html, but both
+that Vite entry and public counterpart are absent. The clean-room Firebase
+wrappers still call embedded popups. Restore that existing login path before
+the requested complete build; this work is independent of key-issuer hosting.
+Use the normal system browser, with no automation-detection workaround. The
+small auth utility reuses the existing Natally plum/gold/serif visual pattern;
+it introduces no novel product navigation or account screen.
+
+| Exact entity | Target | Signature/contract; engaged by NATIVE-AUTH |
+| --- | --- | --- |
+| `nativeGoogleIdToken` | `src/platform/firebase.ts` | private async ():Promise<string>; invoke native_sign_in google, validate returned provider/idToken, signInWithCredential in current Firebase app, return Google token |
+| `googleSignIn`, `googleSignInForIdToken` | same module | Native only branches through nativeGoogleIdToken; browser popup/redirect paths retain the real click gesture |
+| `native_auth::native_sign_in` | `src-tauri/src/native_auth.rs:124` | AppHandle injected plus provider:String; command available on desktop and Android; existing ACTIVE/CANCELLED guards retained |
+| `native_auth::flow` | same module:88 | Receives AppHandle, opens fixed purchased-origin URL via tauri_plugin_opener::OpenerExt::open_url; same loopback port/state/deadline checks |
+| `Credentials.cancelled` | same module:11 | Option<bool>; true is accepted as cancellation only with matching state/provider and all token/phone fields absent |
+| `validate`, `receive`, `respond`, `wait_for_callback` | same module | Valid cancellation terminates wait with Sign-in cancelled and a truthful cancellation response; invalid callbacks keep waiting; existing credential checks unchanged |
+| `run` / native_auth module and commands | `src-tauri/src/lib.rs` | Register opener plugin plus existing billing plugin; register both native auth commands on all targets |
+| `tauri-plugin-opener`, `getrandom`, `url` | `src-tauri/Cargo.toml` + Cargo.lock | Opener2 for system browser; getrandom0.3/url2 shared across native targets; obsolete open5 no longer needed; current Rust minimum1.90 |
+| `nativeAuth` Vite input | `vite.config.ts` | entry auth/native.html retained in web bundle alongside existing landing/app entries |
+| `auth/native.html` | new Vite HTML entry | Natally branded accessible status, real Continue with Google / Cancel sign-in controls, no account-service dependency |
+| `bootstrapNativeAuth` | `src/platform/nativeAuthPage.ts` new | private async initializer for that entry; all helpers local; named Firebase app natally-native-auth, browserSessionPersistence and real Google redirect |
+| `natally-native-auth-flow-v1` | page sessionStorage | Only state, port, provider, startedAt, redirecting; no tokens. Expire after300s; clear after callback/cancel |
+| `src/platform/nativeAuth.test.mjs` | new isolated test file | Execute actual page/helper code using Node stripTypeScriptTypes and controlled VM imports; no fabricated Google-login acceptance |
+
+Native callback page accepts only origin https://asknatally.online and exactly
+one each of port (decimal30000–65535), state (64 lowercase hex), provider
+(google). Parse fragment, retain that noncredential flow in sessionStorage for
+Google's redirect, then remove the fragment. Reject absent/malformed/expired
+flows without starting Google. Create a separate named Firebase app from the
+same existing public config so webapp login persistence is not disturbed.
+On first valid launch automatically begin Google redirect once; record
+redirecting before navigation. Consume a real getRedirectResult, extract
+GoogleAuthProvider.credentialFromResult().idToken, then submit an ordinary
+form POST to http://127.0.0.1:<validated-port>/natally-auth, content type
+application/x-www-form-urlencoded, one field credential containing JSON
+{state,provider:'google',idToken,accessToken?}. Only the form holds tokens in
+memory; none in URL/storage/logs. No fetch/CORS bypass. On a returned redirect
+without credentials show a truthful retry, never an automatic redirect loop.
+Cancel sends only {state,provider:'google',cancelled:true}. The Rust verifier
+checks nonce/provider and absence of credential fields before ending the wait.
+Use no-store/no-referrer metadata and no third-party analytics on this page.
+Invalid flow says Open Natally and choose Sign in again. Configuration/Google
+errors remain visible, with retry/cancel where a valid flow still exists.
+
+Opener API/source was verified against https://v2.tauri.app/plugin/opener/;
+it supports desktop/Android system URL opening. No JS opener binding is
+needed: Rust owns the fixed URL. Move getrandom/url from desktop-only Cargo
+dependencies to shared ones, replace open5 by tauri-plugin-opener2, and resolve
+the committed lock without a product build. No hand-stamped version. Existing
+Rust tests remain; add cancellation coverage there. Configuration/parser gaps
+were closed by named reads of Cargo.toml, vite.config.ts and the previously
+trimmed Firebase helper region107–193 after CodeGraph. Native HTTP origin,
+loopback-only peer/host, size/header limits and nonce checks remain binding.

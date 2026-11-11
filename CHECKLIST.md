@@ -570,3 +570,77 @@ by a different target (old completion cannot clear it), focused/floating reset
 and actual atelier speech with original-word karaoke. Save under existing
 DOCS/DEMONSTRATIONS/landing-polish-2026-11-11/. Synthetic unit completion alone
 is not the real speech observation. No full build or deploy until root releases.
+
+## NATIVE-AUTH — restore existing browser handoff, current
+
+Authority §19 / rubric27. Own src/platform/firebase.ts, new
+src/platform/nativeAuthPage.ts, new src/platform/nativeAuth.test.mjs,
+auth/native.html, vite.config.ts, src-tauri/src/native_auth.rs,
+src-tauri/src/lib.rs, src-tauri/Cargo.toml and Cargo.lock. You are not alone;
+no AppShell/voice/chart/billing/provisioning edits and no source reuse from
+other repositories. CodeGraph first, named parser-gap reads are authorized.
+No browser/network security workaround, credentials/config changes or manual
+version. Normal Web Google login behaviour must stay unchanged.
+
+Do:
+1. Add private async nativeGoogleIdToken():Promise<string> in firebase.ts.
+   For native (__TAURI_INTERNALS__ in window) only, dynamically import existing
+   @tauri-apps/api/core invoke; invoke native_sign_in with provider google,
+   validate returned google provider and nonempty idToken <=16384 chars, then
+   signInWithCredential(requireAuth(),GoogleAuthProvider.credential(idToken,
+   optional accessToken)); return token. Map actual Sign-in cancelled rejection
+   to existing SignInCancelledError, surface other errors truthfully. Both
+   existing googleSignIn and googleSignInForIdToken branch to it for native.
+   Browser paths perform no new await before their current gesture popup.
+2. Make existing native_auth module/commands available on desktop and Android.
+   Use injected AppHandle with official tauri-plugin-opener::OpenerExt::open_url
+   in existing flow instead of desktop open::that. Register opener plugin in
+   run alongside current native billing plugin, one combined command handler.
+   Keep existing random state, loopback listener, fixed purchased origin,
+   deadline, peer/host/header/body limits and token validation. Extend existing
+   Credentials with optional cancelled:bool. Only correct state/provider and
+   absent token/phone fields authorize cancellation. End that waiting request
+   with Sign-in cancelled, show truthful browser cancellation; invalid input
+   must not terminate a real waiting login. Preserve existing Rust tests and
+   add cancellation-specific cases inside that existing tests module.
+3. Cargo: add tauri-plugin-opener="2", move getrandom="0.3" and url="2" to
+   shared dependencies, remove now-unused open="5"; rust-version1.90. Resolve
+   Cargo.lock with cargo generate-lockfile only, not a separate product build.
+4. Add auth/native.html and Vite nativeAuth input. Accessible Natally plum/gold
+   serif utility with status/Continue with Google/Cancel sign-in controls,
+   no account-service call or analytics. Load new nativeAuthPage.ts. Private
+   bootstrapNativeAuth() owns all local helpers. Only purchased HTTPS origin,
+   exactly one decimal port30000–65535, one 64lowercasehex state and google
+   provider are accepted. Store only {port,state,provider,startedAt,redirecting}
+   in sessionStorage key natally-native-auth-flow-v1; expiry300s. Never store,
+   log or URL-encode tokens. Remove initial fragment after retaining flow.
+   Separate named Firebase app natally-native-auth uses the existing public
+   firebaseConfig and browserSessionPersistence; real Google redirect starts
+   automatically only once for a fresh valid launch. On return consume real
+   getRedirectResult and Google credential. Submit a normal form POST only to
+   the validated loopback URL /natally-auth, one credential field containing
+   {state,provider:'google',idToken,accessToken?}; no fetch workaround. Cancel
+   posts {state,provider:'google',cancelled:true} with no token fields. Clear
+   session flow before submission. Returned-null credentials show real retry
+   rather than redirect loops. Missing/invalid/expired flow says Open Natally
+   and choose Sign in again. Valid flow keeps real retry/cancel on errors.
+   No-referrer/no-store metadata; no invented sign-in success.
+5. Registered Node test executes actual TypeScript modules in memory via
+   installed Node stripTypeScriptTypes/controlled imports. Cover native wrapper
+   invoking real command name/provider and Firebase credential installation;
+   browser branch preserving popup behaviour; malformed/duplicate/state/port/
+   origin/expired flow rejected; valid actual-shaped credential creates only
+   the exact loopback form and clears flow; cancelled form has no token; null
+   redirect cannot loop. Fixture credentials are isolated tests, never actual
+   user-login acceptance or production writes.
+
+Verify/Accept: node --experimental-vm-modules --test
+src/platform/nativeAuth.test.mjs and npx tsc --noEmit exit0; cargo metadata
+--manifest-path src-tauri/Cargo.toml --locked --no-deps returns correct package
+and dependency graph. Read back all edits. No standalone Vite/native build;
+actual Rust compile is in canonical build_all.sh. Commit+push coherent source
+with explicit paths after requesting Git window; no version change.
+Operator protocol: actual callback utility at desktop/390px and invalid-flow
+message, then normal system-browser Google/native return after web deployment;
+record separately from synthetic module/Rust tests. Do not label the Google
+journey verified until performed. No full build/deploy until root releases.
