@@ -1148,3 +1148,40 @@ No unrelated domain or temporary hosting destination is introduced.
 CodeGraph was healthy (155 files, SQLite quick_check ok) but did not return
 README/shell configuration; named reads of README.md, build_all.sh and
 scripts/build-environment.mjs closed this specific coverage gap.
+
+## 21. Android namespace source roots — FROZEN 2026-11-11
+
+Rubric26 already requires the activity, plugin and generated bridge to share
+mba.robin.astronatally. Canonical v1.30.768 compiled and published web and
+packaged all Linux/Windows outputs, but Android compilation encountered an
+obsolete generated Logger.kt whose previous package cannot resolve the new
+BuildConfig. Tauri has generated the current bridge below the correct package;
+the remaining defect is Gradle's broad main source root admitting both trees.
+Preserve old generated files and historical outputs. Configure the current
+main source roots explicitly; do not patch generated Logger.kt, redirect its
+BuildConfig import, delete caches, or add a second build entry.
+
+| Exact entity | Target | Exact contract / engaged by |
+| --- | --- | --- |
+| android.sourceSets.getByName("main").java | src-tauri/gen/android/app/build.gradle.kts:19 | setSrcDirs(listOf("src/main/java/mba/robin/astronatally")); current activity/plugin/generated bridge only; ANDROID-SOURCE-ROOTS |
+| kotlin.sourceSets.getByName("main").kotlin | src-tauri/gen/android/app/build.gradle.kts:86 | setSrcDirs(listOf("src/main/java/mba/robin/astronatally")); retain jvmToolchain(21); ANDROID-SOURCE-ROOTS |
+
+Both setters replace the inherited broad source directories rather than add a
+directory to them. Java and Kotlin main inputs share the existing package tree;
+variant-generated BuildConfig and dependency/buildSrc sources retain their own
+generation/source configuration. Resources, manifests, test roots, versioning,
+signing and dependencies are unchanged. The existing CodeGraph returned the
+complete current app build.gradle.kts before this amendment; no obsolete
+generated source was read. Official source-directory contracts:
+https://docs.gradle.org/current/userguide/building_java_projects.html#sec:custom_java_source_set_paths
+and https://kotlinlang.org/docs/gradle-configure-project.html#kotlin-and-java-sources.
+
+After the scoped Gradle edit is committed/pushed, rerun only ./build_all.sh.
+Its fresh automatic version must reach both purchased web hosts, all desktop
+packages and production-signed Android APK/AAB with the correct application ID.
+Record actual target results, hashes and signer observations; build delivery
+does not claim real Google login or OpenRouter reading acceptance. Preserve
+v1.30.768 as the honestly incomplete earlier attempt. Root dist bytes remain
+local while the operator's no-Forgejo-contact restriction is active and no
+permitted large-file backing store is configured; commit/push their exact
+inventory/log/evidence records, not oversized raw binary blobs.
