@@ -419,8 +419,8 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    Both insets — the chart and Natally's card — are movable and resizable
    (drag to move, corner grips to resize, same card behaviour as §4) so it can always be moved out of the way. The focused
    chart is sized to the visible window: the whole wheel fits, nothing cut
-   off at the bottom. The wheel's background is black, not purple — focused
-   or floating.
+   off at the bottom. Behind the wheel is black space with stars and
+   constellations floating by — never purple — focused or floating.
    Every inset — the floating chart and Natally's card — sits wholly inside
    the visible window, never cut off at the bottom or any edge.
    From first load, the floating chart is placed just as well: a corner on
