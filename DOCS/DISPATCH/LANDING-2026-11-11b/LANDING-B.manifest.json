@@ -1,0 +1,9 @@
+{
+  "authorization": "operator-approved-product",
+  "approvalRecord": "Robin 2026-11-11: \"ASSIGN TO CODERS FROM CHECKLIST\"; corrected to AppShell's signed-out page (\"YOURE USING THE WRONG PAGE\") \u2014 ARCHITECTURE \u00a712.1 + CHECKLIST LANDING (e2f2617)",
+  "task": "LANDING-B",
+  "sourceRevision": "e2f2617d298a2e98731f91c4638ed60c318f25fe",
+  "ownedPaths": [
+    "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/app/AppShell.tsx"
+  ]
+}
