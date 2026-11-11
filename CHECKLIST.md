@@ -332,7 +332,8 @@ Frozen §9.1; rubric22–25. Order: working Google login + real admin redemption
 
 ### CHECKPOINT-SERVER
 
-Own `netlify/functions/chargebee.mjs` and `billing/openrouter.mjs`, existing
+Own `netlify/functions/chargebee.mjs`, `billing/openrouter.mjs`,
+`billing/checkpoint-server.test.mjs` (Node built-in tests), existing
 backend deployment configuration/credentials through the private Netlify API.
 Read-only `billing/ledger.mjs`, `billing/verify.mjs`, `netlify.toml`,
 `scripts/build-environment.mjs`, `.env.example`. Never print secrets. Root/other
@@ -367,8 +368,8 @@ Do:
    invent an alternate product build entry. Commit+push each coherent source
    change immediately. No product `build_all.sh` until client proof is ready.
 
-Verify/Accept: focused existing Node/backend tests or new meaningful targeted
-tests verify real gate ordering, model exactness, key cap0, idempotent redemption
+Verify/Accept: `node --test billing/checkpoint-server.test.mjs` exits0; isolated
+fetch stubs verify real gate ordering, model exactness, key cap0, idempotent redemption
 handling and 429 propagation; syntax checks on ownedmjs exit0. No production
 fake accounts/grants/customers. Operator protocol: normal validated CORS for all
 origins; actual operator sign-in→actual code→actual grant/key→complete readable
