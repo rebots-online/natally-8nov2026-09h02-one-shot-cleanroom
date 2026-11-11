@@ -95,6 +95,21 @@ Fixed interfaces (every task implements its side exactly; nobody edits another t
 
 Acceptance for all: `tsc --noEmit` clean; owned files only; no placeholders; each contract demonstrated in the running dev server and reported; commit by the orchestrator after holistic semantic review.
 
+## LANDING — derived 1:1 from DOCS/ARCHITECTURE.md §12.1 (frozen 2026-11-11) + DOCS/RUBRIC-landing-conversion-2026-11-10.md; §16 pending LANDING rows.
+
+Fixed interfaces (every task implements its side exactly; nobody edits another task's files):
+- Markup contract (landing.html ↔ marketing.tsx/css): inside `<main id="top">`, after `#marketing-experience-root`, one `<div class="landing-cards">` holding, in order, `<section class="landing-section" id="meet-natally|your-chart|reading-aloud|talk-with-natally|prices|education" data-chart="false|true">`; each section holds one or more `<article class="landing-card">` (one page of copy each). `data-chart="true"` on `your-chart` and `reading-aloud` only. Menu anchors (`#your-chart`, `#reading-aloud`, `#talk-with-natally`, `#prices`, `#education`) target these ids.
+- App entries: `https://asknatally.online/` (app at `/`); the Sign In entry is `https://asknatally.online/?signin=google`; offers keep `?offer=…`. On hosts other than astronatally.com / www.astronatally.com the landing keeps same-origin `/app.html` (dev).
+- Arrival with `signin=google` (asknatally.online): the parameter is removed from the address bar and `googleSignIn()` starts at once (popup; its existing redirect fallback when blocked); while it runs no sign-in button or card asks for another click.
+
+| ID | Task | Owned files (exclusive) | Status |
+| --- | --- | --- | --- |
+| LANDING-A | `landing.html`: author the static, no-JS-readable copy per rubric 2–4 and 7 as the markup contract — `#meet-natally` (one H1 stating the offer plainly: an astrologer who reads your natal chart aloud and shows every part of it; CTA link "Create your natal chart — it's free" → `https://asknatally.online/`), `#your-chart`, `#reading-aloud`, `#talk-with-natally`, `#prices` (exact: chart creation free; conversation credit packs US$5 / US$10 / US$25; keepsake natal report US$30 — PDF + retained interactive viewer), `#education`. Paginate every section into short `landing-card` pages (no long plain text). Her sincere-astrologer register; no testimonials, countdowns, scarcity or disclaimers beyond the existing footer line; header, menu, account root, first-paint poster, noscript and footer stay. | `landing.html` | ⬜ |
+| LANDING-B | Landing behaviour and look per §12.1 items 1, 3–6: the stage is the atelier exactly as the app's signed-out page shows it (full stage, `AtelierScene`), the example wheel in the inset; the `.landing-cards` scroll by over/beside it, each `.landing-card` drawn with the app's dark-purple `.card` surface (`src/app/app-shell.css` `.card` tokens copied into `marketing.css`); the active section (scroll position or menu item) drives the view: `data-chart="true"` → chart view, otherwise atelier, both directions; `STORY_SECTIONS`/section tracking read the contract ids. `appEntry`/`APP_ORIGIN` per the interfaces for Sign In, Create-your-chart, Top Up, Open my atelier, example-caption link and the `?app=1`/offer self-redirect. Verify in the dev server: scroll and menu both swap and swap back; every CTA's href. | `src/landing-original/marketing.tsx`, `src/landing-original/marketing.css` | ⬜ |
+| LANDING-C | `AppShell.tsx`: on a signed-out arrival carrying `signin=google` (`SIGNIN_INTENT_PARAM`), strip it with `history.replaceState` and call the existing `signIn()` immediately; while that sign-in is in flight show only a status line (no sign-in button or card); failures surface through the existing `describeSignInFailure` path where the person can act. No other behaviour change. | `src/app/AppShell.tsx` | ⬜ |
+
+Acceptance for all: `tsc --noEmit` clean; owned files only; no placeholders; each contract demonstrated in the running dev server and reported; checked against every rubric checkpoint; commit by the orchestrator after holistic semantic review.
+
 ## STAGE-6 — swap, focus, inset surface, non-blocking orientation (ARCHITECTURE.md §Chart inset rows added 2026-11-09)
 
 | ID | Task | Owned files (exclusive) | Status |

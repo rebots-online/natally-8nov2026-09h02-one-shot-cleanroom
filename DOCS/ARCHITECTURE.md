@@ -378,7 +378,7 @@ services mirrored from `atelier-original`. Components:
 `AccountBillingDialog`, `CreditActions` (quote → buyer details → paid
 lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 
-### 12.1 Landing target state (operator 2026-11-11 — awaiting Robin's signoff; NOT frozen)
+### 12.1 Landing target state (operator 2026-11-11 — FROZEN on Robin's order "assign to coders from checklist")
 
 1. **The landing is the atelier.** Visitors land on the page that comes up
    today when you click Sign In: the big Natally in her atelier. That page
@@ -398,6 +398,15 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    it or by choosing its menu item.
 5. **Leaving the natal-chart content swaps back to the atelier** — by
    scrolling out of it or by choosing a menu item outside it.
+6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
+   asknatally.online. Every way into the app from the landing — Sign In,
+   create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
+   asknatally.online, and asknatally.online serves the app at `/`.
+7. **Sign-in works on both domains.** Firebase authorized domains include
+   astronatally.com, asknatally.online and their `www` hosts (added
+   2026-11-11; snapshot in `DOCS/DOMAINS/`). Item 2 holds across the domain
+   change: the landing's Sign In arrives at asknatally.online already
+   starting Google sign-in — the visitor never meets a second sign-in click.
 
 ## 13. Preserved trees (`*-original/`) — frozen ports
 
@@ -512,6 +521,7 @@ contract.
 | `SouvenirDialog` lazy binding ·priv, `AuthState` ·priv, `StageHeader`, `AccountPanel`, `loadStoredChart`, `App` (default) | const ·priv, type ·priv, comp ·priv, comp ·priv, fn ·priv, comp | `app/AppShell.tsx:72,76,95,185,264,276` | composition root (internal: `onKaraoke`, `handleReplyEvent`, `explainPlanet`, `skyToday`, `admit`, chatStage, opening reveal refs) |
 | `BODY_TARGET_PX`, `INSET_MAX_W`, `ASPECT` ·priv, `CHROME_PX` ·priv, `DEFAULT_BODY_COUNT` ·priv, `DRAG_THRESHOLD_PX` ·priv, `DOCK_GAP` ·priv, `DOCK_REACH` ·priv, `DOCK_MARGIN` ·priv, `FACE_COVERED_INVERT` ·priv, `KEY_STEP`/`KEY_RESIZE_STEP` ·priv, `InsetGeometry` ·priv, `InsetMode`, `InsetState` ·priv, `InsetProps`, `StageBox` ·priv, `Rect` ·priv, `insetFloorPx`, `loadState` ·priv, `storeState` ·priv, `clampGeometry` ·priv, `allowedWidthPx` ·priv, `sideFits` ·priv, `stackFits` ·priv, `dockedWidthPx` ·priv, `computeAutoPlacement` ·priv, `faceRectInStage` ·priv, `isFiniteNumber` ·priv, `Inset` | const/type/fn | `app/stage/Inset.tsx:58,60,62,~64,~,70,84,68,~,76,72–73,86,97,99,104,127,132,151,157,178,209,187,192,197,~,267,220,~,350` | the inset card (see §4) |
 | **pending INSET** `GLYPH_MIN_PX` ·priv, `LONG_PRESS_MS` ·priv, `InsetProps.onSwap`, `InsetProps.onComponentTap` | const ·priv, const ·priv, props | `app/stage/Inset.tsx` | glyph-legibility floor; touch long-press-to-drag; tap-on-empty → swap; tap-on-hovered-component → shell (speak + swap) |
+| **pending LANDING** `SIGNIN_INTENT_PARAM` ·priv | const ·priv | `app/AppShell.tsx` | §12.1 item 7: arrival from the landing's Sign In (`?signin=google`) starts Google sign-in at once, no second prompt |
 | `useStageVisualHeight` | fn | `app/stage/stageMetrics.ts:12` | focused fill height |
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
@@ -631,6 +641,8 @@ contract.
 | --- | --- | --- |
 | `MarketingExperience`, module self-mount, `appEntry`, `boundedInset`, `GUEST_ROOM`, `EXAMPLE_CHART_INPUT`, `loadExampleChart` | comp, consts/fns ·priv | `marketing.tsx:65,38,47,48,55,250` |
 | `marketing.css` | css | landing styles |
+| **pending LANDING** `APP_ORIGIN` ·priv, `appEntry` (re-targeted) | const ·priv, fn ·priv | `marketing.tsx` | §12.1 item 6: every app entry routes to `https://asknatally.online/` (same-origin `/app.html` only on non-product hosts such as localhost) |
+| **pending LANDING** `.landing-section[data-chart]`, `.landing-card` | markup contract | `landing.html` ↔ `marketing.tsx`/`marketing.css` | §12.1 items 3–5: static, paginated copy cards; `data-chart="true"` sections swap the stage to the chart |
 | `AccountBillingDialog`, `CreditActions`, `CustomerValueExplanation`, `Astrolabe3D` (port copy) | comps | `components/*:40,14,3,~` |
 | `ephemeris.ts` (mirror of atelier-original), `transits.ts` (`calculateCurrentSkySnapshot`, `currentObservationContext`, `buildCurrentSkyContext`), `presentation.ts` (reducer: `initialPresentation`, `validatePresentationAction`, `validatePresentationCues`, `presentationActionsAt`, `presentationFocusAt`, `presentationViewAt`, `reducePresentation`, `withReadingCamera`), `chartTargets.ts` (`chartTargets`, `chartFocusKey`, `chartFocusKeyMatches`, `resolveChartTarget`, `chartTargetLabel`, `isDatedSkyTarget`, `chartReferenceNames`), `soul.ts` (`SoulEntry`, `SoulState`, `normalizeLoreText`, `remember`, `rememberCharacterDevelopment`, `rememberUserDisclosure`, seeds), `authoredChartExplanations.ts` (`getAuthoredChartExplanation`, `getAuthoredUpsellClose`, `AuthoredExplanation`), `authoredEducationSession.ts` (`AuthoredEducationSession`, `createAuthoredEducationSession`), `authoredNudges.ts` (`AUTHORED_STORY_PREFIX`, `readNudgeSettings`, `nextAuthoredNudge`, `AuthoredNudge`), `checkoutCatalog.ts` (`CheckoutCadence`, `CheckoutTier`, `CheckoutPackBinding`, `CheckoutCatalogEntry`, catalog loaders), `revenueCatCheckout.ts` (`getCheckoutOffers`, `getCheckoutCustomer`, `restoreCheckoutCustomer`, `CheckoutCustomer`), `nativeRevenueCat.ts`, `billingAccess.ts` (`BillingAccess`, `reconcileBillingAccess`), `billingApi.ts` (`billingRequest`, `connectBillingResult`, `BillingResult`, `loadInferenceKeySource`), `inferenceAccess.ts` (`InferenceKeySource`, `loadInferenceKey`, `loadInferenceKeySource`, `installInferenceKey`, `removeInferenceKey`), `natallyHistory.ts` (`requiresFreshOnboarding`, `completeFreshOnboarding`, `eraseWholeNatallyHistory`), `historyLifecycle.ts` (`isNatallyHistoryErasing`, `announceHistoryErasure`, `finishHistoryErasure`), `accountStorage.ts` (`accountStorageKey`, `loadAccountValue`, `saveAccountValue`), `readingAudio.ts` (`loadReadingAudio`, `saveReadingAudio`, `clearAccountReadingAudio`, `ReadingAudioRecord`), `openingReading.ts` (`OpeningStage`, `openingPrompt`, `LEGACY_OPENING_PROMPT`, `isLegacyOpeningPrompt`), `onboarding.ts` (`loadNatalIntake`, `fetchUserIntake`), `firebase.ts` (`auth`, `db`, `googleProvider`, `testConnection`, re-exports), `gazetteer.ts`+json, `voiceService`/`supertonic*`/`voiceMeasurements`/`atelier*` mirrors, `purchaseIntent.ts` (`PurchaseKind`), `soul-adjacent seeds` | modules | `services/*` |
 | `firebase-applet-config.json` (root + `src/`) | asset | the port's Firebase identity |
