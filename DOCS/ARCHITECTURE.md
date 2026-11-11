@@ -432,7 +432,12 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    reply driver path the signed-in stage uses.
 4c. **The swap is smooth and the atelier inset well placed.** Focusing and
    unfocusing glide — no broken or jarring zoom, no jump, no flash of an
-   empty stage. When the atelier is the inset it shows Natally whole and
+   empty stage, never sudden: both panes animate together over ~450 ms
+   (eased) — the chart grows from its floating card to the full stage while
+   the room shrinks from the full stage into its corner card, and the reverse
+   on the way back. While Natally explains, the view switches back and forth
+   with her words — to the chart when she points at it, back to her when she
+   speaks to you — driven by her passage's cues, as on the signed-in stage. When the atelier is the inset it shows Natally whole and
    readable (her face never cropped), in a corner that covers neither the
    chart's wheel nor the cards.
    Both insets — the chart and Natally's card — are movable and resizable
