@@ -411,6 +411,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    forward and she speaks her passage about that element, highlighting it
    (and every element involved) as she goes — the same `explainTarget` →
    reply driver path the signed-in stage uses.
+4c. **The swap is smooth and the atelier inset well placed.** Focusing and
+   unfocusing glide — no broken or jarring zoom, no jump, no flash of an
+   empty stage. When the atelier is the inset it shows Natally whole and
+   readable (her face never cropped), in a corner that covers neither the
+   chart's wheel nor the cards.
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
