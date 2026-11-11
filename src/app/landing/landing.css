@@ -2,8 +2,8 @@
    The signed-out page keeps the atelier as its stage — the fixed
    .scene-mount behind (app-shell.css) fills the viewport in both states,
    atelier or focused chart, on wide screens; on narrow screens the stage
-   is an in-flow top band with the cards after it (the narrow block
-   below) — while this sheet paginates every piece of landing copy onto
+   is a sticky top band with the cards scrolling beneath it (the narrow
+   block below) — while this sheet paginates every piece of landing copy onto
    short cards in a column docked against the right edge of the viewport,
    like the sign-in card: off to the side, never centred over Natally or
    the middle of the stage (§12.1 5a). The column scrolls vertically
@@ -73,25 +73,35 @@
   text-align: center;
 }
 
-/* §12.1 5a on narrow screens: there is no side to dock to, so the stage
-   becomes an in-flow band pinned to the top of the document — the atelier
-   fills it from the viewport's top edge (no empty band above), and the
-   cards run below it in the document, after the stage, so they can never
-   cover the wheel in either state (operator: the cards covered the wheel
-   in chart view). The band is min(62dvh, 560px) tall; the artwork's 1.6
-   composition scales to the band's height (cropping the room's side
-   margins, never Natally at its centre) so no letterbox band can open
-   above or below it. Vertical flow is kept on purpose: the section
-   tracker in LandingCards.tsx follows vertical viewport overlap, which a
-   fixed or horizontally paged strip would collapse (clipped content
-   inside a fixed panel still reports viewport overlap), freezing the
-   §12.1 item-4/5 stage swap. The header moves to a fixed overlay so the
-   in-flow stage still starts at the viewport's top edge. */
+/* §12.1 4/5a on narrow screens: there is no side to dock to, so the stage
+   is the viewport's top band and the cards scroll beneath it. The band is
+   sticky — pinned to the top of the viewport for the cards' whole scroll
+   lifetime — so in chart view the focused chart (with the room as its
+   small card) stays on screen above the #your-chart cards instead of
+   scrolling away with the document (operator: scrolling to the chart
+   cards showed only the cards — the chart was gone), and outside the
+   chart sections the same band holds the atelier, returning when the
+   chart sections scroll out. The band is min(62dvh, 560px) tall; the
+   artwork's 1.6 composition scales to the band's height (cropping the
+   room's side margins, never Natally at its centre) so no letterbox band
+   can open above or below it. It sits above the card column (z-index 2
+   over the cards' 1) with a soft lower edge, so the cards pass under it
+   in the viewport's lower part — they can never cover the wheel in
+   either state. Sticky, not fixed, on purpose: the stage keeps its
+   document flow slot, so the section tracker in LandingCards.tsx follows
+   genuine vertical viewport overlap, which a fixed or horizontally paged
+   strip would collapse (clipped content inside a fixed panel still
+   reports viewport overlap), freezing the §12.1 item-4/5 stage swap. The
+   header moves to a fixed overlay so the stage still starts at the
+   viewport's top edge. */
 @media (max-width: 760px) {
   body:has(.landing-cards) .scene-mount {
-    position: relative;
+    position: sticky;
     inset: auto;
+    top: 0;
     height: min(62dvh, 560px);
+    z-index: 2;
+    box-shadow: 0 14px 30px rgba(3, 2, 8, 0.5);
   }
   body:has(.landing-cards) .scene-mount .atelier-scene__composition {
     /* Scale to the band's height (its own aspect-ratio keeps the art
@@ -110,6 +120,12 @@
     width: auto;
     margin: 0 clamp(16px, 5vw, 40px);
     padding-top: clamp(12px, 3vh, 24px);
+  }
+  /* An anchor jump (the menu's section links) must land its section below
+     the sticky stage band, or the jumped-to cards would open fully hidden
+     behind it. */
+  .landing-cards section {
+    scroll-margin-top: calc(min(62dvh, 560px) + 12px);
   }
   /* The wide-screen focused-chart inset (reserved clear of the card
      column) does not apply here — the cards are below the stage, so the
