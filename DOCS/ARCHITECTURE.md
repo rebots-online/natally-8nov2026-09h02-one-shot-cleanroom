@@ -1047,3 +1047,9 @@ focus after the playback driver finishes, preserving manual pane/view choices.
 Rejected, unpublished server/client work is retained as a byte-exact transport
 backup under Admin-Manual, then only those owned task edits are restored to the
 published source. This preserves the evidence without publishing cancelled code.
+
+VOICE-COMPLETE toolchain observation: the installed `typescript` package exposes
+only version metadata, not transpileModule. The isolated in-memory tests use
+the installed Node24 `node:module.stripTypeScriptTypes` API, executing the
+actual controller module with controlled imports and the exact named pure
+pronunciation function region. No dependency installation or temporary file.

@@ -556,8 +556,9 @@ as the existing angular expansion. Do not edit the unused duplicate landing
 port. Preserve speech rate, lipsync, prefetch and the measured two-line caption.
 
 Use Node built-in tests in the named new test file to execute actual modules
-(transpile TypeScript in memory with the installed compiler and controlled VM
-imports). Test last queued chunk/flush exactly-once success, not-yet-flushed
+(strip TypeScript in memory with installed Node24 node:module
+stripTypeScriptTypes and controlled VM imports; execute the actual controller
+module and exact named pronunciation source region, not a copied algorithm). Test last queued chunk/flush exactly-once success, not-yet-flushed
 stream gaps, unadmitted speech, false result/error, stop/supersession, and
 pronunciation offsets including atelier beside degrees and unchanged display.
 No product fixture account, network mock journey, new dependency or temp file.
