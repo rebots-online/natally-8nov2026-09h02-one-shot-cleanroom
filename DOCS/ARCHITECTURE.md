@@ -442,6 +442,11 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    constellations floating by — never purple — focused or floating.
    Every inset — the floating chart and Natally's card — sits wholly inside
    the visible window, never cut off at the bottom or any edge.
+   Every symbol on the wheel — planet glyphs, sign glyphs, house numbers,
+   degree labels — is legible at every inset size, floating or focused: glyph
+   sprites keep a minimum on-screen size (≥ 14 CSS px for glyphs, ≥ 11 px for
+   degree text) with enough contrast, never shrinking with the canvas into
+   illegibility (operator: "the symbols are illegible").
    From first load, the floating chart is placed just as well: a corner on
    the side away from the cards, clear of Natally's face, at a size where
    every glyph reads (§4 face-aware placement, measured with the card column
