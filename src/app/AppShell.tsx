@@ -1064,9 +1064,62 @@ export default function App() {
  // jump, in either direction. Stable identity: LandingCards' section
  // tracking re-subscribes when this prop changes, and the shell re-renders
  // often (the credit ledger polls even signed out).
+ // On the narrow layout this report stands down: the sticky stage band
+ // (landing.css) covers the viewport's top, so the band tracker below —
+ // the same greatest-overlap rule measured against what is actually
+ // visible below the band — is the swap's sole authority there.
+ const landingNarrowRef = useRef(landingNarrow);
+ landingNarrowRef.current = landingNarrow;
  const handleLandingSection = useCallback((_id: string, chart: boolean) => {
+  if (landingNarrowRef.current) return;
   dispatchLanding({ type: 'view', view: chart ? 'chart' : 'atelier', manual: true });
  }, []);
+ // §12.1 items 4–5 on narrow screens: LandingCards' tracker votes with
+ // the whole viewport, which is right beside the stage on wide screens —
+ // but on narrow the cards hidden under the sticky band still win that
+ // vote (a menu jump to #your-chart lands with the section filling the
+ // visible band while the covered cards above it outvote it), so the
+ // chart never takes focus. While the narrow layout is active, this
+ // tracker applies the same greatest-overlap rule to the band below the
+ // stage alone; nothing is reported while no section reaches the band
+ // (the first viewport belongs to the atelier, not to a section).
+ const landingBandChartRef = useRef<boolean | null>(null);
+ useEffect(() => {
+  if (auth.status !== 'signedOut' || !landingNarrow) return;
+  landingBandChartRef.current = null;
+  const sections = LANDING_SECTIONS.flatMap(entry => {
+   const el = document.getElementById(entry.id);
+   return el === null ? [] : [{ chart: entry.chart, el }];
+  });
+  const report = () => {
+   const stage = landingStageRootRef.current;
+   if (stage === null || sections.length === 0) return;
+   const bandTop = stage.getBoundingClientRect().bottom;
+   let bestChart: boolean | null = null;
+   let bestVisible = 0;
+   for (const { chart, el } of sections) {
+    const rect = el.getBoundingClientRect();
+    const visible = Math.max(
+     0,
+     Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, bandTop),
+    );
+    if (visible > bestVisible) {
+     bestVisible = visible;
+     bestChart = chart;
+    }
+   }
+   if (bestChart === null || bestChart === landingBandChartRef.current) return;
+   landingBandChartRef.current = bestChart;
+   dispatchLanding({ type: 'view', view: bestChart ? 'chart' : 'atelier', manual: true });
+  };
+  window.addEventListener('scroll', report, { passive: true });
+  window.addEventListener('resize', report);
+  report();
+  return () => {
+   window.removeEventListener('scroll', report);
+   window.removeEventListener('resize', report);
+  };
+ }, [auth.status, landingNarrow]);
 
  if (auth.status === 'unknown') {
   return (
