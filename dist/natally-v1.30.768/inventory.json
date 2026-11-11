@@ -57,7 +57,11 @@
       "finishedAt": "2026-11-11T11:53:03.691Z"
     },
     "android": {
-      "state": "running"
+      "state": "failed",
+      "startedAt": "2026-11-11T11:53:03.691Z",
+      "error": "android command failed (1); see /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/logs/android.log"
     }
-  }
+  },
+  "finishedAt": "2026-11-11T11:56:34.389Z",
+  "complete": false
 }

@@ -1,0 +1,219 @@
+stamp: 1.29.768
+Native identity prepared: mba.robin.astronatally, v1.29.768, Android versionCode 100290768
+To https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom.git
+   8c77775..2c6ee3a  HEAD -> master
+
+> natally-cleanroom@1.29.768 lint
+> tsc --noEmit
+
+vite v8.3.6 building client environment for production...
+transforming...
+[plugin rolldown:vite-resolve] Module "url" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/src/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "path" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/src/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/wasm/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 357 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-web/app.html                                                   1.57 kB │ gzip:     0.79 kB
+dist-web/auth/native.html                                           2.12 kB │ gzip:     1.04 kB
+dist-web/landing.html                                               5.88 kB │ gzip:     2.39 kB
+dist-web/assets/supertonic.worker-Dwrjg7n_.js                     553.63 kB
+dist-web/assets/swisseph-BqKK9TOX.wasm                            561.87 kB │ gzip:   264.20 kB
+dist-web/assets/ort-wasm-simd-threaded.asyncify-CxOG5pUO.wasm  26,861.77 kB │ gzip: 6,762.79 kB
+dist-web/assets/marketing-C_aV1Ols.css                             14.10 kB │ gzip:     3.30 kB
+dist-web/assets/Inset-VMyv_Cqh.css                                 29.38 kB │ gzip:     6.46 kB
+dist-web/assets/AppShell-BNp9_KKX.css                              37.84 kB │ gzip:     8.70 kB
+dist-web/assets/__vite-browser-external-BDfy7Drd.js                 0.10 kB │ gzip:     0.11 kB
+dist-web/assets/core-C9qTgrtU.js                                    0.21 kB │ gzip:     0.19 kB
+dist-web/assets/modulepreload-polyfill-P2Xu9kJm.js                  0.67 kB │ gzip:     0.38 kB
+dist-web/assets/rolldown-runtime-XKyaHtl9.js                        0.72 kB │ gzip:     0.42 kB
+dist-web/assets/main-CuV-vBiO.js                                    0.81 kB │ gzip:     0.48 kB
+dist-web/assets/nativeAuth-BErvyFPH.js                              4.06 kB │ gzip:     1.71 kB
+dist-web/assets/jsx-runtime-C3cWAN_r.js                             8.24 kB │ gzip:     3.11 kB
+dist-web/assets/app-_FXJAQqP.js                                    13.46 kB │ gzip:     5.70 kB
+dist-web/assets/purify.es-Dqk5qvad.js                              29.02 kB │ gzip:    11.45 kB
+dist-web/assets/index.es-CNavPdRI.js                              151.42 kB │ gzip:    48.91 kB
+dist-web/assets/Inset-BKAPYRmx.js                                 165.60 kB │ gzip:    51.47 kB
+dist-web/assets/AppShell-CB6fNkzK.js                              178.61 kB │ gzip:    62.65 kB
+dist-web/assets/html2canvas-Bw0OShmD.js                           199.40 kB │ gzip:    46.74 kB
+dist-web/assets/client-CtRO7now.js                                210.54 kB │ gzip:    65.70 kB
+dist-web/assets/SouvenirDialog-BQa5J-88.js                        408.28 kB │ gzip:   133.43 kB
+dist-web/assets/three-BQeMWfzj.js                                 524.41 kB │ gzip:   131.06 kB
+dist-web/assets/firebase-WOdyWsxO.js                              527.82 kB │ gzip:   157.91 kB
+dist-web/assets/marketing-C8F43L4a.js                           1,162.89 kB │ gzip:   310.82 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.12s
+Web build complete → dist-web/
+
+   [33mAborted[39m[90m - `force` is not a surge argument.[39m
+
+stamp: 1.30.768
+Native identity prepared: mba.robin.astronatally, v1.30.768, Android versionCode 100300768
+To https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom.git
+   2fca7ee..33a6826  HEAD -> master
+
+> natally-cleanroom@1.30.768 lint
+> tsc --noEmit
+
+vite v8.3.6 building client environment for production...
+transforming...
+[plugin rolldown:vite-resolve] Module "url" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/src/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "path" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/src/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src/atelier-original/vendor/swisseph/wasm/swisseph.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 357 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-web/app.html                                                   1.57 kB │ gzip:     0.79 kB
+dist-web/auth/native.html                                           2.12 kB │ gzip:     1.04 kB
+dist-web/landing.html                                               5.88 kB │ gzip:     2.39 kB
+dist-web/assets/supertonic.worker-Dwrjg7n_.js                     553.63 kB
+dist-web/assets/swisseph-BqKK9TOX.wasm                            561.87 kB │ gzip:   264.20 kB
+dist-web/assets/ort-wasm-simd-threaded.asyncify-CxOG5pUO.wasm  26,861.77 kB │ gzip: 6,762.79 kB
+dist-web/assets/marketing-C_aV1Ols.css                             14.10 kB │ gzip:     3.30 kB
+dist-web/assets/Inset-VMyv_Cqh.css                                 29.38 kB │ gzip:     6.46 kB
+dist-web/assets/AppShell-BNp9_KKX.css                              37.84 kB │ gzip:     8.70 kB
+dist-web/assets/__vite-browser-external-BDfy7Drd.js                 0.10 kB │ gzip:     0.11 kB
+dist-web/assets/core-C9qTgrtU.js                                    0.21 kB │ gzip:     0.19 kB
+dist-web/assets/modulepreload-polyfill-P2Xu9kJm.js                  0.67 kB │ gzip:     0.38 kB
+dist-web/assets/rolldown-runtime-XKyaHtl9.js                        0.72 kB │ gzip:     0.42 kB
+dist-web/assets/main-BTd--Nug.js                                    0.81 kB │ gzip:     0.48 kB
+dist-web/assets/nativeAuth-BErvyFPH.js                              4.06 kB │ gzip:     1.71 kB
+dist-web/assets/jsx-runtime-C3cWAN_r.js                             8.24 kB │ gzip:     3.11 kB
+dist-web/assets/app-BvRCEbMz.js                                    13.46 kB │ gzip:     5.70 kB
+dist-web/assets/purify.es-Dqk5qvad.js                              29.02 kB │ gzip:    11.45 kB
+dist-web/assets/index.es-BK_mslUP.js                              151.42 kB │ gzip:    48.91 kB
+dist-web/assets/Inset-BKAPYRmx.js                                 165.60 kB │ gzip:    51.47 kB
+dist-web/assets/AppShell-Eo7bfCCW.js                              178.61 kB │ gzip:    62.65 kB
+dist-web/assets/html2canvas-Bw0OShmD.js                           199.40 kB │ gzip:    46.74 kB
+dist-web/assets/client-CtRO7now.js                                210.54 kB │ gzip:    65.70 kB
+dist-web/assets/SouvenirDialog-CtDjVT4g.js                        408.28 kB │ gzip:   133.43 kB
+dist-web/assets/three-BQeMWfzj.js                                 524.41 kB │ gzip:   131.06 kB
+dist-web/assets/firebase-WOdyWsxO.js                              527.82 kB │ gzip:   157.91 kB
+dist-web/assets/marketing-C8F43L4a.js                           1,162.89 kB │ gzip:   310.82 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.94s
+Web build complete → dist-web/
+
+   [90mRunning as [4mrobinsai.world@gmail.com[24m[39m[90m (Free)[39m
+
+[90m        project:[39m dist-web
+[90m         domain:[39m astronatally.com
+[90m           size:[39m 79 files, 43.6 MB
+[90m        changed:[39m 20 of 79 files[90m (59 already published)[39m
+[90m         upload:[39m done
+[90m            CDN:[39m done
+[90m     encryption:[39m done
+   [90m       force[39m[90m: [39m[32mhttps[39m
+
+  [90m[90m┌──────────[39m[90m┬────────────────────────────────────────────────────────────────[39m[90m┬─────────────────────┐[39m[39m
+  [90m[90m│[39m   [90mCERT[39m   [90m│[39m   [90mastronatally.com, www.astronatally.com[39m                       [90m│[39m   [32mauto-renew[39m        [90m│[39m[39m
+  [90m[90m├──────────[39m[90m┼────────────────────────────────────────────────────────────────[39m[90m┼─────────────────────┤[39m[39m
+  [90m[90m│[39m   [90mDNS[39m    [90m│[39m   [90musing Surge CNAME Record[39m                                     [90m│[39m   [32mgeo-aware[39m         [90m│[39m[39m
+  [90m[90m└──────────[39m[90m┴────────────────────────────────────────────────────────────────[39m[90m┴─────────────────────┘[39m[39m
+  [90m[90m┌──────────[39m[90m┬──────────────────[39m[90m┬───────────────────────[39m[90m┬─────────────────────[39m[90m┬─────────────[39m[90m┬───────┐[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sfo.surge.sh   [90m│[39m   US, San Francisco   [90m│[39m   138.197.235.123   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   lhr.surge.sh   [90m│[39m   GB, London          [90m│[39m   46.101.67.123     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   yyz.surge.sh   [90m│[39m   CA, Toronto         [90m│[39m   159.203.50.177    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   jfk.surge.sh   [90m│[39m   US, New York        [90m│[39m   159.203.159.100   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   ams.surge.sh   [90m│[39m   NL, Amsterdam       [90m│[39m   188.166.132.94    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   fra.surge.sh   [90m│[39m   DE, Frankfurt       [90m│[39m   138.68.112.220    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sgp.surge.sh   [90m│[39m   SG, Singapore       [90m│[39m   139.59.195.30     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   blr.surge.sh   [90m│[39m   IN, Bangalore       [90m│[39m   139.59.50.135     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   syd.surge.sh   [90m│[39m   AU, Sydney          [90m│[39m   45.76.126.95      [90m│[39m   Vultr     [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   nrt.surge.sh   [90m│[39m   JP, Tokyo           [90m│[39m   172.104.96.133    [90m│[39m   Linode    [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m└──────────[39m[90m┴──────────────────[39m[90m┴───────────────────────[39m[90m┴─────────────────────[39m[90m┴─────────────[39m[90m┴───────┘[39m[39m
+   [90mLive preview .......................................... [4m1794397039969--astronatally--com.surge.sh[24m[39m
+   [90mLatest ....................................................... [4mlatest--astronatally--com.surge.sh[24m[39m
+   [90mProduction ..................................................................... [4mastronatally.com[24m[39m
+
+   [32mSuccess![39m[90m - Published to [4mastronatally.com[24m[39m
+
+   [90mdomain written to dist-web/CNAME[39m
+
+
+   [90mRunning as [4mrobinsai.world@gmail.com[24m[39m[90m (Free)[39m
+
+[90m        project:[39m dist-web
+[90m         domain:[39m asknatally.online
+[90m           size:[39m 80 files, 43.6 MB
+[90m        changed:[39m 21 of 80 files[90m (59 already published)[39m
+[90m         upload:[39m done
+[90m            CDN:[39m done
+[90m     encryption:[39m done
+   [90m       force[39m[90m: [39m[32mhttps[39m
+
+  [90m[90m┌──────────[39m[90m┬────────────────────────────────────────────────────────────────[39m[90m┬─────────────────────┐[39m[39m
+  [90m[90m│[39m   [90mCERT[39m   [90m│[39m   [90masknatally.online, www.asknatally.online[39m                     [90m│[39m   [32mauto-renew[39m        [90m│[39m[39m
+  [90m[90m├──────────[39m[90m┼────────────────────────────────────────────────────────────────[39m[90m┼─────────────────────┤[39m[39m
+  [90m[90m│[39m   [90mDNS[39m    [90m│[39m   [90musing Surge CNAME Record[39m                                     [90m│[39m   [32mgeo-aware[39m         [90m│[39m[39m
+  [90m[90m└──────────[39m[90m┴────────────────────────────────────────────────────────────────[39m[90m┴─────────────────────┘[39m[39m
+  [90m[90m┌──────────[39m[90m┬──────────────────[39m[90m┬───────────────────────[39m[90m┬─────────────────────[39m[90m┬─────────────[39m[90m┬───────┐[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sfo.surge.sh   [90m│[39m   US, San Francisco   [90m│[39m   138.197.235.123   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   lhr.surge.sh   [90m│[39m   GB, London          [90m│[39m   46.101.67.123     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   yyz.surge.sh   [90m│[39m   CA, Toronto         [90m│[39m   159.203.50.177    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   jfk.surge.sh   [90m│[39m   US, New York        [90m│[39m   159.203.159.100   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   ams.surge.sh   [90m│[39m   NL, Amsterdam       [90m│[39m   188.166.132.94    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   fra.surge.sh   [90m│[39m   DE, Frankfurt       [90m│[39m   138.68.112.220    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sgp.surge.sh   [90m│[39m   SG, Singapore       [90m│[39m   139.59.195.30     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   blr.surge.sh   [90m│[39m   IN, Bangalore       [90m│[39m   139.59.50.135     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   syd.surge.sh   [90m│[39m   AU, Sydney          [90m│[39m   45.76.126.95      [90m│[39m   Vultr     [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   nrt.surge.sh   [90m│[39m   JP, Tokyo           [90m│[39m   172.104.96.133    [90m│[39m   Linode    [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m└──────────[39m[90m┴──────────────────[39m[90m┴───────────────────────[39m[90m┴─────────────────────[39m[90m┴─────────────[39m[90m┴───────┘[39m[39m
+   [90mLive preview ......................................... [4m1794397046415--asknatally--online.surge.sh[24m[39m
+   [90mLatest ...................................................... [4mlatest--asknatally--online.surge.sh[24m[39m
+   [90mProduction .................................................................... [4masknatally.online[24m[39m
+
+   [32mSuccess![39m[90m - Published to [4masknatally.online[24m[39m
+
+
+=== linux: npx --no-install tauri build --bundles appimage,deb,rpm -- --locked ===
+Staged linux-x64.AppImage: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-linux-x64.AppImage
+Staged linux-x64.deb: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-linux-x64.deb
+Staged linux-x64.rpm: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-linux-x64.rpm
+
+=== windows: npx --no-install tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc --bundles nsis -- --locked ===
+Staged windows-executable: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-windows-x64.exe
+Staged windows-x64-installer.exe: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-windows-x64-installer.exe
+
+=== windows-msi: wixl -a x64 -o /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/msi/natally-v1.30.768-windows-x64.msi -D ProductName=Natally -D ProductVersion=1.30.768.0 -D UpgradeCode=3e5cab2c-d121-4e0a-a428-9a81141827f9 -D Manufacturer=rebots-online -D ExeSource=/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-windows-x64.exe -D IconSource=/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/icons/icon.ico src-tauri/msi/natally.wxs ===
+Staged windows-msi: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/natally-v1.30.768-windows-x64.msi
+
+=== android: npx --no-install tauri android build --target aarch64 --apk --aab ===
+android command failed (1); see /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/logs/android.log
+{
+  "version": "1.30.768",
+  "complete": false,
+  "targets": {
+    "linux": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T11:37:28.511Z",
+      "finishedAt": "2026-11-11T11:50:18.604Z"
+    },
+    "windows": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T11:50:18.604Z",
+      "finishedAt": "2026-11-11T11:53:02.431Z"
+    },
+    "windows-msi": {
+      "state": "packaged",
+      "startedAt": "2026-11-11T11:53:02.431Z",
+      "finishedAt": "2026-11-11T11:53:03.691Z"
+    },
+    "android": {
+      "state": "failed",
+      "startedAt": "2026-11-11T11:53:03.691Z",
+      "error": "android command failed (1); see /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/logs/android.log"
+    }
+  },
+  "inventory": "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.30.768/inventory.json"
+}
