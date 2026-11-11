@@ -1,0 +1,21 @@
+{
+  "kind": "isolated-browser-form-cancellation-protocol",
+  "sourceCommit": "8ba564a5b356ecbae83354c0e0961427ea8b62c7",
+  "actualSourceFiles": [
+    "auth/native.html",
+    "src/platform/nativeAuthPage.ts"
+  ],
+  "firebaseImports": "controlled cancellation-only fixtures; no Google account or token",
+  "method": "POST",
+  "path": "/natally-auth",
+  "origin": "https://asknatally.online",
+  "referer": "https://asknatally.online/",
+  "contentType": "application/x-www-form-urlencoded",
+  "credentialFields": [
+    "state",
+    "provider",
+    "cancelled"
+  ],
+  "result": "PASS",
+  "realGoogleNativeJourney": "unverified"
+}

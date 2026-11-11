@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "8ba564a5b356ecbae83354c0e0961427ea8b62c7",
+  "page": "http://127.0.0.1:5196/auth/native.html",
+  "implementation": "actual HTML and TypeScript served by fresh Vite; no Firebase test imports in these visual captures",
+  "status": "Open Natally and choose Sign in again. This browser sign-in link is missing, invalid, or expired.",
+  "observations": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshot": "invalid-flow-desktop-1440.png",
+      "horizontalOverflow": false,
+      "bothButtonsDisabled": true,
+      "visuallyInspected": "Centered complete utility card, readable status, controls wholly visible; no clipping or overlap."
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "invalid-flow-mobile-390.png",
+      "horizontalOverflow": false,
+      "bothButtonsDisabled": true,
+      "visuallyInspected": "Card fits phone width; long status wraps legibly; both controls visible with no clipping or overlap."
+    }
+  ],
+  "realGoogleNativeJourney": "unverified"
+}
