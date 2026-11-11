@@ -185,6 +185,13 @@ async function runQuery(collectionId, uid, { allDescendants = false, select } = 
   return rows.filter((row) => row.document);
 }
 
+// allowance(uid) → { allowanceUsdMicros, grantsUsdMicros, postedUsageUsdMicros }
+// The one money invariant of the whole rail: a customer may spend exactly
+// grants − posted usage, all integer USD-micros. Grants live as documents in
+// natallyCreditGrants (idempotent by webhookGrantId); usage is every event
+// document under events/{uid}/** (chat spend posted by the /billing/chat
+// stream's final usage chunk). Derived, never stored — so this sum is the
+// truth even if a grant or usage write raced.
 export async function allowance(uid) {
   const [grantRows, usageRows] = await Promise.all([
     runQuery('natallyCreditGrants', uid, { select: 'usdMicros' }),

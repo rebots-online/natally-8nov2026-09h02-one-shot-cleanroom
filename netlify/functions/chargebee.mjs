@@ -212,6 +212,8 @@ async function webhookRoute(req) {
     : Number.isFinite(Number(transaction.amount))
       ? Number(transaction.amount)
       : 0;
+  // Chargebee speaks cents; the ledger speaks integer USD-micros. 1 cent =
+  // 10,000 µUSD, so cents × 10_000 (NOT × 1_000_000, which is dollars→micros).
   const usdMicros = Math.round(cents) * 10_000;
   if (usdMicros <= 0) return json(req, { received: true, ignored: 'zero amount' });
 
