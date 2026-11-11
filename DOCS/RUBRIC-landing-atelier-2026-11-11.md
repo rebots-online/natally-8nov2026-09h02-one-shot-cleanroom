@@ -22,3 +22,41 @@ recorded in `DOCS/DEMONSTRATIONS/`. Static inspection and lint never substitute.
 7. **§12.1-7 — sign-in works on both domains.** Sign In on astronatally.com
    (one click) ends on asknatally.online already signed in — no second sign-in
    click — and the address bar carries no token afterwards.
+
+## Landing correction observations — operator 2026-11-11
+
+Record the following in one continuous screencast at 1440×900, 1280×720,
+and 390×844 before publication. These are observation requirements, not
+claims that the current page passes.
+
+8. **Compact wheel and usable resizing.** First load leaves Natally and the
+   cards room to breathe. The floating chart starts at about 220 CSS px on
+   desktop and 180 CSS px on a phone, subject to the available stage. Drag a
+   corner down to 160 CSS px: no old body-count or glyph-size calculation
+   forces it larger, no automatic view inversion defeats the choice, and the
+   compact geometry survives reload. Focus restores the detailed wheel.
+9. **Crisp chart.** Observe floating, minimum-size, focused, and swapped-back
+   states at device pixel ratios 1 and 2. The canvas is rendered at its actual
+   displayed size and pixel ratio; glyphs, degree text and Earth are crisp.
+   Compact presentation may defer crowded degree annotations until focus or
+   selection, but visible glyphs remain distinct and their labels accessible.
+10. **Precise gold structure.** Turn and resize the wheel. Gold sign ticks and
+    house spokes meet their intended rings at the exact calculated angles,
+    with no detached bars, protruding ends, duplicate arcs or flickering.
+11. **Visible constellations.** Both the compact and focused chart have a black
+    sky with distinguishable stars and constellation lines at ordinary screen
+    brightness. Their visibility persists during motion; labels retain priority.
+12. **Bright yellow karaoke.** Let Natally speak on the landing and in the app.
+    The current word is bright warm yellow, visibly higher contrast than the
+    surrounding words, with a clear luminous halo and a crisp letter edge.
+    The highlight follows real speech; reduced motion preserves the contrast.
+13. **Uncrowded cards with directional guidance.** First load visibly offers
+    “Scroll down ↓”; after scrolling, guidance indicates the available up/down
+    directions and the end stops offering a nonexistent next card. Cards have
+    at least 48 CSS px between pages and 96 CSS px between sections on desktop
+    (32/64 on phones), clear stage gutters, and no overlap with Natally, the
+    wheel, captions or loading bar. Keyboard and touch scrolling work.
+14. **Purchased-domain independence.** Navigate landing → app and inspect the
+    address bar and requests. Only the purchased product domains are used for
+    product entry/deployment; no retired personal-domain host is requested.
+    Normal HTTPS validation succeeds for the apex and www forms of both sites.
