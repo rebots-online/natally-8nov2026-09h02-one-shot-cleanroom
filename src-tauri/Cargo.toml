@@ -1,6 +1,6 @@
 [package]
 name = "natally-ai-studio"
-version = "1.30.768"
+version = "1.31.768"
 description = "Natally personal astrology and exploration"
 authors = ["rebots-online"]
 repository = "https://github.com/rebots-online/natally-ai-studio"
