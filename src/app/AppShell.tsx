@@ -505,32 +505,6 @@ export default function App() {
   };
  }, [auth.status, voice]);
 
- // The bottom voice-loading bar (.nv-bar, mounted by the entry beside
- // #root) overlays the viewport while her voice downloads. The landing's
- // stage yields that strip — its live height is published as
- // --landing-voice-bar-h (landing.css shrinks the stage by it) so both
- // floating panes stay clear of the bar at every width (operator: the bar
- // covered the floating chart's bottom at 1280×720).
- useEffect(() => {
-  if (auth.status !== 'signedOut') return;
-  const apply = () => {
-   const bar = document.querySelector('.nv-bar');
-   const px = bar instanceof HTMLElement ? Math.round(bar.offsetHeight) : 0;
-   document.documentElement.style.setProperty('--landing-voice-bar-h', `${px}px`);
-  };
-  const observer = new MutationObserver(() => {
-   window.requestAnimationFrame(apply);
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-  window.addEventListener('resize', apply);
-  apply();
-  return () => {
-   observer.disconnect();
-   window.removeEventListener('resize', apply);
-   document.documentElement.style.removeProperty('--landing-voice-bar-h');
-  };
- }, [auth.status]);
-
  const chartKey =
   chart === null
    ? ''

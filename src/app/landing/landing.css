@@ -217,20 +217,6 @@ body:has(.landing-cards) .chart-inset:not([data-dragging='true']) {
   }
 }
 
-/* The bottom voice-loading bar (.nv-bar, fixed, mounted by the entry):
-   while it is up, the landing's stage yields its strip — AppShell
-   publishes the bar's live height as --landing-voice-bar-h — so the
-   floating chart, the room pane and the focused fill all stay clear of
-   it (operator: the bar covered the floating chart's bottom). Wide fixed
-   stage only: on narrow screens the stage is the in-flow top band (its
-   bottom never reaches the bar), and a bottom offset there would shift
-   the relative band instead of sizing it. */
-@media (min-width: 761px) {
-  body:has(.landing-cards) .scene-mount {
-    bottom: var(--landing-voice-bar-h, 0px);
-  }
-}
-
 /* Her words shown as she speaks them (§12.1 5b): the karaoke caption over
    the stage's foot, clear of the bottom bar, one line at a time with the
    current word glowing brass. Renders nothing while she is silent. */
@@ -238,7 +224,7 @@ body:has(.landing-cards) .chart-inset:not([data-dragging='true']) {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(20px + var(--landing-voice-bar-h, 0px));
+  bottom: 20px;
   z-index: 60;
   margin: 0;
   max-width: min(680px, calc(100vw - 32px));

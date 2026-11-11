@@ -1,0 +1,6833 @@
+{
+  "samples": [
+    {
+      "t": 1461.6000000238419,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 0,
+        "y": 0,
+        "w": 129.03125,
+        "h": 33
+      },
+      "overlay": null
+    },
+    {
+      "t": 1596.9000000357628,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 0,
+        "y": 0,
+        "w": 129.03125,
+        "h": 33
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 1836.1000000238419,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 7784.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 8394,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 8989.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 9039.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 9345.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 9714,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 9774.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 10188.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 10225.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 10665.800000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 10686.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11017.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11284.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11544.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11575.300000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11725.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 11875.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 12143.300000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 12200.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 12325.300000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 12773.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 13257.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 13548.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 13677.300000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 13929.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 13975.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 14292.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 14615,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 14998.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 15065.300000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 15445.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 15528.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 15890.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 16314.800000011921,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 16760.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 17139.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 17556.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 17575.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18006.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18025.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18175,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18450.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18475.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18860.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 18924.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 19295.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 19552.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 19676.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 20042.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 20125.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 20274.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 20581,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21007.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21032.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21322.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21479.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21753.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 21793.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 22184,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 22225.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 22574.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 22911.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 22977.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 23207.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 23479.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 23842.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 23875.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 24171.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 24483.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 24625.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 24825.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 24925.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 25187.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 25225.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 25621.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 25675.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 25825.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 26229.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 26275.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 26687.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 26735.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 27274,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 27711,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 27813.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 27924.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 28442.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 28524.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 28852.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 28974.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 29399.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 29426.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 29671.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 29734.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30014.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30024.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30324,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30474.400000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30865.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 30925.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 31362.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 31375.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 31673.900000035763,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 31825.600000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 32251,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 32616.100000023842,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 32728.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33001.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33025.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33374.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33475.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33624.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 33929.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 34284.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 34378.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 34676.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 34825.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 34975.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 35210.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 35540.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 35575.40000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 35931.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 36025.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 36390.40000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 36475.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 36731.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 37011.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 37270.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 37375.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 37526,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 37836,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 38256.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 38379.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 38771,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 38884.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 39420.40000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 39480.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 39929.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 40075.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 40386.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 40526.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 41027.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 41234.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 41709.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 41741.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 42368.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 42487.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 42880.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 42926.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 43437.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 44130,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 44512,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 44575.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 44776.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 45003.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 45038.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 45175.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 45654.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 46097.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 46225.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 46590.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 46675.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 47225.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 47740.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 48057.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 48175.40000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 48635.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 48775.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 48925.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 49254.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 49463.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 49524.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 49725.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50095.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50151.700000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50403.10000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50634.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50725.200000047684,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 50931.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 51025.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 51584.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 51630.60000002384,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 52273.90000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 52389.30000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 52732.80000001192,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 52825.40000003576,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 53280.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 53840.200000047684,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 53875,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 54246.200000047684,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 54324.200000047684,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 54581.40000003576,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 54624.60000002384,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 55330.40000003576,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 56037.30000001192,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 56124.200000047684,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 56889.10000002384,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 57425.10000002384,
+      "message": "Preparing Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 57474.5,
+      "message": "Downloading Natally’s voice…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 836,
+        "w": 360,
+        "h": 52
+      }
+    },
+    {
+      "t": 57624.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 58405.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 58524.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 58791.700000047684,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 58824.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 59227.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 59278.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 59817,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 59874.200000047684,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 60386.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 61016.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 61075.80000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 61226.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 61721.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 62162,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 62885.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 63485.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 63888.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 63924.200000047684,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 64074.200000047684,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 64224.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 64973.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 65124.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 65649.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 65927.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 66024.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 66758.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 66775,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 67307.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 67377.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 67524.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 67851.80000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 67974.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 68263.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 68274.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 68739.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 69391.10000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 69514.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70052,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70074.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70341,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70374.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70657.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70674.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 70824.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 71522.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 71640.80000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 71724.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72254.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72324.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72520.20000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72759.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72774.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 72924.80000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 73565.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 73674.70000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 74281.5,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 74509.90000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 74574.40000003576,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 74913.70000004768,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 75024.30000001192,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 75688,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 76280.60000002384,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 76982.5,
+      "message": "Preparing speech…",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": {
+        "x": 1068,
+        "y": 838,
+        "w": 360,
+        "h": 50
+      }
+    },
+    {
+      "t": 77406.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 77786.40000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 78021.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 78615.60000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 78648.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 79071.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 79552.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 79674.70000004768,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 80134,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 80530.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 80815.40000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 80874.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 81279.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 81724.60000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 81788.90000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 82191,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 82224.20000004768,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 82747.10000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 83306.90000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 83623.90000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 83724.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 83880.90000003576,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84156.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84214.10000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84327.60000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84474.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84836.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 84924.20000004768,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 85246.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 85778.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 85854.60000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 86210.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 86274.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 86718.5,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 87188.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 87324.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 87510.70000004768,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 87885.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 87924.30000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 88513.80000001192,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    },
+    {
+      "t": 88525.10000002384,
+      "message": "",
+      "scrollY": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "inset": {
+        "x": 12,
+        "y": 63,
+        "w": 400,
+        "h": 400
+      },
+      "overlay": null
+    }
+  ],
+  "words": 27
+}
