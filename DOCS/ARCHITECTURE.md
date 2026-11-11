@@ -469,6 +469,30 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    the side away from the cards, clear of Natally's face, at a size where
    every glyph reads (§4 face-aware placement, measured with the card column
    counted as occupied).
+4d. **Compact landing inset (operator correction 2026-11-11 — FROZEN).**
+   The landing passes `compact={true}` to `Inset`. This opt-in supersedes the
+   earlier body-count/glyph-derived floor for this landing inset only: its
+   minimum outer width is 160 CSS px, its initial preferred width is 220 px
+   on wide screens and 180 px at widths up to 760 px, bounded by the actual
+   visible stage. It starts floating in a face-clear corner; automatic
+   largest-size docking/inversion must not enlarge it. All four corner grips
+   and Alt+arrow resizing can reach the new minimum; a customer's move/size
+   persists and wins over automatic placement. The landing's compact geometry
+   has its own storage-key suffix `:compact-v1`, so an old large saved inset
+   cannot defeat the new initial composition. Existing noncompact callers
+   retain their floor. Full-stage focus fits the wheel with an 8% breathing
+   margin, rather than enlarging its geometry until it collides with cards.
+   Render backing size follows the displayed canvas at devicePixelRatio,
+   including during resize and after transitions. Crisp text has a solid
+   high-contrast edge; excessive halo/linear texture upscaling must not soften
+   it. At compact widths below 240 px, crowded degree annotations may defer
+   to selected/hovered targets or the focused view; glyphs remain visible and
+   interactive, with full information through the existing callout/explanation.
+   Sign ticks are precise radial strokes on the ring band and house spokes
+   terminate on their actual rings at the calculated cusps: no projecting
+   cylinders, detached bars, duplicate arcs, z-fighting or label pile-ups.
+   Stars and constellation lines remain visibly distinct against black in
+   compact and focused states, without outshining the labels.
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
@@ -502,6 +526,26 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    bite sound and its sign follow the season (operator: this part was lost).
    The wheel's legibility work never makes the chart darker or blurrier than
    before (operator observed a coder's interim build doing both).
+5e. **Cards breathe and explain scrolling (operator correction 2026-11-11
+   — FROZEN).** The existing vertical card column remains the interaction;
+   do not introduce a second nested scroll container. Wide screens have a
+   minimum 48 px gap between card pages and 96 px between sections; phones
+   use 32/64 px. An additional visible gutter separates cards from the stage.
+   `LandingCards` renders a visible `.landing-scroll-cue` navigation strip
+   beside its cards: “Scroll down ↓” at the start, available “↑ Previous” /
+   “Next ↓” directions in the middle, and only “↑ Back up” at the end.
+   Controls move to the actual adjacent section; native touch, wheel, keyboard,
+   header anchors and existing section-driven stage swaps continue to work.
+   Focus indication and accessible button names remain visible. The cue and
+   cards never cover Natally, the focused wheel, caption or download bar.
+5f. **Luminous yellow karaoke (operator correction 2026-11-11 — FROZEN).**
+   In both landing and app, `.karaoke-caption .is-glowing` uses bright warm
+   yellow `#fff36b`, weight 700, a dark sharp edge/shadow and layered yellow
+   glow. Ordinary words stay quieter but readable; the speaking word is
+   unmistakable against the dark caption surface (at least 7:1 contrast).
+   Glow must not blur the letter edge or shift the line layout. Existing real
+   speech word-boundary timing is retained. Reduced-motion mode retains the
+   same static luminous treatment without new animation.
 6. **Roles by domain.** astronatally.com is the landing; the webapp lands on
    asknatally.online. Every way into the app from the landing — Sign In,
    create-your-chart, Top Up, open-my-atelier, the `?app=1` entry — routes to
@@ -542,9 +586,25 @@ Linux/Windows/Android matrix, stages artifacts + SHA-256 inventory under
 via `wixl` on Linux; identity `mba.robin.natally`). `src-tauri/` is packaging
 identity + native bridges, not part of the web registry.
 
-### Domains (operator-declared 2026-11-10 — registered, NOT yet wired)
+### Domains (operator correction 2026-11-11 — purchased-domain independence)
 
 `astronatally.com` → landing surface; `asknatally.online` → webapp surface.
+The same roles apply to their `www` hosts, including `www.astronatally.com`.
+The product's hosting, entry links and publish destinations depend only on
+these purchased domains. Retired personal-domain hosts are removed throughout
+first-party repository text, configuration and deploy scripts; native package
+identity `mba.robin.natally` is a package identifier and remains unchanged.
+Historical prose records a retired destination as `retired-product-host`
+rather than falsely claiming that historical deployments used a new domain.
+CodeGraph does not index shell scripts, CSS or prose URL inventories: targeted
+reads and an exact hostname-token migration of owned tracked text are permitted
+for these demonstrated coverage gaps, not a source survey.
+Observed 2026-11-11 by the DNS worker: both apexes already A-resolve directly
+to Surge, and www aliases their purchased apex. TLS has no custom certificate
+yet (`debug certs` Empty, status securing); do not claim a DNS write fixes that.
+Use Surge's supported managed-certificate provisioning and verify normal TLS.
+Hostinger backup is a separate hosting destination for the same surface roles;
+a backup-only domain split remains an operator decision, not an inferred change.
 Administration channel: **Namecheap API** (never the web dashboard for
 changes). **Backup rule:** Namecheap's DNS write (`setHosts`) replaces the
 entire host-records set at once — every write MUST be preceded by a `getHosts`
@@ -638,6 +698,8 @@ contract.
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
 | `KaraokeCaption` (default), `KaraokeState` ·priv | comp, iface ·priv | `app/karaokeCaption.tsx:14,9` | spoken-word caption |
+| `InsetProps.compact`, `COMPACT_INSET_MIN_PX`, `COMPACT_INSET_DEFAULT_PX` | optional boolean prop, private constants (160, 220) | `app/stage/Inset.tsx:135` (props), `:79` (constants) | LANDING-POLISH layout: opt-in compact floor/default; narrow preferred width 180; existing geometry clamp/placement/persistence use this floor consistently |
+| `.landing-scroll-cue`, `.landing-card`, `.landing-cards`, `.karaoke-caption .is-glowing` | CSS/UI selectors | `app/landing/LandingCards.tsx:157`, `app/landing/landing.css:19`, `app/app-shell.css` existing karaoke rule | LANDING-POLISH layout: directional section controls, card rhythm, static bright-yellow speaking-word glow; existing component-local state/handlers only |
 | `VersionBadge` (default) | comp | `app/VersionBadge.tsx:7` | build stamp display |
 | `TopUpSheet` (default), `TopUpSheetProps`, `describeLoadError` ·priv | comp, iface, fn ·priv | `app/TopUpSheet.tsx:35,20,~25` | packs + souvenir sheet |
 | `BirthForm` (default), `BirthFormProps`, `MIN_QUERY_CHARS`/`SEARCH_DEBOUNCE_MS`/`MAX_SUGGESTIONS`/`DATE_RE`/`TIME_RE` ·priv | comp, iface, const ·priv | `app/intake/BirthForm.tsx:23,20,20–21` | clean-room intake |
