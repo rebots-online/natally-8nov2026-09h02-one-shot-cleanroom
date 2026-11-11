@@ -378,6 +378,27 @@ services mirrored from `atelier-original`. Components:
 `AccountBillingDialog`, `CreditActions` (quote → buyer details → paid
 lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 
+### 12.1 Landing target state (operator 2026-11-11 — awaiting Robin's signoff; NOT frozen)
+
+1. **The landing is the atelier.** Visitors land on the page that comes up
+   today when you click Sign In: the big Natally in her atelier. That page
+   replaces the current marketing layout as the landing.
+2. **One click, one sign-in (hard rule).** Sign In launches Google's account
+   chooser on that same click. No screen, card or button ever asks someone to
+   click to sign in after they already clicked Sign In — offering sign-in and
+   then presenting another "click here to sign in" taunts them. A blocked
+   popup falls back to Google's redirect from that same click, never to a
+   second prompt.
+3. **All scrolling text is paginated onto cards.** Every piece of landing copy
+   is divided into pages, each page its own small card with the dark purple
+   background of the card that today carries the second "click here to sign
+   in" (that card's look is kept; its second-click role is removed per item
+   2). The cards scroll by; no landing copy remains as plain scrolling text.
+4. **Entering the natal-chart content swaps to the chart** — by scrolling into
+   it or by choosing its menu item.
+5. **Leaving the natal-chart content swaps back to the atelier** — by
+   scrolling out of it or by choosing a menu item outside it.
+
 ## 13. Preserved trees (`*-original/`) — frozen ports
 
 | Tree | Contents | Freeze rule |
@@ -413,7 +434,7 @@ entire host-records set at once — every write MUST be preceded by a `getHosts`
 read whose full snapshot is saved (with timestamp) as the rollback before any
 `setHosts` call; writes are serialized, never concurrent. Current deploys
 go to `natally-8nov2026.surge.sh` only (no robin.mba dependency);
-`natally.robin.mba` cutover stays operator-only.
+`astronatally.com` is the landing domain.
 Wiring, when ordered, touches: static root split (the bundle's `/` is the
 landing copy and `src/main.tsx` dispatches on a pathname containing
 `landing`, so the app domain needs `app.html` at root or a redirect),

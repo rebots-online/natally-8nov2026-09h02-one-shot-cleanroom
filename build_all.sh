@@ -35,7 +35,11 @@ npm run lint
 npx vite build --outDir dist-web
 cp dist-web/landing.html dist-web/index.html
 echo "Web build complete → dist-web/"
-# The surge.sh host receives this exact frontend before any native compiler
-# starts. No custom-domain dependency (operator 2026-11-11).
-npx surge dist-web natally-8nov2026.surge.sh
+# Both product domains receive this exact frontend before any native compiler
+# starts (operator 2026-11-11: no temporary/dated hosts). astronatally.com
+# serves the landing at / (app at /app.html, same origin so sign-in carries);
+# asknatally.online serves the app itself at /.
+rm -rf dist-app && cp -r dist-web dist-app && cp dist-app/app.html dist-app/index.html
+npx surge dist-web astronatally.com
+npx surge dist-app asknatally.online
 exec node scripts/build-native.mjs

@@ -92,12 +92,12 @@ by hand). Each run: resolves credentials through KStore
 (`scripts/build-environment.mjs`), stamps a new version (`version.json`,
 `version.txt`), type-checks, builds Vite (inputs `landing.html` + `app.html`;
 `landing.html` is copied to `index.html`), publishes `dist-web/` to
-`natally-8nov2026.surge.sh` (no robin.mba dependency), then
+`astronatally.com` and `dist-app/` (app at root) to `asknatally.online`, then
 builds the native matrix via `scripts/build-native.mjs` (Linux AppImage/deb/rpm,
 Windows x64 exe/NSIS/MSI cross-compiled, Android arm64 APK/AAB), staged with
 SHA-256 inventories under `dist/natally-v<version>/`. A release is accepted
-only when the version badge on the host shows the new stamp;
-`natally.robin.mba` is cut over by the operator only.
+only when the version badge on both domains shows the new stamp;
+`astronatally.com` is the landing domain.
 
 ## Billing and inference (server)
 

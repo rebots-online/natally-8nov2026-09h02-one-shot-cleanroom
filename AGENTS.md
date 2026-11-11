@@ -13,10 +13,10 @@
     code; acceptance is a recorded screencast against every rubric checkpoint
     (DOCS/DEMONSTRATIONS/). Static inspection and lint never substitute.
 
-11. Every web publish goes to the dated surge.sh host
-    (natally-8nov2026.surge.sh). No deploy depends on a robin.mba
-    subdomain (operator 2026-11-11: that path needs a nonlogical domain
-    setting in robin.mba).
+11. Every web publish goes to the product domains: astronatally.com
+    (landing at /, app at /app.html) and asknatally.online (app at /).
+    No deploy depends on temporary hosts — no robin.mba subdomain, no
+    dated surge.sh alias (operator 2026-11-11).
 4. No placeholder functionality, mock customer experiences, dummy payments,
    or invented customer data.
 5. No greps; no verification runs by the orchestrator; coders locate only
