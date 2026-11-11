@@ -1,0 +1,17 @@
+{
+  "viewport": 600,
+  "stage": {
+    "top": 0,
+    "bottom": 429.375
+  },
+  "canvas": {
+    "top": 178.375,
+    "bottom": 340.375,
+    "height": 162
+  },
+  "room": {
+    "top": 63,
+    "bottom": 165.375
+  },
+  "cueTop": 437.375
+}

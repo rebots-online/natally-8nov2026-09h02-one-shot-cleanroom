@@ -131,19 +131,34 @@
    header moves to a fixed overlay so the stage still starts at the
    viewport's top edge. */
 @media (max-width: 760px) {
+  body:has(.landing-cards) {
+    --landing-stage-height: min(62dvh, 560px);
+  }
+  body:has(.landing-cards):has(.chart-inset-fill) {
+    --landing-stage-height: min(
+      calc(100dvh - 96px),
+      max(min(62dvh, 560px), calc(327px + min(42vw, 200px) / 1.6))
+    );
+  }
   body:has(.landing-cards) .scene-mount {
     position: sticky;
     inset: auto;
     top: 0;
-    height: min(62dvh, 560px);
+    height: var(--landing-stage-height);
     z-index: 2;
     box-shadow: 0 14px 30px rgba(3, 2, 8, 0.5);
   }
-  body:has(.landing-cards) .scene-mount .atelier-scene__composition {
+  body:has(.landing-cards) .scene-mount:not(:has(.chart-inset-fill)) .atelier-scene__composition {
     /* Scale to the band's height (its own aspect-ratio keeps the art
        true); never narrower than the viewport, so the band is always
        full. */
-    width: max(100%, calc(min(62dvh, 560px) * 1.6));
+    width: max(100%, calc(var(--landing-stage-height) * 1.6));
+  }
+  body:has(.landing-cards) .scene-mount:has(.chart-inset-fill) .atelier-scene__composition {
+    width: 100%;
+  }
+  body:has(.landing-cards) .scene-mount > [title='Back to the atelier'] {
+    top: 63px !important;
   }
   body:has(.landing-cards) .app-header--front {
     position: fixed;
@@ -159,7 +174,7 @@
     gap: 64px;
   }
   .landing-scroll-cue {
-    top: calc(min(62dvh, 560px) + 8px);
+    top: calc(var(--landing-stage-height) + 8px);
     margin-bottom: -40px;
   }
   /* An anchor jump (the menu's section links) must land its section below
@@ -167,13 +182,18 @@
      behind it. */
   .landing-cards section {
     gap: 32px;
-    scroll-margin-top: calc(min(62dvh, 560px) + 84px);
+    scroll-margin-top: calc(var(--landing-stage-height) + 84px);
   }
   /* The wide-screen focused-chart inset (reserved clear of the card
      column) does not apply here — the cards are below the stage, so the
      fill takes the whole stage band. */
   body:has(.landing-cards) .chart-inset-fill {
     right: 0;
+    background: #000;
+  }
+  body:has(.landing-cards) .chart-inset-fill .chart-inset__content {
+    top: calc(75px + min(42vw, 200px) / 1.6);
+    bottom: 88px;
   }
 }
 
@@ -223,6 +243,12 @@ body:has(.landing-cards) .chart-inset:not([data-dragging='true']) {
   margin: 0;
   max-width: min(680px, calc(100vw - 32px));
   padding: 10px 18px;
+@media (max-width: 760px) {
+  .landing-caption .karaoke-caption {
+    bottom: calc(100dvh - var(--landing-stage-height) + 12px);
+  }
+}
+
   border: 1px solid var(--plum-line);
   border-radius: 12px;
   background: color-mix(in srgb, var(--plum-deep) 82%, transparent);
