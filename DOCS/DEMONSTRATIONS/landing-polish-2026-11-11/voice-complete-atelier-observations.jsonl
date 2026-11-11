@@ -1,0 +1,228 @@
+{"type":"metadata","commit":"4e19107","url":"http://localhost:5192/app.html","method":"Real pointer selections and actual on-device speech. Passive source-word and focus observations; no synthetic engine completion."}
+{"type":"sample","at":3514.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"step","name":"admitted real welcome","at":3551.300000011921}
+{"type":"sample","at":3841.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":4104.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":4347.300000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":4591.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":4822.300000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":5015.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":5366.199999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":5627.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":5770.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":6016,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":6265.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":6563.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":6808.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":7023.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":7265.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":7515.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":7770.699999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":8018.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":8269.199999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":8520.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":8767.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":9018.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":9291.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":9588.300000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":9765.699999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":10015.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":10275.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":10534.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":10818.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":11124.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":11266.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":11582.199999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":11873.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":12098.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":12460.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":12515.199999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":12806.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":13015.300000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":13386.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":13561.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":13807.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":14015.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":14354.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":14579,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":14770.699999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":15119.800000011921,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":15271.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":15618.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":15774.699999988079,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":16062.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":16368.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":16517.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":16825.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":17090.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":17363.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":17570.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":17863.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":18020.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":18265.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":18533.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":18830.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":19016.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":19330.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":19515.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":19858.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":20132.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":20274,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":20516.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":20765.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":21032.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":21299.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":21598.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":21893.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":22024.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":22315,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":22595.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":22868.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":23021.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":23265.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":23525.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":23833.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":24139.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":24298.399999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":24627.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":24785,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":25098.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":25268.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":25597.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":25867.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":26054.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":26340.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":26614.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":26892.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":27018,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":27265.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":27539.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":27846.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":28062.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":28351.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":28515.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":28816.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":29015.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":29282.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":29550.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":29872.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":30039.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":30265.099999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":30515.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":30783.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":31109.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":31410.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":31558.899999976158,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":31783.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":32091.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":32265.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":32609.599999964237,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":32765.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":33109,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":33265.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":33551.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":33829.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":34120.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":34277.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":34593,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":34820.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":35121.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":35279.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":35594.5,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":35825,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":36120.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":36273.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":36627,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":36786.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":37114.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":37442.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":37602.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":37765.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":38015.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":38350.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":38657.59999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":38804.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":39117.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":39346.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"karaoke","at":39564.39999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":0,"wordCount":37}
+{"type":"sample","at":39565,"chart":[{"targets":[],"sequence":0,"width":398}]}
+{"type":"sample","at":39857.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"Hello "}
+{"type":"karaoke","at":39858.59999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":1,"wordCount":37}
+{"type":"sample","at":40033.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"— "}
+{"type":"karaoke","at":40091.80000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":2,"wordCount":37}
+{"type":"sample","at":40272.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"I'm "}
+{"type":"karaoke","at":40424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":3,"wordCount":37}
+{"type":"sample","at":40578.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"Natally, "}
+{"type":"karaoke","at":40761.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":4,"wordCount":37}
+{"type":"sample","at":40769.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"and "}
+{"type":"karaoke","at":40909.69999998808,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":5,"wordCount":37}
+{"type":"sample","at":41070.5,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"this "}
+{"type":"karaoke","at":41225.80000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":6,"wordCount":37}
+{"type":"sample","at":41265.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"is "}
+{"type":"karaoke","at":41449.80000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":7,"wordCount":37}
+{"type":"sample","at":41593.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"my "}
+{"type":"karaoke","at":41761.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":8,"wordCount":37}
+{"type":"sample","at":41770,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Hello — I'm Natally, and this is my atelier.","glowing":"atelier."}
+{"type":"karaoke","at":41939.69999998808,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":9,"wordCount":37}
+{"type":"sample","at":42051.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Sit with me a while.","glowing":"Sit "}
+{"type":"karaoke","at":42212.09999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":10,"wordCount":37}
+{"type":"sample","at":42351.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Sit with me a while.","glowing":"with "}
+{"type":"karaoke","at":42497.39999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":11,"wordCount":37}
+{"type":"sample","at":42515.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Sit with me a while.","glowing":"me "}
+{"type":"karaoke","at":42816.59999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":12,"wordCount":37}
+{"type":"sample","at":42817.59999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Sit with me a while.","glowing":"me "}
+{"type":"karaoke","at":43106.69999998808,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":13,"wordCount":37}
+{"type":"sample","at":43107,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"Sit with me a while.","glowing":"a "}
+{"type":"karaoke","at":43259.69999998808,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":14,"wordCount":37}
+{"type":"sample","at":43270.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"I "}
+{"type":"sample","at":43537,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"I "}
+{"type":"karaoke","at":43537.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":15,"wordCount":37}
+{"type":"sample","at":43765.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"read "}
+{"type":"karaoke","at":43883.89999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":16,"wordCount":37}
+{"type":"sample","at":44027.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"natal "}
+{"type":"karaoke","at":44053,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":17,"wordCount":37}
+{"type":"sample","at":44337.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"charts "}
+{"type":"karaoke","at":44337.39999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":18,"wordCount":37}
+{"type":"sample","at":44515.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"aloud, "}
+{"type":"karaoke","at":44634.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":19,"wordCount":37}
+{"type":"sample","at":44777.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"and "}
+{"type":"karaoke","at":44921.80000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":20,"wordCount":37}
+{"type":"sample","at":45077.59999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"I "}
+{"type":"karaoke","at":45220.09999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":21,"wordCount":37}
+{"type":"sample","at":45366.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"show "}
+{"type":"karaoke","at":45371.59999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":22,"wordCount":37}
+{"type":"sample","at":45534,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"you "}
+{"type":"karaoke","at":45658.39999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":23,"wordCount":37}
+{"type":"sample","at":45817.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"every "}
+{"type":"karaoke","at":45981.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":24,"wordCount":37}
+{"type":"sample","at":46015.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"part "}
+{"type":"karaoke","at":46163.69999998808,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":25,"wordCount":37}
+{"type":"sample","at":46298.5,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"of "}
+{"type":"karaoke","at":46460.39999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":26,"wordCount":37}
+{"type":"sample","at":46617.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"yours "}
+{"type":"karaoke","at":46777,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":27,"wordCount":37}
+{"type":"sample","at":46777.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"yours "}
+{"type":"karaoke","at":46958.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":28,"wordCount":37}
+{"type":"sample","at":47123.19999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"I "}
+{"type":"karaoke","at":47285.30000001192,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":29,"wordCount":37}
+{"type":"sample","at":47285.59999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"I "}
+{"type":"karaoke","at":47619.09999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":30,"wordCount":37}
+{"type":"sample","at":47619.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"I read natal charts aloud, and I show you every part of yours as I go.","glowing":"go."}
+{"type":"karaoke","at":47800.5,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":31,"wordCount":37}
+{"type":"sample","at":47800.89999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"When "}
+{"type":"karaoke","at":48157,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":32,"wordCount":37}
+{"type":"sample","at":48157.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"you're "}
+{"type":"sample","at":48345.80000001192,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"ready, "}
+{"type":"karaoke","at":48346.09999996424,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":33,"wordCount":37}
+{"type":"sample","at":48515.5,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"we'll "}
+{"type":"karaoke","at":48672.89999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":34,"wordCount":37}
+{"type":"sample","at":48834.39999997616,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"cast "}
+{"type":"karaoke","at":48839.89999997616,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":35,"wordCount":37}
+{"type":"sample","at":49015.59999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"yours "}
+{"type":"karaoke","at":49166.5,"line":"Hello — I'm Natally, and this is my atelier. Sit with me a while. I read natal charts aloud, and I show you every part of yours as I go. When you're ready, we'll cast yours together.","wordIndex":36,"wordCount":37}
+{"type":"sample","at":49346.69999998808,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"together."}
+{"type":"sample","at":49524.30000001192,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"together."}
+{"type":"sample","at":49847,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"together."}
+{"type":"sample","at":50015.09999996424,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"together."}
+{"type":"sample","at":50294.5,"chart":[{"targets":[],"sequence":0,"width":398}],"caption":"When you're ready, we'll cast yours together.","glowing":"together."}
+{"type":"step","name":"welcome completed with original atelier word observed","at":50615.89999997616}
