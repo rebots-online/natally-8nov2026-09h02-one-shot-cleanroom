@@ -453,7 +453,10 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    degree labels — is legible at every inset size, floating or focused: glyph
    sprites keep a minimum on-screen size (≥ 14 CSS px for glyphs, ≥ 11 px for
    degree text) with enough contrast, never shrinking with the canvas into
-   illegibility (operator: "the symbols are illegible"). A component's callout
+   illegibility (operator: "the symbols are illegible"). Every glyph and
+   label is crisp, never blurry: label textures are drawn at the on-screen
+   size × devicePixelRatio (redrawn when the inset is resized or focused) and
+   sampled without upscaling blur (operator: "typeface is blurry"). A component's callout
    never covers the component it describes or its neighbours: it sits clear
    of the hovered element with a visible gap, on the side with room, inside
    the inset (operator: "callout covers, too close"). The golden house
