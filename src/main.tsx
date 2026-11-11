@@ -5,10 +5,27 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { VoiceDownloadStatus } from './app/VoiceDownloadStatus';
+import { scheduleSupertonicPreload } from './atelier-original/services/supertonicTts';
 import { registerServiceWorker } from './platform/pwa';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Natally entry: #root element not found.');
+
+// §8.1 items 1–2: the voice download-status bar is mounted once for every
+// page (app and landing documents alike). It lives in its own host beside
+// #root with its own root — the landing branch below hands #root to a
+// self-mounting entry, so the bar must not compete for it. Preload starts
+// on every page load: idle-scheduled and Save-Data-respecting inside the
+// scheduler, so the model is on its way before the first click.
+const voiceStatusHost = document.createElement('div');
+document.body.appendChild(voiceStatusHost);
+createRoot(voiceStatusHost).render(
+  <StrictMode>
+    <VoiceDownloadStatus />
+  </StrictMode>,
+);
+scheduleSupertonicPreload();
 
 function reportLoadFailure(surface: string, error: unknown): void {
   console.error(`Natally entry: failed to load ${surface}.`, error);
