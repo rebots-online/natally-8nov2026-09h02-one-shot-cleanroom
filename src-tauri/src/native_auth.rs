@@ -1,7 +1,7 @@
 use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, sync::atomic::{AtomicBool, Ordering}, time::{Duration, Instant}};
 use serde::{Deserialize, Serialize};
 
-const ORIGIN: &str = "https://astronatally.com";
+const ORIGIN: &str = "https://asknatally.online";
 const LIMIT: usize = 32768;
 static ACTIVE: AtomicBool = AtomicBool::new(false);
 static CANCELLED: AtomicBool = AtomicBool::new(false);

@@ -29,7 +29,7 @@
     moment it is made — one change per commit, never batched, never left
     in the working tree.
 13. `build_all.sh` is the only build entry. Its first step deploys the web
-    build to both dated hosts (rule 11); native packages (Linux, Windows
+    build to astronatally.com and asknatally.online (rule 11); native packages (Linux, Windows
     via cross-compilation, Android) build only after that deploy succeeds.
     Do not run it to package a version with known open defects. Every
     invocation increments the version (MAJOR.MINOR.BUILD, MINOR +1, BUILD =

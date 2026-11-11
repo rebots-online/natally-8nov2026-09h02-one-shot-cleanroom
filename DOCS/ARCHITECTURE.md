@@ -122,8 +122,10 @@ mechanics (INSET revision, 2026-11-09 — behaviour authority: Robin's rows in
   on-screen rect of Natally's head; too small for the floor to clear her face
   → `onAutoInvert` (chart takes the stage, Natally becomes the inset).
 - **Drag, dock, resize — observed not working on `v1.27.765` and corrected
-  here as contracts, not code presence:** drag arms anywhere on the surface
-  past `DRAG_THRESHOLD_PX`; a docked card lifts to floating on drag; release
+  here as contracts, not code presence:** the card moves from its chrome (bar,
+  border, anywhere off the wheel) past `DRAG_THRESHOLD_PX`; grabbing the wheel
+  itself tilts it in 3D and spins it with momentum, never moves the card
+  (operator 2026-11-11); a docked card lifts to floating on drag; release
   within `DOCK_REACH` of an edge/corner docks there (right → `side`, bottom →
   `stack`, else corner snap at `DOCK_MARGIN`) and the scene re-zooms into the
   remaining space (`data-inset-dock` + `--inset-dock-size` on the stage;
@@ -468,7 +470,9 @@ component does not swap or make her speak; docking and corner resize do not
 work; `.chart-inset` has no acrylic (no backdrop-filter); focus-dim fades
 house spokes, sign ticks and degree marks; `focusTargets` never reach the wheel
 as a highlight list; aspect lines are not in the cue inventory. Touch mapping
-is an assumption (Q6). **Separate issues, not inset:** information levels
+is an assumption (Q6). **Native sign-in:** `src-tauri/src/native_auth.rs` opens
+`https://asknatally.online/auth/native.html`, which no bundle contains — native
+Google sign-in cannot complete until that page exists. **Separate issues, not inset:** information levels
 (unpaid/paid) not in code; conversation not persisted (on-device target).
 
 ---

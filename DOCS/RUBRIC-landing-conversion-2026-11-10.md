@@ -1,3 +1,5 @@
+> **Superseded 2026-11-11** by `DOCS/RUBRIC-landing-atelier-2026-11-11.md` (ARCHITECTURE §12.1: the landing is the app's signed-out page). Kept as history.
+
 # Rubric — landing conversion build-out (astronatally.com) — 2026-11-10
 
 Preauthored **before** design or code (AGENTS.md rule 10). Observation target:

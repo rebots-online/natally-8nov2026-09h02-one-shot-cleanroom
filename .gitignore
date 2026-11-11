@@ -4,4 +4,4 @@ dist-web/
 .env
 *.log
 .DS_Store
-dist-app/
+
