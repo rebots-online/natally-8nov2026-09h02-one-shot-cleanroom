@@ -110,6 +110,15 @@ Fixed interfaces (every task implements its side exactly; nobody edits another t
 
 Acceptance for all: `tsc --noEmit` clean; owned files only; no placeholders; each contract demonstrated in the running dev server and reported; checked against every rubric checkpoint; commit by the orchestrator after holistic semantic review.
 
+## VOICE — derived 1:1 from DOCS/ARCHITECTURE.md §8.1 (frozen 2026-11-11).
+
+| ID | Task | Owned files (exclusive) | Status |
+| --- | --- | --- | --- |
+| VOICE-A | Port the original `VoiceDownloadStatus`/`VoiceProgress` (LIBS/reference/VoiceDownloadStatus.natally-ai-studio.tsx) to `src/app/VoiceDownloadStatus.tsx` against `src/atelier-original/services/supertonicTts.ts` (`subscribeVoiceStatus`, `VoiceStatus`), styled with plain CSS in the app's palette (no Tailwind), adding the percentage beside `x / y MB`; mount it once in `src/main.tsx` so every page shows it; in `src/main.tsx` also start the idle-scheduled preload (`scheduleSupertonicPreload` from `src/atelier-original/services/supertonicTts.ts`) on every page load. | `src/app/VoiceDownloadStatus.tsx`, `src/main.tsx` | ⬜ |
+| VOICE-B | `src/voice/index.ts`: §8.1 items 2–4 on the speaking side — a `speakStream` issued while the model still loads waits and then speaks (never silently dropped); chunks are synthesised ahead (next chunk in the worker while the current plays) so playback is gapless; keep karaoke/mouth events and gesture-gating; verify WebGPU→WASM calibration in `src/atelier-original/services/supertonic.worker.ts` is intact (read-only unless broken — report). | `src/voice/index.ts` | ⬜ |
+
+Acceptance: `tsc --noEmit` clean; owned files only; no placeholders; observed in the dev server (bar with % visible during load on the landing; clicking a planet before the model is ready speaks once ready; long passage plays without gaps).
+
 ## STAGE-6 — swap, focus, inset surface, non-blocking orientation (ARCHITECTURE.md §Chart inset rows added 2026-11-09)
 
 | ID | Task | Owned files (exclusive) | Status |

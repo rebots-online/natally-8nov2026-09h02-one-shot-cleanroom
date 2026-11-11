@@ -280,6 +280,25 @@ sequenceDiagram
   `natally-voice-measurements/v1`), `voiceService.ts` (speech-owner
   arbitration, waiting sounds, external playback registration — 121 symbols).
 
+### 8.1 Voice target (operator 2026-11-11 — FROZEN)
+
+The voice is the original Supertonic local model (`onnx-community/Supertonic-TTS-ONNX`, ~262 MB, F4) — no hosted voice.
+1. **Loading progress is always visible** — restore the original's
+   `VoiceDownloadStatus` (reference: `LIBS/reference/VoiceDownloadStatus.natally-ai-studio.tsx`,
+   from rebots-online/natally-ai-studio): a thin bar fixed at the bottom of
+   every page (landing and app) while the model downloads or prepares, with
+   "Downloading Natally's voice for this device…", `x / y MB` and the
+   **percentage**; "Preparing Natally's voice…" while the runtime readies;
+   errors shown and retryable. Mounted once in `src/main.tsx`.
+2. **Preload from first load** — the model starts loading (idle-scheduled,
+   Save-Data respected) as soon as any page loads, so it is ready before the
+   first click; a click while it still loads speaks as soon as it is ready.
+3. **Calibrate to the device's resources** — WebGPU where available, WASM
+   otherwise; a failed GPU runtime falls back to WASM for the session.
+4. **Pre-render in the background, play in the foreground** — a passage is
+   split into chunks; the next chunk is synthesised in the worker while the
+   current one plays, so playback is continuous with no gaps between chunks.
+
 ## 9. Commerce and the billing server
 
 ```mermaid
@@ -570,6 +589,7 @@ contract.
 | **pending LANDING** `EXAMPLE_BIRTH` ·priv, `GID_FRAGMENT` ·priv, `PRODUCT_LANDING_HOSTS` ·priv | consts ·priv | `app/AppShell.tsx` | §12.1: the landing's chart (birth data 1988-08-31 14:30 Toronto, Whole Sign; carries no person's name — no "Aurelia", no "example" label anywhere on screen) on the signed-out landing; `#gid=` sign-in handoff; hosts on which the signed-out page acts as the landing |
 | **pending LANDING** `LandingCards`, `LandingCardsProps`, `LANDING_SECTIONS` | comp, type, const | `app/landing/LandingCards.tsx` (+ `app/landing/landing.css`) | §12.1 items 3–5: paginated dark-purple copy cards with section ids; reports the active section (chart sections swap the stage) |
 | **pending LANDING** `googleSignInForIdToken`, `signInWithGoogleIdToken` | fn, fn | `platform/firebase.ts` | §12.1 item 7: popup sign-in returning the Google ID token; credential sign-in from a handed-over token |
+| **pending VOICE** `VoiceDownloadStatus`, `VoiceProgress` | comps | `app/VoiceDownloadStatus.tsx` | §8.1: bottom voice-loading bar with MB + percentage |
 | `useStageVisualHeight` | fn | `app/stage/stageMetrics.ts:12` | focused fill height |
 | `inset.css`, `app-shell.css`, `chat/chat.css`, `onboarding/onboarding.css` | css | `app/stage/`, `app/` | stage/shell/chat/onboarding styles |
 | `AtelierBackdrop` (default), `CompanionCard` ·priv | comp | `app/AtelierBackdrop.tsx:11,48` | layered real art |
