@@ -734,3 +734,54 @@ change. Read back through API and both authoritative NS. No registrar/account/
 plan/mail changes, no root/apex/www edits, no unrelated-domain publication.
 If connector approval or access fails, report its actual reason and leave the
 working apex build/deployment proceeding. No source or Git ownership.
+
+## ANDROID-SOURCE-ROOTS — literal namespace build correction, 2026-11-11
+
+Authority: ARCHITECTURE §21 (frozen) and existing observation rubric26 in
+DOCS/RUBRIC-landing-atelier-2026-11-11.md. Canonical v1.30.768 failed Android
+Kotlin compilation because an obsolete generated package remained under the
+broad main Java source directory; web/Linux/Windows completed. Preserve that
+partial attempt, its logs and every existing generated file.
+
+Ownership: src-tauri/gen/android/app/build.gradle.kts only for this source
+correction; afterward resume the existing PUBLISH-CURRENT execution/artifact
+ownership. You are not alone in this checkout: never revert or stage others'
+edits, including the three dirty VOICE result logs. Root holds Git until this
+recipe is pushed, then explicitly grants your next Git window.
+
+Do: Inside the existing android block, immediately after namespace, configure
+android.sourceSets.getByName("main").java by calling
+sourceSets.getByName("main").java.setSrcDirs(listOf("src/main/java/mba/robin/astronatally")).
+Expand the existing final kotlin { jvmToolchain(21) } block to retain
+jvmToolchain(21) and configure kotlin.sourceSets.getByName("main").kotlin by
+calling sourceSets.getByName("main").kotlin.setSrcDirs(listOf("src/main/java/mba/robin/astronatally")).
+Both calls replace the broad main roots; do not append srcDir, rely solely on
+java.exclude for Kotlin, edit obsolete Logger.kt, delete generated sources or
+change any other build behavior. Keep resources/manifests/test roots, signing,
+dependencies, namespace/applicationId and the version recipe as they are.
+Re-read the edited region, commit/push this scoped correction immediately,
+then run only ./build_all.sh. No inner build command or manual version stamp.
+The canonical entry assigns the next version and republishes both purchased
+websites before rebuilding the complete Linux/Windows/Android matrix. Apply
+the existing PUBLISH-CURRENT literal-failure/escalation and evidence contract.
+
+Verify/Accept (idempotent committed end-state gate, run after the canonical
+attempt): the following reads the current versioned inventory and returns
+BUILD-MATRIX-PACKAGED only if every canonical target packaged successfully;
+otherwise keep this build checkpoint incomplete and report the exact failure.
+
+```sh
+node --input-type=module -e 'import {readFileSync} from "node:fs"; const read=p=>{try{return JSON.parse(readFileSync(p,"utf8"));}catch(e){throw new Error("Invalid committed build metadata: "+p,{cause:e});}};const v=read("version.json").version;const i=read("dist/natally-v"+v+"/inventory.json");if(i.version!==v||i.complete!==true||!["linux","windows","windows-msi","android"].every(t=>i.targets?.[t]?.state==="packaged")||i.artifacts.length<8||!i.artifacts.every(a=>a.bytes>0&&/^[a-f0-9]{64}$/.test(a.sha256)))throw new Error("Current canonical matrix remains incomplete");console.log("BUILD-MATRIX-PACKAGED "+v);'
+```
+
+Operator verification protocol: preserve the actual canonical console/target
+logs; inspect the produced APK package ID with the available Android SDK and
+verify its production signer with the existing builder (no credentials in
+evidence). Observe live TLS/version and desktop/phone layout after publication.
+Record those observations separately from the idempotent metadata gate and
+from actual Google-login/read acceptance. No account, credit, Firebase,
+Netlify, Chargebee, registrar or signing-identity writes. Windows packaging
+does not imply signing: preserve the observed unsigned-installer limitation.
+Keep large native bytes in the versioned root dist, with exact inventory/logs
+committed/pushed; no raw oversized Git blobs, GitHub LFS, Forgejo contact or
+remote reconfiguration while the operator's restriction remains active.
