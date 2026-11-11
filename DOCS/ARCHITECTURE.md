@@ -353,7 +353,17 @@ purchase; a 402 in chat opens it automatically.
 - `billing/server.mjs` — `createBillingServer()`: local Node host of the same
   router (PORT, default 8788).
 
-### 9.1 Login, redemption and reading checkpoint — operator 2026-11-11, FROZEN
+### 9.1 Login, redemption and reading checkpoint — SUPERSEDED Netlify proposal
+
+**Operator correction 2026-11-11:** Netlify dependence was deprecated when
+per-user OpenRouter inference keys were issued. The Netlify server/deploy
+instructions below are historical rejected preparation, not executable work.
+No Netlify changes were deployed. Inference must use the signed-in user's
+provisioned key directly at OpenRouter with model `openrouter/free`; secure
+issuance and the paid-or-admin-redemption allowance policy remain distinct
+from inference. Recover the issuance contract before replacement coder work.
+No management key or admin redemption secret may enter a client build.
+
 
 This checkpoint precedes connecting Chargebee. It changes neither the rule
 for receiving allowance nor the ledger's meaning: only actual paid grants or
@@ -971,7 +981,7 @@ swisseph, favicon, manifest.webmanifest, voice waiting WAVs) · `version.json` /
 `version.txt` · `vite.config.ts` (inputs, manual chunks `three`/`firebase`) ·
 `tsconfig.json` (strict) · `netlify.toml` (publish `dist-web`, functions dir,
 ephemeris included_files, `/billing/*` redirect) · `src-tauri/**` (native
-identity `mba.robin.natally`, capabilities, MSI source, generated Android
+identity `mba.robin.astronatally`, capabilities, MSI source, generated Android
 project) · `.env.example` (pointer skeleton) · `CHECKLIST.md`,
 `DOCS/TODO-LEDGER.md`, `DOCS/ASSUMPTIONS/*`, `DOCS/RUBRIC-*`,
 `DOCS/HANDOFF-*`, `DOCS/QUOTA-REQUEST-*`, `DOCS/CODEMAP/*` (this snapshot's
@@ -980,3 +990,30 @@ diagrams + the gitdiagram set), `src/SOUL.md`, `src/READING_RUBRIC.md`.
 ---
 
 *Snapshot ends. To change the codebase's vocabulary, change §16 first.*
+
+## 17. Native namespace amendment — operator 2026-11-11, FROZEN
+
+The operator explicitly selects `mba.robin.astronatally` for the application
+namespace. This supersedes the old native identity wherever it is active.
+The product name remains Natally and the version remains build-assigned.
+
+| Exact entity | Target | Role / contract | Engaged by |
+| --- | --- | --- | --- |
+| `identifier` | `src-tauri/tauri.conf.json:5` | Tauri bundle identity is `mba.robin.astronatally` | NAMESPACE |
+| `prepare` / existing local `config.identifier` | `scripts/build-native.mjs:17` | Every canonical preparation stamps `mba.robin.astronatally` with the automatic version | NAMESPACE |
+| `android.namespace`, `android.defaultConfig.applicationId` | `src-tauri/gen/android/app/build.gradle.kts:18,21` | Both equal the canonical identity; debug suffix remains `.debug` | NAMESPACE |
+| `MainActivity` package | `src-tauri/gen/android/app/src/main/java/mba/robin/astronatally/MainActivity.kt:1` | Existing activity moves from `mba/robin/natally`; only package declaration changes | NAMESPACE |
+| `NatallyBillingPlugin` package | `src-tauri/gen/android/app/src/main/java/mba/robin/astronatally/NatallyBillingPlugin.kt:1` | Existing plugin moves from `mba/robin/natally`; only package declaration changes | NAMESPACE |
+| `init` | `src-tauri/src/native_billing.rs:32` | Existing plugin uses `app.config().identifier`; read-only, no duplicate package literal | NAMESPACE |
+| `build_all.sh` Surge commands | `build_all.sh` | Both purchased-domain publishes use `--force https`, retaining web-before-native order | RELEASE-HTTPS |
+
+CodeGraph was healthy (153 files, SQLite quick_check ok) but exact JSON/Gradle
+identity queries omitted configuration. A named read of tauri.conf.json,
+build.gradle.kts, AndroidManifest.xml, MainActivity.kt and build-native.mjs
+resolved this parser gap. The manifest's `.MainActivity` and
+`${applicationId}.fileprovider` resolve from the new namespace automatically.
+The existing Rust plugin registration reads `app.config().identifier`.
+Preserve the current MSI upgradeCode, signing identity and Rust crate names;
+none is the application namespace selected by this amendment. Generated
+untracked build outputs are rebuilt by the canonical entry, not edited by a
+repository-wide replacement or swept into source commits.

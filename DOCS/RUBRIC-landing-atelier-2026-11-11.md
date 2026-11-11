@@ -151,3 +151,8 @@ claims that the current page passes.
     shared version and SHA-256 inventory. Observe login/redemption/read on
     the deployed build. Report missing/failed platform outputs explicitly;
     a successful web publish alone is not an all-platform build.
+26. **Purchased-product native identity.** The canonical Tauri identifier, Android
+    namespace/applicationId, Kotlin activity/plugin package and generated native
+    bridge all resolve to `mba.robin.astronatally`. The production APK reports
+    that application ID and the release inventory identifies the same bundle.
+    The shared version is still assigned only by `build_all.sh`.

@@ -319,12 +319,20 @@ Retire the old personal-domain URLs throughout first-party tracked repository
 text/configuration and scripts, including historical prose. Runtime landing
 entries use astronatally.com/www.astronatally.com and app entries use
 asknatally.online; historical prose uses `retired-product-host` rather than
-rewriting history. Preserve `mba.robin.natally` package identity. No product
+rewriting history. Use `mba.robin.astronatally` package identity under the NAMESPACE amendment. No product
 deployment may target an unrelated personal-domain host. The exact migration
 and release assignment follows the landing correction review; no placeholder
 backend destination or unapproved backup-domain role may be invented.
 
-## PREBILLING CHECKPOINT — current frontier (operator 2026-11-11)
+## PREBILLING CHECKPOINT — SUPERSEDED Netlify task recipes
+
+**CANCELLED before deployment by the operator's direct-key correction.**
+CHECKPOINT-SERVER and CHECKPOINT-CLIENT below are preserved historical recipes,
+not current assignments. Workers stopped with unpublished patches; preserve
+those patches before integrating any replacement work. Do not deploy Netlify.
+Current frontier is NAMESPACE plus direct user-key issuance/inference recovery,
+then the already-requested full canonical build and purchased-domain deploy.
+
 
 Frozen §9.1; rubric22–25. Order: working Google login + real admin redemption
 + managed key + readable/spoken `openrouter/free` response → one all-platform
@@ -453,3 +461,39 @@ Queued after this checkpoint: narrated shorter cards (rubric15), adaptive
 half-speed presence and optional pointer/sensor seed (16–17), continuing varied
 story lore (18), proportional FREE FRESH MACARONS/brief musical marquee (19).
 These are requested and pending, not implemented by this checklist paragraph.
+
+## NAMESPACE — current release preparation (operator 2026-11-11)
+
+Authority: ARCHITECTURE.md §17; rubric26. Exclusive ownership:
+`src-tauri/tauri.conf.json`, `scripts/build-native.mjs`,
+`src-tauri/gen/android/app/build.gradle.kts`, old/new MainActivity.kt and
+NatallyBillingPlugin.kt under `src-tauri/gen/android/app/src/main/java/mba/robin/`.
+Read-only `src-tauri/src/native_billing.rs`, AndroidManifest.xml and build_all.sh.
+You are not alone in this checkout. Preserve other agents' unpublished patches
+and do not revert or stage them. Git commits are serialized by root.
+
+Do: Set the canonical Tauri identifier, Gradle namespace and applicationId to
+`mba.robin.astronatally`. In existing build-native `prepare`, assign this exact
+value to existing `config.identifier` so canonical builds retain the selected
+identity. Move the two tracked Kotlin sources from natally/ to astronatally/,
+changing only their package declaration. Preserve activity/plugin behavior,
+signing, versions, product name and MSI upgradeCode. The Rust bridge already
+registers with app.config().identifier; do not add another literal. Do not edit
+native caches or old artifacts. No manual version stamp and no separate build.
+
+Verify/Accept: Node syntax check on scripts/build-native.mjs exits0; Node reads
+Tauri JSON and asserts identifier; a targeted literal assertion of the owned
+Gradle/Kotlin sources observes the exact new package and no old package in
+those active files. Read back the full edited regions. Commit/push the identity
+change immediately using explicit paths; report SHA and actual remote equality.
+Native compile/package and actual APK identity observation belong to the full
+`build_all.sh` run after the direct-key frontier is ready, not a separate build.
+
+## RELEASE-HTTPS — purchased-domain publication option
+
+Authority §17, existing rubric14. Own only the two Surge invocation lines in
+`build_all.sh`. Add `--force https` to each existing purchased-domain publish,
+retaining exact domains, automatic stamp and web-before-native sequencing.
+Verify `bash -n build_all.sh` exits0 and read back both command lines. Commit
+and push separately after the namespace commit, with explicit path only.
+Do not invoke the full build until root releases it after direct-key recovery.
