@@ -1,0 +1,557 @@
+[
+  {
+    "name": "layout-final-1440-first",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 12,
+      "y": 63,
+      "width": 400,
+      "height": 400
+    },
+    "focused": false,
+    "cue": "Scroll down ↓",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network47.8 / 262.8 MB · 18%5.1s elapsed · last work measurement"
+  },
+  {
+    "name": "layout-final-1440-minimum",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 12,
+      "y": 63,
+      "width": 96,
+      "height": 96
+    },
+    "focused": false,
+    "cue": "Scroll down ↓",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network107.9 / 262.8 MB · 41%11.4s elapsed · last work measureme"
+  },
+  {
+    "name": "layout-final-1440-restored",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 12,
+      "y": 63,
+      "width": 96,
+      "height": 96
+    },
+    "focused": false,
+    "cue": "Scroll down ↓",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network30.9 / 262.8 MB · 11%0.0s elapsed · last work measurement"
+  },
+  {
+    "name": "layout-final-1440-chart",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 0.9375,
+      "y": 4.984375,
+      "width": 856.1875,
+      "height": 778.28125
+    },
+    "focused": true,
+    "cue": "↑ PreviousNext ↓",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": -1147,
+    "voice": "Loading voice model · cache or network102.8 / 262.8 MB · 39%9.1s elapsed · last work measuremen"
+  },
+  {
+    "name": "layout-final-1440-end",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 0,
+      "y": 0,
+      "width": 921.609375,
+      "height": 837
+    },
+    "focused": false,
+    "cue": "↑ Back up",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": -4471,
+    "voice": "Loading voice model · cache or network169.9 / 262.8 MB · 64%15.2s elapsed · last work measureme"
+  },
+  {
+    "name": "layout-final-1440-back",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "inset": {
+      "x": 12,
+      "y": 63,
+      "width": 96,
+      "height": 96
+    },
+    "focused": false,
+    "cue": "↑ PreviousNext ↓",
+    "cardGap": "48px",
+    "sectionGap": "126px",
+    "headerBottom": -3685,
+    "voice": "Loading voice model · cache or network196.5 / 262.8 MB · 74%17.7s elapsed · last work measureme"
+  },
+  {
+    "name": "layout-final-1280-first",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "inset": {
+      "x": 10.125,
+      "y": 50.046875,
+      "width": 96,
+      "height": 96
+    },
+    "focused": false,
+    "cue": "Scroll down ↓",
+    "cardGap": "48px",
+    "sectionGap": "100.8px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network223.7 / 262.8 MB · 85%20.3s elapsed · last work measureme"
+  },
+  {
+    "name": "layout-final-390-first",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "inset": {
+      "x": 12,
+      "y": 63,
+      "width": 180,
+      "height": 180
+    },
+    "focused": false,
+    "cue": "Scroll down ↓",
+    "cardGap": "32px",
+    "sectionGap": "64px",
+    "headerBottom": 51,
+    "voice": "Checking saved voice model on this device…0.0s elapsed · last work measurement 0.0s ago"
+  },
+  {
+    "name": "layout-final-390-chart",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "inset": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 523.265625
+    },
+    "focused": true,
+    "cue": "↑ PreviousNext ↓",
+    "cardGap": "32px",
+    "sectionGap": "64px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network133.8 / 262.8 MB · 50%6.8s elapsed · last work measuremen"
+  },
+  {
+    "name": "layout-final-390-end",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "inset": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 523.265625
+    },
+    "focused": false,
+    "cue": "↑ Back up",
+    "cardGap": "32px",
+    "sectionGap": "64px",
+    "headerBottom": 51,
+    "voice": "Loading voice model · cache or network149.6 / 262.8 MB · 56%9.7s elapsed · last work measuremen"
+  },
+  {
+    "name": "real-karaoke",
+    "samples": [
+      {
+        "at": 38447.299999952316,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 0,
+        "highlight": "Hello ",
+        "expected": "Hello",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 38711.799999952316,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 1,
+        "highlight": "— ",
+        "expected": "—",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 38983.39999997616,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 2,
+        "highlight": "I'm ",
+        "expected": "I'm",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 39187,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 3,
+        "highlight": "Natally, ",
+        "expected": "Natally,",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 39428.59999996424,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 3,
+        "highlight": "Natally, ",
+        "expected": "Natally,",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 39691,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 4,
+        "highlight": "and ",
+        "expected": "and",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 39894.39999997616,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 5,
+        "highlight": "this ",
+        "expected": "this",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 40098.5,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 6,
+        "highlight": "is ",
+        "expected": "is",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 40370.39999997616,
+        "text": "Hello — I'm Natally, and this is my atelier.",
+        "lines": 1,
+        "currentWord": 7,
+        "highlight": "my ",
+        "expected": "my",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 40969.19999998808,
+        "text": "Sit with me a while.",
+        "lines": 1,
+        "currentWord": 9,
+        "highlight": "Sit ",
+        "expected": "Sit",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 41192.5,
+        "text": "Sit with me a while.",
+        "lines": 1,
+        "currentWord": 10,
+        "highlight": "with ",
+        "expected": "with",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 41409.59999996424,
+        "text": "Sit with me a while.",
+        "lines": 1,
+        "currentWord": 11,
+        "highlight": "me ",
+        "expected": "me",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 41615.39999997616,
+        "text": "Sit with me a while.",
+        "lines": 1,
+        "currentWord": 12,
+        "highlight": "a ",
+        "expected": "a",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 41870.09999996424,
+        "text": "Sit with me a while.",
+        "lines": 1,
+        "currentWord": 13,
+        "highlight": "while.",
+        "expected": "while.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 42131.5,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 14,
+        "highlight": "I ",
+        "expected": "I",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 42337.89999997616,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 15,
+        "highlight": "read ",
+        "expected": "read",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 42628.299999952316,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 16,
+        "highlight": "natal ",
+        "expected": "natal",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 42856.59999996424,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 16,
+        "highlight": "natal ",
+        "expected": "natal",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 43091.89999997616,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 18,
+        "highlight": "aloud, ",
+        "expected": "aloud,",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 43317.69999998808,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 18,
+        "highlight": "aloud, ",
+        "expected": "aloud,",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 43549.5,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 19,
+        "highlight": "and ",
+        "expected": "and",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 43769.299999952316,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 20,
+        "highlight": "I ",
+        "expected": "I",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 44019.799999952316,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 21,
+        "highlight": "show ",
+        "expected": "show",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 44774.59999996424,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 24,
+        "highlight": "part ",
+        "expected": "part",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 44978.69999998808,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 25,
+        "highlight": "of ",
+        "expected": "of",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 45183,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 26,
+        "highlight": "yours ",
+        "expected": "yours",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 45394.5,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 26,
+        "highlight": "yours ",
+        "expected": "yours",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 45661.5,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 27,
+        "highlight": "as ",
+        "expected": "as",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 45868.799999952316,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 29,
+        "highlight": "go.",
+        "expected": "go.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 46071.69999998808,
+        "text": "I read natal charts aloud, and I show you every part of yours as I go.",
+        "lines": 2,
+        "currentWord": 29,
+        "highlight": "go.",
+        "expected": "go.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 46281.299999952316,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 30,
+        "highlight": "When ",
+        "expected": "When",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 46558,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 31,
+        "highlight": "you're ",
+        "expected": "you're",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 46762.59999996424,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 32,
+        "highlight": "ready, ",
+        "expected": "ready,",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 47034.5,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 33,
+        "highlight": "we'll ",
+        "expected": "we'll",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 47295.39999997616,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 34,
+        "highlight": "cast ",
+        "expected": "cast",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 47564.59999996424,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 35,
+        "highlight": "yours ",
+        "expected": "yours",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 47838.59999996424,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 36,
+        "highlight": "together.",
+        "expected": "together.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 48125,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 36,
+        "highlight": "together.",
+        "expected": "together.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 48399.39999997616,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 36,
+        "highlight": "together.",
+        "expected": "together.",
+        "color": "rgb(255, 243, 107)"
+      },
+      {
+        "at": 48672.89999997616,
+        "text": "When you're ready, we'll cast yours together.",
+        "lines": 2,
+        "currentWord": 36,
+        "highlight": "together.",
+        "expected": "together.",
+        "color": "rgb(255, 243, 107)"
+      }
+    ]
+  }
+]
