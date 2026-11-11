@@ -416,6 +416,10 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
    empty stage. When the atelier is the inset it shows Natally whole and
    readable (her face never cropped), in a corner that covers neither the
    chart's wheel nor the cards.
+   From first load, the floating chart is placed just as well: a corner on
+   the side away from the cards, clear of Natally's face, at a size where
+   every glyph reads (§4 face-aware placement, measured with the card column
+   counted as occupied).
 5. **Leaving the natal-chart content swaps back** — scrolling out of it or
    choosing a menu item outside it returns the big atelier to the stage and
    the chart to the inset.
