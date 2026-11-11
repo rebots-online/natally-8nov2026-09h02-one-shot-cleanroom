@@ -404,6 +404,22 @@ Linux/Windows/Android matrix, stages artifacts + SHA-256 inventory under
 via `wixl` on Linux; identity `mba.robin.natally`). `src-tauri/` is packaging
 identity + native bridges, not part of the web registry.
 
+### Domains (operator-declared 2026-11-10 — registered, NOT yet wired)
+
+`astronatally.com` → landing surface; `asknatally.online` → webapp surface.
+Administration channel: **Namecheap API** (never the web dashboard for
+changes). **Backup rule:** Namecheap's DNS write (`setHosts`) replaces the
+entire host-records set at once — every write MUST be preceded by a `getHosts`
+read whose full snapshot is saved (with timestamp) as the rollback before any
+`setHosts` call; writes are serialized, never concurrent. Current deploys
+go to `natally-8nov2026.surge.sh` only (no robin.mba dependency);
+`natally.robin.mba` cutover stays operator-only.
+Wiring, when ordered, touches: static root split (the bundle's `/` is the
+landing copy and `src/main.tsx` dispatches on a pathname containing
+`landing`, so the app domain needs `app.html` at root or a redirect),
+Firebase authorized domains, `BILLING_ALLOWED_ORIGIN` CORS, and Chargebee
+redirect origins. Recorded in KStore decision 2026-11-10; act only on go.
+
 ## 15. Known divergences (snapshot vs intent)
 
 Recorded verbatim with citations in [`DOCS/TODO-LEDGER.md`](TODO-LEDGER.md):

@@ -13,10 +13,10 @@
     code; acceptance is a recorded screencast against every rubric checkpoint
     (DOCS/DEMONSTRATIONS/). Static inspection and lint never substitute.
 
-11. Every web publish goes to BOTH the dated custom domain and its
-    surge.sh alias simultaneously (e.g. natally-8nov2026.robin.mba AND
-    natally-8nov2026.surge.sh) — the alias is the fallback that keeps the
-    site reachable when the custom domain has cert/DNS trouble.
+11. Every web publish goes to the dated surge.sh host
+    (natally-8nov2026.surge.sh). No deploy depends on a robin.mba
+    subdomain (operator 2026-11-11: that path needs a nonlogical domain
+    setting in robin.mba).
 4. No placeholder functionality, mock customer experiences, dummy payments,
    or invented customer data.
 5. No greps; no verification runs by the orchestrator; coders locate only
@@ -43,3 +43,15 @@
     described behaviour proves impossible, stop and re-architect:
     amend ARCHITECTURE.md, re-freeze, re-translate to CHECKLIST.md,
     re-assign. Never improvise around the document.
+
+15. When a system agents must coordinate with is unavailable (KStore down
+    for migration, an API offline, tooling blocked by the harness), keep
+    moving with a schema-shaped local outbox: buffer each pending write in
+    the unavailable system's exact interface (e.g. DOCS/KSTORE-OUTBOX-*.md
+    entries carrying kstore_remember's kind/title/content verbatim), do the
+    rest of the work now, and when the system returns replay every entry
+    verbatim, verify it landed, then tombstone the outbox file. Never switch
+    authorities for the sake of convenience, never drop the record, never
+    silently promote the buffer to the new system of record. Report the real
+    error that made the system unavailable (rule of DOCS/TOOLING_CONVENTIONS/
+    claude-kstore-only.md), don't work around it silently.

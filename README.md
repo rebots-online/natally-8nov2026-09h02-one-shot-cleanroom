@@ -91,12 +91,12 @@ needs: `VITE_BILLING_API_URL`, `VITE_CHARGEBEE_SITE`, `VITE_FIREBASE_CONFIG`,
 by hand). Each run: resolves credentials through KStore
 (`scripts/build-environment.mjs`), stamps a new version (`version.json`,
 `version.txt`), type-checks, builds Vite (inputs `landing.html` + `app.html`;
-`landing.html` is copied to `index.html`), publishes `dist-web/` to **both**
-hosts — `natally-8nov2026.robin.mba` and `natally-8nov2026.surge.sh` — then
+`landing.html` is copied to `index.html`), publishes `dist-web/` to
+`natally-8nov2026.surge.sh` (no robin.mba dependency), then
 builds the native matrix via `scripts/build-native.mjs` (Linux AppImage/deb/rpm,
 Windows x64 exe/NSIS/MSI cross-compiled, Android arm64 APK/AAB), staged with
 SHA-256 inventories under `dist/natally-v<version>/`. A release is accepted
-only when the version badge on both hosts shows the new stamp;
+only when the version badge on the host shows the new stamp;
 `natally.robin.mba` is cut over by the operator only.
 
 ## Billing and inference (server)
