@@ -857,6 +857,11 @@ contract.
 | `TopUpSheet` (default), `TopUpSheetProps`, `describeLoadError` ·priv | comp, iface, fn ·priv | `app/TopUpSheet.tsx:35,20,~25` | packs + souvenir sheet |
 | `BirthForm` (default), `BirthFormProps`, `MIN_QUERY_CHARS`/`SEARCH_DEBOUNCE_MS`/`MAX_SUGGESTIONS`/`DATE_RE`/`TIME_RE` ·priv | comp, iface, const ·priv | `app/intake/BirthForm.tsx:23,20,20–21` | clean-room intake |
 | `FirstLight` (default), `Phase` ·priv, `VoiceState` ·priv, `GREETING` ·priv, `onCreate` | comp, types ·priv, const ·priv | `app/onboarding/FirstLight.tsx:60,~,~,~,135` | reveal + casting |
+| `ONBOARDING_PROGRESS_PREFIX`, `ONBOARDING_STEPS`, `OnboardingStep`, `OnboardingAnswers`, `OnboardingProgress`, `OnboardingLoadResult`, `createOnboardingProgress`, `normalizeOnboardingProgress`, `onboardingSectionValid`, `firstMissingOnboardingStep`, `loadOnboardingProgress`, `saveOnboardingProgress`, `intakeDraftFromProgress`, `completeOnboardingProgress` | constants, types, functions | `services/onboardingProgress.ts:1` (new module; exact contracts in §23) | ONBOARDING-RESUME: account-owned incremental answers, validation, missing-section selection and durable completion |
+| `OnboardingProps` | exported interface | `app/onboarding/FirstLight.tsx:60` (replace inline props) | §23: account UID, initial progress, storage error, existing-chart cancellation and guarded chart handoff |
+| `FirstLightProps.initialProgress`, `FirstLightProps.onProgress` | optional hydration/callback props | `onboarding-original/FirstLight.tsx:13` | §23 scoped frozen-port exception: incremental progress and missing-section navigation, preserving existing presentation |
+| `AccountPanel.onRedoOnboarding`, `AccountPanel.onResumeOnboarding`, `AccountPanel.canRedoOnboarding` | callback/callback/boolean props | `app/AppShell.tsx:195` | §23: confirmed profile-only redo; explicit resume of an interrupted redo |
+| `onboarding-resume.test.mjs`, `onboarding-resume-browser.mjs` | regression modules | `scripts/onboarding-resume.test.mjs:1`, `scripts/onboarding-resume-browser.mjs:1` | §23: deterministic actual-module regressions and recorded browser protocol; test-only dependency substitutes never enter the product |
 
 ### 16.5 Presentation pipeline
 
@@ -1240,3 +1245,139 @@ on asrock, preserve its log, and observe actual stamp and published badge.
 Terminal/browser recording belongs to the rubric's observation protocol, not
 an idempotent checklist acceptance clause. No completed-build claim before
 the real full matrix and the success stamp/commit/push finish.
+
+## 23. Account-owned onboarding continuity — FROZEN 2026-11-12
+
+Authority: Robin's current explicit request. Work is isolated in
+`codex/onboarding-resume`, worktree `/home/robin/github/natally-onboarding-resume`,
+based on published `a47c807`. Deliver a PR to `master`; this request does not
+authorize a deployment, version increment, or canonical packaging invocation.
+Rubric `RUBRIC-onboarding-resume-2026-11-12.md` was authored first. This section
+supersedes §4's onboarding recovery description and permits only the named
+hydration/navigation changes to the otherwise preserved questionnaire in §13.
+Every other architecture section remains in force. This amendment is frozen for
+the exact behavior requested; the following checklist is its 1:1 translation.
+
+### Required behavior and decisions
+
+1. A valid `natally.chart.v1:<uid>` chart is completion evidence, including
+   charts created before incremental progress existed. Resolve the current UID's
+   chart before mounting FirstLight: no welcome/questionnaire flash on auth
+   restoration. A chart always wins over stale initial-onboarding progress.
+   Reload, `pageshow`, browser Back/Forward, and a changed auth object for the
+   same UID never create a redo request. Reconcile external chart changes on
+   `storage` and page restoration without overwriting an active local edit.
+2. Persist every edit and each accepted section synchronously to the current
+   account's localStorage record. Save the draft before changing questions or
+   starting an asynchronous calculation. A fresh tab of the same origin resumes
+   the saved answers. A changed field invalidates only that section's accepted
+   completion when its value is no longer valid; keep all other valid answers
+   and completion flags. Back is review, not reset. Forward navigation selects
+   the first genuinely uncompleted/invalid section in the explicit question
+   order. Never require already accepted valid sections again during normal
+   recovery. Partly typed answers survive even before Next is selected.
+3. Unknown birth time and explicitly skipped current location are affirmative
+   answers. A null/empty optional value alone is not evidence that the question
+   was answered. Preserve selected gazetteer identity/label, location consent,
+   device location and skip choice. A malformed section invalidates only that
+   section; a malformed entire record yields an honest recovery warning and
+   fresh intake without erasing its stored bytes. Validate UID, version, types,
+   real date, time and gazetteer membership before accepting restored data.
+4. Submitted answers remain durable through calculation failures, navigation,
+   reload and retry. Resume a fully submitted intake by computing the chart from
+   those exact validated answers, without replaying the questionnaire. Persist
+   the resulting chart synchronously to the same UID before marking progress
+   complete. Retain the complete answer snapshot; a complete snapshot with a
+   missing/unreadable chart can reconstruct it without re-asking questions.
+   Storage failure is visible: in-memory use continues, but the UI never claims
+   durability that failed. Preserve the submitted recovery snapshot on chart
+   write failure. Do not read or attribute the old unowned session key
+   `natally.firstlight.draft.v1` to an arbitrary signed-in account; leave it
+   untouched. This patch does not introduce cloud sync or cross-origin storage.
+5. Only Account's `Redo onboarding` action and a second explicit `Start again`
+   confirmation create a fresh redo draft. The confirmation explains that the
+   existing chart stays available until the replacement succeeds. `Cancel`
+   dismisses the confirmation without mutation. Confirmed redo starts from the
+   name question; it has its own saved draft with `mode: 'redo'`. The previous
+   chart is retained in memory and storage throughout. FirstLight offers
+   `Return to my chart`, cancelling any pending handoff and returning to that
+   chart while retaining the redo draft. On reload, the saved chart wins;
+   Account offers `Resume onboarding` for a saved unfinished redo, which
+   explicitly re-enters that draft. Resuming does not reset its answers.
+   No route, key press, mount effect, missing optional answer, or history event
+   is authorization for fresh redo. A successful replacement updates the chart
+   and closes redo; an unsuccessful one preserves the prior chart.
+6. Identity and chart ownership travel together. Remove the separate effect
+   which writes whichever in-memory chart exists under whichever auth object
+   just arrived. The shell keeps a UID-tagged chart snapshot, loads it together
+   with auth restoration, and only renders/commits it for that same UID. A live
+   UID ref plus the wrapper's mounted/attempt guard rejects stale calculation
+   completions after sign-out, account switch, cancellation or a newer attempt.
+   Same-UID auth refresh does not discard an in-memory chart or active draft.
+7. Preserve the existing questionnaire art, prompt order, input masks, birth
+   date picker, gazetteer, voice admission and elapsed-time presentation. Reuse
+   AccountPanel's existing buttons and inline confirmation, with accessible
+   labels and ordinary keyboard focus. This is an existing-surface correction,
+   not a novel screen requiring a new design comp. Do not globally intercept
+   Backspace: normal input deletion remains native. Browser navigation stays
+   usable and safe because progress is durable.
+
+### Exact entity contracts
+
+All paths below are relative to `src/`. New module-scope symbols are limited to
+the §16.4 additions; component-local state, callbacks and test-local bindings
+remain private implementation details of their named owning entity.
+
+| Exact entity | Target and signature/fields | Responsibility |
+| --- | --- | --- |
+| `ONBOARDING_PROGRESS_PREFIX` | `services/onboardingProgress.ts:1`; string `natally.onboarding.v2:` | key suffix is `encodeURIComponent(accountUid)`; no anonymous/shared record |
+| `ONBOARDING_STEPS`, `OnboardingStep` | same module; readonly ordered `['name','date','place','time','currentPlace']`; union of those names | mirrors existing `QUESTION_SEQUENCE`; integer indices only |
+| `OnboardingAnswers` | same module; `{name:string,date:string,place:string,time:string,currentPlace:string}` | existing questionnaire field values, including incomplete text |
+| `OnboardingProgress` | same module; `{version:1, accountUid:string, mode:'initial'\|'redo', status:'draft'\|'submitted'\|'complete', answers:OnboardingAnswers, unknownTime:boolean, deviceLocation:CurrentLocation\|null, skipLocation:boolean, completed:OnboardingStep[]}` | account-owned answer snapshot and explicitly accepted sections |
+| `OnboardingLoadResult` | same module; `{progress:OnboardingProgress\|null,error:string\|null}` | recovery and persistence problems are visible |
+| `createOnboardingProgress` | same module; `(accountUid:string, mode:'initial'\|'redo' = 'initial'):OnboardingProgress` | empty answers/accepted array, draft status, false choices; rejects empty UID |
+| `onboardingSectionValid` | same module; `(progress:OnboardingProgress, step:OnboardingStep, gazetteer:readonly GazetteerEntry[]):boolean` | same name/date/place/time/location rules as the actual questionnaire, including duplicate place labels and finite coordinates/time zone |
+| `normalizeOnboardingProgress` | same module; `(value:unknown,accountUid:string,gazetteer:readonly GazetteerEntry[]):OnboardingProgress\|null` | validate owner/version; recover independent typed fields; keep only valid accepted sections; submitted/complete require all accepted sections |
+| `firstMissingOnboardingStep` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):number` | first not-accepted/invalid step, or `ONBOARDING_STEPS.length` when all are done |
+| `loadOnboardingProgress` | same module; `(accountUid:string,gazetteer:readonly GazetteerEntry[],storage:Storage = localStorage):OnboardingLoadResult` | guarded JSON parse/read; preserve stored bytes on failure; no legacy draft adoption |
+| `saveOnboardingProgress` | same module; `(progress:OnboardingProgress,storage:Storage = localStorage):string\|null` | synchronous write; return truthful error on failure, null on success |
+| `intakeDraftFromProgress` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):IntakeDraft\|null` | exact validated submission mapping; preserves explicit optional choices |
+| `completeOnboardingProgress` | same module; `(progress:OnboardingProgress,storage:Storage = localStorage):string\|null` | save complete status only after chart write success, retaining every answer |
+| `OnboardingProps` | `app/onboarding/FirstLight.tsx:60`; `{accountUid:string,initialProgress:OnboardingProgress\|null,storageError:string\|null,onSitDown:(chart:NatalChart)=>boolean,onCancel?:()=>void}` | keyed by UID + explicit redo entry; true handoff result means chart persisted; false retains submitted snapshot |
+| questionnaire `FirstLightProps.initialProgress`, `.onProgress` | `onboarding-original/FirstLight.tsx:13`; optional `OnboardingProgress`, optional `(progress:OnboardingProgress)=>void` | hydrate once, synchronously report edits/accepted sections/submission; wrapper owns persistence |
+| `AccountPanel.onRedoOnboarding`, `.onResumeOnboarding`, `.canRedoOnboarding` | `app/AppShell.tsx:195`; `()=>void`, optional `()=>void`, boolean | show redo only with an existing chart; offer saved redo resume; second confirmation required before reset |
+| existing `App`, `AuthState`, `loadStoredChart`, `CHART_STORE_PREFIX` | `app/AppShell.tsx:380,86,368,260` | UID-tagged chart restore and guarded synchronous commit; component-local state for chart readiness, redo, warning and ownership |
+| `onboarding-resume.test.mjs` | `../scripts/onboarding-resume.test.mjs:1` | Node built-in tests load actual TS modules with installed TypeScript; test fixtures never enter shipped app |
+| `onboarding-resume-browser.mjs` | `../scripts/onboarding-resume-browser.mjs:1` | browser automation of actual components, test-only auth/voice/renderer substitutes; video/screenshots/results at the rubric's permanent destination |
+
+### Scope, evidence and preparation judgment
+
+Ranked criteria: (1) preserve user work and account ownership, (2) fulfill the
+requested intentional redo and missing-only recovery, (3) keep the correction
+small and reviewable. Short horizon is this browser session; medium is later
+visits/account switches; long is future PR maintenance. Per-account incremental
+progress plus existing-chart precedence satisfies all three at every horizon.
+A shared session-only submitted draft loses partial work immediately and cannot
+prove ownership later. A completion boolean without answers cannot recover an
+interruption or reconstruct a lost chart. Neither alternative meets (1)/(2).
+Cloud persistence would change the product's data boundary and is outside this
+request; origin/device-local persistence is the stated scope of this PR.
+
+CodeGraph was synchronized before mapping. Its long `App` source result was
+capped before the auth/return branches; its named original-questionnaire query
+returned the wrapper instead, and its service query returned another preserved
+tree. Targeted reads of only `AppShell.tsx` auth/return branches,
+`onboarding-original/FirstLight.tsx` and `services/onboarding.ts` closed those
+specific coverage gaps. `PROJECT_INDEX.*` is absent. No other repository's
+source or original/abandoned Natally implementation was consulted.
+
+**Operator verification protocol:** execute and record ONB-R1–R9 from the
+preauthored rubric with the actual changed components. Inspect desktop and phone
+frames, including final controls and profile confirmation. Deterministic tests
+exercise progress validation, accepted-section navigation, unknown/skip choices,
+wrong UID/malformed storage, chart-before-completion ordering, cancellation and
+late account-switch results. Coder verification does not deploy or package.
+Only `build_all.sh` remains a release entry; it is not invoked for this PR.
+No live authentication or native-device acceptance is inferred from test
+substitutes. The orchestrator reviews source and the recorded frames; coders run
+the specified tests. Evidence and limitations accompany the PR.
