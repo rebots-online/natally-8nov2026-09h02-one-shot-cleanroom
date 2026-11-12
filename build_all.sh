@@ -39,4 +39,27 @@ echo "Web build complete → dist-web/"
 # (ARCHITECTURE §12.1). No temporary subdomains.
 npx --yes surge@0.56.0 dist-web astronatally.com --force https
 npx --yes surge@0.56.0 dist-web asknatally.online --force https
-exec node scripts/build-native.mjs
+node scripts/build-native.mjs
+
+# A completed build advances the source identity, in addition to existing stamps.
+node -e "
+const fs = require('fs');
+let v;
+try { v = JSON.parse(fs.readFileSync('version.json', 'utf8')); }
+catch (error) { throw new Error('Cannot read canonical version after successful build', { cause: error }); }
+const completedVersion = v.version;
+const [maj, min] = String(completedVersion).split('.').map(Number);
+if (!Number.isSafeInteger(maj) || maj < 1 || !Number.isSafeInteger(min) || min < 0) {
+  throw new Error('Invalid canonical MAJOR.MINOR after successful build');
+}
+const build = Math.floor(Date.now() / 86400000) % 10000;
+v.version = [maj, min + 1, build].join('.');
+v.builtAt = null;
+fs.writeFileSync('version.json', JSON.stringify(v, null, 2) + '\n');
+fs.writeFileSync('version.txt', v.version + '\n');
+console.log('Built version: v' + completedVersion);
+console.log('Next source version: v' + v.version);
+"
+git add version.json version.txt
+git commit -qm "Advance MINOR after successful canonical build"
+git push origin HEAD
