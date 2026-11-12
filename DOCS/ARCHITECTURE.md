@@ -1,4 +1,4 @@
-# Architecture — codebase snapshot (2026-11-09, commit `3f00f98`)
+# Architecture — 2026-11-09 baseline; stage/lore reality aligned 2026-11-12
 
 **This document describes what the code IS, not what it should be.** It is the
 normalizing snapshot of the in-development codebase: every subsystem as found,
@@ -16,6 +16,18 @@ in code (§Registry convention).
   commits `444e1bc`, `ebf1ed9`, `3f00f98`.
 - Snapshot method: CodeGraph index + direct source reads on 2026-11-09; every
   entity row was verified against source, not inferred.
+
+**Scope of the 2026-11-12 alignment.** The census, build identity and original
+line references above remain the historical `3f00f98` baseline. The current
+checkout identity and repository comparison are recorded in §1.1. Current
+stage, presentation, conversation and lore wiring is distinguished from frozen
+requirements in §§4–7, §12 and §15. This alignment used CodeGraph only for
+implementation inspection, plus Git metadata/tree comparisons for repository
+identity; no implementation files, earlier task transcripts or session memories
+were read directly. CodeGraph reported an up-to-date index. It does not index
+the relevant stylesheets: exact CSS stacking, clipping and viewport outcomes
+are therefore unverified here. This is a documentation correction, not an
+implemented repair or a new visual acceptance claim.
 
 **Registry convention (the allow-list).** Only module-scope entities named in
 §16 may be realized in code. Introducing any new module-scope function, class,
@@ -36,6 +48,37 @@ upstream originals, and any deliberate local addition still adds a row.
 | Page entries | `landing.html`, `app.html` (Vite inputs); `index.html` in `dist-web/` is a build-time copy of `landing.html` (`build_all.sh:36`) |
 | License | AGPL-3.0-only |
 | Type gate | `npm run lint` → `tsc --noEmit` |
+
+### 1.1 Current checkout and divergence from `rebots-online/astronatally`
+
+Pinned comparison on 2026-11-12, before this documentation alignment:
+
+| Fact | Observed value |
+| --- | --- |
+| Working checkout | `/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart` |
+| Configured `origin` and `github` | `https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom.git` |
+| Local branch / commit | `master` / `a47c807dcd083c42b35a25c88d61752feb11c275` |
+| Published clean-room `master` | GitHub comparison reported identical to that local commit |
+| Separate comparison repository | `https://github.com/rebots-online/astronatally` (repository id `1453956518`) |
+| Comparison `master` | `04322e9a0647ab17cb20eb342f493f20c05bc1cb` |
+| Relationship | Different repositories; full, non-shallow local history; no common ancestor found |
+| Reachable commits at the pinned heads | 313 in this checkout's history; 25 in the comparison history; these are not ahead/behind counts on a shared branch |
+| Committed tree difference | 86 tracked files; 10,432 insertions and 13,036 deletions when transforming this checkout's pinned tree into the comparison tree |
+
+The source differences include the `App` composition, `Inset`, `LandingCards`,
+app styling, Firebase/native authentication, shared styling tokens, and the
+legacy marketing renderer wrapper/styles. The comparison tree additionally has
+a `SignInPanel` and its styling. These are path/blob differences, not a review
+of those changed implementations. No merge or source transfer was performed.
+
+The active chat subtree, presentation subtree, `KaraokeCaption`, clean-room
+chart subtree, entire atelier-original subtree and legacy `soul` module are
+byte-identical between the two pinned committed trees. Consequently the
+specific conversation/lore and presentation-policy findings below concern
+shared content, while the different integration and styling prevent assuming
+the two complete UIs behave identically. The comparison excludes uncommitted
+and untracked work. A repair for one repository is not evidence that the other
+repository has received it.
 
 ## 2. Surfaces and entry topology
 
@@ -80,14 +123,63 @@ required to surface that visibly rather than default silently.
 
 ## 4. App shell and stage (`src/app/`)
 
-`AppShell.tsx` (default export `App`, line 276) is the composition root: auth
+`AppShell.tsx` (default export `App`, current CodeGraph line 380) is the composition root: auth
 state, the persisted chart (`loadStoredChart`, per-uid localStorage), the
 presentation reducer, the voice controller (`getPreloadedVoice()`), the opening
-reading reveal, click readings, and lazy `SouvenirDialog`. `StageHeader` (95)
-and `AccountPanel` (185) implement the header/account surface (NAV-1: live
+reading reveal, click readings, and lazy `SouvenirDialog`. `StageHeader` (105)
+and `AccountPanel` (195) implement the header/account surface (NAV-1: live
 balance, Top up / Keepsake / Sign out from the avatar menu).
 
-**The inset card** (`stage/Inset.tsx`) is the heart of the stage. Target
+**Current stage composition — CodeGraph, 2026-11-12.** There are two distinct
+compositions, not one controller managing both panes and the conversation:
+
+- **Signed-out landing:** `App` renders `AtelierScene` in its own absolutely
+  positioned wrapper and the chart in a separate `Inset`. Chart focus changes
+  the room wrapper from full size to a formula-sized bottom-left rectangle
+  (wide width `min(22vw, 34vh * 1.6, 320px)`, narrow width
+  `min(42vw, 200px)`, aspect 1.6). That room wrapper has a click handler and
+  “Back to the atelier” title, but no drag/resize controller, resize grips,
+  persisted room geometry or dedicated return button. A seeded legacy room
+  position key is not consumed by this room wrapper. The chart uses the
+  separate compact key `natally.inset.v1:landing:compact-v1`.
+- **Signed-in reading:** `ReadingStage` contains the room, view/motion
+  buttons and conversation slot; its chart slot receives `null`. The actual
+  chart is a sibling overlay rendered through `Inset`. `ReadingStage` retains
+  a room-inset move handle, a bring-into-focus button and account-scoped
+  `{x,y}` persistence, but no room-inset size state or resize grips. Those
+  underlying controls existing in JSX does not establish that the sibling
+  focused chart leaves them visible or reachable.
+- **Chart card:** `Inset` currently implements floating/side/stack modes,
+  compact sizing, pointer dragging, four corner resize grips, keyboard
+  geometry changes, persistence and visible-window clamping. Its own
+  pointer-drag, tap-swap and keyboard-geometry paths stand down while it is
+  focused. It does not supply a separate always-reachable return button.
+  Chart gestures, a room inset and stage navigation are different controls.
+- **Focused-height measurement:** `useStageVisualHeight` searches for a
+  `.reading-stage__visual` descendant, which the signed-out landing's custom
+  stage does not render. Its effect also returns when the supplied root is
+  absent and depends only on the stable ref object, so a later auth/chart
+  branch mounting that root does not itself re-arm the measurement. A
+  measured `fillHeight` cannot be assumed; the chart can use its fallback
+  fill geometry. This is a structural measurement gap, not proof of the
+  exact reported clipping/occlusion outcome.
+- **Caption and composer:** the signed-out branch mounts `KaraokeCaption`
+  separately from the stage and has no conversation composer. The signed-in
+  branch supplies `ChatPanel` through the reading-stage conversation slot,
+  but does not mount `KaraokeCaption` there. Its opening-reading text reveal
+  is not the same thing as a persistent bottom karaoke surface.
+- **Identity text:** both header branches currently render “Natally · the
+  atelier”. The implementation does not yet satisfy the operator's corrected
+  identity wording or the requirement that branding leave the initial inset
+  space available.
+- **Evidence limit:** CodeGraph establishes this composition and these
+  capability gaps. The operator reports a focused chart with no visible
+  Natally inset or usable return controls. The precise CSS occlusion trigger
+  is not established by this review; no runtime or screenshot acceptance has
+  been performed under the architecture/CodeGraph-only inspection boundary.
+
+**Existing frozen stage contract — not a completion claim.** The inset card
+(`stage/Inset.tsx`) supplies the chart-card mechanics. Target
 mechanics (INSET revision, 2026-11-09 — behaviour authority: Robin's rows in
 `DOCS/TODO-LEDGER.md`; anchors: `DOCS/CODEMAP/inset-anchors-3f00f98.md`):
 
@@ -184,16 +276,18 @@ sequenceDiagram
   boundaries cross their offsets; without audio, at text-stream offsets;
   `finish()` flushes whatever speech never reached.
 - `state.ts` — `presentationReducer` over `PresentationState {chartKey,
-  focusTargets, view, follow, sequence}`: `focus`/`clear` set highlights, `view`
+  selectedTargets, focusTargets, view, panel:'conversation', follow, sequence,
+  lastReceipt:null}`: `focus`/`clear` set highlights, `view`
   swaps chart⇄atelier, **a manual view choice sets `follow:false` and automatic
-  view cues stop**; `chart` resets on a new chart key. **Target:** `focusTargets`
-  reach the wheel as its highlight list (`Astrolabe3D` `highlightedComponents`),
+  view cues stop** until a new chart key resets the state; there is no
+  follow-resume action in the current action set. **Current wiring:** both
+  active stages pass `focusTargets` to `Astrolabe3D.highlightedComponents`,
   not only as one `selectedPlanetName`; targets include aspect lines
   (`"Sun trine Moon"`, `"now Mars square Venus"`) so she can highlight and
   explain relationship lines (natal↔natal and now↔natal only — now↔now is
   excluded by design: the current sky aspects itself continuously and would
   cover the wheel with lines carrying no personal information).
-- `explain.ts` — **new** `explainTarget(target, chart, sky)`: composes her
+- `explain.ts` — **present** `explainTarget(target, chart, sky)`: composes her
   spoken passage for a tapped component (`content/lessons` +
   `chart/liveReading` placement statement) with cues for every involved
   element (`involvedElements(target, chart)`: the body, its house, its sign,
@@ -206,6 +300,16 @@ sequenceDiagram
 - The shell re-renders the opening word-by-word using the same karaoke
   boundaries (`revealedOpening`), and the chat's replies flow through the same
   driver, so live replies and the opening behave identically.
+
+**Current policy divergence, 2026-11-12.** Signed-in speech dispatches view
+cues without a manual override, so any earlier manual view choice can suppress
+Natally's subsequent focus swaps for the life of that chart. Landing section
+reports and user view changes are dispatched as manual; its authored-explanation
+driver also dispatches speech view cues as manual to bypass that suppression.
+The two stages therefore do not share a consistent user-versus-narration
+ownership policy. Available model controls are `view`, chart `focus` and
+`clear`; the active prompt has target names but no measured pane rectangles,
+protected control regions, move/resize actions or general DOM-control protocol.
 
 ## 6. Chat and inference (`src/app/chat/`)
 
@@ -227,6 +331,46 @@ sequenceDiagram
   Bearer Firebase ID token; typed failures `NoAllowanceError` (402),
   `ChatNetworkError`, `BillingNotConfiguredError`; frames parsed incrementally
   so partial text renders as it arrives.
+
+**Current input surface, 2026-11-12.** `ChatPanel` renders one text input and a
+Send button. It has no microphone control, device-transcription flow, file
+picker, attachment preview or attachment-bearing message contract. Its
+`send(text)` and wire context are text-only. On the signed-out landing no
+`ChatPanel` is mounted. Neither the missing microphone/attachment flow nor a
+shared bottom caption/composer rail can be described as implemented.
+
+### 6.1 Conversation and lore storage — current implementation
+
+The active flow is:
+
+```text
+typed user text -> useChat in-memory messages/ref
+                -> buildMessages(persona + chart facts + stage cues
+                                 + authored backstory + last 20 messages)
+                -> authenticated text-only SSE request
+                -> parseReply -> speech, presentation and in-memory messages
+```
+
+There is no durable transcript load/save, lore load/save or lore-metadata
+extraction in this active path. Persisting the natal chart in per-uid
+localStorage does not persist a conversation or character continuity.
+
+| Capability | CodeGraph-observed reality |
+| --- | --- |
+| Active conversation across reloads | `useChat` starts with empty React state and a mirror ref; no transcript persistence |
+| Active inference context | Persona, chart facts, target/cue instructions, authored backstory and the last 20 message texts; no stored character/user lore |
+| Retained legacy lore | `SoulState` separates account-owned fictional character lore from quoted user disclosures, in two localStorage stores; a deterministic per-account character seed and six retained story ids exist |
+| Legacy bounds | At most 80 entries per store; newly remembered character text is capped at 600 characters and user disclosure text at 1,800; stored entries carry `id`, `text`, `at` |
+| Legacy write safety | Reload/merge before writing, duplicate suppression, current-session and erasure guards, and truthful storage-failure notices; authored story resolution additionally uses a per-account browser lock and readback |
+| Reachable legacy writer | `rememberCharacterDevelopment` is called by retained authored nudges; this is not the active shell's round-robin story path |
+| User-disclosure and model-lore helpers | `rememberUserDisclosure`, `extractSoulDevelopments` and `buildSoulPrompt` exist in the retained module; the active conversation does not use them, and CodeGraph reports no callers for `rememberUserDisclosure` or `buildSoulPrompt` |
+| Cross-device or account-server lore continuity | Not provided by the observed active flow; the retained stores described here are local to the browser/device |
+
+The frozen document names bounded legacy lore in §12 and explicitly leaves
+“diverse continuing lore” queued for a detailed contract (§9.1). It does not
+specify a complete active replacement flow for the months-long lore requirement
+mentioned by the operator. This review has not retrieved prior conversations
+to fill that gap and makes no claim that current lore satisfies that agreement.
 
 ## 7. Astrology engines and chart rendering
 
@@ -258,7 +402,11 @@ sequenceDiagram
   traverse exempts the whole wheel structure — house spokes, house numbers,
   sign ring and ticks, degree marks — by `userData.wheelStructure`, so only
   bodies, glyphs and aspect lines de-emphasise; `highlightedComponents` is
-  driven from `presentation.focusTargets`; aspect lines keep their raycast
+  driven from `presentation.focusTargets` (this prop wiring is present);
+  the renderer's current opacity traversal explicitly exempts
+  `wheelStructure`, `structureFrame` and crisp labels from focus dimming.
+  This is implementation evidence, not visual proof. The frozen requirement
+  remains that aspect lines keep their raycast
   selectability and callouts (natal↔natal solid, now↔natal dashed; no now↔now
   by design); a click on a hovered component reports the hit to the shell,
   which swaps the view and speaks (§4), instead of selection only.
@@ -474,12 +622,18 @@ question}` per body key + `'general'`, `getLesson`) · `closes.ts`
 (`SPONTANEOUS_STORIES` round-robin `nextSpontaneousStory`, backstory
 Q&A). All authored text lives here, not in components.
 
-## 12. Landing (`src/landing-original/`, verbatim port v1.42 — LIVE)
+## 12. Retained marketing port and current landing
 
-`marketing.tsx` self-mounts the full landing: site header, hero, example chart
+The default app entry currently renders `App`; its signed-out branch composes
+the landing described in §4. A pathname containing `landing` still imports the
+separate landing entry, which imports the retained marketing port. Publication
+and domain routing are not re-verified by CodeGraph. The frozen domain/landing
+requirements remain in §12.1.
+
+In the retained port, `marketing.tsx` self-mounts the older full landing: site header, hero, example chart
 (demo birth data 1988-08-31 14:30 Toronto — Sun–Moon–Neptune grand trine,
 1.0° orb) inside the shared `Inset`, education session, account and checkout
-surfaces, guest room. Its live services include: `ephemeris.ts` /
+surfaces, guest room. Its retained services include: `ephemeris.ts` /
 `transits.ts` (current-sky snapshots) · `authoredChartExplanations.ts` /
 `authoredEducationSession.ts` / `authoredNudges.ts` (no-inference authored
 teaching) · `soul.ts` (bounded character/user lore, `SoulState`, retained story
@@ -498,6 +652,11 @@ its clean-room sibling) · `chartTargets.ts` (target inventory +
 services mirrored from `atelier-original`. Components:
 `AccountBillingDialog`, `CreditActions` (quote → buyer details → paid
 lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
+
+Presence in this retained port does not establish use by the current landing
+or signed-in conversation. In particular its lore APIs must not be credited
+to the active conversation; see §6.1. The current landing's fixed-formula room
+pane falls short of the movable/resizable room required by §12.1 item 4c.
 
 ### 12.1 Landing target state (operator 2026-11-11 — FROZEN on Robin's order "assign to coders from checklist")
 
@@ -711,7 +870,7 @@ lifecycle), `CustomerValueExplanation`, `Astrolabe3D` (landing copy).
 | Tree | Contents | Freeze rule |
 | --- | --- | --- |
 | `src/atelier-original/` | `components/Astrolabe3D.tsx`, `components/atelier/*` (Scene, Ambience, Character, Season, ThemeSelector, Trinkets, CrystalPool), `components/ReadingStage.tsx`, `components/chartCalloutPlacement.ts`, `services/*` (ephemeris, voice, themes, memories, analytics, presentation type-shim), `vendor/swisseph/*` | Verbatim copies of the deployed original; edits are re-copies. `services/presentation.ts` is a **type-only shim** — only the presentation types are carried; the reducer half is intentionally not |
-| `src/landing-original/` | the live landing port (§12) | Operator-authorized port of v1.42; treat as upstream copy |
+| `src/landing-original/` | retained marketing port (§12), separate from the current signed-out `App` landing | Operator-authorized port of v1.42; treat as upstream copy |
 | `src/onboarding-original/` | `FirstLight.tsx` questionnaire, `BirthDateFields.tsx`, `CalendarPicker.tsx`, `first-light.css` | Verbatim; wrapped (not edited) by `src/app/onboarding` and fed by `src/services/{gazetteer,onboarding,transits,supertonicTts}` seams |
 
 ## 14. Build, release, native
@@ -765,20 +924,37 @@ redirect origins. Recorded in KStore decision 2026-11-10; act only on go.
 
 ## 15. Known divergences (snapshot vs intent)
 
-Recorded verbatim with citations in [`DOCS/TODO-LEDGER.md`](TODO-LEDGER.md):
-billing purchase flow never exercised end-to-end; Chargebee REST removed by
-operator order (MCP-only; `DOCS/ASSUMPTIONS/2026-11-09-chargebee-rest-key.md`
-superseded); webhook not yet registered; landing one-click sign-in + working
-menu items remaining. **Inset (target state written into §4, §5, §6, §7 on
-2026-11-09; none of it observed working on `v1.27.765`):** click on a hovered
-component does not swap or make her speak; docking and corner resize do not
-work; `.chart-inset` has no acrylic (no backdrop-filter); focus-dim fades
-house spokes, sign ticks and degree marks; `focusTargets` never reach the wheel
-as a highlight list; aspect lines are not in the cue inventory. Touch mapping
-is an assumption (Q6). **Native sign-in:** `src-tauri/src/native_auth.rs` opens
-`https://asknatally.online/auth/native.html`, which no bundle contains — native
-Google sign-in cannot complete until that page exists. **Separate issues, not inset:** information levels
-(unpaid/paid) not in code; conversation not persisted (on-device target).
+**Historical observations are not current absence claims.** The original
+`v1.27.765` observations and billing issues were recorded in
+[`DOCS/TODO-LEDGER.md`](TODO-LEDGER.md). Later frozen amendments, including
+§19 for native sign-in, must not be overwritten by that older snapshot. This
+review does not re-verify billing, sign-in delivery or native packaging.
+
+**Current CodeGraph findings, 2026-11-12:**
+
+- Chart movement/resize machinery, component explanation handlers,
+  `focusTargets` prop wiring and natal/current-to-natal aspect target naming
+  are present. Their earlier absence cannot be asserted as current fact.
+- The room inset does not have parity with the chart inset: fixed formula
+  and click-only return on the landing; position-only movement in the
+  signed-in reading stage; no room resize in either composition. There is
+  no shared composition enforcing two visible panes plus protected controls.
+- The operator's chart takeover/no-visible-return report remains an open
+  visual defect. The exact stylesheet stacking/clipping cause is outside
+  CodeGraph's indexed coverage and has not been inferred as a proven cause.
+- Signed-out and signed-in focus ownership differ (§5); signed-in manual
+  view choice can suppress later narration swaps until a chart reset.
+- Both headers say “Natally · the atelier”. The landing has captions but no
+  composer; the signed-in conversation has a text composer but no mounted
+  `KaraokeCaption`. Microphone and attachment flows are absent from that
+  composer and its text-only message contract.
+- The active transcript is not persisted and active inference has no durable
+  lore context; retained legacy helpers do not close that gap (§6.1).
+
+The existing frozen requirements for one focused view plus one movable,
+resizable inset, whole Natally, available return navigation, paced captions
+and chart emphasis remain unmet until demonstrated. This alignment does not
+weaken them or convert static implementation evidence into acceptance.
 
 ---
 
@@ -833,11 +1009,13 @@ contract.
 
 | Entity | Kind | Where | Role |
 | --- | --- | --- | --- |
-| `SouvenirDialog` lazy binding ·priv, `AuthState` ·priv, `StageHeader`, `AccountPanel`, `loadStoredChart`, `App` (default) | const ·priv, type ·priv, comp ·priv, comp ·priv, fn ·priv, comp | `app/AppShell.tsx:72,76,95,185,264,276` | composition root (internal: `onKaraoke`, `handleReplyEvent`, `explainPlanet`, `skyToday`, `admit`, chatStage, opening reveal refs) |
+| `SouvenirDialog` lazy binding ·priv, `AuthState` ·priv, `StageHeader`, `AccountPanel`, `loadStoredChart`, `App` (default) | const ·priv, type ·priv, comp ·priv, comp ·priv, fn ·priv, comp | `app/AppShell.tsx:82,86,105,195,368,380` (CodeGraph 2026-11-12) | composition root (internal: `onKaraoke`, `handleReplyEvent`, `explainTap`, `skyToday`, `admit`, chatStage, opening reveal refs) |
 | `BODY_TARGET_PX`, `INSET_MAX_W`, `ASPECT` ·priv, `CHROME_PX` ·priv, `DEFAULT_BODY_COUNT` ·priv, `DRAG_THRESHOLD_PX` ·priv, `DOCK_GAP` ·priv, `DOCK_REACH` ·priv, `DOCK_MARGIN` ·priv, `FACE_COVERED_INVERT` ·priv, `KEY_STEP`/`KEY_RESIZE_STEP` ·priv, `InsetGeometry` ·priv, `InsetMode`, `InsetState` ·priv, `InsetProps`, `StageBox` ·priv, `Rect` ·priv, `insetFloorPx`, `loadState` ·priv, `storeState` ·priv, `clampGeometry` ·priv, `allowedWidthPx` ·priv, `sideFits` ·priv, `stackFits` ·priv, `dockedWidthPx` ·priv, `computeAutoPlacement` ·priv, `faceRectInStage` ·priv, `isFiniteNumber` ·priv, `Inset` | const/type/fn | `app/stage/Inset.tsx:58,60,62,~64,~,70,84,68,~,76,72–73,86,97,99,104,127,132,151,157,178,209,187,192,197,~,267,220,~,350` | the inset card (see §4) |
-| **pending INSET** `GLYPH_MIN_PX` ·priv, `LONG_PRESS_MS` ·priv, `InsetProps.onSwap`, `InsetProps.onComponentTap` | const ·priv, const ·priv, props | `app/stage/Inset.tsx` | glyph-legibility floor; touch long-press-to-drag; tap-on-empty → swap; tap-on-hovered-component → shell (speak + swap) |
-| **pending LANDING** `EXAMPLE_BIRTH` ·priv, `GID_FRAGMENT` ·priv, `PRODUCT_LANDING_HOSTS` ·priv | consts ·priv | `app/AppShell.tsx` | §12.1: the landing's chart (birth data 1988-08-31 14:30 Toronto, Whole Sign; carries no person's name — no "Aurelia", no "example" label anywhere on screen) on the signed-out landing; `#gid=` sign-in handoff; hosts on which the signed-out page acts as the landing |
-| **pending LANDING** `LandingCards`, `LandingCardsProps`, `LANDING_SECTIONS` | comp, type, const | `app/landing/LandingCards.tsx` (+ `app/landing/landing.css`) | §12.1 items 3–5: paginated dark-purple copy cards with section ids; reports the active section (chart sections swap the stage) |
+| **present (CodeGraph)** `GLYPH_MIN_PX` ·priv, `LONG_PRESS_MS` ·priv, `InsetProps.onSwap`, `InsetProps.onComponentTap` | const ·priv, const ·priv, props | `app/stage/Inset.tsx:94,97,137` (props interface) | glyph-legibility floor; touch long-press-to-drag; tap-on-empty → swap; tap-on-hovered-component → shell (speak + swap); visual acceptance remains open |
+| **present (CodeGraph)** `EXAMPLE_BIRTH` ·priv, `GID_FRAGMENT` ·priv, `PRODUCT_LANDING_HOSTS` ·priv | consts ·priv | `app/AppShell.tsx:300,299,298` | §12.1: landing birth input and sign-in/domain handoff constants; runtime outcomes not re-verified |
+| **present (CodeGraph)** `LandingCards`, `LandingCardsProps`, `LANDING_SECTIONS` | comp, type, const | `app/landing/LandingCards.tsx:157,15,28` (+ `app/landing/landing.css`) | §12.1 items 3–5: paginated copy cards and active-section reports; does not implement a conversation composer |
+| `closeMenuDetails`, `CHART_STORE_PREFIX`, `isNatalChart`, `seedLandingPanePlacements` ·priv | fn, const, fn, fn ·priv | `app/AppShell.tsx:98,260,356,323` | current header dismissal, chart persistence guard and legacy landing placement seeding; descriptive registry alignment only |
+| `LANDING_ROOM_PANE_WIDTH`, `LANDING_ROOM_PANE_WIDTH_NARROW`, `LANDING_ROOM_PANE_ASPECT`, `LANDING_SWAP_MS`, `LANDING_SWAP_EASE`, `LANDING_WELCOME`, `LANDING_STORY_IDLE_MS`, `LANDING_STORY_BLOCKLIST`, `LANDING_STORY_MAX_PICKS`, `LANDING_NARROW_QUERY`, `LANDING_INSET_STORAGE_KEY`, `LANDING_ROOM_POSITION_STORAGE_KEY` ·priv | consts ·priv | `app/AppShell.tsx:274,275,276,281,282,285,289,294,295,297,320,321` | current room formulas, transition, authored presence and legacy seed keys; room key seeding is not room-inset drag/resize support |
 | **pending LANDING** `googleSignInForIdToken`, `signInWithGoogleIdToken` | fn, fn | `platform/firebase.ts` | §12.1 item 7: popup sign-in returning the Google ID token; credential sign-in from a handed-over token |
 | **pending VOICE** `VoiceDownloadStatus`, `VoiceProgress` | comps | `app/VoiceDownloadStatus.tsx` | §8.1: bottom voice-loading bar with MB + percentage |
 | `useStageVisualHeight` | fn | `app/stage/stageMetrics.ts:12` | focused fill height |
@@ -865,7 +1043,7 @@ contract.
 | `CueAction`, `Cue`, `ParsedReply`, `CUE` ·priv, `MAX_TARGETS` ·priv, `parseReply` | type, iface, iface, const ·priv, const ·priv, fn | `app/presentation/cues.ts:9,14,20,26,27,35` | cue stripping with offsets |
 | `SpokenBoundary`, `PlaybackDriver`, `createPlayback` (+`applyThrough` ·priv) | iface, iface, fn | `app/presentation/playback.ts:~10,18,31` | speech-paced cue application |
 | `PresentationView`, `PresentationState`, `PresentationAction`, `initialPresentation`, `presentationReducer` | type, iface, type, const, fn | `app/presentation/state.ts:~,~,~,~40,46` | stage reducer (manual view → follow off) |
-| **pending INSET** `ExplainSource`, `explainTarget`, `involvedElements`, `aspectTargetName` | type, fn, fn, fn | `app/presentation/explain.ts` | tap → her spoken passage about the component + cues for every involved element (body, house, sign, aspect lines); aspect-line target naming shared with `chat/context.ts` |
+| **present (CodeGraph)** `ExplainSource`, `explainTarget`, `involvedElements`, `aspectTargetName` | type, fn, fn, fn | `app/presentation/explain.ts:22,111,47,30` | tap → authored spoken passage and chart cues; shared aspect target names; existence is not observed rendering acceptance |
 | `openingReading`, `inHouse` ·priv, `ordinal` ·priv | fn | `app/presentation/opening.ts:10,22,~` | authored opening with cues |
 
 ### 16.6 Chat and inference
@@ -968,6 +1146,7 @@ contract.
 | --- | --- | --- |
 | `MarketingExperience`, module self-mount, `appEntry`, `boundedInset`, `GUEST_ROOM`, `EXAMPLE_CHART_INPUT`, `loadExampleChart` | comp, consts/fns ·priv | `marketing.tsx:65,38,47,48,55,250` |
 | `marketing.css` | css | landing styles |
+| `loadSoulState`, `extractSoulDevelopments`, `buildSoulPrompt` | fns in retained marketing port | `services/soul.ts:70,143,153` |
 | `AccountBillingDialog`, `CreditActions`, `CustomerValueExplanation`, `Astrolabe3D` (port copy) | comps | `components/*:40,14,3,~` |
 | `ephemeris.ts` (mirror of atelier-original), `transits.ts` (`calculateCurrentSkySnapshot`, `currentObservationContext`, `buildCurrentSkyContext`), `presentation.ts` (reducer: `initialPresentation`, `validatePresentationAction`, `validatePresentationCues`, `presentationActionsAt`, `presentationFocusAt`, `presentationViewAt`, `reducePresentation`, `withReadingCamera`), `chartTargets.ts` (`chartTargets`, `chartFocusKey`, `chartFocusKeyMatches`, `resolveChartTarget`, `chartTargetLabel`, `isDatedSkyTarget`, `chartReferenceNames`), `soul.ts` (`SoulEntry`, `SoulState`, `normalizeLoreText`, `remember`, `rememberCharacterDevelopment`, `rememberUserDisclosure`, seeds), `authoredChartExplanations.ts` (`getAuthoredChartExplanation`, `getAuthoredUpsellClose`, `AuthoredExplanation`), `authoredEducationSession.ts` (`AuthoredEducationSession`, `createAuthoredEducationSession`), `authoredNudges.ts` (`AUTHORED_STORY_PREFIX`, `readNudgeSettings`, `nextAuthoredNudge`, `AuthoredNudge`), `checkoutCatalog.ts` (`CheckoutCadence`, `CheckoutTier`, `CheckoutPackBinding`, `CheckoutCatalogEntry`, catalog loaders), `revenueCatCheckout.ts` (`getCheckoutOffers`, `getCheckoutCustomer`, `restoreCheckoutCustomer`, `CheckoutCustomer`), `nativeRevenueCat.ts`, `billingAccess.ts` (`BillingAccess`, `reconcileBillingAccess`), `billingApi.ts` (`billingRequest`, `connectBillingResult`, `BillingResult`, `loadInferenceKeySource`), `inferenceAccess.ts` (`InferenceKeySource`, `loadInferenceKey`, `loadInferenceKeySource`, `installInferenceKey`, `removeInferenceKey`), `natallyHistory.ts` (`requiresFreshOnboarding`, `completeFreshOnboarding`, `eraseWholeNatallyHistory`), `historyLifecycle.ts` (`isNatallyHistoryErasing`, `announceHistoryErasure`, `finishHistoryErasure`), `accountStorage.ts` (`accountStorageKey`, `loadAccountValue`, `saveAccountValue`), `readingAudio.ts` (`loadReadingAudio`, `saveReadingAudio`, `clearAccountReadingAudio`, `ReadingAudioRecord`), `openingReading.ts` (`OpeningStage`, `openingPrompt`, `LEGACY_OPENING_PROMPT`, `isLegacyOpeningPrompt`), `onboarding.ts` (`loadNatalIntake`, `fetchUserIntake`), `firebase.ts` (`auth`, `db`, `googleProvider`, `testConnection`, re-exports), `gazetteer.ts`+json, `voiceService`/`supertonic*`/`voiceMeasurements`/`atelier*` mirrors, `purchaseIntent.ts` (`PurchaseKind`), `soul-adjacent seeds` | modules | `services/*` |
 | `firebase-applet-config.json` (root + `src/`) | asset | the port's Firebase identity |
