@@ -1469,7 +1469,10 @@ the exact behavior requested; the following checklist is its 1:1 translation.
    complete. Retain the complete answer snapshot; a complete snapshot with a
    missing/unreadable chart can reconstruct it without re-asking questions.
    Storage failure is visible: in-memory use continues, but the UI never claims
-   durability that failed. Preserve the submitted recovery snapshot on chart
+   durability that failed. If saving the complete answer snapshot fails after
+   the chart handoff, FirstLight forwards that exact error through
+   `OnboardingProps.onStorageError`; App retains the warning on the reading
+   stage, guarded by the originating UID. Preserve the submitted recovery snapshot on chart
    write failure. Do not read or attribute the old unowned session key
    `natally.firstlight.draft.v1` to an arbitrary signed-in account; leave it
    untouched. This patch does not introduce cloud sync or cross-origin storage.
@@ -1485,7 +1488,9 @@ the exact behavior requested; the following checklist is its 1:1 translation.
    explicitly re-enters that draft. Resuming does not reset its answers.
    No route, key press, mount effect, missing optional answer, or history event
    is authorization for fresh redo. A successful replacement updates the chart
-   and closes redo; an unsuccessful one preserves the prior chart.
+   and closes redo; an unsuccessful one preserves the prior chart. In particular, a failed redo
+   chart-storage write leaves redo open with its previous chart retained; the
+   intake displays the failure and `Return to my chart` remains available.
 6. Identity and chart ownership travel together. Remove the separate effect
    which writes whichever in-memory chart exists under whichever auth object
    just arrived. The shell keeps a UID-tagged chart snapshot, loads it together
@@ -1522,7 +1527,7 @@ remain private implementation details of their named owning entity.
 | `saveOnboardingProgress` | same module; `(progress:OnboardingProgress,storage:Storage = localStorage):string\|null` | synchronous write; return truthful error on failure, null on success |
 | `intakeDraftFromProgress` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):IntakeDraft\|null` | exact validated submission mapping; preserves explicit optional choices |
 | `completeOnboardingProgress` | same module; `(progress:OnboardingProgress,storage:Storage = localStorage):string\|null` | save complete status only after chart write success, retaining every answer |
-| `OnboardingProps` | `app/onboarding/FirstLight.tsx:60`; `{accountUid:string,initialProgress:OnboardingProgress\|null,storageError:string\|null,onSitDown:(chart:NatalChart)=>boolean,onCancel?:()=>void}` | keyed by UID + explicit redo entry; true handoff result means chart persisted; false retains submitted snapshot |
+| `OnboardingProps` | `app/onboarding/FirstLight.tsx:60`; `{accountUid:string,initialProgress:OnboardingProgress\|null,storageError:string\|null,onSitDown:(chart:NatalChart)=>boolean,onCancel?:()=>void,onStorageError?:(message:string)=>void}` | keyed by UID + explicit redo entry; true handoff result means chart persisted; false retains submitted snapshot |
 | questionnaire `FirstLightProps.initialProgress`, `.onProgress` | `onboarding-original/FirstLight.tsx:13`; optional `OnboardingProgress`, optional `(progress:OnboardingProgress)=>void` | hydrate once, synchronously report edits/accepted sections/submission; wrapper owns persistence |
 | `AccountPanel.onRedoOnboarding`, `.onResumeOnboarding`, `.canRedoOnboarding` | `app/AppShell.tsx:195`; `()=>void`, optional `()=>void`, boolean | show redo only with an existing chart; offer saved redo resume; second confirmation required before reset |
 | existing `App`, `AuthState`, `loadStoredChart`, `CHART_STORE_PREFIX` | `app/AppShell.tsx:380,86,368,260` | UID-tagged chart restore and guarded synchronous commit; component-local state for chart readiness, redo, warning and ownership |
