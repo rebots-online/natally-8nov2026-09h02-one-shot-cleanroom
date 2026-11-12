@@ -683,8 +683,14 @@ journey verified until performed. No full build/deploy until root releases.
 
 ## BUILD-SUCCESS-MINOR — additional success increment, operator 2026-11-12
 
-Status: [ ] implementation; [ ] delegated behavioral verification; real build
-and observation protocol reported separately. Contract: ARCHITECTURE §22, frozen
+Status: [X] implementation f1b1dab; ✅ delegated behavioral verification
+2026-11-12T20:01:59Z; real build and observation protocol reported separately.
+`bash -n build_all.sh` exited0. Actual-tail isolated fixture: success exited0,
+MINOR31→32, BUILD769 from UTC epoch-day%10000, builtAt null, extra JSON field
+preserved, JSON/text agreed, and real Git commit matched the local bare remote.
+Native-failure fixture exited37 without writes or an extra commit. Prefix before
+the final native call was byte-identical to f1b1dab parent. Full evidence:
+DOCS/DEMONSTRATIONS/build-all-success-version-2026-11-12/shell-regression.json. Contract: ARCHITECTURE §22, frozen
 e95ee3a; prior rubric afff5ff; Admin-Manual CC2 v1.1 published55d6662 and stored
 exactly in KStore revision1, UUID01a1d157-313d-8001-bde1-f8fbf6fd9d88.
 

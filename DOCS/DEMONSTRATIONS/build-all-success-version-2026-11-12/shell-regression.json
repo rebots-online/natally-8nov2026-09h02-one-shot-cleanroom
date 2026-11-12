@@ -1,0 +1,31 @@
+{
+  "recordedAt": "2026-11-12T20:01:59.383575+00:00",
+  "sourceCommit": "f1b1dab",
+  "syntax": "bash -n build_all.sh exited 0",
+  "prefixByteIdentical": true,
+  "fixtureDirectory": "build/build-success-minor-fixture-20261112T200158Z",
+  "results": [
+    {
+      "case": "success",
+      "exit": 0,
+      "canonicalVersion": "1.32.769",
+      "builtAt": null,
+      "head": "3ef0b773f77367cb07c1cf48e5822ab07f4a66de",
+      "remoteHead": "3ef0b773f77367cb07c1cf48e5822ab07f4a66de",
+      "stdout": "Built version: v1.31.768\nNext source version: v1.32.769\n",
+      "stderr": "To /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/build-success-minor-fixture-20261112T200158Z/success-remote.git\n   6f7c0f1..3ef0b77  HEAD -> master\n",
+      "accepted": true
+    },
+    {
+      "case": "native-failure",
+      "exit": 37,
+      "canonicalVersion": "1.31.768",
+      "builtAt": "2026-11-11T12:05:21.865Z",
+      "head": "455bf56854bad177e6588ad4bf72dc337fad9f25",
+      "remoteHead": "455bf56854bad177e6588ad4bf72dc337fad9f25",
+      "stdout": "",
+      "stderr": "",
+      "accepted": true
+    }
+  ]
+}
