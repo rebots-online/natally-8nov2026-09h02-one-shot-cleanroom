@@ -1,0 +1,5 @@
+{
+  "status": "ERROR",
+  "transport_exit_code": 143,
+  "detail": "Review process terminated before a result was written; not a PASS. Exact request retained."
+}
