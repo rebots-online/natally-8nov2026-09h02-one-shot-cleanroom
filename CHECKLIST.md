@@ -882,7 +882,7 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
 
 ## ONBOARDING-RESUME — frozen architecture §23, operator 2026-11-12
 
-- [ ] **ONBOARDING-RESUME** — account-owned recovery and intentional profile redo.
+- [X] **ONBOARDING-RESUME** — account-owned recovery and intentional profile redo.
   **Owner:** one bounded coder; orchestration never edits product source or runs verification.
   **Worktree:** `/home/robin/github/natally-onboarding-resume`.
   **Branch:** `codex/onboarding-resume`; base `a47c807`; architectural commit `4c65361`.
@@ -935,6 +935,15 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
   positions. The parent integrator commits and immediately pushes each completed
   logical change; do not race Git mutations. Report any required architectural
   correction before making an uncommitted alternative. No invented source APIs.
+
+**Coder implementation checkpoint — 2026-11-12:** four product files and the
+actual-module Node regression harness are written and reread. Observed
+`node --test scripts/onboarding-resume.test.mjs`: tests16, pass16, fail0,
+cancelled0, skipped0; exit0. Observed `./node_modules/.bin/tsc --noEmit`:
+no diagnostics, exit0. Includes denied storage-property access, both save-failure
+paths, chart ownership/ordering, cancellation, legacy completion, independent
+section recovery and actual questionnaire callback behavior. Browser recording
+and independent review remain pending; this marker does not claim rubric acceptance.
 
 ### ONBOARDING-RESUME — exact frozen contract (1:1 copy of §23)
 
