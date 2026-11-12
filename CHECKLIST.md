@@ -938,12 +938,15 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
 
 **Coder implementation checkpoint — 2026-11-12:** four product files and the
 actual-module Node regression harness are written and reread. Observed
-`node --test scripts/onboarding-resume.test.mjs`: tests16, pass16, fail0,
+`node --test scripts/onboarding-resume.test.mjs`: tests17, pass17, fail0,
 cancelled0, skipped0; exit0. Observed `./node_modules/.bin/tsc --noEmit`:
 no diagnostics, exit0. Includes denied storage-property access, both save-failure
 paths, chart ownership/ordering, cancellation, legacy completion, independent
 section recovery and actual questionnaire callback behavior. Browser recording
 and independent review remain pending; this marker does not claim rubric acceptance.
+The strengthened real-control recording exposed masked-date text (`1990/06/15`);
+its snapshot remains verbatim while `intakeDraftFromProgress` now submits the
+validated ISO date (`1990-06-15`). The added regression and native tsc both passed.
 
 ### ONBOARDING-RESUME — exact frozen contract (1:1 copy of §23)
 

@@ -107,6 +107,12 @@ test('completion retains exact answer/consent snapshot', () => {
  assert.equal(loaded.status, 'complete'); assert.deepEqual(plain(loaded.answers), progress.answers);
  assert.equal(loaded.unknownTime, true); assert.equal(loaded.skipLocation, true);
 });
+test('masked date text is retained while submission uses the validated ISO date', () => {
+ const progress = fullProgress(); progress.answers.date = '1990/06/15';
+ assert.equal(service.firstMissingOnboardingStep(progress, gazetteer), 5);
+ assert.equal(service.intakeDraftFromProgress(progress, gazetteer).date, '1990-06-15');
+ assert.equal(progress.answers.date, '1990/06/15');
+});
 test('duplicate place labels and invalid device coordinates are validated', () => {
  const duplicate = [...gazetteer, { ...gazetteer[0], id: 'duplicate', tzid: 'America/Vancouver' }];
  const progress = fullProgress();

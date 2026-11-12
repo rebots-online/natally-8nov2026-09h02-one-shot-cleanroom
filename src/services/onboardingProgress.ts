@@ -123,6 +123,9 @@ export function saveOnboardingProgress(progress: OnboardingProgress, storage?: S
 
 export function intakeDraftFromProgress(progress: OnboardingProgress, gazetteer: readonly GazetteerEntry[]): IntakeDraft | null {
  if (firstMissingOnboardingStep(progress, gazetteer) !== ONBOARDING_STEPS.length) return null;
+ const maxDate = new Date(); maxDate.setFullYear(maxDate.getFullYear() + 1);
+ const date = validateBirthDate(progress.answers.date, maxDate.toISOString().slice(0, 10)).isoDate;
+ if (!date) return null;
  const normalize = (value: string) => value.trim().normalize('NFC').toLocaleLowerCase('en');
  const counts = new Map<string, number>();
  for (const entry of gazetteer) {
@@ -137,7 +140,7 @@ export function intakeDraftFromProgress(progress: OnboardingProgress, gazetteer:
  if (!place) return null;
  const current = findPlace(progress.answers.currentPlace);
  return {
-  name: progress.answers.name.trim(), date: progress.answers.date,
+  name: progress.answers.name.trim(), date,
   time: progress.unknownTime ? null : progress.answers.time, unknownTime: progress.unknownTime,
   placeId: place.id, readingStyle: 'plain',
   currentLocation: progress.skipLocation ? undefined : progress.deviceLocation ?? (current ? {
