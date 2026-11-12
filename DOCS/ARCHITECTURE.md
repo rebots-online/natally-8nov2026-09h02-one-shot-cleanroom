@@ -1185,3 +1185,58 @@ v1.30.768 as the honestly incomplete earlier attempt. Root dist bytes remain
 local while the operator's no-Forgejo-contact restriction is active and no
 permitted large-file backing store is configured; commit/push their exact
 inventory/log/evidence records, not oversized raw binary blobs.
+
+## 22. Additional MINOR advance after build_all success — FROZEN 2026-11-12
+
+Operator authority: the current explicit instruction adds only a success
+increment to `build_all.sh`. Preserve all existing increments in all scripts;
+duplicate increments and skipped values are intentional and acceptable. Adopt
+Admin-Manual CC2 v1.1 (55d6662); KStore literal document
+DOCS/CICD_CONVENTIONS/minor-as-experimental-discriminant.md revision1,
+UUID01a1d157-313d-8001-bde1-f8fbf6fd9d88, independently verified exact readback.
+Rubric was committed first: RUBRIC-build-all-success-version-2026-11-12.md.
+
+The existing pre-build stamp continues unchanged, including its UTC epoch-day
+`% 10000` calculation. Replace only the final `exec node
+scripts/build-native.mjs` with a normal child invocation so a successful return
+can reach the new inline Node increment. `set -euo pipefail` excludes every
+failed earlier stage. No counter deduplication, numbering redesign, native
+helper modification, or layout fix is part of this amendment.
+
+| Exact entity | Target | Role, signature/fields and engaged-by |
+| --- | --- | --- |
+| final native child invocation | build_all.sh:43 | `node scripts/build-native.mjs`; zero returns to the shell, nonzero exits; BUILD-SUCCESS-MINOR |
+| post-success inline stamp | build_all.sh:44 | inline `node -e` executed only after full success; BUILD-SUCCESS-MINOR |
+| `fs` | build_all.sh post-success inline stamp | `require('fs')`; existing Node filesystem API; BUILD-SUCCESS-MINOR |
+| `v` | build_all.sh post-success inline stamp | parsed canonical JSON preserving extra fields, `{version:string,builtAt:string|null}`; catch JSON/read errors and fail; BUILD-SUCCESS-MINOR |
+| `completedVersion` | build_all.sh post-success inline stamp | original `v.version`, retained for the completion message only; BUILD-SUCCESS-MINOR |
+| `maj`, `min` | build_all.sh post-success inline stamp | parsed numeric first/second version slots; validate integers, maj>=1 and min>=0; retain maj, increment min by1; BUILD-SUCCESS-MINOR |
+| `build` | build_all.sh post-success inline stamp | `Math.floor(Date.now() / 86400000) % 10000`; always calculated, no input override; BUILD-SUCCESS-MINOR |
+| `version.json`, `version.txt` | existing root canonical file and mirror | write next version `maj.(min+1).build` to both; `v.builtAt=null` denotes unbuilt next source state; BUILD-SUCCESS-MINOR |
+| success increment publication | build_all.sh after inline stamp | `git add version.json version.txt`; meaningful `git commit`; `git push origin HEAD`; no swallowed failure; BUILD-SUCCESS-MINOR |
+| success increment observation output | build_all.sh post-success inline stamp | print completed build version and next source version distinctly; BUILD-SUCCESS-MINOR |
+
+The completed web/native artifacts and current versioned inventory keep the
+pre-build stamp. The new source stamp does not relabel any artifact or rerun
+native preparation. Existing preparation will project the subsequent automatic
+pre-build stamp on the next invocation. This preserves every existing numbering
+mechanism outside the one additional success action.
+
+CodeGraph was initialized and verified (156files, SQLite quick_check=ok), but
+two named build_all.sh queries returned unrelated TypeScript, not shell source.
+A single targeted build_all.sh read closed this demonstrated parser gap.
+
+Ranked judgment: (1) exact operator scope, (2) reliable advancement and truthful
+artifact attribution, (3) least change. Adding only the success tail meets all
+three now, for subsequent builds, and for future maintenance. Consolidating
+other counters violates (1) at every horizon and is rejected. Existing dirty
+dispatch/evidence records are preserved. The current explicit instruction to
+trigger the canonical build supersedes the older hold for unrelated UI defects;
+none of those defects becomes accepted through this build.
+
+Verification is delegated to the coder: shell syntax and an isolated behavioral
+run of the actual tail for success and failure; then invoke only ./build_all.sh
+on asrock, preserve its log, and observe actual stamp and published badge.
+Terminal/browser recording belongs to the rubric's observation protocol, not
+an idempotent checklist acceptance clause. No completed-build claim before
+the real full matrix and the success stamp/commit/push finish.
