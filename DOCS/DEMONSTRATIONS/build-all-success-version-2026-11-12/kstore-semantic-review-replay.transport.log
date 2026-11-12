@@ -1,0 +1,2 @@
+Replaying unchanged corrective /audit request; previous timeout retained
+{"status": "REDO", "coverage": {"event_count": 552, "event_sha256": "3ff571e4e1997efd00220cf390406cb6c8c458dc790e58586bcdb9798885249d", "last_sequence": 551, "policy_sha256": "7542d432287976b950ae5e65471b6dea217394bfe620a2ebf84165fad4fc2207", "first_sequence": 0, "windows_reused": 0, "windows_expected": 6, "windows_reviewed": 6, "user_context_sha256": "e25b27a464bde4f415d0e369ed0c8c5a6d9d63371ff780ecfaeb83309a2d8866"}}
