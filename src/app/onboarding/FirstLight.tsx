@@ -18,13 +18,13 @@ import { loadGazetteer } from '../../services/gazetteer';
 import type { IntakeDraft } from '../../services/onboarding';
 import { getPreloadedVoice } from '../../services/supertonicTts';
 import OriginalFirstLight from '../../onboarding-original/FirstLight';
-import { completeOnboardingProgress, createOnboardingProgress, intakeDraftFromProgress, saveOnboardingProgress, type OnboardingProgress } from '../../services/onboardingProgress';
+import { completeOnboardingProgress, createOnboardingProgress, firstMissingOnboardingStep, intakeDraftFromProgress, ONBOARDING_STEPS, saveOnboardingProgress, type OnboardingProgress } from '../../services/onboardingProgress';
 import './onboarding.css';
 
 const GREETING =
  "Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table for you, and the candles are behaving.";
 
-type Phase = 'welcome' | 'intake' | 'casting';
+type Phase = 'welcome' | 'intake' | 'casting' | 'retry';
 
 export interface OnboardingProps {
  accountUid: string;
@@ -37,7 +37,8 @@ export interface OnboardingProps {
 
 export default function FirstLight({ accountUid, initialProgress, storageError, onSitDown, onCancel, onStorageError }: OnboardingProps) {
  const progress = useRef(initialProgress ?? createOnboardingProgress(accountUid));
- const [phase, setPhase] = useState<Phase>(initialProgress ? 'intake' : 'welcome');
+ const needsQuestions = firstMissingOnboardingStep(progress.current, loadGazetteer()) < ONBOARDING_STEPS.length;
+ const [phase, setPhase] = useState<Phase>(needsQuestions ? initialProgress ? 'intake' : 'welcome' : 'casting');
  const [saveError, setSaveError] = useState<string | null>(storageError);
  const alive = useRef(false);
  const attempt = useRef(0);
@@ -50,8 +51,7 @@ export default function FirstLight({ accountUid, initialProgress, storageError, 
  });
  // True only while a real computation is in flight. A bfcache/back
  // restore can resurrect a 'casting' phase whose promise died with the
- // page — that stale state must fall back to the intake (whose answers
- // the restore also preserved), never wedge.
+ // page — that stale state offers a chart retry using the completed answers.
  const castInFlight = useRef(false);
 
  // The line Natally should be speaking right now; updated as phases change
@@ -95,11 +95,10 @@ export default function FirstLight({ accountUid, initialProgress, storageError, 
 
  // Back/forward recovery: a bfcache restore can resurrect a 'casting'
  // phase whose computation died with the previous page. Any 'casting'
- // state without a live computation falls back to the intake — answers
- // survive the restore, so the customer resumes exactly where they were.
+ // state without a live computation offers Retry without mounting questions.
  useEffect(() => {
   const recover = () => {
-   if (!castInFlight.current) setPhase(current => (current === 'casting' ? 'intake' : current));
+   if (!castInFlight.current) setPhase(current => (current === 'casting' ? 'retry' : current));
   };
   window.addEventListener('pageshow', recover);
   document.addEventListener('visibilitychange', recover);
@@ -142,24 +141,25 @@ export default function FirstLight({ accountUid, initialProgress, storageError, 
     if (failure) { setSaveError(failure); onStorageError?.(failure); }
    } else {
     setError('Your replacement chart could not be saved. Your existing chart and submitted answers have been kept. You can retry or return to your chart.');
-    setPhase('intake');
+    setPhase('retry');
    }
    voice.stop();
   } catch (failure) {
    if (!alive.current || generation !== attempt.current) return;
    setError(failure instanceof Error ? failure.message : 'Casting failed — please check your answers and try again.');
-   setPhase('intake');
+   setPhase('retry');
   } finally {
    if (generation === attempt.current) castInFlight.current = false;
   }
  };
 
- // A complete submitted snapshot resumes calculation, never its questions.
+ // All five accepted flags resume calculation, including the interruption
+ // between saving the final flag and changing the computation status.
  // Cleanup invalidates late promises, including React's development replay.
  useEffect(() => {
   alive.current = true;
   const draft = intakeDraftFromProgress(progress.current, loadGazetteer());
-  if (draft && progress.current.status !== 'draft') void onCreate(draft);
+  if (draft) void onCreate(draft);
   return () => {
    alive.current = false;
    attempt.current += 1;
@@ -216,9 +216,8 @@ export default function FirstLight({ accountUid, initialProgress, storageError, 
      <button type="button" className="btn ghost small" onClick={leave}>Return to my chart</button>
     </div>
    )}
-   {/* Preserve answers for an error retry without covering the reveal
-          with the completed full-screen intake. */}
-   <div hidden={phase !== 'intake'}>
+   {/* Decide from all five flags before mounting any questionnaire. */}
+   {needsQuestions && <div hidden={phase !== 'intake'}>
     <OriginalFirstLight
      gazetteer={loadGazetteer()}
      busy={phase === 'casting'}
@@ -227,7 +226,20 @@ export default function FirstLight({ accountUid, initialProgress, storageError, 
      onProgress={reportProgress}
      onCreate={onCreate}
     />
-   </div>
+   </div>}
+   {phase === 'retry' && (
+    <section className="onboarding" role="alert">
+     <div className="onboarding-card">
+      <h2>Your completed answers are ready.</h2>
+      <p>{error ?? 'Chart preparation was interrupted. Retry using your completed answers.'}</p>
+      {saveError && <p className="note error">{saveError}</p>}
+      <button type="button" className="btn primary" onClick={() => {
+       const draft = intakeDraftFromProgress(progress.current, loadGazetteer());
+       if (draft) void onCreate(draft);
+      }}>Retry chart</button>
+     </div>
+    </section>
+   )}
    {phase === 'casting' && (
     <section className="onboarding casting" role="status" aria-live="polite">
      <div className="onboarding-card casting-card">

@@ -18,7 +18,7 @@ export interface OnboardingProgress {
  unknownTime: boolean;
  deviceLocation: CurrentLocation | null;
  skipLocation: boolean;
- completed: OnboardingStep[];
+ completed: Record<OnboardingStep, boolean>;
 }
 export interface OnboardingLoadResult {
  progress: OnboardingProgress | null;
@@ -30,7 +30,8 @@ export function createOnboardingProgress(accountUid: string, mode: 'initial' | '
  return {
   version: 1, accountUid, mode, status: 'draft',
   answers: { name: '', date: '', place: '', time: '', currentPlace: '' },
-  unknownTime: false, deviceLocation: null, skipLocation: false, completed: [],
+  unknownTime: false, deviceLocation: null, skipLocation: false,
+  completed: { name: false, date: false, place: false, time: false, currentPlace: false },
  };
 }
 
@@ -84,14 +85,17 @@ export function normalizeOnboardingProgress(value: unknown, accountUid: string, 
    name: location.name, latitude: location.latitude, longitude: location.longitude, timeZone: location.timeZone,
   };
  }
- result.completed = ONBOARDING_STEPS.filter(step => Array.isArray(raw.completed) && raw.completed.includes(step) && onboardingSectionValid(result, step, gazetteer));
- if (result.completed.length === ONBOARDING_STEPS.length && (raw.status === 'submitted' || raw.status === 'complete')) result.status = raw.status;
+ const completed = typeof raw.completed === 'object' && raw.completed !== null && !Array.isArray(raw.completed) ? raw.completed as Record<string, unknown> : {};
+ for (const step of ONBOARDING_STEPS) result.completed[step] = completed[step] === true && onboardingSectionValid(result, step, gazetteer);
+ if (firstMissingOnboardingStep(result, gazetteer) === ONBOARDING_STEPS.length && (raw.status === 'submitted' || raw.status === 'complete')) result.status = raw.status;
  return result;
 }
 
 export function firstMissingOnboardingStep(progress: OnboardingProgress, gazetteer: readonly GazetteerEntry[]): number {
- const index = ONBOARDING_STEPS.findIndex(step => !progress.completed.includes(step) || !onboardingSectionValid(progress, step, gazetteer));
- return index < 0 ? ONBOARDING_STEPS.length : index;
+ // Evaluate every flag before selecting the first missing section. The saved
+ // computation status never authorizes re-asking an already completed question.
+ const missing = ONBOARDING_STEPS.filter(step => progress.completed[step] !== true || !onboardingSectionValid(progress, step, gazetteer));
+ return missing.length === 0 ? ONBOARDING_STEPS.length : ONBOARDING_STEPS.indexOf(missing[0]);
 }
 
 export function loadOnboardingProgress(accountUid: string, gazetteer: readonly GazetteerEntry[], storage?: Storage): OnboardingLoadResult {

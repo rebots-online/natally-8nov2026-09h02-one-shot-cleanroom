@@ -55,7 +55,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate, initialProgress, 
   useEffect(scheduleSupertonicPreload, []);
   const id = useId();
   const progressRef = useRef(initialProgress);
-  const [step, setStep] = useState(() => initialProgress ? Math.min(firstMissingOnboardingStep(initialProgress, gazetteer), QUESTION_SEQUENCE.length - 1) : 0);
+  const [step, setStep] = useState(() => initialProgress ? firstMissingOnboardingStep(initialProgress, gazetteer) : 0);
   const [answers, setAnswers] = useState(initialProgress?.answers ?? { name: '', date: '', place: '', time: '', currentPlace: '' });
   const [deviceLocation, setDeviceLocation] = useState<CurrentLocation | null>(initialProgress?.deviceLocation ?? null);
   const [skipLocation, setSkipLocation] = useState(initialProgress?.skipLocation ?? false);
@@ -160,7 +160,10 @@ export function FirstLight({ gazetteer, busy, error, onCreate, initialProgress, 
     if (patch.deviceLocation !== undefined) setDeviceLocation(patch.deviceLocation);
     if (!currentProgress) return undefined;
     const next = { ...currentProgress, ...patch, status: 'draft' as const };
-    next.completed = next.completed.filter(kind => onboardingSectionValid(next, kind, gazetteer));
+    next.completed = { ...next.completed };
+    for (const question of QUESTION_SEQUENCE) {
+      if (!onboardingSectionValid(next, question.kind, gazetteer)) next.completed[question.kind] = false;
+    }
     progressRef.current = next;
     onProgress?.(next);
     return next;
@@ -177,7 +180,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate, initialProgress, 
       return;
     if (!event.currentTarget.checkValidity()) return;
     if (progressRef.current) {
-      const accepted = editProgress({ completed: Array.from(new Set([...progressRef.current.completed, current.kind])) })!;
+      const accepted = editProgress({ completed: { ...progressRef.current.completed, [current.kind]: true } })!;
       const next = firstMissingOnboardingStep(accepted, gazetteer);
       if (next < QUESTION_SEQUENCE.length) {
         advancing.current = true;
@@ -217,6 +220,8 @@ export function FirstLight({ gazetteer, busy, error, onCreate, initialProgress, 
       } : undefined),
     });
   };
+
+  if (step === QUESTION_SEQUENCE.length) return null;
 
   return (
     <section className="first-light" aria-label="First light">

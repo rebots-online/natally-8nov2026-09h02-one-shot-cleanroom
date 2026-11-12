@@ -1601,3 +1601,40 @@ checks the all-true branch before the questionnaire mount. Inspect the same gate
 interruption case by following its logic. Do not write or execute tests, browser
 checks, recordings, or verification suites. Previously generated test artifacts
 are preserved outside the PR and are not part of this contract.
+
+### Inspected setter and gate references — 2026-11-12
+
+Source inspection of the implemented mechanism (no tests or compiler execution):
+
+| Flag | True assignment | Restored value/validity | Pre-question check |
+| --- | --- | --- | --- |
+| `completed.name` | `src/onboarding-original/FirstLight.tsx:183`, current kind `name` | `src/services/onboardingProgress.ts:89`, name validity at `:62` | `src/services/onboardingProgress.ts:97` |
+| `completed.date` | same setter, current kind `date` | same restore, date validity at `:65` | same all-five check |
+| `completed.place` | same setter, current kind `place` | same restore, place validity at `:67` | same all-five check |
+| `completed.time` | same setter, current kind `time` | same restore, known/unknown validity at `:68` | same all-five check |
+| `completed.currentPlace` | same setter, current kind `currentPlace` | same restore, selected/skipped validity at `:69` | same all-five check |
+
+- All flags initialize false at `src/services/onboardingProgress.ts:34`.
+- The setter calls the progress callback at questionnaire `:168`; the wrapper
+  saves at `src/app/onboarding/FirstLight.tsx:114`; the service writes the full
+  UID-owned record at `src/services/onboardingProgress.ts:121`. This completes
+  before questionnaire `:184` selects the next missing step.
+- The wrapper calls the all-five check at `:40` and uses its result as the
+  conditional mount at `:220`. No missing flag means that component is absent.
+  Questionnaire `:58` selects its initial missing question; `:184` selects the
+  next missing question; `:224` is the defensive all-complete return.
+- All-true records, including draft status, reconstruct the chart at wrapper
+  `:161–162`. Failure/retry stays outside the questionnaire at `:230–241`.
+- `src/app/AppShell.tsx:1483` bypasses the wrapper for a valid existing chart.
+  The two writes setting redo true are `:1072` (confirmed profile redo) and
+  `:1081` (explicit profile resume). The profile actions are `:256` and `:261`.
+  Auth, history and restore paths do not set redo true. Questionnaire Back at
+  `:511–514` changes the review cursor only; it never resets completion flags.
+
+The logical argument is finite and independent of example journeys: the filter
+reads the same five named booleans on every entry, all true produces no missing
+step, and every other combination can select only a flag that is false or whose
+stored answer is invalid. Acceptance sets that flag and saves before consulting
+the same filter again. A final flag followed by an interrupted status write
+still takes the all-true branch. Persistence requires successful browser storage;
+a failed write is reported and cannot be represented as a durable completion.
