@@ -886,13 +886,17 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
   **Owner:** one bounded coder; orchestration never edits product source or runs verification.
   **Worktree:** `/home/robin/github/natally-onboarding-resume`.
   **Branch:** `codex/onboarding-resume`; base `a47c807`; architectural commit `4c65361`.
+  **Current operator correction:** five explicit per-step boolean flags and the
+  pre-questionnaire gate are the acceptance mechanism. Browser testing/recording
+  is cancelled; no further browser work. Preserve existing untracked artifacts
+  locally and exclude them from this PR.
   **Files you may edit (exhaustive):**
   `src/services/onboardingProgress.ts` (new),
   `src/app/onboarding/FirstLight.tsx`,
   `src/onboarding-original/FirstLight.tsx`,
   `src/app/AppShell.tsx`,
   `scripts/onboarding-resume.test.mjs` (new),
-  `scripts/onboarding-resume-browser.mjs` (new),
+  `scripts/onboarding-resume-browser.mjs` (cancelled; preserve untracked, do not edit),
   this task's marker/report only in `CHECKLIST.md`, and recorded evidence only in
   `DOCS/DEMONSTRATIONS/onboarding-resume-2026-11-12/`.
   **Read-only supporting inputs:** `package.json`, `package-lock.json`,
@@ -917,7 +921,7 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
   independently recoverable fields, accepted-section selection, partial typing,
   unknown time, skipped/device location, fresh-tab/reload persistence,
   chart-before-complete ordering, same-UID refresh, account switch, late result,
-  cancellation and explicit redo. Browser protocol is recorded separately below.
+  cancellation and explicit redo. No browser protocol is required; the historical protocol below is cancelled.
   If dependencies are absent, reuse the original checkout's installed
   `node_modules` through a worktree-local symlink; never mutate shared dependencies.
   Use the local Vite development server on loopback port 43879 for browser
@@ -927,8 +931,8 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
 
   **Accept:** both deterministic commands exit 0 and their behavioral assertions
   match the contracts. `[X]` denotes implementation with the exact observed test
-  output recorded here; behavioral acceptance requires the recorded rubric
-  protocol plus independent orchestrator review, never static inspection alone.
+  output recorded here; acceptance requires independent semantic tracing of the five flag setters
+  and checks, including the all-true branch before mounting the questionnaire.
 
   **Operational handback:** reread your edits; report exact files, test command,
   observed pass/fail output, artifact paths, unresolved concerns and screenshot
@@ -949,6 +953,7 @@ its snapshot remains verbatim while `intakeDraftFromProgress` now submits the
 validated ISO date (`1990-06-15`). The added regression and native tsc both passed.
 
 ### ONBOARDING-RESUME — exact frozen contract (1:1 copy of §23)
+
 
 Authority: Robin's current explicit request. Work is isolated in
 `codex/onboarding-resume`, worktree `/home/robin/github/natally-onboarding-resume`,
@@ -1040,12 +1045,12 @@ remain private implementation details of their named owning entity.
 | `ONBOARDING_PROGRESS_PREFIX` | `services/onboardingProgress.ts:1`; string `natally.onboarding.v2:` | key suffix is `encodeURIComponent(accountUid)`; no anonymous/shared record |
 | `ONBOARDING_STEPS`, `OnboardingStep` | same module; readonly ordered `['name','date','place','time','currentPlace']`; union of those names | mirrors existing `QUESTION_SEQUENCE`; integer indices only |
 | `OnboardingAnswers` | same module; `{name:string,date:string,place:string,time:string,currentPlace:string}` | existing questionnaire field values, including incomplete text |
-| `OnboardingProgress` | same module; `{version:1, accountUid:string, mode:'initial'\|'redo', status:'draft'\|'submitted'\|'complete', answers:OnboardingAnswers, unknownTime:boolean, deviceLocation:CurrentLocation\|null, skipLocation:boolean, completed:OnboardingStep[]}` | account-owned answer snapshot and explicitly accepted sections |
+| `OnboardingProgress` | same module; `{version:1, accountUid:string, mode:'initial'\|'redo', status:'draft'\|'submitted'\|'complete', answers:OnboardingAnswers, unknownTime:boolean, deviceLocation:CurrentLocation\|null, skipLocation:boolean, completed:Record<OnboardingStep,boolean>}` | account-owned answer snapshot and explicitly accepted sections |
 | `OnboardingLoadResult` | same module; `{progress:OnboardingProgress\|null,error:string\|null}` | recovery and persistence problems are visible |
-| `createOnboardingProgress` | same module; `(accountUid:string, mode:'initial'\|'redo' = 'initial'):OnboardingProgress` | empty answers/accepted array, draft status, false choices; rejects empty UID |
+| `createOnboardingProgress` | same module; `(accountUid:string, mode:'initial'\|'redo' = 'initial'):OnboardingProgress` | empty answers, all five completion flags false, draft status, false choices; rejects empty UID |
 | `onboardingSectionValid` | same module; `(progress:OnboardingProgress, step:OnboardingStep, gazetteer:readonly GazetteerEntry[]):boolean` | same name/date/place/time/location rules as the actual questionnaire, including duplicate place labels and finite coordinates/time zone |
-| `normalizeOnboardingProgress` | same module; `(value:unknown,accountUid:string,gazetteer:readonly GazetteerEntry[]):OnboardingProgress\|null` | validate owner/version; recover independent typed fields; keep only valid accepted sections; submitted/complete require all accepted sections |
-| `firstMissingOnboardingStep` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):number` | first not-accepted/invalid step, or `ONBOARDING_STEPS.length` when all are done |
+| `normalizeOnboardingProgress` | same module; `(value:unknown,accountUid:string,gazetteer:readonly GazetteerEntry[]):OnboardingProgress\|null` | validate owner/version; recover independent typed fields; retain a true completion flag only for a valid accepted section; submitted/complete require all five true flags |
+| `firstMissingOnboardingStep` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):number` | check all five flags, then return the first false/invalid step, or `ONBOARDING_STEPS.length` when every flag is true and valid |
 | `loadOnboardingProgress` | same module; `(accountUid:string,gazetteer:readonly GazetteerEntry[],storage:Storage = localStorage):OnboardingLoadResult` | guarded JSON parse/read; preserve stored bytes on failure; no legacy draft adoption |
 | `saveOnboardingProgress` | same module; `(progress:OnboardingProgress,storage:Storage = localStorage):string\|null` | synchronous write; return truthful error on failure, null on success |
 | `intakeDraftFromProgress` | same module; `(progress:OnboardingProgress,gazetteer:readonly GazetteerEntry[]):IntakeDraft\|null` | exact validated submission mapping; preserves explicit optional choices |
@@ -1078,21 +1083,58 @@ tree. Targeted reads of only `AppShell.tsx` auth/return branches,
 specific coverage gaps. `PROJECT_INDEX.*` is absent. No other repository's
 source or original/abandoned Natally implementation was consulted.
 
-**Operator verification protocol:** execute and record ONB-R1–R9 from the
-preauthored rubric with the actual changed components. Inspect desktop and phone
-frames, including final controls and profile confirmation. Deterministic tests
-exercise progress validation, accepted-section navigation, unknown/skip choices,
-wrong UID/malformed storage, chart-before-completion ordering, cancellation and
-late account-switch results. Coder verification does not deploy or package.
-Only `build_all.sh` remains a release entry; it is not invoked for this PR.
-No live authentication or native-device acceptance is inferred from test
-substitutes. The orchestrator reviews source and the recorded frames; coders run
-the specified tests. Evidence and limitations accompany the PR.
+**Current acceptance — Robin's explicit correction, 2026-11-12:** browser
+recordings are cancelled as acceptance for this fix. The mechanism below, its
+setters and its gates are the proof to inspect. Existing browser artifacts are
+preserved locally as historical operational output, excluded from this PR, and
+make no correctness claim. Deterministic regressions support the source review;
+they do not replace the invariant argument. No deployment or packaging occurs.
 
+### Explicit per-step completion flags and entry invariant
 
-### ONBOARDING-RESUME — recorded observation protocol
+`OnboardingProgress.completed` is a persisted boolean record, not a numeric
+step cursor. Its five exact variables are:
 
-The following protocol is behavioral evidence, not an idempotent Accept clause.
+| Persisted variable | Only set true when | Checked before showing |
+| --- | --- | --- |
+| `completed.name` | valid name is accepted with Next | the name question |
+| `completed.date` | validated birth date is accepted with Next | the birth-date question |
+| `completed.place` | a gazetteer birthplace is accepted with Next | the birthplace question |
+| `completed.time` | valid time or explicit unknown-time choice is accepted with Next | the birth-time question |
+| `completed.currentPlace` | valid location or explicit Skip location is accepted with Begin | the current-location question |
+
+All five start false. The questionnaire's accepted-step handler sets exactly
+`completed[current.kind] = true` in an immutable copy and persists that snapshot
+before changing screens. Valid completed flags and other answers are retained.
+Editing an answer to an invalid value clears only that section's flag. Normal
+navigation never clears the record. Fresh flags are created only for a genuinely
+new account or the confirmed profile redo action.
+
+`firstMissingOnboardingStep` checks **every** variable above against true and
+validity, using `ONBOARDING_STEPS.filter`, then selects the first missing step in
+that same explicit order. This one function is called (1) by the wrapper before
+rendering any questionnaire, (2) by the questionnaire when selecting its initial
+question, and (3) by its accepted-step handler before selecting the next question.
+The wrapper does not mount `OriginalFirstLight` when this check reports no
+missing step. For such a complete record it restores/casts the chart directly;
+a computation/save error presents Retry and the error, without re-asking a
+completed question. This also holds if interruption occurred after the final
+flag write but before `status` changed: all five flags, not `status`, decide
+whether questions are needed. `status` records computation progress only.
+
+A valid existing chart still bypasses the wrapper in App. The only exception is
+an explicit profile redo/resume. Source review must trace every assignment of
+`redoRequested`: only confirmed profile redo and explicit profile resume set it
+true; history/auth/restore paths cannot do so. The final review maps each of the
+five variables to its accepted-step setter and to all three checks above, and
+checks the all-true branch before the questionnaire mount. A regression over all
+32 boolean combinations supports that finite gate, plus an all-true/draft-status
+interruption case. No browser test is required or performed for this acceptance.
+
+### ONBOARDING-RESUME — cancelled historical observation protocol
+
+Cancelled by Robin's current explicit instruction. The historical protocol below
+is retained for provenance and is not an acceptance condition or implementation task.
 The browser script automates the actual changed app/components with test-only
 identity/dependency interception where necessary; it never adds a product bypass,
 fake customer flow, mock payment, or authentication change. Label every substitute

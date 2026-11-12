@@ -1,5 +1,11 @@
 # Onboarding continuity observation rubric — 2026-11-12
 
+**CANCELLED as an acceptance gate by Robin, 2026-11-12.** Browser examples
+cannot guarantee non-repetition. Current authority is ARCHITECTURE.md §23
+explicit per-step boolean flags and its pre-questionnaire entry invariant.
+The original observation protocol below is historical; no more browser work.
+
+
 Authority: Robin's request to prevent accidental repeated onboarding, retain
 finished sections after interruptions, and allow redo only through the profile.
 Authored before the architecture amendment and implementation. Scope is the
