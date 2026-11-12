@@ -1,0 +1,16 @@
+{
+  url: 'https://astronatally.com/',
+  badges: [
+    {
+      text: 'v1.32.769',
+      rect: {
+        x: 688.609375,
+        y: 459.609375,
+        width: 81.390625,
+        height: 23.390625
+      }
+    }
+  ],
+  versionMeta: undefined,
+  title: 'Natally'
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "url": "https://astronatally.com/",
+    "width": 1280,
+    "height": 720,
+    "name": "landing-desktop",
+    "status": 200,
+    "badge": "v1.32.769",
+    "observedAt": "2026-11-12T20:05:10.810Z"
+  },
+  {
+    "url": "https://asknatally.online/",
+    "width": 390,
+    "height": 844,
+    "name": "webapp-phone",
+    "status": 200,
+    "badge": "v1.32.769",
+    "observedAt": "2026-11-12T20:05:15.015Z"
+  }
+]
