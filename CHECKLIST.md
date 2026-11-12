@@ -681,6 +681,70 @@ message, then normal system-browser Google/native return after web deployment;
 record separately from synthetic module/Rust tests. Do not label the Google
 journey verified until performed. No full build/deploy until root releases.
 
+## BUILD-SUCCESS-MINOR — additional success increment, operator 2026-11-12
+
+Status: [ ] implementation; [ ] delegated behavioral verification; real build
+and observation protocol reported separately. Contract: ARCHITECTURE §22, frozen
+e95ee3a; prior rubric afff5ff; Admin-Manual CC2 v1.1 published55d6662 and stored
+exactly in KStore revision1, UUID01a1d157-313d-8001-bde1-f8fbf6fd9d88.
+
+Ownership: executable edits ONLY `build_all.sh`; this task's status/evidence in
+CHECKLIST.md and DOCS/DEMONSTRATIONS/build-all-success-version-2026-11-12/;
+real pipeline log `build/build-all-success-version-2026-11-12.log`; existing
+automatic canonical projection files are owned only when the script generates
+them. You are not alone in the codebase: preserve all unrelated changes and
+untracked evidence. Do not read other source, modify helpers, consolidate other
+increments, manually choose a version, or fix unrelated defects.
+
+Do: Read `build_all.sh` (CodeGraph already tried twice and did not cover shell).
+Keep every line before its final native invocation unchanged. Change the final
+`exec node scripts/build-native.mjs` to `node scripts/build-native.mjs`. Append
+an inline `node -e` using the existing shell quoting idiom and exact entities:
+`fs=require('fs')`; `v` parsed from version.json with JSON/read errors caught
+and rethrown; `completedVersion=v.version`; `[maj,min]` from its slots, validate
+integer maj>=1,min>=0; `build=Math.floor(Date.now()/86400000)%10000`;
+`v.version=[maj,min+1,build].join('.')`; `v.builtAt=null`. Preserve other JSON
+fields, write formatted version.json with newline and version.txt with newline.
+Print `Built version: v` plus completedVersion and `Next source version: v`
+plus v.version as separate lines. Then `git add version.json version.txt`,
+`git commit -qm "Advance MINOR after successful canonical build"`, and
+`git push origin HEAD`, with no `|| true`. No call to native prepare at the end;
+artifact/projection files retain their built stamp until the next existing
+automatic pre-build stamp. `set -e` ensures the added tail never runs on failure.
+
+Re-read the edited region. Before coding, provide the required brief Insight
+explaining why final exec must return and why built/source versions differ;
+after coding, explain the extra increment preserves existing counters.
+
+Verify (coder runs; root does not): `bash -n build_all.sh`. In an isolated
+fixture under build/ (never /tmp), execute the ACTUAL final native call and
+added tail extracted from build_all.sh, under `set -euo pipefail`. Simulate
+only the native child return (0 or nonzero); execute the real inline Node and
+real git commit/push against a local fixture bare remote. Success must add
+exactly1 MINOR, compute current epoch-day%10000, write agreeing JSON/text with
+builtAt null, preserve extra JSON fields, and push the commit. Failure must
+preserve input files and return the child's nonzero status without the extra
+commit. Confirm the preexisting prefix is byte-identical to parent source.
+Accept: repeatable syntax/fixture assertions pass with these results and only
+build_all.sh contains executable edits. Record observed commands/results here.
+
+Publication: commit/push this one executable change immediately before the real
+build, with explicit owned paths. Parent grants this Git window; no other writer
+will commit concurrently. Verify pushed reachability. Mark implementation and
+verification truthfully in a separate immediately-pushed evidence commit.
+
+Operator observation protocol (not an Accept clause): after the above, execute
+ONLY `./build_all.sh` on the current host (already verified asrock), tee exact
+output to the named build log using pipefail. The current explicit instruction
+authorizes the build despite prior unrelated UI holds. Send root the actual
+`stamp:` value as soon as observed. Preserve running/failed/completed state;
+record a terminal screencast under the evidence directory where supported.
+Observe the deployed badge via browser after publication, recording it without
+claiming layout repairs. On full success observe the extra source stamp and
+its commit/push. Never run an inner build directly, alter helper numbering, or
+claim a running build is complete. Report actual failures without expanding
+scope. Root owns the timestamped DOCS change-table report and KStore review.
+
 ## PUBLISH-CURRENT — execute now, operator 2026-11-11
 
 Authority: latest explicit deploy instruction and ARCHITECTURE §20. The
