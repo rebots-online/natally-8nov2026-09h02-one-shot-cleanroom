@@ -1531,7 +1531,7 @@ remain private implementation details of their named owning entity.
 | questionnaire `FirstLightProps.initialProgress`, `.onProgress` | `onboarding-original/FirstLight.tsx:13`; optional `OnboardingProgress`, optional `(progress:OnboardingProgress)=>void` | hydrate once, synchronously report edits/accepted sections/submission; wrapper owns persistence |
 | `AccountPanel.onRedoOnboarding`, `.onResumeOnboarding`, `.canRedoOnboarding` | `app/AppShell.tsx:195`; `()=>void`, optional `()=>void`, boolean | show redo only with an existing chart; offer saved redo resume; second confirmation required before reset |
 | existing `App`, `AuthState`, `loadStoredChart`, `CHART_STORE_PREFIX` | `app/AppShell.tsx:380,86,368,260` | UID-tagged chart restore and guarded synchronous commit; component-local state for chart readiness, redo, warning and ownership |
-| `onboarding-resume.test.mjs` | `../scripts/onboarding-resume.test.mjs:1` | Node built-in tests load actual TS modules with installed TypeScript; test fixtures never enter shipped app |
+| `onboarding-resume.test.mjs` | `../scripts/onboarding-resume.test.mjs:1` | Node built-in tests load actual TS/TSX modules using the installed Rolldown compiler with in-memory output; test fixtures never enter shipped app and no application build is emitted |
 | `onboarding-resume-browser.mjs` | `../scripts/onboarding-resume-browser.mjs:1` | browser automation of actual components, test-only auth/voice/renderer substitutes; video/screenshots/results at the rubric's permanent destination |
 
 ### Scope, evidence and preparation judgment
