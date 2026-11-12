@@ -99,3 +99,34 @@ snapshot publication. All closed requests/results and both review verdicts are
 retained verbatim. Current publication evidence is being supplied for recheck;
 REDO is not reported as PASS. This review does not change or defer the user's
 already-implemented, published and regression-verified build_all addition.
+
+## Requested-task handover — observed 2026-11-12T20:24:37Z
+
+KStore's publication-correction re-review returned **PASS**, with no findings:
+all6 expected windows reviewed, events0..551 (552events). The exact request,
+returned result and transport record are retained as
+`kstore-semantic-review-publication-correction.{request.json,result.json,transport.log}`.
+Earlier ERROR/REDO/timeout evidence is preserved; none was promoted to PASS.
+
+The requested additional success increment is implemented and published. Only
+build_all.sh received executable changes. All existing counters and helper
+numbering mechanisms remain intact. The actual-tail success/failure regression
+checks passed, as recorded above; the full real native success tail is a future
+event until the pipeline finishes.
+
+The user's requested real canonical build was triggered on asrock and its
+actual automatically calculated **building version is v1.32.769, BUILD769**.
+Both named web domains published and visibly show that version. At the latest
+coder observation20:24:37Z the original build remains alive and unchanged in
+Linux RPM packaging, inventory linux.running, with no emitted error. No second
+invocation or manual version setting was performed. Full native completion and
+the real post-success source stamp have not yet been observed.
+
+The child-owned exec session is4513 (session handles are scoped to the agent).
+Observed live PIDs: recorder3996535, environment wrapper3996537, canonical
+Bash3997192, native coordinator4006399, Linux Tauri4008315. Read the existing
+`build/build-all-success-version-2026-11-12.log`,
+`dist/natally-v1.32.769/logs/linux.log`, and its inventory.json to resume
+observation; do not start a duplicate invocation. If this complete build
+succeeds on the same UTC day, the added tail calculates next source version
+v1.33.769, sets builtAt null, commits and pushes; artifacts retain v1.32.769.

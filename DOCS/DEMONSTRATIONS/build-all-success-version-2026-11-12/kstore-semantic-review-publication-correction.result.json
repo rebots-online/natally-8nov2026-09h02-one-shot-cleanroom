@@ -1,0 +1,26 @@
+{
+  "id": "4b8ee3f0-4569-4978-95c1-3e25b4aaa8ff",
+  "stream_id": "59e68bddccf3953438d56ec11aa5ec69765ca530ff192d03dd2f75da4ebd1a8e",
+  "status": "PASS",
+  "findings": [],
+  "coverage": {
+    "first_sequence": 0,
+    "last_sequence": 551,
+    "event_count": 552,
+    "policy_sha256": "7542d432287976b950ae5e65471b6dea217394bfe620a2ebf84165fad4fc2207",
+    "event_sha256": "3ff571e4e1997efd00220cf390406cb6c8c458dc790e58586bcdb9798885249d",
+    "windows_expected": 6,
+    "windows_reviewed": 6,
+    "windows_reused": 0,
+    "user_context_sha256": "e25b27a464bde4f415d0e369ed0c8c5a6d9d63371ff780ecfaeb83309a2d8866"
+  },
+  "model": "glm-5.3-flash",
+  "provider_attempts": 6,
+  "reviewed_at": "2026-11-12T20:21:07.181285+00:00",
+  "context_sha256": "fd6795fda570710cb03b7f40a2da607675dac4c4b1a1d14e52945f30e32e8486",
+  "reasoning_effort": "low",
+  "window_findings": [],
+  "resolutions": [],
+  "resolution_attempts": 0,
+  "resolutions_reused": 0
+}
