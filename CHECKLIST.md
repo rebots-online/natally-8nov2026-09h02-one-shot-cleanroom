@@ -880,86 +880,46 @@ v2 signer matching the configured production certificate. Exact observations
 are committed at7490239 under dist/natally-v1.31.768/verification/.
 
 
-## ONBOARDING-RESUME — frozen architecture §23, operator 2026-11-12
+## ONBOARDING-RESUME — explicit flags, current operator contract 2026-11-12
 
-- [X] **ONBOARDING-RESUME** — account-owned recovery and intentional profile redo.
-  **Owner:** one bounded coder; orchestration never edits product source or runs verification.
+- [/] **ONBOARDING-RESUME** — implement only the five-flag mechanism below.
+  **Authority:** Robin explicitly prohibits all tests, including the earlier
+  Node suite and browser recordings. Do not write/run tests, browser automation,
+  compiler verification or other verification commands. Earlier pass counts are
+  withdrawn as acceptance. Existing generated artifacts stay outside this PR.
   **Worktree:** `/home/robin/github/natally-onboarding-resume`.
-  **Branch:** `codex/onboarding-resume`; base `a47c807`; architectural commit `4c65361`.
-  **Current operator correction:** five explicit per-step boolean flags and the
-  pre-questionnaire gate are the acceptance mechanism. Browser testing/recording
-  is cancelled; no further browser work. Preserve existing untracked artifacts
-  locally and exclude them from this PR.
-  **Files you may edit (exhaustive):**
-  `src/services/onboardingProgress.ts` (new),
+  **Branch:** `codex/onboarding-resume`.
+  **Owned source files:** `src/services/onboardingProgress.ts`,
   `src/app/onboarding/FirstLight.tsx`,
-  `src/onboarding-original/FirstLight.tsx`,
-  `src/app/AppShell.tsx`,
-  `scripts/onboarding-resume.test.mjs` (new),
-  `scripts/onboarding-resume-browser.mjs` (cancelled; preserve untracked, do not edit),
-  this task's marker/report only in `CHECKLIST.md`, and recorded evidence only in
-  `DOCS/DEMONSTRATIONS/onboarding-resume-2026-11-12/`.
-  **Read-only supporting inputs:** `package.json`, `package-lock.json`,
-  `tsconfig.json`, `vite.config.ts`, `src/shared/types.ts` (public NatalChart/BirthInput contracts for saved-chart validation), existing installed public dependency APIs.
-  Preserve existing imports and use their public types; do not survey neighboring
-  source, other repositories, original Natally or abandoned implementations.
-  If CodeGraph misresolves either FirstLight, direct reads of the two owned
-  files are explicitly authorized; long AppShell output is also a known gap.
-  No PROJECT_INDEX exists; CodeGraph in this worktree is initialized/verified.
+  `src/onboarding-original/FirstLight.tsx`, `src/app/AppShell.tsx`.
+  **Other permitted edits:** this task's implementation marker and concise
+  source-reference handback. No test files or browser artifacts.
+  **Read-only supporting inputs:** existing imports and public types in
+  `src/shared/types.ts`; no unrelated source surveys.
+  **Do:** realize exactly the frozen §23 contract copied below. Five explicit
+  persisted booleans, each set on accepting its step; one check before the
+  questionnaire mount, initial question and every next question. All true means
+  no questionnaire, even with draft status. Preserve existing chart and
+  profile-only intentional redo. Do not introduce other mechanisms.
+  **Verify/Accept:** direct semantic source inspection. Trace each flag's
+  initialization, true assignment, persistence, restoration and pre-question
+  read. Enumerate all assignments that can enable redo. Show the all-true
+  branch bypassing questionnaire mount and only-false steps being selected.
+  No test command, screenshot, recording or pass count is acceptable evidence.
+  **Handback:** reread edited regions, report exact file:line anchors and any
+  uncertainty. Parent integrates/commits/pushes. Do not race Git mutations.
+  You are not alone in this checkout; preserve others' edits. No deployment,
+  version increment or packaging invocation.
 
-  **Do:** implement exactly the frozen behavior and contracts copied below.
-  Preserve all unrelated work. You are not alone in the codebase: do not revert
-  others' edits. Do not change the architecture, dependencies, versions, build or
-  release scripts. Module-scope entities must use the exact names below; nested
-  private implementation callbacks are part of their owning component/function.
-  The new progress service has no existing persistence-module home: the existing
-  `services/onboarding.ts` owns the unchanged IntakeDraft type and is read-only.
-
-  **Verify:** `node --test scripts/onboarding-resume.test.mjs` and
-  `./node_modules/.bin/tsc --noEmit`. Tests load the actual changed modules;
-  assert behavior, not text presence. Include malformed/wrong-UID records,
-  independently recoverable fields, accepted-section selection, partial typing,
-  unknown time, skipped/device location, fresh-tab/reload persistence,
-  chart-before-complete ordering, same-UID refresh, account switch, late result,
-  cancellation and explicit redo. No browser protocol is required; the historical protocol below is cancelled.
-  If dependencies are absent, reuse the original checkout's installed
-  `node_modules` through a worktree-local symlink; never mutate shared dependencies.
-  Use the local Vite development server on loopback port 43879 for browser
-  observations (`./node_modules/.bin/vite --host 127.0.0.1 --port 43879 --strictPort`).
-  It is a development server, not another build/release entry. No production
-  publication, native packaging or `build_all.sh` invocation is part of this PR.
-
-  **Accept:** both deterministic commands exit 0 and their behavioral assertions
-  match the contracts. `[X]` denotes implementation with the exact observed test
-  output recorded here; acceptance requires independent semantic tracing of the five flag setters
-  and checks, including the all-true branch before mounting the questionnaire.
-
-  **Operational handback:** reread your edits; report exact files, test command,
-  observed pass/fail output, artifact paths, unresolved concerns and screenshot
-  positions. The parent integrator commits and immediately pushes each completed
-  logical change; do not race Git mutations. Report any required architectural
-  correction before making an uncommitted alternative. No invented source APIs.
-
-**Coder implementation checkpoint — 2026-11-12:** four product files and the
-actual-module Node regression harness are written and reread. Observed
-`node --test scripts/onboarding-resume.test.mjs`: tests17, pass17, fail0,
-cancelled0, skipped0; exit0. Observed `./node_modules/.bin/tsc --noEmit`:
-no diagnostics, exit0. Includes denied storage-property access, both save-failure
-paths, chart ownership/ordering, cancellation, legacy completion, independent
-section recovery and actual questionnaire callback behavior. Browser recording
-and independent review remain pending; this marker does not claim rubric acceptance.
-The strengthened real-control recording exposed masked-date text (`1990/06/15`);
-its snapshot remains verbatim while `intakeDraftFromProgress` now submits the
-validated ISO date (`1990-06-15`). The added regression and native tsc both passed.
-
-### ONBOARDING-RESUME — exact frozen contract (1:1 copy of §23)
+### Exact frozen contract (1:1 copy of ARCHITECTURE.md §23)
 
 
 Authority: Robin's current explicit request. Work is isolated in
 `codex/onboarding-resume`, worktree `/home/robin/github/natally-onboarding-resume`,
 based on published `a47c807`. Deliver a PR to `master`; this request does not
 authorize a deployment, version increment, or canonical packaging invocation.
-Rubric `RUBRIC-onboarding-resume-2026-11-12.md` was authored first. This section
+The earlier test/recording rubric is withdrawn from the PR on Robin's explicit
+order. No tests are to be written or run. This section
 supersedes §4's onboarding recovery description and permits only the named
 hydration/navigation changes to the otherwise preserved questionnaire in §13.
 Every other architecture section remains in force. This amendment is frozen for
@@ -1037,7 +997,7 @@ the exact behavior requested; the following checklist is its 1:1 translation.
 ### Exact entity contracts
 
 All paths below are relative to `src/`. New module-scope symbols are limited to
-the §16.4 additions; component-local state, callbacks and test-local bindings
+the §16.4 additions; component-local state, callbacks 
 remain private implementation details of their named owning entity.
 
 | Exact entity | Target and signature/fields | Responsibility |
@@ -1059,8 +1019,6 @@ remain private implementation details of their named owning entity.
 | questionnaire `FirstLightProps.initialProgress`, `.onProgress` | `onboarding-original/FirstLight.tsx:13`; optional `OnboardingProgress`, optional `(progress:OnboardingProgress)=>void` | hydrate once, synchronously report edits/accepted sections/submission; wrapper owns persistence |
 | `AccountPanel.onRedoOnboarding`, `.onResumeOnboarding`, `.canRedoOnboarding` | `app/AppShell.tsx:195`; `()=>void`, optional `()=>void`, boolean | show redo only with an existing chart; offer saved redo resume; second confirmation required before reset |
 | existing `App`, `AuthState`, `loadStoredChart`, `CHART_STORE_PREFIX` | `app/AppShell.tsx:380,86,368,260` | UID-tagged chart restore and guarded synchronous commit; component-local state for chart readiness, redo, warning and ownership |
-| `onboarding-resume.test.mjs` | `../scripts/onboarding-resume.test.mjs:1` | Node built-in tests load actual TS/TSX modules using the installed Rolldown compiler with in-memory output; test fixtures never enter shipped app and no application build is emitted |
-| `onboarding-resume-browser.mjs` | `../scripts/onboarding-resume-browser.mjs:1` | browser automation of actual components, test-only auth/voice/renderer substitutes; video/screenshots/results at the rubric's permanent destination |
 
 ### Scope, evidence and preparation judgment
 
@@ -1083,12 +1041,12 @@ tree. Targeted reads of only `AppShell.tsx` auth/return branches,
 specific coverage gaps. `PROJECT_INDEX.*` is absent. No other repository's
 source or original/abandoned Natally implementation was consulted.
 
-**Current acceptance — Robin's explicit correction, 2026-11-12:** browser
-recordings are cancelled as acceptance for this fix. The mechanism below, its
+**Current acceptance — Robin's explicit prohibition, 2026-11-12:** all tests and browser
+recordings are prohibited for this fix. The mechanism below, its
 setters and its gates are the proof to inspect. Existing browser artifacts are
 preserved locally as historical operational output, excluded from this PR, and
-make no correctness claim. Deterministic regressions support the source review;
-they do not replace the invariant argument. No deployment or packaging occurs.
+make no correctness claim. Acceptance is direct semantic source inspection of the flag writes and
+the entry/advance guards. No test result is acceptance evidence. No deployment or packaging occurs.
 
 ### Explicit per-step completion flags and entry invariant
 
@@ -1127,30 +1085,7 @@ an explicit profile redo/resume. Source review must trace every assignment of
 `redoRequested`: only confirmed profile redo and explicit profile resume set it
 true; history/auth/restore paths cannot do so. The final review maps each of the
 five variables to its accepted-step setter and to all three checks above, and
-checks the all-true branch before the questionnaire mount. A regression over all
-32 boolean combinations supports that finite gate, plus an all-true/draft-status
-interruption case. No browser test is required or performed for this acceptance.
-
-### ONBOARDING-RESUME — cancelled historical observation protocol
-
-Cancelled by Robin's current explicit instruction. The historical protocol below
-is retained for provenance and is not an acceptance condition or implementation task.
-The browser script automates the actual changed app/components with test-only
-identity/dependency interception where necessary; it never adds a product bypass,
-fake customer flow, mock payment, or authentication change. Label every substitute
-and do not claim live Google/native acceptance. Record video plus desktop/phone
-screenshots, structured observed results and test output at
-`DOCS/DEMONSTRATIONS/onboarding-resume-2026-11-12/`. All test data and test-owned
-browser profiles stay isolated from the user's signed-in browser/profile.
-| ID | Setup and action | Required visible observation |
-| --- | --- | --- |
-| ONB-R1 | Open an account with its existing valid saved chart; reload, navigate away/back/forward, and exercise `pageshow` recovery. | The account opens its reading, without a welcome/questionnaire flash or repeated chart questions. No chart or progress is erased. |
-| ONB-R2 | Begin with no chart; submit name and date, partly type a birthplace, then reload and reopen in a fresh tab of the same browser origin. | Resume at birthplace with the typed value retained. Name/date are retained and are not asked again. Complete only the missing sections. |
-| ONB-R3 | Choose unknown birth time and explicitly skip current location; interrupt at final submission/casting. | These are saved answers, not missing data. Resume casting or the first genuinely missing section; no forced time/location question. |
-| ONB-R4 | Type and delete text using Backspace; use the questionnaire's Back control, browser Back/Forward and a bfcache/page restoration. | Backspace edits the field. Deliberate backward navigation preserves answers and completion. Returning never starts a fresh questionnaire for a completed account. |
-| ONB-R5 | Open Account, choose Redo onboarding, cancel its confirmation; then confirm a redo, interrupt it, and cancel it back to the existing chart. | Redo requires the explicit profile action plus confirmation. The existing chart remains available until replacement succeeds. Cancel preserves that chart. A confirmed interrupted redo retains its answers. |
-| ONB-R6 | Switch between isolated accounts while a chart calculation is pending; resolve the old calculation afterward. | Each account has its own saved progress/chart. The old completion never changes the newly active account or writes its chart under the other UID. |
-| ONB-R7 | Restore a record with one invalid section, malformed JSON, and denied/quota-exhausted storage in separate cases. | Retain independently valid sections where recoverable; ask for invalid/missing data only. Storage failures are visible and never falsely described as durable saves. |
-| ONB-R8 | Successfully complete initial onboarding and a confirmed redo; reopen both. Include a legacy saved chart without a progress record and an unowned legacy session draft. | Completed accounts skip onboarding; legacy charts remain valid completion evidence. An unowned session draft is never attributed to whichever account signs in next. |
-| ONB-R9 | Repeat the questionnaire, profile confirmation, and cancellation at 1440×900 and 390×844, including scroll to the final controls. | Prompts, answers, progress notice and all controls remain visible/reachable. Existing Natally styling and keyboard text editing remain intact. |
-
+checks the all-true branch before the questionnaire mount. Inspect the same gate for every flag combination and for the all-true/draft-status
+interruption case by following its logic. Do not write or execute tests, browser
+checks, recordings, or verification suites. Previously generated test artifacts
+are preserved outside the PR and are not part of this contract.

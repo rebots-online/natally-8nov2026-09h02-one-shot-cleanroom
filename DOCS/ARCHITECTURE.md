@@ -1039,7 +1039,6 @@ contract.
 | `OnboardingProps` | exported interface | `app/onboarding/FirstLight.tsx:60` (replace inline props) | §23: account UID, initial progress, storage error, existing-chart cancellation and guarded chart handoff |
 | `FirstLightProps.initialProgress`, `FirstLightProps.onProgress` | optional hydration/callback props | `onboarding-original/FirstLight.tsx:13` | §23 scoped frozen-port exception: incremental progress and missing-section navigation, preserving existing presentation |
 | `AccountPanel.onRedoOnboarding`, `AccountPanel.onResumeOnboarding`, `AccountPanel.canRedoOnboarding` | callback/callback/boolean props | `app/AppShell.tsx:195` | §23: confirmed profile-only redo; explicit resume of an interrupted redo |
-| `onboarding-resume.test.mjs`, `onboarding-resume-browser.mjs` | regression modules | `scripts/onboarding-resume.test.mjs:1`, `scripts/onboarding-resume-browser.mjs:1` | §23: deterministic actual-module regressions and recorded browser protocol; test-only dependency substitutes never enter the product |
 
 ### 16.5 Presentation pipeline
 
@@ -1431,7 +1430,8 @@ Authority: Robin's current explicit request. Work is isolated in
 `codex/onboarding-resume`, worktree `/home/robin/github/natally-onboarding-resume`,
 based on published `a47c807`. Deliver a PR to `master`; this request does not
 authorize a deployment, version increment, or canonical packaging invocation.
-Rubric `RUBRIC-onboarding-resume-2026-11-12.md` was authored first. This section
+The earlier test/recording rubric is withdrawn from the PR on Robin's explicit
+order. No tests are to be written or run. This section
 supersedes §4's onboarding recovery description and permits only the named
 hydration/navigation changes to the otherwise preserved questionnaire in §13.
 Every other architecture section remains in force. This amendment is frozen for
@@ -1509,7 +1509,7 @@ the exact behavior requested; the following checklist is its 1:1 translation.
 ### Exact entity contracts
 
 All paths below are relative to `src/`. New module-scope symbols are limited to
-the §16.4 additions; component-local state, callbacks and test-local bindings
+the §16.4 additions; component-local state, callbacks 
 remain private implementation details of their named owning entity.
 
 | Exact entity | Target and signature/fields | Responsibility |
@@ -1531,8 +1531,6 @@ remain private implementation details of their named owning entity.
 | questionnaire `FirstLightProps.initialProgress`, `.onProgress` | `onboarding-original/FirstLight.tsx:13`; optional `OnboardingProgress`, optional `(progress:OnboardingProgress)=>void` | hydrate once, synchronously report edits/accepted sections/submission; wrapper owns persistence |
 | `AccountPanel.onRedoOnboarding`, `.onResumeOnboarding`, `.canRedoOnboarding` | `app/AppShell.tsx:195`; `()=>void`, optional `()=>void`, boolean | show redo only with an existing chart; offer saved redo resume; second confirmation required before reset |
 | existing `App`, `AuthState`, `loadStoredChart`, `CHART_STORE_PREFIX` | `app/AppShell.tsx:380,86,368,260` | UID-tagged chart restore and guarded synchronous commit; component-local state for chart readiness, redo, warning and ownership |
-| `onboarding-resume.test.mjs` | `../scripts/onboarding-resume.test.mjs:1` | Node built-in tests load actual TS/TSX modules using the installed Rolldown compiler with in-memory output; test fixtures never enter shipped app and no application build is emitted |
-| `onboarding-resume-browser.mjs` | `../scripts/onboarding-resume-browser.mjs:1` | browser automation of actual components, test-only auth/voice/renderer substitutes; video/screenshots/results at the rubric's permanent destination |
 
 ### Scope, evidence and preparation judgment
 
@@ -1555,12 +1553,12 @@ tree. Targeted reads of only `AppShell.tsx` auth/return branches,
 specific coverage gaps. `PROJECT_INDEX.*` is absent. No other repository's
 source or original/abandoned Natally implementation was consulted.
 
-**Current acceptance — Robin's explicit correction, 2026-11-12:** browser
-recordings are cancelled as acceptance for this fix. The mechanism below, its
+**Current acceptance — Robin's explicit prohibition, 2026-11-12:** all tests and browser
+recordings are prohibited for this fix. The mechanism below, its
 setters and its gates are the proof to inspect. Existing browser artifacts are
 preserved locally as historical operational output, excluded from this PR, and
-make no correctness claim. Deterministic regressions support the source review;
-they do not replace the invariant argument. No deployment or packaging occurs.
+make no correctness claim. Acceptance is direct semantic source inspection of the flag writes and
+the entry/advance guards. No test result is acceptance evidence. No deployment or packaging occurs.
 
 ### Explicit per-step completion flags and entry invariant
 
@@ -1599,6 +1597,7 @@ an explicit profile redo/resume. Source review must trace every assignment of
 `redoRequested`: only confirmed profile redo and explicit profile resume set it
 true; history/auth/restore paths cannot do so. The final review maps each of the
 five variables to its accepted-step setter and to all three checks above, and
-checks the all-true branch before the questionnaire mount. A regression over all
-32 boolean combinations supports that finite gate, plus an all-true/draft-status
-interruption case. No browser test is required or performed for this acceptance.
+checks the all-true branch before the questionnaire mount. Inspect the same gate for every flag combination and for the all-true/draft-status
+interruption case by following its logic. Do not write or execute tests, browser
+checks, recordings, or verification suites. Previously generated test artifacts
+are preserved outside the PR and are not part of this contract.
