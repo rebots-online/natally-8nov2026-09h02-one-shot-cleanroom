@@ -896,7 +896,7 @@ are committed at7490239 under dist/natally-v1.31.768/verification/.
   this task's marker/report only in `CHECKLIST.md`, and recorded evidence only in
   `DOCS/DEMONSTRATIONS/onboarding-resume-2026-11-12/`.
   **Read-only supporting inputs:** `package.json`, `package-lock.json`,
-  `tsconfig.json`, `vite.config.ts`, existing installed public dependency APIs.
+  `tsconfig.json`, `vite.config.ts`, `src/shared/types.ts` (public NatalChart/BirthInput contracts for saved-chart validation), existing installed public dependency APIs.
   Preserve existing imports and use their public types; do not survey neighboring
   source, other repositories, original Natally or abandoned implementations.
   If CodeGraph misresolves either FirstLight, direct reads of the two owned
