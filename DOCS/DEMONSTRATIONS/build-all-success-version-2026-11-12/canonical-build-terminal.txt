@@ -105,4 +105,71 @@ Web build complete → dist-web/
   [90m[90m│[39m   [90mDNS[39m    [90m│[39m   [90musing Surge CNAME Record[39m                                     [90m│[39m   [32mgeo-aware[39m         [90m│[39m[39m
   [90m[90m└──────────[39m[90m┴────────────────────────────────────────────────────────────────[39m[90m┴─────────────────────┘[39m[39m
   [90m[90m┌──────────[39m[90m┬──────────────────[39m[90m┬───────────────────────[39m[90m┬─────────────────────[39m[90m┬─────────────[39m[90m┬───────┐[39m[39m
-  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sfo.surge.sh   [90m│[39m   US, San Francisco   [90m│[39m   138.197.235.123   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   lhr.surge.sh   [90m│[39m   GB, London          [90m│[39m   46.101.67.123     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   yyz.surge.sh   [90m│[39m   CA, Toronto         [90m│[39m   159.203.50.177    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   jfk.surge.sh   [90m│[39m   US, New York        [90m│[39m   159.203.159.100   [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   ams.surge.sh   [90m│[39m   NL, Amsterdam       [90m│[39m   188.166.132.94    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   fra.surge.sh   [90m│[39m   DE, Frankfurt       [90m│[39m   138.68.112.220    [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   sgp.surge.sh   [90m│[39m   SG, Singapore       [90m│[39m   139.59.195.30     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   blr.surge.sh   [90m│[39m   IN, Bangalore       [90m│[39m   139.59.50.135     [90m│[39m   D.Ocean   [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   syd.surge.sh   [90m│[39m   AU, Sydney          [90m│[39m   45.76.126.95      [90m│[39m   Vultr     [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m│[39m   [90mHTTP[39m   [90m│[39m   nrt.surge.sh   [90m│[39m   JP, Tokyo           [90m│[39m   172.104.96.133    [90m│[39m   Linode    [90m│[39m   [32m✔[39m   [90m│[39m[39m
+  [90m[90m└──────────[39m[90m┴──────────────────[39m[90m┴───────────────────────[39m[90m┴─────────────────────[39m[90m┴─────────────[39m[90m┴───────┘[39m[39m
+   [90mLive preview ......................................... [4m1794513783594--asknatally--online.surge.sh[24m[39m
+   [90mLatest ...................................................... [4mlatest--asknatally--online.surge.sh[24m[39m
+   [90mProduction .................................................................... [4masknatally.online[24m[39m
+
+   [32mSuccess![39m[90m - Published to [4masknatally.online[24m[39m
+
+
+=== linux: npx --no-install tauri build --bundles appimage,deb,rpm -- --locked ===
+Staged linux-x64.AppImage: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-linux-x64.AppImage
+Staged linux-x64.deb: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-linux-x64.deb
+Staged linux-x64.rpm: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-linux-x64.rpm
+
+=== windows: npx --no-install tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc --bundles nsis -- --locked ===
+Staged windows-executable: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-windows-x64.exe
+Staged windows-x64-installer.exe: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-windows-x64-installer.exe
+
+=== windows-msi: wixl -a x64 -o /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/build/native-target/msi/natally-v1.32.769-windows-x64.msi -D ProductName=Natally -D ProductVersion=1.32.769.0 -D UpgradeCode=3e5cab2c-d121-4e0a-a428-9a81141827f9 -D Manufacturer=rebots-online -D ExeSource=/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-windows-x64.exe -D IconSource=/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/src-tauri/icons/icon.ico src-tauri/msi/natally.wxs ===
+Staged windows-msi: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-windows-x64.msi
+
+=== android: npx --no-install tauri android build --target aarch64 --apk --aab ===
+Staged android-apk: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-android-arm64.apk
+Staged android-aab: /home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/natally-v1.32.769-android-arm64.aab
+  adding: arm64-v8a/ (stored 0%)
+  adding: arm64-v8a/libnatally_ai_studio_lib.so.dbg (deflated 82%)
+{
+  "version": "1.32.769",
+  "complete": true,
+  "targets": {
+    "linux": {
+      "state": "packaged",
+      "startedAt": "2026-11-12T20:03:05.553Z",
+      "finishedAt": "2026-11-12T20:25:23.538Z"
+    },
+    "windows": {
+      "state": "packaged",
+      "startedAt": "2026-11-12T20:25:23.539Z",
+      "finishedAt": "2026-11-12T20:28:18.839Z"
+    },
+    "windows-msi": {
+      "state": "packaged",
+      "startedAt": "2026-11-12T20:28:18.839Z",
+      "finishedAt": "2026-11-12T20:28:20.802Z"
+    },
+    "android": {
+      "state": "packaged",
+      "startedAt": "2026-11-12T20:28:20.802Z",
+      "finishedAt": "2026-11-12T20:34:50.638Z"
+    }
+  },
+  "inventory": "/home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/dist/natally-v1.32.769/inventory.json"
+}
+Built version: v1.32.769
+Next source version: v1.33.769
+To https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom.git
+   fc8bf4d..a47c807  HEAD -> master
+
+Script done on 2026-11-12 15:34:54-05:00 [COMMAND_EXIT_CODE="0"]
