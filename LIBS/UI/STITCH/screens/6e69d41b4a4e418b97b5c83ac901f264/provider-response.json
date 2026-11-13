@@ -1,0 +1,50 @@
+{
+  "outputComponents": [
+    {
+      "design": {
+        "screens": [
+          {
+            "deviceType": "DESKTOP",
+            "generatedBy": "create_datastore_entry",
+            "height": "2048",
+            "htmlCode": {
+              "downloadUrl": "https://stitch.googleapis.com/v1/projects/6919345441915622012/files/b049bfe8c0644b2bab673dd6b4d70978:download",
+              "mimeType": "text/html",
+              "name": "projects/6919345441915622012/files/b049bfe8c0644b2bab673dd6b4d70978"
+            },
+            "id": "6e69d41b4a4e418b97b5c83ac901f264",
+            "name": "projects/6919345441915622012/screens/6e69d41b4a4e418b97b5c83ac901f264",
+            "prompt": "Current \u2014 first-light blocker",
+            "screenMetadata": {
+              "agentType": "PRO_AGENT",
+              "status": "COMPLETE"
+            },
+            "screenType": "DESIGN",
+            "screenshot": {
+              "downloadUrl": "https://stitch.googleapis.com/v1/projects/6919345441915622012/files/dfcfb73dd76844dfb787857f8cbb0af9:download",
+              "name": "projects/6919345441915622012/files/dfcfb73dd76844dfb787857f8cbb0af9"
+            },
+            "theme": {},
+            "title": "Current \u2014 first-light blocker",
+            "width": "2560"
+          }
+        ],
+        "theme": {}
+      }
+    },
+    {
+      "text": "Here is the faithful baseline reproduction of the **CURRENT UI (first-light blocker)** for `rebots-online/astronatally`:\n\n### Replicated Baseline Details & Documented Quirks\n- **Dimensions**: Precise 390px \u00d7 844px mobile viewport layout without browser chrome.\n- **Atmospheric Scene**: Full candlelit fortune-teller room backdrop (`room.webp`) with deep plum, warm gold shelving, crystals, and the night window.\n- **Top Header**: Deep near-black/plum bar (~76px) featuring the bottom-aligned underlined serif wordmark `Natally \u00b7 the atelier` on the left, an oversized square customer portrait (~60\u201364px) at the upper right with status indicator, and the hamburger menu icon.\n- **Ambient Indicator**: `Room sounds on` pill with pulse indicator at the upper-right room boundary.\n- **Obstructing Welcome Modal**: Positioned at `y: 184px` and 350px wide with rounded 20px corners, completely occluding Natally in the background while re-displaying her likeness in the large circular mascot portrait (`natally-mascot.webp`) with the gold-to-plum gradient ring.\n- **Typography & Verbatim Copy**:\n  - Brass uppercase `FIRST LIGHT` subtitle.\n  - Cream serif headline: *\"Welcome to the atelier \u2014 I\u2019m Natally.\"*\n  - Verbatim serif greeting body text regarding birth chart details, cleared table space, and behaving candles.\n  - Full-width brass/gold `Cast my first chart` CTA button.\n  - Sub-caption regarding browser audio and headphones.\n- **Version Stamp**: Outlined `v1.32.769` badge fixed at the lower right.\n\nAll observed UX defects (occlusion, duplicate avatar, wordiness, header imbalance) have been faithfully retained as your design reference baseline."
+    },
+    {
+      "suggestion": "Redesign the modal into a non-obstructing bottom sheet to reveal Natally"
+    },
+    {
+      "suggestion": "Optimize header proportions and reduce customer portrait size"
+    },
+    {
+      "suggestion": "Add interactive birth chart inputs directly into the atelier view"
+    }
+  ],
+  "projectId": "6919345441915622012",
+  "sessionId": "2460789524929830712"
+}

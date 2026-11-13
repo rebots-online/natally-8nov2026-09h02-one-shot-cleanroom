@@ -1,0 +1,28 @@
+{
+  "repository": "rebots-online/astronatally",
+  "artwork": {
+    "room": {
+      "source": "public/atelier/room.webp",
+      "sha256": "dfedbddc9e098a1a5eff1ad2055978a4581fda235892e15c42b6ddf8e5265b5a"
+    },
+    "puppet": "Live renderer binds existing registered public/atelier/puppet-cleanplate.webp; no new character art"
+  },
+  "chartPreview": "Captured from existing Astrolabe3D guest EXAMPLE_BIRTH1988-08-31 14:30 Toronto; static design preview only.",
+  "reportReference": "Existing natalChart(EXAMPLE_BIRTH) \u2192 buildReport,17actual sections; existing AstroChart capture. Public demonstration data only, no customer/purchase/retention record created.",
+  "geographicReference": "Existing gazetteer geonames:6167865 Toronto, CA,43.70643 -79.39864 America/Toronto. A real location option/chip illustration; production binds actual entered place.",
+  "fonts": {
+    "Playfair Display": "Byte-identical existing public/fonts/playfair-display-latin.woff2",
+    "Outfit": "Google Fonts official Outfit400/500/600/700 TTF, OFL preserved"
+  },
+  "files": {
+    "demonstration-report.json": "346e3d8222302602f9d6b55043a42bad39a39b641238920efc450d8574847cfe",
+    "current-live-chart-observation.json": "31128a2ad81633ae4f3b69d98f07ee108cc93f4c355aa0b4adf77cdc98dab51b",
+    "outfit-500.ttf": "9a9f465776e653cd6175661d844555e08684d432518f1d2c621bcb3006598f9c",
+    "outfit-600.ttf": "8900df5726b5a6f23e723594f11d5ea27e695bd85c884f18d88ed080544fe205",
+    "outfit-700.ttf": "49dcdf653a004a2575b3de649f5e4c549d774fecddf317812330edd0ad70685a",
+    "OFL-Outfit.txt": "c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416",
+    "current-live-chart.png": "e2d42a0d8c4c732bd7da994d5e43f85be62e17870a6487a149dca987abce1e63",
+    "outfit-400.ttf": "6a8c9be856a6b9e09c66615634904616152c9de5e44db343a3ced240479c586a",
+    "current-report-chart.png": "a7d2e2ce7b6ca44f6c0cdadb49f8c7bd4a6d43d2a352591e846d9aa810aa6a9e"
+  }
+}

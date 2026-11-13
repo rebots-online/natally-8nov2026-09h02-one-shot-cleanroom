@@ -1,0 +1,24 @@
+{
+  "repository": "rebots-online/astronatally",
+  "baseCommit": "04322e9a0647ab17cb20eb342f493f20c05bc1cb",
+  "project": "6919345441915622012",
+  "screen": "projects/6919345441915622012/screens/6e69d41b4a4e418b97b5c83ac901f264",
+  "correctedAt": "2026-11-13T08:49:27.701309+00:00",
+  "htmlFile": "projects/6919345441915622012/files/9671974572563116483",
+  "screenshotFile": "projects/6919345441915622012/files/9671974572563116717",
+  "screenshotPixels": {
+    "width": 390,
+    "height": 844
+  },
+  "providerMetadataPixels": {
+    "width": "2560",
+    "height": "2048"
+  },
+  "correction": "Replace two placeholder image URLs with exact repository room.webp and natally-mascot.webp data URLs; render at390x844; upload HTML and PNG; download authoritative files. Existing obstructing layout deliberately retained.",
+  "files": {
+    "current-first-light.html": "aa610612d7d8d2f6a2cc6602fe790e3d0f8b8ba80fa665c332a5904a7b73ea36",
+    "current-first-light.png": "da60cbfac040b7182e55d8dc2a74a65abdadbc71683a786bca7dd955d24c09a4",
+    "generated-original.html": "edd4b4fc53fc6dc69284278cffdc6c096c58ce28a94a89742cc5cd234f55f2e7",
+    "generated-original.png": "a18b260694ecb0c97163e58f919628c4b14fe42844f3cb7966f3cde65df40d9d"
+  }
+}

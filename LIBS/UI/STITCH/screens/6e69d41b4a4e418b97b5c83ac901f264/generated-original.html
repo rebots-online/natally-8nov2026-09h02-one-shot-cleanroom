@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Current — first-light blocker</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0b0710;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .font-serif-display {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    .app-screen {
+      width: 390px;
+      height: 844px;
+      position: relative;
+      overflow: hidden;
+      background-color: #120917;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    .room-bg {
+      position: absolute;
+      top: 76px;
+      left: 0;
+      width: 100%;
+      height: 768px;
+      object-fit: cover;
+      object-position: center 20%;
+    }
+  </style>
+</head>
+<body class="bg-black text-[#e8dfd8] antialiased select-none">
+<!-- Mobile screen container 390x844 -->
+<div class="app-screen relative">
+<!-- Top Header (~76px tall, deep near-black/plum) -->
+<header class="h-[76px] w-full bg-[#110a17] border-b border-[#2d1b39]/80 px-4 flex items-end pb-3.5 justify-between relative z-20 shadow-md">
+<!-- Left bottom-aligned underlined serif wordmark -->
+<div class="flex flex-col justify-end">
+<h1 class="font-serif-display text-[21px] tracking-wide text-[#f5ebd9] font-medium leading-none pb-0.5 border-b border-[#d4af37]/60">
+          Natally <span class="text-[#c5a059] mx-0.5">·</span> the atelier
+        </h1>
+</div>
+<!-- Right controls: Oversized customer portrait (64px) & hamburger menu -->
+<div class="flex items-center gap-2.5 translate-y-1">
+<!-- Customer portrait (oversized ~64px square with soft rounded corners) -->
+<div class="w-[60px] h-[60px] rounded-lg bg-[#241331] border border-[#d4af37]/40 overflow-hidden flex items-center justify-center shadow-inner relative group">
+<div class="w-full h-full bg-gradient-to-tr from-[#1b0d25] via-[#3a1d52] to-[#602d84] flex items-center justify-center">
+<svg class="w-8 h-8 text-[#e3c483]/80" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+</svg>
+</div>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-amber-400 rounded-full border border-[#110a17]"></div>
+</div>
+<!-- Small Hamburger Menu button -->
+<button aria-label="Menu" class="p-1.5 text-[#d8c3a5] hover:text-white transition-colors">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</header>
+<!-- Atelier Live Room Background -->
+<img alt="Candlelit fortune-teller atelier with Natally" class="room-bg" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+<!-- Ambient Room sound tag at upper right over the scene -->
+<div class="absolute top-[88px] right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1b0d26]/85 border border-[#4a2b66]/60 backdrop-blur-sm text-[11px] text-[#decab0]">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+<span class="tracking-wide">Room sounds on</span>
+</div>
+<!-- 
+      WELCOME MODAL PANEL:
+      Starts at y: 184px, width 350px, centered horizontally.
+      Deep opaque/translucent plum panel obscuring Natally below.
+    -->
+<div class="absolute left-1/2 -translate-x-1/2 top-[184px] w-[350px] bg-[#1a0c24]/95 border border-[#522b70]/80 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-30 px-5 pt-6 pb-5 flex flex-col items-center text-center backdrop-blur-md">
+<!-- Duplicate mascot portrait (large circular portrait with gold-to-plum ring) -->
+<div class="relative w-28 h-28 -mt-2 mb-3 rounded-full p-[3px] bg-gradient-to-b from-[#e6c670] via-[#9455a0] to-[#261033] shadow-lg">
+<img alt="Natally Mascot Portrait" class="w-full h-full rounded-full object-cover bg-[#13071d]" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+<!-- Spaced brass uppercase FIRST LIGHT -->
+<div class="font-cinzel text-[11px] uppercase tracking-[0.28em] text-[#d4af37] font-semibold mb-2">
+        FIRST LIGHT
+      </div>
+<!-- Cream serif headline -->
+<h2 class="font-serif-display text-[22px] leading-[1.2] text-[#f7efe3] font-semibold mb-3 px-1">
+        Welcome to the atelier — I’m Natally.
+      </h2>
+<!-- Centered serif paragraph (wordy verbatim copy) -->
+<p class="font-serif-display text-[15px] leading-[1.45] text-[#d9c8b8] px-1 mb-5 font-normal">
+        Hi hi — I'm Natally. Tell me when and where you were born and we'll cast your first chart together; I already cleared a space on the table for you, and the candles are behaving.
+      </p>
+<!-- Large gold CTA button -->
+<button class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f1d77a] to-[#c59d28] text-[#1e1104] font-medium text-[15px] tracking-wide shadow-[0_4px_16px_rgba(212,175,55,0.35)] active:scale-[0.98] transition-transform">
+        Cast my first chart
+      </button>
+<!-- Small browser-audio explanatory text -->
+<p class="text-[10px] text-[#9b85a3] mt-3 leading-tight max-w-[280px]">
+        Audio plays in browser. Headset recommended for immersive readings and ambient atelier chimes.
+      </p>
+</div>
+<!-- Small outlined version badge v1.32.769 at lower right -->
+<div class="absolute bottom-3 right-4 z-40">
+<span class="inline-block px-2 py-0.5 rounded text-[10px] tracking-wider text-[#a892b3]/80 border border-[#482b5e]/60 bg-[#160a21]/90 font-mono backdrop-blur-sm">
+        v1.32.769
+      </span>
+</div>
+<!-- Soft bottom edge fade vignette -->
+<div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0e0614] to-transparent pointer-events-none z-20"></div>
+</div>
+</body>
+</html>

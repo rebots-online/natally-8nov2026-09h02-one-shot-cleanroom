@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Natally — live atelier master</title>
+<style>
+    /* -------------------------------------------------------------
+       CSS RESET & BASE DESIGN TOKENS (Natally's Live Atelier)
+       Colors:
+       - Atelier Ink: #130F18 (foundation)
+       - Plum Glass: rgba(27, 19, 32, 0.78)
+       - Plum Solid: #211824
+       - Candle Cream: #F5EAD7 (primary text)
+       - Quiet Linen: #C5B7A7 (secondary copy)
+       - Aged Brass: #CFAD70 (interface accent)
+       - Brass Edge: rgba(207, 173, 112, 0.26)
+       - Spoken Light: #FFF36B (active word)
+       ------------------------------------------------------------- */
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: local('Playfair Display'), local('PlayfairDisplay-Regular'), serif;
+    }
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: swap;
+      src: local('Outfit'), local('Outfit-Regular'), sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --atelier-ink: #130F18;
+      --plum-glass: rgba(27, 19, 32, 0.85);
+      --plum-solid: #211824;
+      --plum-surface: #1e1521;
+      --plum-dark: #160e18;
+      --candle-cream: #F5EAD7;
+      --quiet-linen: #C5B7A7;
+      --aged-brass: #CFAD70;
+      --aged-brass-hover: #dfbe82;
+      --brass-edge: rgba(207, 173, 112, 0.26);
+      --brass-edge-strong: rgba(207, 173, 112, 0.45);
+      --spoken-light: #FFF36B;
+      --error-red: #E57373;
+      --error-bg: rgba(229, 115, 115, 0.12);
+      
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background-color: var(--atelier-ink);
+      color: var(--candle-cream);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Outer Frame */
+    .atelier-viewport {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+      background-color: var(--atelier-ink);
+    }
+
+    /* HEADER: 52px desktop, 48px phone */
+    .atelier-header {
+      height: 52px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--brass-edge);
+      background-color: var(--atelier-ink);
+      z-index: 40;
+      flex-shrink: 0;
+    }
+
+    .atelier-brand-wordmark {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--candle-cream);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      user-select: none;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .atelier-header-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .atelier-nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--quiet-linen);
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 4px;
+      transition: color 0.15s ease;
+    }
+    .atelier-nav-link:hover, .atelier-nav-link.active {
+      color: var(--candle-cream);
+    }
+
+    .atelier-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .atelier-allowance-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--aged-brass);
+      background: rgba(207, 173, 112, 0.1);
+      border: 1px solid var(--brass-edge);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .atelier-account-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--quiet-linen);
+      transition: border-color 0.15s ease;
+    }
+    .atelier-account-btn:hover, .atelier-account-btn:focus-visible {
+      border-color: var(--brass-edge);
+      outline: none;
+    }
+    .atelier-account-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--plum-solid);
+      border: 1px solid var(--brass-edge);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--candle-cream);
+      overflow: hidden;
+    }
+
+    .atelier-menu-mobile-btn {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--brass-edge);
+      border-radius: 8px;
+      color: var(--candle-cream);
+      cursor: pointer;
+    }
+
+    /* MAIN STAGE + RAIL GRID */
+    .atelier-main-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 352px;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      align-items: start;
+    }
+
+    /* STAGE COLUMN */
+    .atelier-stage-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+      position: sticky;
+      top: 24px;
+    }
+
+    .atelier-stage-box {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 170px);
+      min-height: 520px;
+      max-height: 820px;
+      background-color: #0b080e;
+      border-radius: 16px;
+      border: 1px solid var(--brass-edge);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Room Container */
+    .atelier-room-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 55%, #2a1b2c 0%, #130f18 70%);
+    }
+
+    .atelier-room-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center bottom;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Room fallback visual rendering (SVG canvas in case webp is local) */
+    .atelier-room-canvas-fallback {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    /* 3D Chart Inset Slot & Focused Chart */
+    .atelier-chart-slot {
+      position: absolute;
+      inset: 0;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Dedicated Chart View inside Stage (when S06-chart-focus is active) */
+    .atelier-chart-focused-view {
+      position: absolute;
+      inset: 20px;
+      background: rgba(19, 15, 24, 0.92);
+      border: 1px solid var(--brass-edge);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      padding: 24px;
+    }
+    .atelier-natally-inset-dock {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 140px;
+      height: 140px;
+      border-radius: 12px;
+      border: 1px solid var(--brass-edge-strong);
+      overflow: hidden;
+      background: #19121e;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .atelier-natally-inset-dock img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+    }
+
+    /* Stage Controls Bar */
+    .atelier-stage-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .atelier-stage-ctrl-btn {
+      height: 40px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(27, 19, 32, 0.75);
+      border: 1px solid var(--brass-edge);
+      border-radius: 8px;
+      color: var(--candle-cream);
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .atelier-stage-ctrl-btn:hover {
+      background: var(--plum-solid);
+      border-color: var(--aged-brass);
+    }
+
+    /* Stage Status Alert */
+    .atelier-stage-status-overlay {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      max-width: 320px;
+    }
+
+    /* CAPTION SLOT: two lines max */
+    .atelier-caption-band {
+      background: var(--plum-glass);
+      border: 1px solid var(--brass-edge);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--candle-cream);
+      backdrop-filter: blur(12px);
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+    .atelier-spoken-word {
+      color: var(--spoken-light);
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(255, 243, 107, 0.3);
+    }
+
+    /* TASK RAIL COLUMN */
+    .atelier-rail-col {
+      width: 352px;
+      min-width: 352px;
+      position: relative;
+    }
+
+    .atelier-rail-surface {
+      background-color: var(--plum-glass);
+      border: 1px solid var(--brass-edge);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(16px) saturate(125%);
+      box-shadow: 0 12px 32px rgba(10, 7, 13, 0.4);
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--brass-edge) transparent;
+    }
+
+    /* Rail Header Row */
+    .atelier-rail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(207, 173, 112, 0.15);
+    }
+    .atelier-rail-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--candle-cream);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .atelier-rail-btn-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--quiet-linen);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .atelier-rail-btn-icon:hover {
+      color: var(--candle-cream);
+      border-color: var(--brass-edge);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Typography inside Rail */
+    .atelier-body-text {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--candle-cream);
+      margin-bottom: 16px;
+      max-width: 55ch;
+    }
+    .atelier-secondary-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--quiet-linen);
+      margin-bottom: 16px;
+    }
+    .atelier-cost-line {
+      font-size: 13px;
+      color: var(--quiet-linen);
+      margin-top: 10px;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    /* Form Fields & Controls */
+    .atelier-field-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .atelier-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--candle-cream);
+    }
+    .atelier-input {
+      height: 48px;
+      width: 100%;
+      border-radius: 12px;
+      background-color: var(--plum-solid);
+      border: 1px solid var(--brass-edge);
+      color: var(--candle-cream);
+      padding: 0 16px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .atelier-input:focus {
+      border-color: var(--aged-brass);
+      box-shadow: 0 0 0 2px rgba(207, 173, 112, 0.35);
+    }
+    .atelier-input::placeholder {
+      color: rgba(197, 183, 167, 0.5);
+    }
+    .atelier-inline-error {
+      font-size: 13px;
+      color: var(--error-red);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Buttons */
+    .atelier-btn-primary {
+      height: 48px;
+      width: 100%;
+      border-radius: 12px;
+      background-color: var(--aged-brass);
+      color: var(--atelier-ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+    .atelier-btn-primary:hover {
+      background-color: var(--aged-brass-hover);
+    }
+    .atelier-btn-primary:active {
+      transform: scale(0.985);
+    }
+    .atelier-btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .atelier-btn-secondary {
+      height: 48px;
+      width: 100%;
+      border-radius: 12px;
+      background-color: transparent;
+      color: var(--candle-cream);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      border: 1px solid var(--brass-edge);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      margin-top: 8px;
+    }
+    .atelier-btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+      border-color: var(--aged-brass);
+    }
+
+    .atelier-btn-text {
+      background: none;
+      border: none;
+      color: var(--quiet-linen);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 4px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-align: center;
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .atelier-btn-text:hover {
+      color: var(--candle-cream);
+    }
+
+    /* Radio Choice Card for Pricing */
+    .atelier-choice-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .atelier-choice-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--brass-edge);
+      background: var(--plum-solid);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .atelier-choice-label:hover {
+      border-color: var(--aged-brass);
+    }
+    .atelier-choice-label input[type="radio"] {
+      accent-color: var(--aged-brass);
+      width: 18px;
+      height: 18px;
+      margin-right: 12px;
+    }
+    .atelier-choice-price {
+      font-weight: 600;
+      color: var(--aged-brass);
+      font-family: var(--font-mono);
+    }
+
+    /* Step indicator for intake */
+    .atelier-step-dots {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .atelier-step-dot {
+      height: 4px;
+      flex: 1;
+      border-radius: 2px;
+      background: rgba(207, 173, 112, 0.2);
+    }
+    .atelier-step-dot.active {
+      background: var(--aged-brass);
+    }
+
+    /* ReCAPTCHA mock container */
+    .atelier-recaptcha-region {
+      min-height: 76px;
+      background: #17111c;
+      border: 1px solid var(--brass-edge);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .atelier-recaptcha-check {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--candle-cream);
+    }
+    .atelier-recaptcha-check input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--aged-brass);
+    }
+
+    /* Progress bar */
+    .atelier-progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(207, 173, 112, 0.15);
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .atelier-progress-fill {
+      height: 100%;
+      background: var(--aged-brass);
+      transition: width 0.3s ease;
+    }
+
+    /* Transcript region */
+    .atelier-transcript-scroll {
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid rgba(207, 173, 112, 0.15);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(19, 15, 24, 0.5);
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .atelier-msg-bubble-natally {
+      color: var(--candle-cream);
+      border-left: 2px solid var(--aged-brass);
+      padding-left: 10px;
+    }
+    .atelier-msg-bubble-user {
+      color: var(--quiet-linen);
+      align-self: flex-end;
+      text-align: right;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    /* Utility Footer inside Rail or bottom */
+    .atelier-rail-footer {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(207, 173, 112, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--quiet-linen);
+    }
+    .atelier-rail-footer a {
+      color: var(--quiet-linen);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .atelier-rail-footer a:hover {
+      color: var(--candle-cream);
+      text-decoration: underline;
+    }
+    .atelier-version-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(197, 183, 167, 0.6);
+    }
+
+    /* STATUS NOTIFICATION ACCORDION */
+    .atelier-status-banner {
+      background: var(--plum-solid);
+      border: 1px solid var(--brass-edge);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .atelier-status-banner.error {
+      border-color: var(--error-red);
+      background: var(--error-bg);
+      color: var(--error-red);
+    }
+
+    /* Native Handoff Bridge view container (for S10) */
+    .atelier-bridge-box {
+      border: 1px solid var(--brass-edge);
+      border-radius: 12px;
+      padding: 16px;
+      background: var(--plum-surface);
+      margin-bottom: 16px;
+    }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE BREAKPOINTS (Mobile below 768px)
+       Header -> persistent room 240-380px -> caption -> rail
+       ------------------------------------------------------------- */
+    @media (max-width: 768px) {
+      .atelier-header {
+        height: 48px;
+        padding: 0 16px;
+      }
+      .atelier-brand-wordmark {
+        font-size: 24px;
+      }
+      .atelier-header-nav {
+        display: none;
+      }
+      .atelier-menu-mobile-btn {
+        display: flex;
+      }
+
+      .atelier-main-layout {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        gap: 16px;
+      }
+
+      .atelier-stage-col {
+        position: relative;
+        top: 0;
+        width: 100%;
+      }
+
+      .atelier-stage-box {
+        height: 44dvh;
+        min-height: 240px;
+        max-height: 380px;
+      }
+
+      .atelier-rail-col {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .atelier-rail-surface {
+        padding: 20px;
+        max-height: none;
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body class="atelier-viewport">
+<!-- =============================================================
+       DATA-SLOT: HEADER (52px desktop / 48px phone)
+       Wordmark left, compact nav, account right (32px avatar in 44px)
+       ============================================================= -->
+<header class="atelier-header" data-slot="header">
+<div style="display: flex; align-items: center; gap: 24px;">
+<button aria-label="Natally home" class="atelier-brand-wordmark" data-go="S01-guest">Natally</button>
+<nav aria-label="Sections" class="atelier-header-nav">
+<button class="atelier-nav-link" data-go="S01-meet">Meet Natally</button>
+<button class="atelier-nav-link" data-go="S01-chart">Your chart</button>
+<button class="atelier-nav-link" data-go="S01-aloud">Reading aloud</button>
+<button class="atelier-nav-link" data-go="S01-personal">Personal readings</button>
+<button class="atelier-nav-link" data-go="S01-prices">Prices</button>
+<button class="atelier-nav-link" data-go="S01-learn">Learn astrology</button>
+</nav>
+</div>
+<div class="atelier-header-actions">
+<div class="atelier-allowance-badge" id="atelier-allowance-display" style="display: none;">3 credits</div>
+<button aria-label="Account details" class="atelier-account-btn" data-go="S07-account">
+<div class="atelier-account-avatar">
+<svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+</div>
+</button>
+<button aria-label="Open menu" class="atelier-menu-mobile-btn" data-go="S07-menu">
+<svg fill="none" height="22" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="22">
+<line x1="3" x2="21" y1="12" y2="12"></line>
+<line x1="3" x2="21" y1="6" y2="6"></line>
+<line x1="3" x2="21" y1="18" y2="18"></line>
+</svg>
+</button>
+</div>
+</header>
+<!-- =============================================================
+       MAIN PERSISTENT STAGE + TASK RAIL (CSS Grid)
+       ============================================================= -->
+<main class="atelier-main-layout">
+<!-- PERSISTENT STAGE COLUMN -->
+<div class="atelier-stage-col">
+<div class="atelier-stage-box" data-slot="stage">
+<!-- Persistent Stage Controls -->
+<div class="atelier-stage-controls">
+<button class="atelier-stage-ctrl-btn" id="ctrl-sound" title="Toggle audio ambiance">
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="16">
+<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+</svg>
+<span>Sound on</span>
+</button>
+<button class="atelier-stage-ctrl-btn" data-go="S06-chart-focus" title="Inspect 3D Chart">
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="16">
+<circle cx="12" cy="12" r="10"></circle>
+<polygon points="12 8 8 12 12 16 16 12 12 8"></polygon>
+</svg>
+<span>Wheel</span>
+</button>
+</div>
+<!-- Room Container (Preserves 1586x992 registered room/character geometry) -->
+<div class="atelier-room-container">
+<!-- Required exact src="/atelier/room.webp" with contain to preserve complete character, hat and ball -->
+<img alt="Natally's Live Atelier" class="atelier-room-img" onerror="this.style.opacity='0'; document.getElementById('atelier-room-svg').style.display='block';" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+<!-- Authentic inline SVG fallback rendering Natally at her candlelit velvet table if local image is resolving -->
+<div class="atelier-room-canvas-fallback" id="atelier-room-svg" style="display: none;">
+<svg preserveaspectratio="xMidYMid meet" style="width: 100%; height: 100%;" viewbox="0 0 1586 992">
+<defs>
+<radialgradient cx="50%" cy="60%" id="roomGlow" r="50%">
+<stop offset="0%" stop-color="#4a2a4b" stop-opacity="0.8"></stop>
+<stop offset="60%" stop-color="#1e1322" stop-opacity="0.9"></stop>
+<stop offset="100%" stop-color="#100b14" stop-opacity="1"></stop>
+</radialgradient>
+<radialgradient cx="50%" cy="50%" id="candleLight" r="50%">
+<stop offset="0%" stop-color="#fff4b8" stop-opacity="0.9"></stop>
+<stop offset="30%" stop-color="#cfad70" stop-opacity="0.5"></stop>
+<stop offset="100%" stop-color="#cfad70" stop-opacity="0"></stop>
+</radialgradient>
+<radialgradient cx="45%" cy="40%" id="crystalBallGlow" r="60%">
+<stop offset="0%" stop-color="#e8f4f8" stop-opacity="0.95"></stop>
+<stop offset="40%" stop-color="#93c5fd" stop-opacity="0.6"></stop>
+<stop offset="80%" stop-color="#3b82f6" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#1e3a8a" stop-opacity="0.1"></stop>
+</radialgradient>
+</defs>
+<rect fill="url(#roomGlow)" height="992" width="1586"></rect>
+<!-- Bookshelves and velvet drapery backdrop -->
+<path d="M0,0 L320,0 L280,992 L0,992 Z" fill="#140d17" opacity="0.85"></path>
+<path d="M1266,0 L1586,0 L1586,992 L1306,992 Z" fill="#140d17" opacity="0.85"></path>
+<!-- Atelier Table with dark damask cloth -->
+<ellipse cx="793" cy="850" fill="#1a111f" rx="550" ry="220" stroke="#36223b" stroke-width="2"></ellipse>
+<ellipse cx="793" cy="850" fill="#201526" rx="460" ry="170"></ellipse>
+<!-- Character: Natally silhouette & presence (violet velvet robe, astrologer hat) -->
+<path d="M793,330 C720,330 670,410 650,520 C640,580 610,690 560,820 L1026,820 C976,690 946,580 936,520 C916,410 866,330 793,330 Z" fill="#2d1938" stroke="#48275a" stroke-width="2"></path>
+<!-- Astrologer Hat -->
+<path d="M793,170 L870,360 L716,360 Z" fill="#22122b" stroke="#3b1d4b" stroke-width="2"></path>
+<ellipse cx="793" cy="360" fill="#281533" rx="130" ry="24" stroke="#cfad70" stroke-width="1.5"></ellipse>
+<!-- Candle and brass candlestick left -->
+<circle cx="520" cy="620" fill="url(#candleLight)" r="100"></circle>
+<rect fill="#f5ead7" height="70" rx="3" width="10" x="515" y="660"></rect>
+<path d="M500,730 L540,730 L530,760 L490,760 Z" fill="#cfad70"></path>
+<!-- Crystal Ball on Brass Stand in center -->
+<circle cx="793" cy="670" fill="url(#crystalBallGlow)" r="95" stroke="#cfad70" stroke-width="1.5"></circle>
+<path d="M750,775 C770,760 816,760 836,775 L846,810 L740,810 Z" fill="#cfad70" opacity="0.85"></path>
+<!-- Subtle celestial astrolabe chart projection in the room space -->
+<circle cx="1060" cy="540" fill="none" opacity="0.4" r="110" stroke="#cfad70" stroke-dasharray="4 6" stroke-width="1"></circle>
+<circle cx="1060" cy="540" fill="none" opacity="0.3" r="80" stroke="#cfad70" stroke-width="0.75"></circle>
+</svg>
+</div>
+<!-- Empty real renderer insertion slot (contract §8) -->
+<div class="atelier-chart-slot" data-slot="chart" id="renderer-chart-slot"></div>
+</div>
+<!-- Dedicated S06 Focus Chart Container (toggleable) -->
+<div class="atelier-chart-focused-view" id="atelier-chart-focused-element" style="display: none;">
+<div class="atelier-natally-inset-dock" title="Natally present in live atelier">
+<svg style="width:100%; height:100%;" viewbox="0 0 140 140">
+<rect fill="#1b1220" height="140" width="140"></rect>
+<circle cx="70" cy="80" fill="#321a3d" r="45"></circle>
+<circle cx="70" cy="45" fill="#cfad70" opacity="0.3" r="22"></circle>
+<path d="M70,15 L85,45 L55,45 Z" fill="#201126"></path>
+</svg>
+</div>
+<div style="text-align: center; max-width: 440px;">
+<svg height="220" style="margin: 0 auto; display: block;" viewbox="0 0 260 260" width="220">
+<circle cx="130" cy="130" fill="none" r="110" stroke="#cfad70" stroke-width="1.5"></circle>
+<circle cx="130" cy="130" fill="none" r="85" stroke="rgba(207,173,112,0.4)" stroke-width="1"></circle>
+<circle cx="130" cy="130" fill="none" r="60" stroke="rgba(207,173,112,0.25)" stroke-width="1"></circle>
+<!-- Cardinal house spokes -->
+<line stroke="#cfad70" stroke-width="1.5" x1="20" x2="240" y1="130" y2="130"></line>
+<line stroke="#cfad70" stroke-width="1.5" x1="130" x2="130" y1="20" y2="240"></line>
+<line stroke="rgba(207,173,112,0.3)" stroke-width="1" x1="52" x2="208" y1="52" y2="208"></line>
+<line stroke="rgba(207,173,112,0.3)" stroke-width="1" x1="52" x2="208" y1="208" y2="52"></line>
+<circle cx="130" cy="45" fill="#fff36b" r="6"></circle>
+<circle cx="195" cy="110" fill="#cfad70" r="5"></circle>
+<circle cx="75" cy="180" fill="#cfad70" r="5"></circle>
+</svg>
+<div style="font-family: var(--font-display); font-size: 18px; margin-top: 14px; color: var(--candle-cream);">
+              Natal Wheel · Concentric Degrees &amp; Houses
+            </div>
+<div style="font-size: 13px; color: var(--quiet-linen); margin-top: 4px;">
+              Ascendant 14° Scorpio · Sun 22° Pisces · Moon 08° Taurus
+            </div>
+</div>
+</div>
+<!-- Optional Status Slot in Stage corner -->
+<div class="atelier-stage-status-overlay" data-slot="status" id="atelier-stage-status"></div>
+</div>
+<!-- CAPTION SLOT: two lines maximum, cream text with Spoken Light current word -->
+<div class="atelier-caption-band" data-slot="caption" id="atelier-caption-text">
+<span>Natally: <span class="atelier-spoken-word">“Welcome</span> into the atelier. Tell me your birth sky when you are ready.”</span>
+</div>
+</div>
+<!-- TASK RAIL COLUMN (minmax 352px) -->
+<div class="atelier-rail-col" data-slot="rail">
+<div class="atelier-rail-surface" id="atelier-rail-mount">
+<!-- The active template from below is mounted here via JS -->
+</div>
+</div>
+</main>
+<!-- =============================================================
+       TEMPLATE VARIANTS (Complete Real Product Screen Families S01–S11)
+       Mounted into #atelier-rail-mount. Buttons use data-go="SCREEN-ID".
+       ============================================================= -->
+<!-- S01: GUEST & INFORMATION SECTIONS -->
+<template data-screen="S01-guest">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Your birth chart</h1>
+</div>
+<p class="atelier-body-text">Tell me when and where you were born.</p>
+<button class="atelier-btn-primary" data-go="S04-name">Cast my chart</button>
+<p class="atelier-cost-line">Free · No card needed</p>
+<div class="atelier-rail-footer">
+<div style="display: flex; gap: 12px;">
+<a data-go="S11-privacy" href="#privacy">Privacy</a>
+<a data-go="S11-terms" href="#terms">Terms</a>
+</div>
+<span class="atelier-version-tag">build 2026.11</span>
+</div>
+</template>
+<template data-screen="S01-meet">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Meet Natally</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">I am an astrologer companion in a candlelit room. I translate planetary positions into spoken conversation and tangible chart mechanics.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<span></span>
+<button class="atelier-btn-secondary" data-go="S01-chart" style="width: auto; padding: 0 16px; margin: 0;">Next →</button>
+</div>
+</template>
+<template data-screen="S01-chart">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Your chart</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">The natal wheel captures the sky at your exact first breath. It maps planets, houses, and aspects in an interactive three-dimensional space.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<button class="atelier-btn-secondary" data-go="S01-meet" style="width: auto; padding: 0 16px; margin: 0;">← Previous</button>
+<button class="atelier-btn-secondary" data-go="S01-aloud" style="width: auto; padding: 0 16px; margin: 0;">Next →</button>
+</div>
+</template>
+<template data-screen="S01-aloud">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Reading aloud</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">Words are paced with genuine natural speech. You can follow each sentence highlighted in the caption or read the transcript here.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<button class="atelier-btn-secondary" data-go="S01-chart" style="width: auto; padding: 0 16px; margin: 0;">← Previous</button>
+<button class="atelier-btn-secondary" data-go="S01-personal" style="width: auto; padding: 0 16px; margin: 0;">Next →</button>
+</div>
+</template>
+<template data-screen="S01-personal">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Personal readings</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">Ask questions about relationships, career, transits, or personal chart nuances. We explore each placement through deliberate questions.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<button class="atelier-btn-secondary" data-go="S01-aloud" style="width: auto; padding: 0 16px; margin: 0;">← Previous</button>
+<button class="atelier-btn-secondary" data-go="S01-prices" style="width: auto; padding: 0 16px; margin: 0;">Next →</button>
+</div>
+</template>
+<template data-screen="S01-prices">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Prices</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">Chart creation is completely free. Conversation packs are US$5, US$10, or US$25. Interactive natal keepsake is US$30.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<button class="atelier-btn-secondary" data-go="S01-personal" style="width: auto; padding: 0 16px; margin: 0;">← Previous</button>
+<button class="atelier-btn-secondary" data-go="S01-learn" style="width: auto; padding: 0 16px; margin: 0;">Next →</button>
+</div>
+</template>
+<template data-screen="S01-learn">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Learn astrology</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">Touch any planetary symbol or house cusp on the wheel to hear Natally unpack its astronomical calculation and mythological meaning.</p>
+<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+<button class="atelier-btn-secondary" data-go="S01-prices" style="width: auto; padding: 0 16px; margin: 0;">← Previous</button>
+<button class="atelier-btn-primary" data-go="S04-name" style="width: auto; padding: 0 16px; margin: 0;">Cast chart</button>
+</div>
+</template>
+<!-- S02: AUTHENTICATION FAMILY (SIX VIEWS) -->
+<template data-screen="S02-choose">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Save your chart</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-secondary-text">Keep your personal sky, readings, and conversation credits accessible across visits.</p>
+<button class="atelier-btn-secondary" data-go="S10-google" style="margin-bottom: 10px;">Continue with Google</button>
+<button class="atelier-btn-secondary" data-go="S02-email" style="margin-bottom: 10px;">Continue with email</button>
+<button class="atelier-btn-secondary" data-go="S02-phone">Continue with SMS</button>
+</template>
+<template data-screen="S02-email">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Sign in</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S02-choose">←</button>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="signin-email">Email</label>
+<input autocomplete="email" class="atelier-input" id="signin-email" placeholder="you@domain.com" type="email"/>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="signin-pwd">Password</label>
+<input autocomplete="current-password" class="atelier-input" id="signin-pwd" placeholder="••••••••" type="password"/>
+</div>
+<button class="atelier-btn-primary" data-go="S11-signing-in">Sign in</button>
+<button class="atelier-btn-secondary" data-go="S02-register">Create account</button>
+<button class="atelier-btn-text" data-go="S02-reset">Forgot password</button>
+</template>
+<template data-screen="S02-register">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Create account</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S02-email">←</button>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="reg-email">Email</label>
+<input class="atelier-input" id="reg-email" placeholder="you@domain.com" type="email"/>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="reg-pwd">Password</label>
+<input class="atelier-input" id="reg-pwd" placeholder="At least 6 characters" type="password"/>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="reg-pwd2">Confirm password</label>
+<input class="atelier-input" id="reg-pwd2" placeholder="Repeat password" type="password"/>
+</div>
+<button class="atelier-btn-primary" data-go="S11-signing-in">Create account</button>
+</template>
+<template data-screen="S02-reset">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Reset password</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S02-email">←</button>
+</div>
+<p class="atelier-secondary-text">Enter your email address and we will send you a link to reset your password.</p>
+<div class="atelier-field-group">
+<label class="atelier-label" for="reset-email">Email</label>
+<input class="atelier-input" id="reset-email" placeholder="you@domain.com" type="email"/>
+</div>
+<button class="atelier-btn-primary" data-go="S02-email" onclick="alert('Password reset link sent.');">Send reset email</button>
+</template>
+<template data-screen="S02-phone">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Sign in by SMS</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S02-choose">←</button>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="phone-input">Phone number</label>
+<input autocomplete="tel" class="atelier-input" id="phone-input" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<!-- Real reCAPTCHA reserved region -->
+<div class="atelier-recaptcha-region">
+<label class="atelier-recaptcha-check">
+<input checked="" id="recaptcha-tick" type="checkbox"/>
+<span>I'm not a robot</span>
+</label>
+<span style="font-family: var(--font-mono); font-size: 10px; color: var(--quiet-linen);">reCAPTCHA</span>
+</div>
+<p class="atelier-secondary-text" style="font-size: 12px; margin-bottom: 16px;">
+      Standard message and data rates may apply. By continuing you agree to receive a single verification passcode.
+    </p>
+<button class="atelier-btn-primary" data-go="S02-code">Send code</button>
+</template>
+<template data-screen="S02-code">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Enter your code</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S02-phone">←</button>
+</div>
+<p class="atelier-secondary-text">We sent a six-digit verification code to your phone.</p>
+<div class="atelier-field-group">
+<label class="atelier-label" for="sms-code">Code</label>
+<input class="atelier-input" id="sms-code" maxlength="6" placeholder="123456" style="letter-spacing: 0.3em; font-family: var(--font-mono); font-size: 20px; text-align: center;" type="text"/>
+</div>
+<button class="atelier-btn-primary" data-go="S11-signing-in">Verify code</button>
+<button class="atelier-btn-secondary" onclick="alert('New verification code sent');">Resend code</button>
+<button class="atelier-btn-text" data-go="S02-phone">Change number</button>
+</template>
+<!-- S03: SIGNED-IN FIRST VISIT -->
+<template data-screen="S03-first-visit">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Your birth chart</h1>
+</div>
+<p class="atelier-body-text">Let’s find your sky.</p>
+<button class="atelier-btn-primary" data-go="S04-name">Cast my chart</button>
+<p class="atelier-cost-line">Signed in · Ready to calculate</p>
+</template>
+<!-- S04: BIRTH DETAILS INTAKE (FOUR STEPS) -->
+<template data-screen="S04-name">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">What should I call you?</h1>
+<button aria-label="Cancel" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<div class="atelier-step-dots">
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot"></div>
+<div class="atelier-step-dot"></div>
+<div class="atelier-step-dot"></div>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="user-name-input">Name</label>
+<input autofocus="" class="atelier-input" id="user-name-input" placeholder="Your first name" type="text"/>
+</div>
+<button class="atelier-btn-primary" data-go="S04-date">Continue</button>
+</template>
+<template data-screen="S04-date">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">When were you born?</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S04-name">←</button>
+</div>
+<div class="atelier-step-dots">
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot"></div>
+<div class="atelier-step-dot"></div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: 8px; margin-bottom: 16px;">
+<div class="atelier-field-group">
+<label class="atelier-label" for="birth-day">Day</label>
+<input class="atelier-input" id="birth-day" max="31" min="1" placeholder="14" type="number"/>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="birth-month">Month</label>
+<input class="atelier-input" id="birth-month" placeholder="March" type="text"/>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="birth-year">Year</label>
+<input class="atelier-input" id="birth-year" max="2026" min="1900" placeholder="1992" type="number"/>
+</div>
+</div>
+<button class="atelier-btn-primary" data-go="S04-place">Continue</button>
+</template>
+<template data-screen="S04-place">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Where were you born?</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S04-date">←</button>
+</div>
+<div class="atelier-step-dots">
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot"></div>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="birth-place">Birthplace search</label>
+<input class="atelier-input" id="birth-place" type="text" value="Florence, Tuscany, Italy"/>
+</div>
+<div style="font-size: 13px; color: var(--aged-brass); margin-bottom: 16px; background: rgba(207,173,112,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--brass-edge);">
+      Confirmed: 43.7696° N, 11.2558° E (Europe/Rome)
+    </div>
+<button class="atelier-btn-primary" data-go="S04-time">Continue</button>
+</template>
+<template data-screen="S04-time">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">What time were you born?</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S04-place">←</button>
+</div>
+<div class="atelier-step-dots">
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+<div class="atelier-step-dot active"></div>
+</div>
+<div class="atelier-field-group">
+<label class="atelier-label" for="birth-time">Birth time</label>
+<input class="atelier-input" id="birth-time" type="time" value="06:45"/>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+<input id="unknown-time" style="width: 18px; height: 18px; accent-color: var(--aged-brass);" type="checkbox"/>
+<label for="unknown-time" style="font-size: 14px; color: var(--quiet-linen); cursor: pointer;">I don’t know my exact time</label>
+</div>
+<button class="atelier-btn-primary" data-go="S05-casting">Cast my chart</button>
+</template>
+<!-- S05: CALCULATION & ERROR -->
+<template data-screen="S05-casting">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Casting your chart…</h1>
+</div>
+<p class="atelier-body-text">Aligning coordinates, computing planetary ephemeris, and casting house cusps.</p>
+<div class="atelier-progress-bar">
+<div class="atelier-progress-fill" style="width: 65%;"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--quiet-linen); font-family: var(--font-mono);">
+<span>Ephemeris: Swiss DE431</span>
+<span>2.4s elapsed</span>
+</div>
+<div style="margin-top: 24px; display: flex; flex-direction: column; gap: 8px;">
+<button class="atelier-btn-secondary" data-go="S06-reading">Complete calculation →</button>
+<button class="atelier-btn-text" data-go="S05-error">Simulate provider timeout</button>
+</div>
+</template>
+<template data-screen="S05-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Calculation error</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S04-time">←</button>
+</div>
+<div class="atelier-status-banner error">
+      Ephemeris service timed out resolving historical time zone.
+    </div>
+<p class="atelier-secondary-text">Your birth details were preserved. You can retry the calculation or adjust the inputs.</p>
+<button class="atelier-btn-primary" data-go="S05-casting">Try again</button>
+<button class="atelier-btn-secondary" data-go="S04-time">Edit birth details</button>
+</template>
+<!-- S06: PERSONAL READING & CHART FOCUS -->
+<template data-screen="S06-reading">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Your reading</h1>
+<button aria-label="Menu" class="atelier-rail-btn-icon" data-go="S07-menu">☰</button>
+</div>
+<!-- Transcript Region -->
+<div class="atelier-transcript-scroll">
+<div class="atelier-msg-bubble-natally">
+<strong>Natally:</strong> Your Sun sits at 22° Pisces in the fifth house of creation and depth. Water signs govern your inner reflections, while an ascendant in Scorpio lends you intense discernment.
+      </div>
+<div class="atelier-msg-bubble-user">
+        What does Moon in Taurus mean here?
+      </div>
+<div class="atelier-msg-bubble-natally">
+<strong>Natally:</strong> Taurus grounds you. When life feels hurried, sensory stability and deliberate pacing restore your clarity.
+      </div>
+</div>
+<!-- Ask Natally Composer -->
+<div class="atelier-field-group">
+<label class="atelier-label" for="ask-natally-field">Ask Natally</label>
+<input class="atelier-input" id="ask-natally-field" placeholder="Ask about your chart…" type="text"/>
+</div>
+<button class="atelier-btn-primary" style="margin-bottom: 12px;">Send</button>
+<!-- Collapsed Chart Notes -->
+<details style="border: 1px solid var(--brass-edge); border-radius: 10px; padding: 10px 14px; background: rgba(0,0,0,0.2);">
+<summary style="cursor: pointer; font-size: 14px; font-weight: 600; color: var(--candle-cream);">Chart notes</summary>
+<p style="font-size: 13px; color: var(--quiet-linen); margin-top: 8px;">
+        Fifth House Stellium · Sun trine Ascendant · Moon sextile Neptune. Touch aspects on the stage wheel to explore.
+      </p>
+</details>
+<div style="margin-top: 16px; display: flex; gap: 8px;">
+<button class="atelier-btn-secondary" data-go="S06-chart-focus">Focus wheel</button>
+<button class="atelier-btn-secondary" data-go="S09-offer">Keepsake</button>
+</div>
+</template>
+<template data-screen="S06-chart-focus">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Chart focus</h1>
+<button aria-label="Return to reading" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<p class="atelier-body-text">The wheel is brought to full focus in the stage. Natally docks into the stage inset to provide commentary on selected cusps.</p>
+<div class="atelier-field-group">
+<label class="atelier-label">Active focus point</label>
+<div style="padding: 10px 14px; border: 1px solid var(--brass-edge); border-radius: 8px; background: var(--plum-solid); font-size: 14px;">
+        Ascendant 14° Scorpio · First House
+      </div>
+</div>
+<p class="atelier-secondary-text" style="font-size: 13px;">
+      Rotate the perimeter ring to trace transit alignments or tap planets for spoken explanations.
+    </p>
+<button class="atelier-btn-primary" data-go="S06-reading">Return to conversation</button>
+</template>
+<!-- S07: HEADER MENU AND ACCOUNT -->
+<template data-screen="S07-menu">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Atelier menu</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<button class="atelier-btn-secondary" data-go="S01-meet" style="justify-content: flex-start; padding-left: 16px;">Meet Natally</button>
+<button class="atelier-btn-secondary" data-go="S01-chart" style="justify-content: flex-start; padding-left: 16px;">Your chart</button>
+<button class="atelier-btn-secondary" data-go="S01-aloud" style="justify-content: flex-start; padding-left: 16px;">Reading aloud</button>
+<button class="atelier-btn-secondary" data-go="S01-personal" style="justify-content: flex-start; padding-left: 16px;">Personal readings</button>
+<button class="atelier-btn-secondary" data-go="S01-prices" style="justify-content: flex-start; padding-left: 16px;">Prices</button>
+<button class="atelier-btn-secondary" data-go="S01-learn" style="justify-content: flex-start; padding-left: 16px;">Learn astrology</button>
+<button class="atelier-btn-secondary" data-go="S07-account" style="justify-content: flex-start; padding-left: 16px;">Account &amp; credits</button>
+</div>
+</template>
+<template data-screen="S07-account">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Account</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+<div class="atelier-account-avatar" style="width: 44px; height: 44px; font-size: 16px;">
+        JD
+      </div>
+<div>
+<div style="font-weight: 600; color: var(--candle-cream);">visitor@example.com</div>
+<div style="font-size: 13px; color: var(--quiet-linen);">Active chart: Florence 1992</div>
+</div>
+</div>
+<div style="background: var(--plum-solid); border: 1px solid var(--brass-edge); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;">
+<div style="font-size: 13px; color: var(--quiet-linen);">Conversation allowance</div>
+<div style="font-size: 22px; font-weight: 700; color: var(--aged-brass); font-family: var(--font-mono); margin-top: 4px;">
+        3 credits remaining
+      </div>
+</div>
+<button class="atelier-btn-primary" data-go="S08-topup" style="margin-bottom: 10px;">Top up</button>
+<button class="atelier-btn-secondary" data-go="S09-retained" style="margin-bottom: 10px;">My keepsake</button>
+<button class="atelier-btn-text" data-go="S01-guest">Sign out</button>
+</template>
+<!-- S08: TOP-UP, REDEMPTION & CHECKOUT -->
+<template data-screen="S08-topup">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Conversation credits</h1>
+<button aria-label="Back" class="atelier-rail-btn-icon" data-go="S07-account">←</button>
+</div>
+<div style="font-size: 13px; color: var(--quiet-linen); margin-bottom: 14px;">Current balance: 3 credits</div>
+<div class="atelier-choice-group">
+<label class="atelier-choice-label">
+<div style="display: flex; align-items: center;">
+<input checked="" name="credit_pack" type="radio" value="5"/>
+<span>5 conversation credits</span>
+</div>
+<span class="atelier-choice-price">US$5</span>
+</label>
+<label class="atelier-choice-label">
+<div style="display: flex; align-items: center;">
+<input name="credit_pack" type="radio" value="10"/>
+<span>12 conversation credits</span>
+</div>
+<span class="atelier-choice-price">US$10</span>
+</label>
+<label class="atelier-choice-label">
+<div style="display: flex; align-items: center;">
+<input name="credit_pack" type="radio" value="25"/>
+<span>35 conversation credits</span>
+</div>
+<span class="atelier-choice-price">US$25</span>
+</label>
+</div>
+<button class="atelier-btn-primary" data-go="S08-checkout">Continue</button>
+<!-- Subordinate redeem code disclosure -->
+<details style="margin-top: 20px; border-top: 1px solid rgba(207,173,112,0.15); padding-top: 14px;">
+<summary style="font-size: 13px; color: var(--quiet-linen); cursor: pointer;">Redeem admin code</summary>
+<div style="display: flex; gap: 8px; margin-top: 10px;">
+<input class="atelier-input" placeholder="Enter code" style="height: 40px; font-size: 14px;" type="text"/>
+<button class="atelier-btn-secondary" data-go="S08-redeem-result" style="height: 40px; margin: 0; width: auto; padding: 0 14px;">Redeem</button>
+</div>
+</details>
+</template>
+<template data-screen="S08-checkout">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Opening checkout…</h1>
+<button aria-label="Cancel" class="atelier-rail-btn-icon" data-go="S08-topup">✕</button>
+</div>
+<p class="atelier-body-text">Connecting securely to Chargebee checkout provider.</p>
+<div class="atelier-progress-bar">
+<div class="atelier-progress-fill" style="width: 80%;"></div>
+</div>
+<div style="margin-top: 24px; display: flex; flex-direction: column; gap: 8px;">
+<button class="atelier-btn-primary" data-go="S07-account" onclick="alert('Payment verified! Balance updated.');">Simulate payment success</button>
+<button class="atelier-btn-secondary" data-go="S08-cancelled">Simulate user cancellation</button>
+<button class="atelier-btn-text" data-go="S08-error">Simulate gateway failure</button>
+</div>
+</template>
+<template data-screen="S08-cancelled">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Checkout cancelled</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S08-topup">✕</button>
+</div>
+<p class="atelier-body-text">The checkout window was closed. No charge was made to your payment method.</p>
+<button class="atelier-btn-primary" data-go="S08-topup">Return to conversation credits</button>
+</template>
+<template data-screen="S08-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Payment failed</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S08-topup">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      Chargebee checkout rejected transaction: provider unavailable.
+    </div>
+<p class="atelier-secondary-text">No payment was processed. You can retry with a different method.</p>
+<button class="atelier-btn-primary" data-go="S08-topup">Try again</button>
+</template>
+<template data-screen="S08-redeem-result">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Redemption</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S08-topup">✕</button>
+</div>
+<div class="atelier-status-banner" style="border-color: var(--aged-brass); color: var(--candle-cream);">
+      Code verified: 10 credits added to allowance.
+    </div>
+<button class="atelier-btn-primary" data-go="S07-account">View account</button>
+</template>
+<!-- S09: KEEPSAKE OFFER, PREPARING, DONE, RETAINED VIEWER -->
+<template data-screen="S09-offer">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Keep your sky</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<p class="atelier-body-text">Your natal report, as a PDF and an interactive keepsake.</p>
+<div style="background: var(--plum-solid); border: 1px solid var(--brass-edge); border-radius: 12px; padding: 16px; margin: 16px 0;">
+<div style="font-size: 13px; color: var(--quiet-linen);">Keepsake edition</div>
+<div style="font-size: 26px; font-weight: 700; color: var(--aged-brass); font-family: var(--font-mono);">
+        US$30
+      </div>
+<p style="font-size: 13px; color: var(--quiet-linen); margin-top: 6px;">Includes full 12-house astronomical breakdown and high-resolution chart vector export.</p>
+</div>
+<button class="atelier-btn-primary" data-go="S09-preparing">Get my keepsake</button>
+</template>
+<template data-screen="S09-preparing">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Preparing your keepsake…</h1>
+</div>
+<p class="atelier-body-text">Compiling high-resolution vector houses, astronomical aspects, and customized commentary.</p>
+<div class="atelier-progress-bar">
+<div class="atelier-progress-fill" style="width: 72%;"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--quiet-linen); font-family: var(--font-mono);">
+<span>Rendering SVG pages</span>
+<span>72%</span>
+</div>
+<button class="atelier-btn-secondary" data-go="S09-done" style="margin-top: 20px;">Complete export →</button>
+</template>
+<template data-screen="S09-done">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Keepsake ready</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<p class="atelier-body-text">Your interactive keepsake and natal report PDF have been generated.</p>
+<button class="atelier-btn-primary" data-go="S09-retained" style="margin-bottom: 10px;">Open keepsake</button>
+<button class="atelier-btn-secondary" onclick="alert('Downloading natal_report_florence_1992.pdf');">Download PDF</button>
+</template>
+<template data-screen="S09-retained">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">My keepsake</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<div style="border: 1px solid var(--brass-edge); border-radius: 10px; padding: 12px; background: rgba(0,0,0,0.3); margin-bottom: 16px;">
+<div style="font-weight: 600; color: var(--aged-brass); font-size: 14px;">Natal Sky · Florence 1992</div>
+<div style="font-size: 12px; color: var(--quiet-linen); margin-top: 4px;">43.7696° N, 11.2558° E · Placidus Houses</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--candle-cream); margin-bottom: 16px;">
+<div>• Section I: Natal Angles &amp; Dominant Elements</div>
+<div>• Section II: Sun-Moon-Rising Triad &amp; Transits</div>
+<div>• Section III: Planetary Aspects Matrix</div>
+</div>
+<button class="atelier-btn-primary" onclick="alert('Downloading high-res PDF archive');">Download PDF</button>
+<button class="atelier-btn-secondary" data-go="S06-chart-focus">View interactive 3D wheel</button>
+</template>
+<!-- S10: NATIVE BROWSER HANDOFF BRIDGE -->
+<template data-screen="S10-google">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Continue in browser</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S02-choose">✕</button>
+</div>
+<div class="atelier-bridge-box">
+<p style="font-size: 14px; color: var(--candle-cream); margin-bottom: 10px;">
+        Authentication opens in your secure system browser.
+      </p>
+<div style="font-family: var(--font-mono); font-size: 11px; color: var(--quiet-linen); word-break: break-all;">
+        OAuth origin: accounts.google.com<br/>Nonce: 7f83b2a09c
+      </div>
+</div>
+<button class="atelier-btn-primary" data-go="S10-return">Open browser session</button>
+<button class="atelier-btn-secondary" data-go="S02-choose">Cancel</button>
+</template>
+<template data-screen="S10-phone">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">SMS browser bridge</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S02-phone">✕</button>
+</div>
+<div class="atelier-bridge-box">
+<p style="font-size: 14px; color: var(--candle-cream);">
+        Secure phone verification via platform external gateway.
+      </p>
+</div>
+<button class="atelier-btn-primary" data-go="S10-code">Continue to verification</button>
+</template>
+<template data-screen="S10-code">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Verification bridge</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S10-phone">✕</button>
+</div>
+<div class="atelier-bridge-box">
+<div style="font-size: 13px; color: var(--candle-cream);">Waiting for one-time code confirmation…</div>
+</div>
+<button class="atelier-btn-primary" data-go="S10-return">Verify &amp; Return</button>
+</template>
+<template data-screen="S10-return">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Return to Natally</h1>
+</div>
+<p class="atelier-body-text">External verification completed. Returning to your atelier session.</p>
+<button class="atelier-btn-primary" data-go="S03-first-visit">Resume atelier</button>
+</template>
+<template data-screen="S10-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Session expired</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S02-choose">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      The authentication handoff token expired or was cancelled by the host system.
+    </div>
+<button class="atelier-btn-primary" data-go="S02-choose">Restart sign in</button>
+</template>
+<!-- S11: STATUS, RECOVERY, UTILITY & ERROR VIEWS -->
+<template data-screen="S11-signing-in">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Signing you in…</h1>
+</div>
+<p class="atelier-body-text">Validating credentials with Firebase authentication service.</p>
+<div class="atelier-progress-bar">
+<div class="atelier-progress-fill" style="width: 50%;"></div>
+</div>
+<button class="atelier-btn-secondary" data-go="S03-first-visit" style="margin-top: 20px;">Simulate signed in →</button>
+</template>
+<template data-screen="S11-voice-loading">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Voice model</h1>
+</div>
+<p class="atelier-body-text">Downloading local synthesis voice weights for natural speech.</p>
+<div class="atelier-progress-bar">
+<div class="atelier-progress-fill" style="width: 44%;"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--quiet-linen); font-family: var(--font-mono);">
+<span>natally-v2-acoustic.bin</span>
+<span>44%</span>
+</div>
+<button class="atelier-btn-secondary" data-go="S06-reading" style="margin-top: 16px;">Continue reading</button>
+</template>
+<template data-screen="S11-voice-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Audio synthesis</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      Voice package download interrupted by network reset.
+    </div>
+<p class="atelier-secondary-text">Spoken voice is disabled, but readings remain fully readable in the caption and transcript.</p>
+<button class="atelier-btn-primary" data-go="S11-voice-loading">Retry voice download</button>
+</template>
+<template data-screen="S11-art-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Scene assets</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      WebGL renderer context failed to compile room shaders.
+    </div>
+<button class="atelier-btn-primary" onclick="location.reload();">Reload atelier</button>
+</template>
+<template data-screen="S11-network-error">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Connection lost</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      Unable to reach ephemeris calculations server. Check your connection.
+    </div>
+<button class="atelier-btn-primary" data-go="S05-casting">Retry connection</button>
+</template>
+<template data-screen="S11-no-allowance">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Zero credits</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<p class="atelier-body-text">You have exhausted your active conversation allowance.</p>
+<button class="atelier-btn-primary" data-go="S08-topup">Top up credits</button>
+<button class="atelier-btn-secondary" data-go="S06-reading">Review existing chart</button>
+</template>
+<template data-screen="S11-rate-limited">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Please wait</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S06-reading">✕</button>
+</div>
+<div class="atelier-status-banner error">
+      Too many questions sent in short succession. Cooldown: 18 seconds.
+    </div>
+<button class="atelier-btn-secondary" data-go="S06-reading">Back to reading</button>
+</template>
+<template data-screen="S11-privacy">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Privacy</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">
+      Birth details are used solely to compute astronomical positions and natal house cusps. We do not sell personal data or track advertising identifiers.
+    </p>
+<div style="font-size: 13px; color: var(--quiet-linen); margin-bottom: 20px;">
+      Direct link: <a href="/privacy.html" style="color: var(--aged-brass);">/privacy.html</a>
+</div>
+<button class="atelier-btn-secondary" data-go="S01-guest">Back</button>
+</template>
+<template data-screen="S11-terms">
+<div class="atelier-rail-header">
+<h1 class="atelier-rail-title">Terms</h1>
+<button aria-label="Close" class="atelier-rail-btn-icon" data-go="S01-guest">✕</button>
+</div>
+<p class="atelier-body-text">
+      Astrology readings and keepsakes are provided for entertainment and personal exploration. Conversation packs are non-refundable once consumed.
+    </p>
+<div style="font-size: 13px; color: var(--quiet-linen); margin-bottom: 20px;">
+      Direct link: <a href="/terms.html" style="color: var(--aged-brass);">/terms.html</a>
+</div>
+<button class="atelier-btn-secondary" data-go="S01-guest">Back</button>
+</template>
+<!-- =============================================================
+       TINY INLINE PROTOTYPE CONTROLLER SCRIPT
+       Supports: ?screen=STATE in query, [data-go] clicks,
+       switching templates into #atelier-rail-mount without remounting stage
+       ============================================================= -->
+<script>
+    (function() {
+      const mount = document.getElementById('atelier-rail-mount');
+      const chartFocusEl = document.getElementById('atelier-chart-focused-element');
+      const captionEl = document.getElementById('atelier-caption-text');
+      const allowanceDisplay = document.getElementById('atelier-allowance-display');
+
+      function getScreenFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('screen') || 'S01-guest';
+      }
+
+      function mountScreen(screenId) {
+        const template = document.querySelector(`template[data-screen="${screenId}"]`);
+        if (!template) {
+          console.warn('Unknown screen variant:', screenId);
+          return;
+        }
+
+        // Mount template content into the rail
+        mount.innerHTML = '';
+        mount.appendChild(template.content.cloneNode(true));
+
+        // Toggle focused chart view if S06-chart-focus
+        if (screenId === 'S06-chart-focus') {
+          chartFocusEl.style.display = 'flex';
+        } else {
+          chartFocusEl.style.display = 'none';
+        }
+
+        // Update signed-in allowance badge visibility
+        const isSignedIn = ['S03-first-visit', 'S06-reading', 'S06-chart-focus', 'S07-account', 'S08-topup', 'S09-offer', 'S09-retained'].includes(screenId);
+        allowanceDisplay.style.display = isSignedIn ? 'block' : 'none';
+
+        // Update captions according to state context
+        if (screenId === 'S06-reading' || screenId === 'S06-chart-focus') {
+          captionEl.innerHTML = '<span>Natally: <span class="atelier-spoken-word">“Your</span> Sun sits at 22° Pisces, trine to your Scorpio ascendant.”</span>';
+        } else if (screenId.startsWith('S04')) {
+          captionEl.innerHTML = '<span>Natally: <span class="atelier-spoken-word">“Take</span> your time with your coordinates. Precision gives clarity.”</span>';
+        } else if (screenId === 'S05-casting') {
+          captionEl.innerHTML = '<span>Natally: <span class="atelier-spoken-word">“The</span> sky is aligning. One moment as I compute your houses.”</span>';
+        } else {
+          captionEl.innerHTML = '<span>Natally: <span class="atelier-spoken-word">“Welcome</span> into the atelier. Tell me your birth sky when you are ready.”</span>';
+        }
+
+        // Scroll rail to top on transition
+        mount.scrollTop = 0;
+      }
+
+      // Event delegation for state transitions
+      document.addEventListener('click', function(e) {
+        const target = e.target.closest('[data-go]');
+        if (target) {
+          e.preventDefault();
+          const targetScreen = target.getAttribute('data-go');
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set('screen', targetScreen);
+          window.history.pushState({ screen: targetScreen }, '', newUrl);
+          mountScreen(targetScreen);
+        }
+      });
+
+      // Handle browser back/forward buttons
+      window.addEventListener('popstate', function(e) {
+        mountScreen(getScreenFromUrl());
+      });
+
+      // Initialize on load
+      mountScreen(getScreenFromUrl());
+
+      // Audio toggle handler
+      const soundBtn = document.getElementById('ctrl-sound');
+      let soundActive = true;
+      soundBtn.addEventListener('click', function() {
+        soundActive = !soundActive;
+        soundBtn.querySelector('span').textContent = soundActive ? 'Sound on' : 'Sound muted';
+      });
+    })();
+  </script>
+</body>
+</html>

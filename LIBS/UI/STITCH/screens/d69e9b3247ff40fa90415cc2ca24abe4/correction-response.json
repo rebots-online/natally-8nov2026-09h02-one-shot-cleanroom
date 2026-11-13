@@ -1,0 +1,298 @@
+{
+  "outputComponents": [
+    {
+      "design": {
+        "screens": [
+          {
+            "designSystem": {
+              "designSystem": {
+                "displayName": "Natally's Live Atelier",
+                "styleGuidelines": "## Brand & Style\n\nThis design system is built for a character-led, candlelit interactive atelier. The atmosphere is intimate, curious, and tactile, centering on a live 3D room, animated character, and chart. The aesthetic relies on restrained dark acrylic work areas that frame the scene without ever obstructing it. \n\nThe visual style embraces a dark, atmospheric minimalism combined with tactile glassmorphism. It uses deep, warm foundations, subtle translucencies, and a single restrained metallic accent to evoke a physical, magical, and grounded workshop environment.\n\n## Layout & Spacing\n\nThe layout is structured using a semantic CSS Grid system. On desktop, the main workspace uses a fluid grid with a dominant scene column and a fixed 352px task rail (`minmax(0, 1fr) 352px`) separated by 24px gutters. \n\nBelow 768px, the layout collapses into a single vertical column: header, persistent stage, caption, and active task. The live stage is bounded between 240px and 380px (approx 44dvh) depending on the viewport, ensuring the character and interactive chart are never obscured or cropped by cards or overlays.\n\n## Elevation & Depth\n\nVisual hierarchy and separation are achieved through restrained acrylic layering and low-contrast borders rather than heavy drop shadows or neon glows. \n\nThe task rail and overlay surfaces utilize an acrylic blur (`blur(16px) saturate(125%)`) paired with a subtle `Brass Edge` outline (`rgba(207, 173, 112, 0.26)`). This communicates distinct spatial planes and structural containment while maintaining the intimate, candlelit atmosphere of the physical room.\n\n## Components\n\nAll interface components are styled to integrate seamlessly into the dark atelier workspace.\n\n- **Header:** Fixed height (52px desktop / 48px phone) featuring a left-aligned Playfair wordmark, compact navigation, and right-aligned identity/account controls containing a 32px customer avatar within a 44px touch target.\n- **Task Rail:** 352px wide on desktop with 24px padding, 16px corners, 1px brass edge, and backdrop blur. Functions as a dedicated document region on mobile.\n- **Buttons:** 48px height with 12px corners. Features an `Aged Brass` fill for the single primary action with dark ink text, complemented by quiet outline alternatives and transform-only tactile feedback.\n- **Inputs:** 48px minimum height, 12px corners, `Plum Solid` fill, persistent label positioned above the field, 1px edge, and a visible 2px brass focus ring. Inline errors appear strictly below fields.\n- **Captions & Status:** Two real lines maximum at the stage foot using cream text and Spoken Light for current words. Status regions use compact acrylic layouts with truthful progress indicators.",
+                "theme": {
+                  "bodyFont": "OUTFIT",
+                  "bodyFontFamily": "Outfit",
+                  "colorMode": "DARK",
+                  "colorVariant": "FIDELITY",
+                  "customColor": "#cfad70",
+                  "designMd": "---\nname: Natally's Live Atelier\ncolors:\n  surface: '#16130f'\n  surface-dim: '#16130f'\n  surface-bright: '#3c3934'\n  surface-container-lowest: '#100e0a'\n  surface-container-low: '#1e1b17'\n  surface-container: '#221f1b'\n  surface-container-high: '#2d2925'\n  surface-container-highest: '#38342f'\n  on-surface: '#e9e1da'\n  on-surface-variant: '#d1c5b5'\n  inverse-surface: '#e9e1da'\n  inverse-on-surface: '#33302b'\n  outline: '#998f81'\n  outline-variant: '#4d463a'\n  surface-tint: '#e5c283'\n  primary: '#ecc889'\n  on-primary: '#412d00'\n  primary-container: '#cfad70'\n  on-primary-container: '#58400d'\n  inverse-primary: '#755a26'\n  secondary: '#d0c2d4'\n  on-secondary: '#362d3b'\n  secondary-container: '#524857'\n  on-secondary-container: '#c5b7c9'\n  tertiary: '#bccdf8'\n  on-tertiary: '#1e3052'\n  tertiary-container: '#a1b2db'\n  on-tertiary-container: '#334467'\n  error: '#ffb4ab'\n  on-error: '#690005'\n  error-container: '#93000a'\n  on-error-container: '#ffdad6'\n  primary-fixed: '#ffdea6'\n  primary-fixed-dim: '#e5c283'\n  on-primary-fixed: '#271900'\n  on-primary-fixed-variant: '#5b4310'\n  secondary-fixed: '#eddef1'\n  secondary-fixed-dim: '#d0c2d4'\n  on-secondary-fixed: '#211826'\n  on-secondary-fixed-variant: '#4d4352'\n  tertiary-fixed: '#d8e2ff'\n  tertiary-fixed-dim: '#b5c6f0'\n  on-tertiary-fixed: '#061b3c'\n  on-tertiary-fixed-variant: '#36466a'\n  background: '#16130f'\n  on-background: '#e9e1da'\n  surface-variant: '#38342f'\n  atelier-ink: '#130F18'\n  plum-glass: rgba(27, 19, 32, 0.78)\n  plum-solid: '#211824'\n  candle-cream: '#F5EAD7'\n  quiet-linen: '#C5B7A7'\n  aged-brass: '#CFAD70'\n  brass-edge: rgba(207, 173, 112, 0.26)\n  spoken-light: '#FFF36B'\ntypography:\n  wordmark-desktop:\n    fontFamily: Playfair Display\n    fontSize: 28px\n    fontWeight: '600'\n    lineHeight: '1.2'\n  wordmark-phone:\n    fontFamily: Playfair Display\n    fontSize: 24px\n    fontWeight: '600'\n    lineHeight: '1.2'\n  task-heading:\n    fontFamily: Playfair Display\n    fontSize: 24px\n    fontWeight: '600'\n    lineHeight: '1.2'\n  body-default:\n    fontFamily: Outfit\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: '1.5'\n  label-default:\n    fontFamily: Outfit\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: '1.4'\n  metadata:\n    fontFamily: monospace\n    fontSize: 12px\n    fontWeight: '400'\n    lineHeight: '1.4'\nrounded:\n  sm: 0.125rem\n  DEFAULT: 0.25rem\n  md: 0.375rem\n  lg: 0.5rem\n  xl: 0.75rem\n  full: 9999px\nspacing:\n  gutter: 24px\n  margin: 24px\n  space-xs: 4px\n  space-sm: 8px\n  space-md: 16px\n  space-lg: 24px\n  space-xl: 32px\n---\n\n# Design System: Natally's live atelier\n\nRepository: rebots-online/astronatally. Google Stitch generation specification.\nRead alongside PRD.md; the operator's existing atmosphere takes precedence over\ngeneric design-skill preferences. This is a character-led atelier, not a\ndashboard or a new branding exercise.\n\n## 1. Visual Theme & Atmosphere\n\nCandlelit, intimate, curious and tactile. The real animated room is the main\ncomposition. Density4, variance4, motion6 in the scene and motion2 in controls.\nThe screen is evidence: Natally and an interactive three-dimensional chart.\nInterface surfaces are restrained dark acrylic work areas beside that evidence.\nNever put a welcome or sign-in card over her face, hat, hands or crystal ball.\nNever reproduce her likeness in a logo, portrait medallion, avatar or form.\n\n## 2. Color Palette & Roles\n\n- **Atelier Ink** (#130F18) \u2014 page/header foundation, a warm near-black.\n- **Plum Glass** (rgba(27,19,32,.78)) \u2014 legible task rail over the same atmosphere.\n- **Plum Solid** (#211824) \u2014 reduced-transparency/blur fallback and inputs.\n- **Candle Cream** (#F5EAD7) \u2014 primary interface and body text.\n- **Quiet Linen** (#C5B7A7) \u2014 secondary copy that remains readable.\n- **Aged Brass** (#CFAD70) \u2014 the single interface accent: primary action,\n  selected border, focus. Saturation below80%; dark ink text on filled buttons.\n- **Brass Edge** (rgba(207,173,112,.26)) \u2014 structural rail/input border.\n- **Spoken Light** (#FFF36B) \u2014 existing active spoken word, not a competing\n  decorative accent; preserve its sharp edge and luminous treatment.\n- Errors use the existing accessible error color only as semantic feedback.\n\nThe violet character clothing and jewel art are the existing authored scene,\nnot permission for neon purple controls or a second interface accent. No\ngradient text, outer neon glow, pure black page canvas or new illustration style.\n\n## 3. Typography Rules\n\n- **Identity/task display:** Playfair Display from existing local font asset.\n  This deliberate product-continuity exception preserves the user's design\n  factors. Wordmark28px desktop/24px phone; task heading24px, line-height1.2.\n- **Controls/body:** Outfit,16px with1.5 line-height; labels14px/600. Bundle the\n  actual exported font for native/offline fidelity; do not depend on remote CSS.\n- **Metadata:** monospace12px, tabular numbers for balance/progress/version.\n- Max body measure55ch in the rail,65ch in printable/utility content.\n- One heading per task. No giant centered welcome, uppercase ceremony labels,\n  duplicate descriptions, Inter replacement or tiny input text.\n\n## 4. Component Stylings\n\n- **Header:**52px desktop/48px phone, no vacant masthead; text wordmark left,\n  compact navigation, identity/account right. Actual customer avatar32px inside\n  a44px control. No Natally portrait logo.\n- **Task rail:** about352px wide desktop,24px padding,16px corners,1px Brass\n  Edge, blur16px/saturate125%. Shadow communicates separation without neon.\n  Phone rail is a full-width document region with20px padding below the stage.\n- **Buttons:**48px height,12px corners, Aged Brass fill for the single primary,\n  dark text; quiet outline/text alternatives; transform-only tactile feedback.\n- **Inputs:**48px minimum,12px corners, Plum Solid fill, persistent label above,\n 1px edge, visible2px brass focus ring. Inline errors below, never placeholders\n  replacing labels. ReCAPTCHA occupies its actual dedicated region.\n- **Caption:**two real lines maximum at the stage foot; do not overlay the face\n  or ball. Preserve spoken-word indexing, cream text and Spoken Light current\n  word. Long transcript is in the rail.\n- **Status:**small truthful acrylic region, actual progress bar/size/percentage,\n  Retry only on error. Appearing/disappearing never changes stage or scrollY.\n- **Navigation:**real existing sections, no dead anchors; compact Previous/Next\n  only when that direction exists. Menu opens within the task rail.\n- **Empty/pending/error:**use actual field/calculation/loading state, not a\n  decorative avatar, circular marketing loader or invented customer content.\n\n## 5. Layout Principles\n\nUse semantic CSS Grid. Header spans columns. Desktop main grid is\n`minmax(0,1fr) 352px`, with24px gutter; scene occupies the dominant column.\nContain rail reading width, not the entire immersive room in a small card.\nBelow768px use one column: header \u2192 persistent stage \u2192 caption \u2192 active task.\nThe stage band is approximately44dvh, bounded240\u2013380px where viewport permits.\nUse dynamic/visual viewport sizing and native safe-area padding. No horizontal\nscroll, no second nested phone feed and no screen-height modal.\n\nEvery element has its own spatial region. The live stage's existing inset may\nfloat/dock within its stage as its contract requires; never count that as\npermission for a form or marketing card to cover Natally. Contain complete\nregistered room/character geometry; do not crop her face or ball to fit a card.\nThe focused wheel keeps its entire thick 3D profile and perimeter markings.\nUse the exact current asset set, not stock room photos or new mascot artwork.\n\n## 6. Motion & Interaction\n\nKeep existing actual scene/voice/cue behavior, including manual view pin,\nspeech-paced highlight and reduced motion. No new perpetual animation on\nbuttons, inputs or account controls; interaction must remain calm. Swap motion\nuses the existing eased transition; animate transform/opacity rather than layout.\nDo not remount the live scene when switching rail tasks. No fake voice waveform,\nfake progress, staged reading or default forced audio.\n\n## 7. Anti-Patterns (Banned)\n\nNo welcome blocker, full-viewport tint, duplicate character likeness, oversized\naccount image, staged customer success, testimonial, invented balance, new mic\nor upload function, explanation of hidden room mechanics, decorative eyebrow\ntext, three-equal-card promotion grid, gradient headline, custom cursor, neon\nbutton glow, placeholder artwork or broken remote image. Exact prices and actual\nprovider state override attractive placeholder copy. Do not add a new logo,\nfeature or service while reproducing the prototype.\n\n## 8. Export contract\n\nGenerate actual responsive HTML with CSS and explicit stable slots:\n`data-slot=\"header\"`, `data-slot=\"stage\"`, `data-slot=\"caption\"`,\n`data-slot=\"rail\"`, `data-slot=\"status\"`. Use class prefix `atelier-` for the\nnew shared frame. Keep complete real screen families S01\u2013S11 from PRD.md,\nincluding auth/intake/checkout/recovery variants. Include actual existing art\nas content assets in the stage slot; implementation replaces only that slot\nwith the existing live renderer. Do not flatten the complete UI into a picture.\nPreserve exact generated exports, screen IDs, screenshots and SHA-256 hashes;\nany asset correction must happen in Stitch before freezing. Reproduce the\nexport's actual DOM/CSS, not an independently styled approximation.",
+                  "font": "PLAYFAIR_DISPLAY",
+                  "headlineFont": "PLAYFAIR_DISPLAY",
+                  "headlineFontFamily": "Playfair Display",
+                  "labelFont": "OUTFIT",
+                  "labelFontFamily": "Outfit",
+                  "namedColors": {
+                    "aged-brass": "#CFAD70",
+                    "atelier-ink": "#130F18",
+                    "background": "#16130f",
+                    "brass-edge": "rgba(207, 173, 112, 0.26)",
+                    "candle-cream": "#F5EAD7",
+                    "error": "#ffb4ab",
+                    "error_container": "#93000a",
+                    "inverse_on_surface": "#33302b",
+                    "inverse_primary": "#755a26",
+                    "inverse_surface": "#e9e1da",
+                    "on_background": "#e9e1da",
+                    "on_error": "#690005",
+                    "on_error_container": "#ffdad6",
+                    "on_primary": "#412d00",
+                    "on_primary_container": "#58400d",
+                    "on_primary_fixed": "#271900",
+                    "on_primary_fixed_variant": "#5b4310",
+                    "on_secondary": "#362d3b",
+                    "on_secondary_container": "#c5b7c9",
+                    "on_secondary_fixed": "#211826",
+                    "on_secondary_fixed_variant": "#4d4352",
+                    "on_surface": "#e9e1da",
+                    "on_surface_variant": "#d1c5b5",
+                    "on_tertiary": "#1e3052",
+                    "on_tertiary_container": "#334467",
+                    "on_tertiary_fixed": "#061b3c",
+                    "on_tertiary_fixed_variant": "#36466a",
+                    "outline": "#998f81",
+                    "outline_variant": "#4d463a",
+                    "plum-glass": "rgba(27, 19, 32, 0.78)",
+                    "plum-solid": "#211824",
+                    "primary": "#ecc889",
+                    "primary_container": "#cfad70",
+                    "primary_fixed": "#ffdea6",
+                    "primary_fixed_dim": "#e5c283",
+                    "quiet-linen": "#C5B7A7",
+                    "secondary": "#d0c2d4",
+                    "secondary_container": "#524857",
+                    "secondary_fixed": "#eddef1",
+                    "secondary_fixed_dim": "#d0c2d4",
+                    "spoken-light": "#FFF36B",
+                    "surface": "#16130f",
+                    "surface_bright": "#3c3934",
+                    "surface_container": "#221f1b",
+                    "surface_container_high": "#2d2925",
+                    "surface_container_highest": "#38342f",
+                    "surface_container_low": "#1e1b17",
+                    "surface_container_lowest": "#100e0a",
+                    "surface_dim": "#16130f",
+                    "surface_tint": "#e5c283",
+                    "surface_variant": "#38342f",
+                    "tertiary": "#bccdf8",
+                    "tertiary_container": "#a1b2db",
+                    "tertiary_fixed": "#d8e2ff",
+                    "tertiary_fixed_dim": "#b5c6f0"
+                  },
+                  "overridePrimaryColor": "#cfad70",
+                  "overrideSecondaryColor": "#1b1320",
+                  "roundness": "ROUND_FOUR",
+                  "spacing": {
+                    "gutter": "24px",
+                    "margin": "24px",
+                    "space-lg": "24px",
+                    "space-md": "16px",
+                    "space-sm": "8px",
+                    "space-xl": "32px",
+                    "space-xs": "4px"
+                  },
+                  "spacingScale": 2,
+                  "typography": {
+                    "body-default": {
+                      "fontFamily": "Outfit",
+                      "fontSize": "16px",
+                      "fontWeight": "400",
+                      "lineHeight": "1.5"
+                    },
+                    "label-default": {
+                      "fontFamily": "Outfit",
+                      "fontSize": "14px",
+                      "fontWeight": "600",
+                      "lineHeight": "1.4"
+                    },
+                    "metadata": {
+                      "fontFamily": "monospace",
+                      "fontSize": "12px",
+                      "fontWeight": "400",
+                      "lineHeight": "1.4"
+                    },
+                    "task-heading": {
+                      "fontFamily": "Playfair Display",
+                      "fontSize": "24px",
+                      "fontWeight": "600",
+                      "lineHeight": "1.2"
+                    },
+                    "wordmark-desktop": {
+                      "fontFamily": "Playfair Display",
+                      "fontSize": "28px",
+                      "fontWeight": "600",
+                      "lineHeight": "1.2"
+                    },
+                    "wordmark-phone": {
+                      "fontFamily": "Playfair Display",
+                      "fontSize": "24px",
+                      "fontWeight": "600",
+                      "lineHeight": "1.2"
+                    }
+                  }
+                }
+              },
+              "name": "assets/de2732fb73e04b1a8815be4699a0e7ec",
+              "version": "1"
+            },
+            "deviceType": "DESKTOP",
+            "generatedBy": "HatterAgent",
+            "height": "2048",
+            "htmlCode": {
+              "downloadUrl": "https://stitch.googleapis.com/v1/projects/16384422545803483395/files/61112b50931549efa53186abb83c4bc6:download",
+              "mimeType": "text/html",
+              "name": "projects/16384422545803483395/files/61112b50931549efa53186abb83c4bc6"
+            },
+            "id": "d69e9b3247ff40fa90415cc2ca24abe4",
+            "name": "projects/16384422545803483395/screens/d69e9b3247ff40fa90415cc2ca24abe4",
+            "prompt": "Edit the screen in full compliance with the strict atelier specifications and corrections:\n1. Room & Chart visual: Remove atelier-room-svg generated SVG fallback and onerror handler. Keep <img class=\"atelier-room-img\" src=\"/atelier/room.webp\" alt=\"Natally's atelier\">. Remove all generated chart SVG and Natally-inset SVG. For guest demo and chart-focus visual use <img class=\"atelier-chart-preview\" src=\"./assets/current-live-chart.png\" alt=\"Demonstration chart from the current live renderer\"> inside data-slot=\"chart\". Natally inset, only when wheel focused, must use full /atelier/room.webp contained, never another likeness. Remove fabricated planet positions/cusps/signs/house claims and delete 'Natal Wheel \u00b7 Concentric Degrees & Houses' and fabricated Ascendant/Sun/Moon facts. Ensure stage controls have minimum 44px touch targets. Stage control Pause motion with data-action=\"toggle-motion\".\n2. Customer data & identity: Remove ALL invented customer data (JD, visitor@example.com, Florence1992, birth-place/time values, fake balances, fake credits, fabricated reports, fabricated transcripts and captions). Empty form inputs, retain field labels. Use data-bind containers for identity, allowance, transcript, report, error, progress. Allowed loading copy is 'Checking your balance\u2026'. Radio choice labels EXACTLY US$5, US$10, US$25 with no claimed number of credits, duration or discount. Brand header allowance hidden or 'Checking\u2026'. Metadata version empty data-bind=\"version\", not build 2026.11.\n3. Clean actions & bindings: Delete EVERY alert(), simulated success/payment/timeout, debug action, receipt, and fake sound-toggle handler. Set data-action=\"google-sign-in|email-sign-in|register|reset-password|send-code|verify-code|resend-code|calculate-chart|send-message|checkout|redeem|buy-keepsake|download-pdf|native-return|retry\" appropriately. State templates switchable cleanly via data-go or query parameter for design review only.\n4. reCAPTCHA & Auth: Exact blank <div data-bind=\"recaptcha\" class=\"atelier-recaptcha-region\"></div> (min-height 78px). SMS consent exact: 'By choosing Send code, you consent to receive an SMS for sign-in. Message and data rates may apply. Google uses phone numbers to help prevent spam and abuse.' Code field blank, 6 digits max, no placeholder. Status slot data-bind=\"status\".\n5. S01 exact copy: meet 'Sit with me and explore the wheel.'; chart 'This demonstration uses an example sky. Your chart is calculated from your birth details.'; aloud 'Tap a chart detail to hear its explanation and see it highlighted.'; personal 'Ask about your chart. Conversation uses credits when you choose to buy them.'; prices 'Your chart is free. Conversation packs: US$5, US$10 or US$25. Keepsake: US$30.'; learn 'Select a planet, sign, house or aspect to hear what it means.' S02choose heading 'Save your chart' with 3 methods. S03 title 'Your birth chart', 'Let's find your sky.', button 'Cast my chart' entering S02choose.\n6. S04 Intake: 4 steps ('1 of 4', '2 of 4', '3 of 4', '4 of 4'). Empty defaults, Day/Month/Year with data-action=\"calendar\". Birthplace search empty + data-bind=\"place-suggestions\" and data-bind=\"confirmed-place\". Time empty, label 'I don\u2019t know'. Each field has data-bind=\"field-error\" inline.\n7. S05, S07, S08: S05casting title 'Casting your chart\u2026' with data-bind=\"elapsed\"; S05error 'Your chart could not be calculated.' with data-bind=\"error\". S08checkout 'Opening checkout\u2026'. Checkout error 'Checkout unavailable', cancelled 'Checkout closed before payment.', dynamic data-bind=\"redemption-result\". Voice progress indeterminate <progress> + empty data-bind=\"voice-bytes\". Network failure 'The connection was interrupted. Try again.', rate-limit 'Please wait before trying again.' with data-bind=\"retry-after\". Artwork failure 'Room artwork is unavailable.' with Retry artwork action.\n8. S06 Reading: Title 'Your reading'. Empty transcript data-bind=\"transcript\" with min-height 160px. Ask Natally input + Send action. Collapsed Chart notes slot. Caption empty two-line band data-bind=\"spoken-caption\". Interactive links/buttons min 44px, inputs/body font 16px. 2px brass focus outline on all interactive elements.\n9. S09 Keepsake: Title 'Keep your sky', body 'Your natal report, as a PDF and an interactive keepsake.', price 'US$30', button 'Get my keepsake'. Preparing 'Preparing your keepsake\u2026'. Done 'Keepsake ready' with Open keepsake and Download PDF actions. Retained has data-bind=\"report-title|report-birth-facts|report-sections|report-chart\".\n10. Native S10: Google title 'Continue in your browser'. SMS and code forms consistent with S02. S10return 'Return to Natally to finish signing in.' S10error 'This sign-in request expired. Start again in Natally.'\n11. Privacy/Terms link /privacy.html and /terms.html. Exact design tokens (#130F18, rgba(27,19,32,.78), #211824, #F5EAD7, #C5B7A7, #CFAD70). Header 52px desktop / 48px mobile, rail 352px desktop. Preserve all template states.",
+            "screenMetadata": {
+              "agentType": "PRO_AGENT",
+              "status": "COMPLETE"
+            },
+            "screenType": "DESIGN",
+            "screenshot": {
+              "downloadUrl": "https://stitch.googleapis.com/v1/projects/16384422545803483395/files/67878bcd21a8444781eabda78d651f01:download",
+              "name": "projects/16384422545803483395/files/67878bcd21a8444781eabda78d651f01"
+            },
+            "theme": {
+              "bodyFont": "OUTFIT",
+              "bodyFontFamily": "Outfit",
+              "colorMode": "DARK",
+              "colorVariant": "FIDELITY",
+              "customColor": "#cfad70",
+              "font": "PLAYFAIR_DISPLAY",
+              "headlineFont": "PLAYFAIR_DISPLAY",
+              "headlineFontFamily": "Playfair Display",
+              "labelFont": "OUTFIT",
+              "labelFontFamily": "Outfit",
+              "namedColors": {
+                "aged-brass": "#CFAD70",
+                "atelier-ink": "#130F18",
+                "background": "#16130f",
+                "brass-edge": "rgba(207, 173, 112, 0.26)",
+                "candle-cream": "#F5EAD7",
+                "error": "#ffb4ab",
+                "error_container": "#93000a",
+                "inverse_on_surface": "#33302b",
+                "inverse_primary": "#755a26",
+                "inverse_surface": "#e9e1da",
+                "on_background": "#e9e1da",
+                "on_error": "#690005",
+                "on_error_container": "#ffdad6",
+                "on_primary": "#412d00",
+                "on_primary_container": "#58400d",
+                "on_primary_fixed": "#271900",
+                "on_primary_fixed_variant": "#5b4310",
+                "on_secondary": "#362d3b",
+                "on_secondary_container": "#c5b7c9",
+                "on_secondary_fixed": "#211826",
+                "on_secondary_fixed_variant": "#4d4352",
+                "on_surface": "#e9e1da",
+                "on_surface_variant": "#d1c5b5",
+                "on_tertiary": "#1e3052",
+                "on_tertiary_container": "#334467",
+                "on_tertiary_fixed": "#061b3c",
+                "on_tertiary_fixed_variant": "#36466a",
+                "outline": "#998f81",
+                "outline_variant": "#4d463a",
+                "plum-glass": "rgba(27, 19, 32, 0.78)",
+                "plum-solid": "#211824",
+                "primary": "#ecc889",
+                "primary_container": "#cfad70",
+                "primary_fixed": "#ffdea6",
+                "primary_fixed_dim": "#e5c283",
+                "quiet-linen": "#C5B7A7",
+                "secondary": "#d0c2d4",
+                "secondary_container": "#524857",
+                "secondary_fixed": "#eddef1",
+                "secondary_fixed_dim": "#d0c2d4",
+                "spoken-light": "#FFF36B",
+                "surface": "#16130f",
+                "surface_bright": "#3c3934",
+                "surface_container": "#221f1b",
+                "surface_container_high": "#2d2925",
+                "surface_container_highest": "#38342f",
+                "surface_container_low": "#1e1b17",
+                "surface_container_lowest": "#100e0a",
+                "surface_dim": "#16130f",
+                "surface_tint": "#e5c283",
+                "surface_variant": "#38342f",
+                "tertiary": "#bccdf8",
+                "tertiary_container": "#a1b2db",
+                "tertiary_fixed": "#d8e2ff",
+                "tertiary_fixed_dim": "#b5c6f0"
+              },
+              "overridePrimaryColor": "#cfad70",
+              "overrideSecondaryColor": "#1b1320",
+              "roundness": "ROUND_FOUR",
+              "spacing": {
+                "gutter": "24px",
+                "margin": "24px",
+                "space-lg": "24px",
+                "space-md": "16px",
+                "space-sm": "8px",
+                "space-xl": "32px",
+                "space-xs": "4px"
+              },
+              "spacingScale": 2,
+              "typography": {
+                "body-default": {
+                  "fontFamily": "Outfit",
+                  "fontSize": "16px",
+                  "fontWeight": "400",
+                  "lineHeight": "1.5"
+                },
+                "label-default": {
+                  "fontFamily": "Outfit",
+                  "fontSize": "14px",
+                  "fontWeight": "600",
+                  "lineHeight": "1.4"
+                },
+                "metadata": {
+                  "fontFamily": "monospace",
+                  "fontSize": "12px",
+                  "fontWeight": "400",
+                  "lineHeight": "1.4"
+                },
+                "task-heading": {
+                  "fontFamily": "Playfair Display",
+                  "fontSize": "24px",
+                  "fontWeight": "600",
+                  "lineHeight": "1.2"
+                },
+                "wordmark-desktop": {
+                  "fontFamily": "Playfair Display",
+                  "fontSize": "28px",
+                  "fontWeight": "600",
+                  "lineHeight": "1.2"
+                },
+                "wordmark-phone": {
+                  "fontFamily": "Playfair Display",
+                  "fontSize": "24px",
+                  "fontWeight": "600",
+                  "lineHeight": "1.2"
+                }
+              }
+            },
+            "title": "Natally \u2014 Live Atelier Master (Spec Compliant)",
+            "width": "2560"
+          }
+        ],
+        "theme": {}
+      }
+    },
+    {
+      "text": "I have updated the Natally Live Atelier Master screen in full accordance with the specification and freeze requirements:\n\n1. **Room & Chart Assets**: Removed all generated fallback SVG structures, fabricated chart SVGs, and inline mockups. The room stage references `<img class=\"atelier-room-img\" src=\"/atelier/room.webp\">`, and demo/focused wheel states utilize the clean chart container with `<img class=\"atelier-chart-preview\" src=\"./assets/current-live-chart.png\" alt=\"Demonstration chart from the current live renderer\">` within `data-slot=\"chart\"`. When the wheel is focused, any inset view uses the contained room without fabricated character likenesses.\n2. **Customer Data & Identity**: Cleared all invented user data (JD, visitor@example.com, Florence1992, prefilled birth data, fabricated report summaries, transcripts, and static captions). Replaced them with proper `data-bind` placeholders for identity, allowance, transcripts, reports, and error/progress containers. Input fields are empty with persistent labels, and pack prices are set to `US$5`, `US$10`, and `US$25` without ungrounded credit counts.\n3. **Actions & Service Handlers**: Stripped all mock alerts, simulated timers, fake receipts, and mock sound handlers. All service interactions are strictly declarative with standardized `data-action` hooks awaiting backend integration (`google-sign-in`, `email-sign-in`, `calculate-chart`, `send-code`, `verify-code`, `checkout`, `buy-keepsake`, `download-pdf`, etc.).\n4. **Verification & Auth**: The reCAPTCHA region is now a blank container (`data-bind=\"recaptcha\"` with 78px minimum height). SMS disclosure text matches the exact verbatim string, and phone verification inputs are clean.\n5. **Exact Spec Copy**: S01 intro states match the concise two-sentence copy for each mode (meet, chart, aloud, personal, prices, learn). S02/S03/S04 intake transitions and question steps are verified.\n6. **Interaction & Sizing**: Controls and interactive targets are set to 44px minimum touch height, body typography is 16px Outfit, and 2px Aged Brass focus outlines are established for keyboard navigation. Tokens strictly adhere to the palette (`#130F18`, `rgba(27,19,32,.78)`, `#211824`, `#F5EAD7`, `#C5B7A7`, `#CFAD70`)."
+    },
+    {
+      "suggestion": "Review the S04 intake multi-step states"
+    },
+    {
+      "suggestion": "Inspect the S06 reading layout and caption container"
+    },
+    {
+      "suggestion": "Check native S10 bridge and terms/privacy templates"
+    }
+  ],
+  "projectId": "16384422545803483395",
+  "sessionId": "15430259020557196187"
+}

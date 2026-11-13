@@ -1,0 +1,770 @@
+{
+  "repository": "rebots-online/astronatally",
+  "project": "16384422545803483395",
+  "screen": "projects/16384422545803483395/screens/d69e9b3247ff40fa90415cc2ca24abe4",
+  "sourceHtml": {
+    "file": "master.html",
+    "sha256": "58b11534f01da85c2aca9a73aa2dfccf13411274a70509ce65e4ff9090afc0bc"
+  },
+  "sharedCss": {
+    "file": "shared.css",
+    "sha256": "3d8dcfc54ce9243685c26960894ab31ba1ca97892eb59ebdc49233e674287c32",
+    "extraction": "Exact concatenation of authoritative HTML <style> textContent, with no typography/layout/style alteration."
+  },
+  "states": [
+    {
+      "id": "S01-guest",
+      "file": "templates/S01-guest.html",
+      "sha256": "33f3bdbefd2d27adfc228134fd730e763cf972bae40ff54baf86a50504d980d8",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-meet",
+      "file": "templates/S01-meet.html",
+      "sha256": "f2cffbb6a683601befb9ed822f874ed2d661f6a7ccb855d7a014bccc460b6a43",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-chart",
+      "file": "templates/S01-chart.html",
+      "sha256": "dbfe69d1a8125c6a6cd5d2c9fa5c8b54780b088c2c08841aaa08981f435c3ba8",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-aloud",
+      "file": "templates/S01-aloud.html",
+      "sha256": "c0965fc0eb67fba888097761832b12dbb407eb9c9f875fa37714beed259db2e2",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-personal",
+      "file": "templates/S01-personal.html",
+      "sha256": "117ebe0ff8a794f54f5431f3692aafa27759ac8714b6ed34bd25259e5264b58c",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-prices",
+      "file": "templates/S01-prices.html",
+      "sha256": "481ee44a7dd9f953bcfd77ac1b00aff5d1a1917eaa3ea0e47cd5239f4ea30182",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S01-learn",
+      "file": "templates/S01-learn.html",
+      "sha256": "619fa83e0b9691429dbdf7714aa000094c245969a68c8ff1dddded9650d98161",
+      "component": "AppShell.App + LandingCards",
+      "service": "Existing example chart, section navigation, authored tap explanations, presentation reducer",
+      "observation": "Guest stage remains interactive; six factual information pages, no onboarding obstruction",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S02-choose",
+      "file": "templates/S02-choose.html",
+      "sha256": "53c2c01dcd5e811757bbb5f47d85c883b416405f418beaa77ee0d1b3c46c7012",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [],
+      "serviceActions": [
+        "google-sign-in"
+      ]
+    },
+    {
+      "id": "S02-email",
+      "file": "templates/S02-email.html",
+      "sha256": "e5c73822bb043b402003c5285662a1bd51d7d7eeaf28e18014556e984066dae7",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "email-sign-in"
+      ]
+    },
+    {
+      "id": "S02-register",
+      "file": "templates/S02-register.html",
+      "sha256": "855396de1ef3ddde95c43881440affc1dded5126be28c4bf57088084a2ebb3b6",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "register"
+      ]
+    },
+    {
+      "id": "S02-reset",
+      "file": "templates/S02-reset.html",
+      "sha256": "d70303c2cccd43aba4ffd0cde41546357c12991359f56c8eb4e4234bdd344e51",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [
+        "field-error",
+        "status"
+      ],
+      "serviceActions": [
+        "reset-password"
+      ]
+    },
+    {
+      "id": "S02-phone",
+      "file": "templates/S02-phone.html",
+      "sha256": "fca608c1a93754140247b5dbd1c9638b90116042f699c4fecfb678224101a92d",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [
+        "field-error",
+        "recaptcha"
+      ],
+      "serviceActions": [
+        "send-code"
+      ]
+    },
+    {
+      "id": "S02-code",
+      "file": "templates/S02-code.html",
+      "sha256": "93e475e815e161486ebe4b9c31a506adc112432de0f6e43a4fd0d331d38b1df3",
+      "component": "SignInPanel",
+      "service": "Existing Firebase Google/email/registration/reset/SMS callbacks and phone-session cleanup",
+      "observation": "Real provider choice/form fields remain reachable; rail never traps or obscures stage",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "verify-code",
+        "resend-code"
+      ]
+    },
+    {
+      "id": "S03-first-visit",
+      "file": "templates/S03-first-visit.html",
+      "sha256": "1fda9a57184ca71d051b486fb4a8e3044b44b6be74c7d49703415bb2f374fdea",
+      "component": "FirstLight",
+      "service": "Existing welcome-to-intake phase transition",
+      "observation": "Compact invitation; sole persistent parent stage, no duplicate character",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S04-name",
+      "file": "templates/S04-name.html",
+      "sha256": "a231305080bff55f222c3969d247719142db0f57f65a8f1efa56f6686d05aeb7",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S04-date",
+      "file": "templates/S04-date.html",
+      "sha256": "77d1af586d8dc4a9e11bb8b5142c05922c71ad786bdf8291c20e091aeec3fc2a",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error",
+        "calendar-month",
+        "calendar-year",
+        "calendar-days"
+      ],
+      "serviceActions": [
+        "calendar-prev",
+        "calendar-year",
+        "calendar-next",
+        "calendar-pick-day"
+      ]
+    },
+    {
+      "id": "S04-date-calendar",
+      "file": "templates/S04-date-calendar.html",
+      "sha256": "77d1af586d8dc4a9e11bb8b5142c05922c71ad786bdf8291c20e091aeec3fc2a",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error",
+        "calendar-month",
+        "calendar-year",
+        "calendar-days"
+      ],
+      "serviceActions": [
+        "calendar-prev",
+        "calendar-year",
+        "calendar-next",
+        "calendar-pick-day"
+      ]
+    },
+    {
+      "id": "S04-date-year",
+      "file": "templates/S04-date-year.html",
+      "sha256": "dfd1a454d748277314129297d6f55cfef28f854809212036f6ae939a13f03d22",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error",
+        "calendar-month",
+        "calendar-year"
+      ],
+      "serviceActions": [
+        "calendar-prev",
+        "calendar-year",
+        "calendar-next",
+        "calendar-pick-year"
+      ]
+    },
+    {
+      "id": "S04-place",
+      "file": "templates/S04-place.html",
+      "sha256": "0163d2879830c8fb71042f542ebae2e52f68d4ff700bd945c8cc9d6c39d06872",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error",
+        "place-suggestions",
+        "place-suggestion"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S04-place-suggestions",
+      "file": "templates/S04-place-suggestions.html",
+      "sha256": "62789f4de1f4f81a8bcf221d807066a91b2b5de2683ca5078dd7eda67d351e9a",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error",
+        "place-suggestions",
+        "place-suggestion"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S04-place-confirmed",
+      "file": "templates/S04-place-confirmed.html",
+      "sha256": "fda0ce27f52264169f3dac682c4b327fa509a72182c6774ffb62929a0e65b7c1",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "confirmed-place",
+        "place-label",
+        "place-coordinates",
+        "place-timezone"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S04-time",
+      "file": "templates/S04-time.html",
+      "sha256": "ce9aa1c1121a7bb2b87707ccf0a85dff0bbf5c495e081a5337925e19cd196c7d",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "time-picker",
+        "unknown-time",
+        "calculate-chart"
+      ]
+    },
+    {
+      "id": "S04-time-unknown",
+      "file": "templates/S04-time-unknown.html",
+      "sha256": "3fb06bb826342ef36fdfb353fd250a43eccb19dacc95f2d0d4782704b3b401c3",
+      "component": "OriginalFirstLight + BirthDateFields + CalendarPicker",
+      "service": "Existing draft/validation/gazetteer/unknown-time; four steps omit unused currentLocation",
+      "observation": "Immediate typed fields; actual calendar month/day/year, suggestions/confirmed place, unknown time",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "unknown-time",
+        "calculate-chart"
+      ]
+    },
+    {
+      "id": "S05-casting",
+      "file": "templates/S05-casting.html",
+      "sha256": "91dd12859b50124e252f8c72befdbea9031409dcba936157c843a71080235d63",
+      "component": "FirstLight",
+      "service": "Existing onCreate/natalChart computation, elapsed state and retry/recovery",
+      "observation": "Actual computation/error in rail, no fake progress or second wheel",
+      "dataBindings": [
+        "elapsed"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S05-error",
+      "file": "templates/S05-error.html",
+      "sha256": "75d48dc8ddcf905586b7516ee73b0e04d24514bc894de5bc88fa046d1a455111",
+      "component": "FirstLight",
+      "service": "Existing onCreate/natalChart computation, elapsed state and retry/recovery",
+      "observation": "Actual computation/error in rail, no fake progress or second wheel",
+      "dataBindings": [
+        "error"
+      ],
+      "serviceActions": [
+        "calculate-chart"
+      ]
+    },
+    {
+      "id": "S06-reading",
+      "file": "templates/S06-reading.html",
+      "sha256": "00659836ecf1478407fab2a2134d5e3489659dca0f219425471b8093ee3470b3",
+      "component": "ChatPanel + AppShell.Inset/Astrolabe3D/ReadingStage",
+      "service": "Existing SSE/opening/word-paced cue driver/voice/highlight/manual pin/drag-dock-resize",
+      "observation": "Live renderer occupies stage; real transcript/composer; focused view keeps Natally visible",
+      "dataBindings": [
+        "transcript",
+        "field-error",
+        "chart-notes"
+      ],
+      "serviceActions": [
+        "send-message"
+      ]
+    },
+    {
+      "id": "S06-chart-focus",
+      "file": "templates/S06-chart-focus.html",
+      "sha256": "00659836ecf1478407fab2a2134d5e3489659dca0f219425471b8093ee3470b3",
+      "component": "ChatPanel + AppShell.Inset/Astrolabe3D/ReadingStage",
+      "service": "Existing SSE/opening/word-paced cue driver/voice/highlight/manual pin/drag-dock-resize",
+      "observation": "Live renderer occupies stage; real transcript/composer; focused view keeps Natally visible",
+      "dataBindings": [
+        "transcript",
+        "field-error",
+        "chart-notes"
+      ],
+      "serviceActions": [
+        "send-message"
+      ]
+    },
+    {
+      "id": "S07-menu",
+      "file": "templates/S07-menu.html",
+      "sha256": "f8136038c09f3c16d266df86e680d0325938e69fff5d5d2287ce9fa1ab1555b9",
+      "component": "StageHeader + AccountPanel",
+      "service": "Existing identity/allowance/menu/account/signOut",
+      "observation": "Bounded avatar32px in44px control; all account destinations work in signed-in branches",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S07-account",
+      "file": "templates/S07-account.html",
+      "sha256": "ef8b53086b1b5b6736d4516c82be67158a82bd94182a3cbeb27b0d644242ffa5",
+      "component": "StageHeader + AccountPanel",
+      "service": "Existing identity/allowance/menu/account/signOut",
+      "observation": "Bounded avatar32px in44px control; all account destinations work in signed-in branches",
+      "dataBindings": [
+        "identity",
+        "allowance"
+      ],
+      "serviceActions": [
+        "open-keepsake",
+        "sign-out"
+      ]
+    },
+    {
+      "id": "S08-topup",
+      "file": "templates/S08-topup.html",
+      "sha256": "bdfe8e5cf4dba92dbca3e73e00521feb28a30117d6b156c5ace1dfd4691e5a88",
+      "component": "TopUpSheet",
+      "service": "Existing real packs/Chargebee/redeem/idempotent requests/access refresh",
+      "observation": "Exact US$5/10/25; honest pending/cancel/error/result; no numeric allowance before real data",
+      "dataBindings": [
+        "allowance",
+        "field-error",
+        "redemption-result"
+      ],
+      "serviceActions": [
+        "checkout",
+        "redeem"
+      ]
+    },
+    {
+      "id": "S08-checkout",
+      "file": "templates/S08-checkout.html",
+      "sha256": "14d46dbaa561f6fc6a3a8e14bd7779feed8872af3304b4d788a4444c7b956cb5",
+      "component": "TopUpSheet",
+      "service": "Existing real packs/Chargebee/redeem/idempotent requests/access refresh",
+      "observation": "Exact US$5/10/25; honest pending/cancel/error/result; no numeric allowance before real data",
+      "dataBindings": [
+        "checkout-status"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S08-cancelled",
+      "file": "templates/S08-cancelled.html",
+      "sha256": "46e2e0707eed217ab877618f9466d24658d0fb7f34f2452fc2b8bf4868820ac4",
+      "component": "TopUpSheet",
+      "service": "Existing real packs/Chargebee/redeem/idempotent requests/access refresh",
+      "observation": "Exact US$5/10/25; honest pending/cancel/error/result; no numeric allowance before real data",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S08-error",
+      "file": "templates/S08-error.html",
+      "sha256": "630d572b457a4f7d0151a0250e2285583565f50b7fb0cf5c948158ff03d66a55",
+      "component": "TopUpSheet",
+      "service": "Existing real packs/Chargebee/redeem/idempotent requests/access refresh",
+      "observation": "Exact US$5/10/25; honest pending/cancel/error/result; no numeric allowance before real data",
+      "dataBindings": [
+        "error"
+      ],
+      "serviceActions": [
+        "checkout"
+      ]
+    },
+    {
+      "id": "S08-redeem-result",
+      "file": "templates/S08-redeem-result.html",
+      "sha256": "eb0712ba8f3be89edbe5a0c734cf2fcc50a64f6f12f2dc9d5690c2eafd3b5ff2",
+      "component": "TopUpSheet",
+      "service": "Existing real packs/Chargebee/redeem/idempotent requests/access refresh",
+      "observation": "Exact US$5/10/25; honest pending/cancel/error/result; no numeric allowance before real data",
+      "dataBindings": [
+        "redemption-result"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S09-offer",
+      "file": "templates/S09-offer.html",
+      "sha256": "e7751fa3f714360d917ac9c93b39ab5789e0658c37f56382e18de44f92e9bc8e",
+      "component": "SouvenirDialog + SouvenirViewer",
+      "service": "Existing buySouvenir/buildReport/downloadPdf/saveSouvenir/loadSouvenir",
+      "observation": "US$30 offer, real generation/done/viewer; retained local report without repeat purchase",
+      "dataBindings": [],
+      "serviceActions": [
+        "buy-keepsake"
+      ]
+    },
+    {
+      "id": "S09-preparing",
+      "file": "templates/S09-preparing.html",
+      "sha256": "ad50cd5c7eff7d9f0d33356ceb6605dc80f85b1004b5c3c2f46696d54397b710",
+      "component": "SouvenirDialog + SouvenirViewer",
+      "service": "Existing buySouvenir/buildReport/downloadPdf/saveSouvenir/loadSouvenir",
+      "observation": "US$30 offer, real generation/done/viewer; retained local report without repeat purchase",
+      "dataBindings": [
+        "preparation-status"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S09-done",
+      "file": "templates/S09-done.html",
+      "sha256": "9d95e0991a26f20b48e25c35bdc277f42bbc99c263543c5eef460d3b43ad49f0",
+      "component": "SouvenirDialog + SouvenirViewer",
+      "service": "Existing buySouvenir/buildReport/downloadPdf/saveSouvenir/loadSouvenir",
+      "observation": "US$30 offer, real generation/done/viewer; retained local report without repeat purchase",
+      "dataBindings": [
+        "retention-status"
+      ],
+      "serviceActions": [
+        "download-pdf"
+      ]
+    },
+    {
+      "id": "S09-retained",
+      "file": "templates/S09-retained.html",
+      "sha256": "5d5c1568c1ccd4180d9e579bb320a1235504de1531c05a78070e66b89ebd640b",
+      "component": "SouvenirDialog + SouvenirViewer",
+      "service": "Existing buySouvenir/buildReport/downloadPdf/saveSouvenir/loadSouvenir",
+      "observation": "US$30 offer, real generation/done/viewer; retained local report without repeat purchase",
+      "dataBindings": [
+        "report",
+        "report-title",
+        "report-birth-facts",
+        "report-chart",
+        "report-sections",
+        "section-heading",
+        "section-body"
+      ],
+      "serviceActions": [
+        "download-pdf"
+      ]
+    },
+    {
+      "id": "S10-google",
+      "file": "templates/S10-google.html",
+      "sha256": "e3b9348284a9c33548b0cd0da856ff00eb4c20c4a7e3eae82c68b09ccaa686fe",
+      "component": "auth/native.html + bootstrapNativeAuth",
+      "service": "Existing secure Google/SMS native state/origin/nonce/port/deadline/field validation",
+      "observation": "External browser bridge only; actual provider widget slot and no premature native success",
+      "dataBindings": [
+        "native-status"
+      ],
+      "serviceActions": [
+        "native-cancel"
+      ]
+    },
+    {
+      "id": "S10-phone",
+      "file": "templates/S10-phone.html",
+      "sha256": "06e871e7687ae8ed530a205473ea550cf9b31421b5bc79cfcd78a92490038f8f",
+      "component": "auth/native.html + bootstrapNativeAuth",
+      "service": "Existing secure Google/SMS native state/origin/nonce/port/deadline/field validation",
+      "observation": "External browser bridge only; actual provider widget slot and no premature native success",
+      "dataBindings": [
+        "field-error",
+        "recaptcha"
+      ],
+      "serviceActions": [
+        "send-code",
+        "native-cancel"
+      ]
+    },
+    {
+      "id": "S10-code",
+      "file": "templates/S10-code.html",
+      "sha256": "00b90493d292bddf2a5b3772f0d6b69faf07a2a1f25b55229fba708e5f811467",
+      "component": "auth/native.html + bootstrapNativeAuth",
+      "service": "Existing secure Google/SMS native state/origin/nonce/port/deadline/field validation",
+      "observation": "External browser bridge only; actual provider widget slot and no premature native success",
+      "dataBindings": [
+        "field-error"
+      ],
+      "serviceActions": [
+        "native-return",
+        "resend-code",
+        "native-cancel"
+      ]
+    },
+    {
+      "id": "S10-return",
+      "file": "templates/S10-return.html",
+      "sha256": "24c4ee4a3d6bd2e80f6d2490c1170602e51916d4ffa2846e3450eaeefcb859ca",
+      "component": "auth/native.html + bootstrapNativeAuth",
+      "service": "Existing secure Google/SMS native state/origin/nonce/port/deadline/field validation",
+      "observation": "External browser bridge only; actual provider widget slot and no premature native success",
+      "dataBindings": [
+        "native-status"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S10-error",
+      "file": "templates/S10-error.html",
+      "sha256": "3f2a1db446d5f3e38bac4a287f4c9c38ae5df30b5c7e89041a661d7919baf73f",
+      "component": "auth/native.html + bootstrapNativeAuth",
+      "service": "Existing secure Google/SMS native state/origin/nonce/port/deadline/field validation",
+      "observation": "External browser bridge only; actual provider widget slot and no premature native success",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S11-signing-in",
+      "file": "templates/S11-signing-in.html",
+      "sha256": "7169daab5ae898d8e883bf2f336d01b7fc8b2ab87a87ca1ced03e3786b695abb",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "auth-status"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S11-voice-loading",
+      "file": "templates/S11-voice-loading.html",
+      "sha256": "232dd37426868f51ad751c758f59ab4385796f9f6c5c252273a3404167c21606",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "voice-progress",
+        "voice-bytes"
+      ],
+      "serviceActions": []
+    },
+    {
+      "id": "S11-voice-error",
+      "file": "templates/S11-voice-error.html",
+      "sha256": "18aee43724ececcf9788dfb0df1119e0a2e33dac0175e6c94e5b7883eb7ce595",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "error"
+      ],
+      "serviceActions": [
+        "retry-voice"
+      ]
+    },
+    {
+      "id": "S11-art-error",
+      "file": "templates/S11-art-error.html",
+      "sha256": "8a07b860e246938017bb2b1296254613b27881f29aac18d37071bddc08b776ac",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "error"
+      ],
+      "serviceActions": [
+        "retry-artwork"
+      ]
+    },
+    {
+      "id": "S11-network-error",
+      "file": "templates/S11-network-error.html",
+      "sha256": "0c83cf37c29760353032a9c90b57cc73939cd5c2e8f60d0c57a1bd3f1617fb80",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "error"
+      ],
+      "serviceActions": [
+        "retry-message"
+      ]
+    },
+    {
+      "id": "S11-no-allowance",
+      "file": "templates/S11-no-allowance.html",
+      "sha256": "e7ebcf4f2d6f074e017485d6c7a9b6e7b1c4ccaa2292a126f8da5cfd0e6b5cf6",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S11-rate-limited",
+      "file": "templates/S11-rate-limited.html",
+      "sha256": "7c21aa27e093a9eaaa142b5852149ca54aa53bea48b7509ebad3ea59f892699c",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [
+        "retry-after"
+      ],
+      "serviceActions": [
+        "retry-message"
+      ]
+    },
+    {
+      "id": "S11-privacy",
+      "file": "templates/S11-privacy.html",
+      "sha256": "f8b0588928df402d2ab8289770f3076fc97580a5cf525d36f8964a86deab00ee",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [],
+      "serviceActions": []
+    },
+    {
+      "id": "S11-terms",
+      "file": "templates/S11-terms.html",
+      "sha256": "f8bf0c193cee4e46a473e24334e484f7975e186ec1fea0f6a7a9591620a24618",
+      "component": "AppShell + VoiceDownloadStatus/VoiceProgress + existing error/utility modules",
+      "service": "Existing auth/voice/artwork/inference failures and public legal documents",
+      "observation": "Actual sizes/progress/errors; retry relevant operation; legal links point to existing content",
+      "dataBindings": [],
+      "serviceActions": []
+    }
+  ],
+  "implementationAdapters": [
+    "React JSX syntax and event/data bindings only; no iframe or new visual design.",
+    "Replace static existing-room/current-chart preview contents with current live AtelierScene/Inset/Astrolabe3D in same stage geometry; never remount scene on rail switch.",
+    "Convert embedded font/art URLs to bundled equivalent byte-identical local files when required; preserve fonts/tokens/spacing.",
+    "Account avatar uses actual identity32px inside44px target; default anonymous icon conveys no fabricated account.",
+    "Interaction sounds controls only existing natally.atelier.sound-muted foley gate; never claims to mute hardcoded AtelierAmbience.",
+    "Pause motion uses existing AppShell paused/setPaused\u2192ReadingStage\u2192AtelierScene motionEnabled.",
+    "Native browser bridge uses same actual phone/code widgets and stable IDs/security protocol; native stage omitted only on external bridge.",
+    "Provider-owned checkout/reCAPTCHA are actual external widgets and cannot be faithfully faked by prototype HTML.",
+    "Measured visual viewport/native safe-area adaptation may change available size; no hierarchy or semantic changes.",
+    "All app entries including legacy landing.html/src/landing/main.tsx resolve to canonical frozen AppShell frame; preserve purchased-domain roles/query auth handoff/displayVersion and leave retired marketing source unchanged.",
+    "Birthplace suggestion popup is existing native datalist; exported option reference shows actual gazetteer Toronto data. Platform native popup appearance is an explicit idiosyncrasy; preserve the exported confirmed-place chip structure.",
+    "S09-retained concrete report DOM/facts/chart/17sections/actions is generated by existing buildReport from public EXAMPLE_BIRTH and captured AstroChart, only for design reference. Production replaces reference values with actual retained record and omits data-prototype-only reference labels, never invents purchases.",
+    "BirthDateFields preserves existing YYYY/MM/DD typed input, current-month/day grid and actual year chooser; native select/picker appearance is a documented platform adaptation."
+  ],
+  "dynamicDataPolicy": "Templates intentionally contain empty data-bind regions or honest loading. Services fill actual identity, amounts, chart facts, transcript, report, errors and operation results. Prototype never simulates service completion.",
+  "authoritativeFiles": {
+    "html": "projects/16384422545803483395/files/68077327956557277",
+    "screenshot": "projects/16384422545803483395/files/68077327956556163"
+  },
+  "renderedDimensions": {
+    "desktop": [
+      1440,
+      900
+    ],
+    "phone": [
+      390,
+      844
+    ],
+    "providerScreenMetadata": [
+      2560,
+      2048
+    ],
+    "note": "Provider retains stale original desktop metadata after update_screen; actual PNG dimensions are authoritative."
+  },
+  "initialInsetGeometry": {
+    "outerAspect": 1,
+    "desktop": {
+      "width": 260,
+      "height": 260,
+      "left": 16,
+      "top": 76
+    },
+    "phone": {
+      "width": 132,
+      "height": 132,
+      "left": 12,
+      "top": 12
+    },
+    "chromeHeight": 30,
+    "existingMinimumPx": 96,
+    "manualGeometry": "Keep existing drag/resize/dock behavior and per-account persistence. These defaults apply only before manual/restored geometry; no replacement movement system."
+  },
+  "fixtureSources": {
+    "geographic": "assets/demonstration-report.json places[0], existing gazetteer geonames:6167865",
+    "report": "assets/demonstration-report.json; existing natalChart + buildReport; source public EXAMPLE_BIRTH, no customer data or purchase",
+    "reportChart": "assets/current-report-chart.png; existing AstroChart rendered with the same real calculated chart"
+  }
+}

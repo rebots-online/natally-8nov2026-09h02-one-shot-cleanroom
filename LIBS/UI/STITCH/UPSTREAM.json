@@ -1,0 +1,616 @@
+{
+  "sourceRepository": "rebots-online/astronatally",
+  "sourcePullRequest": 1,
+  "sourceCommit": "1b4b65c8badf6c5e079fc346bc33de789dd8ecf4",
+  "identity": "Git commit and byte hashes; version badge is not used to select source",
+  "canonicalRoot": "LIBS/UI/STITCH",
+  "role": "Tracked complete UI export, assets, templates and contracts; ordinary first-party source integration follows",
+  "files": [
+    {
+      "path": "LIBS/UI/STITCH/DESIGN.md",
+      "sourcePath": "DOCS/DESIGN.md",
+      "sha256": "e016e064ce830f38ce48fb991ef4a2871531f129a47eb760cde3fe9cb4d46541",
+      "bytes": 6925
+    },
+    {
+      "path": "LIBS/UI/STITCH/IMPLEMENTATION-ADAPTERS-2026-11-13.md",
+      "sourcePath": "DOCS/IMPLEMENTATION-ADAPTERS-2026-11-13.md",
+      "sha256": "b36fb5a209fff8fe721b823e3da15c4f098be97171497e68d86f008af3c8d847",
+      "bytes": 4589
+    },
+    {
+      "path": "LIBS/UI/STITCH/PRD.md",
+      "sourcePath": "DOCS/PRD.md",
+      "sha256": "a33a81150be25068a427ad4d1dfa87bd4fab47e1be4d90c50e8b618f17385b63",
+      "bytes": 21780
+    },
+    {
+      "path": "LIBS/UI/STITCH/RUBRIC-immersive-stitch-2026-11-13.md",
+      "sourcePath": "DOCS/RUBRIC-immersive-stitch-2026-11-13.md",
+      "sha256": "27558af491edf9c360a35356b72b7c3a6d5bf892034bc2aee6b2fe6dd16a6842",
+      "bytes": 4723
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/SOURCE.md",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/SOURCE.md",
+      "sha256": "e2b160f7670e85f63647dbb332d63b340c59b31308ee1bcf7d0c57318a615baa",
+      "bytes": 1719
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/asset-correction.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/asset-correction.json",
+      "sha256": "ebc391150ead111229129deca132cca771affd2780632cdf140bf88f3e566e72",
+      "bytes": 1229
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/current-first-light.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/current-first-light.html",
+      "sha256": "aa610612d7d8d2f6a2cc6602fe790e3d0f8b8ba80fa665c332a5904a7b73ea36",
+      "bytes": 420914
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/current-first-light.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/current-first-light.png",
+      "sha256": "da60cbfac040b7182e55d8dc2a74a65abdadbc71683a786bca7dd955d24c09a4",
+      "bytes": 274054
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/generated-original.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/generated-original.html",
+      "sha256": "edd4b4fc53fc6dc69284278cffdc6c096c58ce28a94a89742cc5cd234f55f2e7",
+      "bytes": 6418
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/generated-original.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/generated-original.png",
+      "sha256": "a18b260694ecb0c97163e58f919628c4b14fe42844f3cb7966f3cde65df40d9d",
+      "bytes": 324214
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/provider-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/provider-response.json",
+      "sha256": "fce562bc4895848bedab76eb438ea79dabef5727b6fd708b645132a2fb596d95",
+      "bytes": 3440
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/render-observation.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/render-observation.json",
+      "sha256": "7fbc60a825fde806202b279a27b9280ae193a9515a28ad933f9cbc7b6bc1050f",
+      "bytes": 686
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/6e69d41b4a4e418b97b5c83ac901f264/updated-provider-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/baseline/updated-provider-response.json",
+      "sha256": "92084a443266548c935a9df7d800b87fb6352467987f9dbe06f5ea66b2efda36",
+      "bytes": 1040
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/DESIGN-uploaded.md",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/DESIGN-uploaded.md",
+      "sha256": "e016e064ce830f38ce48fb991ef4a2871531f129a47eb760cde3fe9cb4d46541",
+      "bytes": 6925
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/SHA256.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/SHA256.json",
+      "sha256": "6dd56eff51c92613352d85d5e807cd594ef3f8bf8b63ca86c16be776ec8ede64",
+      "bytes": 8937
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/SOURCE.md",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/SOURCE.md",
+      "sha256": "246bddf58296026c85873d07c84909080b1ee3e25d911e4136f7930610ea445a",
+      "bytes": 3557
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/OFL-Outfit.txt",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/OFL-Outfit.txt",
+      "sha256": "c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416",
+      "bytes": 4389
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/SOURCE.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/SOURCE.json",
+      "sha256": "d18167797cbea6114172991dfe65ec0d93af0463afa94ee3250c7228ca0d5870",
+      "bytes": 1927
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/current-live-chart-observation.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/current-live-chart-observation.json",
+      "sha256": "31128a2ad81633ae4f3b69d98f07ee108cc93f4c355aa0b4adf77cdc98dab51b",
+      "bytes": 159
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/current-live-chart.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/current-live-chart.png",
+      "sha256": "e2d42a0d8c4c732bd7da994d5e43f85be62e17870a6487a149dca987abce1e63",
+      "bytes": 78046
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/current-report-chart.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/current-report-chart.png",
+      "sha256": "a7d2e2ce7b6ca44f6c0cdadb49f8c7bd4a6d43d2a352591e846d9aa810aa6a9e",
+      "bytes": 55304
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/demonstration-report.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/demonstration-report.json",
+      "sha256": "346e3d8222302602f9d6b55043a42bad39a39b641238920efc450d8574847cfe",
+      "bytes": 26310
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/outfit-400.ttf",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/outfit-400.ttf",
+      "sha256": "6a8c9be856a6b9e09c66615634904616152c9de5e44db343a3ced240479c586a",
+      "bytes": 47844
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/outfit-500.ttf",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/outfit-500.ttf",
+      "sha256": "9a9f465776e653cd6175661d844555e08684d432518f1d2c621bcb3006598f9c",
+      "bytes": 47800
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/outfit-600.ttf",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/outfit-600.ttf",
+      "sha256": "8900df5726b5a6f23e723594f11d5ea27e695bd85c884f18d88ed080544fe205",
+      "bytes": 48456
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/assets/outfit-700.ttf",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/assets/outfit-700.ttf",
+      "sha256": "49dcdf653a004a2575b3de649f5e4c549d774fecddf317812330edd0ad70685a",
+      "bytes": 48340
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/authoritative-provider-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/authoritative-provider-response.json",
+      "sha256": "d94337bf49f606c9dbbe74d7bcc5178c096a6c4bfac29103c2e784ae531a06b1",
+      "bytes": 1059
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/content-audit.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/content-audit.json",
+      "sha256": "493ac116bb91a46858022e37529dab532678ea798029ccee6fc14f91e438f12f",
+      "bytes": 326
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/correction-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/correction-response.json",
+      "sha256": "b78a07ace78f6212fcf631259107236a77d47775bce7758c78814392944052c6",
+      "bytes": 31951
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/design-system-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/design-system-response.json",
+      "sha256": "a523d4f59e02a93d2c8315b74838018d2ce6ae037c61558114d381b2db78766c",
+      "bytes": 190
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/design-upload-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/design-upload-response.json",
+      "sha256": "9daa8d0754123dc4094b24d055829fc2b83bdaeaa401ac76ff59e3e301f8238c",
+      "bytes": 366
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/frame.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/frame.html",
+      "sha256": "ceb0038520057f2107b7a6c1c93a964db7cc4218d978115393261dd46956704e",
+      "bytes": 953530
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/generated-original.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/generated-original.html",
+      "sha256": "4a8948d23e5df516247b00a4072c03f8468d3d164134439748e1b5e2ae7a68eb",
+      "bytes": 69614
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/generated-original.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/generated-original.png",
+      "sha256": "0832b1f5a39fc7e705e26d1533d0a502ae35d0c3c10f6b8ec185b8720e709709",
+      "bytes": 1682400
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/generation-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/generation-response.json",
+      "sha256": "f7b496143af572640c2e844c4db57131ace3e7523e92e41a9bca59c7eb7b838a",
+      "bytes": 23399
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/master-desktop.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/master-desktop.png",
+      "sha256": "bd2e7d50f8b4589613abe440bed804a6e804029ee1bbd2f3540f519bf824b8fd",
+      "bytes": 991219
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/master-phone.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/master-phone.png",
+      "sha256": "0b11c0623dc73a868cb79d0d0889cc6570b4972ba35dac3752ee005564a9b14c",
+      "bytes": 192938
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/master.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/master.html",
+      "sha256": "58b11534f01da85c2aca9a73aa2dfccf13411274a70509ce65e4ff9090afc0bc",
+      "bytes": 1435810
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/pre-freeze-corrections.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/pre-freeze-corrections.json",
+      "sha256": "8257b992adf92d2df0cb36bd10e22f8a1e7ecfefe601c3932b5a8734a88522df",
+      "bytes": 2084
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/project-response.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/project-response.json",
+      "sha256": "8b76b784f686fe25c203324fb295a97725510ba99e9bb9fe88a3e9db8b0fee35",
+      "bytes": 434
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/prototype-review.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/prototype-review.html",
+      "sha256": "58b11534f01da85c2aca9a73aa2dfccf13411274a70509ce65e4ff9090afc0bc",
+      "bytes": 1435810
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/provider-corrected.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/provider-corrected.html",
+      "sha256": "76c23464038c462c39bd49e1b9374be3a43955b471fe60d7480e893a82e0abd6",
+      "bytes": 66424
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/provider-corrected.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/provider-corrected.png",
+      "sha256": "d16ccfe12ca8f2eeca5453459255aed6427a17a163f306594189343c04c17c18",
+      "bytes": 2855785
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/review-desktop.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/review-desktop.png",
+      "sha256": "bd2e7d50f8b4589613abe440bed804a6e804029ee1bbd2f3540f519bf824b8fd",
+      "bytes": 991219
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/review-geometry.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/review-geometry.json",
+      "sha256": "6296ba63c78e1dc6db0395757c6cc4d7d14eb81cd0e7fd76bee8f617bf332aba",
+      "bytes": 4893
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/review-phone.png",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/review-phone.png",
+      "sha256": "0b11c0623dc73a868cb79d0d0889cc6570b4972ba35dac3752ee005564a9b14c",
+      "bytes": 192938
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/review-state-ids.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/review-state-ids.json",
+      "sha256": "b430bfaa259ecee43975139cedc8ff95dc78146b840b6d92ca155a9927692e50",
+      "bytes": 913
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/shared.css",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/shared.css",
+      "sha256": "3d8dcfc54ce9243685c26960894ab31ba1ca97892eb59ebdc49233e674287c32",
+      "bytes": 337053
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/state-manifest.json",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/state-manifest.json",
+      "sha256": "4e2bbc41d98d636a070f649332a8d5ec8f5ed46d0e004fbf011b826a43d77841",
+      "bytes": 33317
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-aloud.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-aloud.html",
+      "sha256": "c0965fc0eb67fba888097761832b12dbb407eb9c9f875fa37714beed259db2e2",
+      "bytes": 560
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-chart.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-chart.html",
+      "sha256": "dbfe69d1a8125c6a6cd5d2c9fa5c8b54780b088c2c08841aaa08981f435c3ba8",
+      "bytes": 576
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-guest.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-guest.html",
+      "sha256": "33f3bdbefd2d27adfc228134fd730e763cf972bae40ff54baf86a50504d980d8",
+      "bytes": 323
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-learn.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-learn.html",
+      "sha256": "619fa83e0b9691429dbdf7714aa000094c245969a68c8ff1dddded9650d98161",
+      "bytes": 470
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-meet.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-meet.html",
+      "sha256": "f2cffbb6a683601befb9ed822f874ed2d661f6a7ccb855d7a014bccc460b6a43",
+      "bytes": 448
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-personal.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-personal.html",
+      "sha256": "117ebe0ff8a794f54f5431f3692aafa27759ac8714b6ed34bd25259e5264b58c",
+      "bytes": 572
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S01-prices.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S01-prices.html",
+      "sha256": "481ee44a7dd9f953bcfd77ac1b00aff5d1a1917eaa3ea0e47cd5239f4ea30182",
+      "bytes": 565
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-choose.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-choose.html",
+      "sha256": "53c2c01dcd5e811757bbb5f47d85c883b416405f418beaa77ee0d1b3c46c7012",
+      "bytes": 512
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-code.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-code.html",
+      "sha256": "93e475e815e161486ebe4b9c31a506adc112432de0f6e43a4fd0d331d38b1df3",
+      "bytes": 826
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-email.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-email.html",
+      "sha256": "e5c73822bb043b402003c5285662a1bd51d7d7eeaf28e18014556e984066dae7",
+      "bytes": 1065
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-phone.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-phone.html",
+      "sha256": "fca608c1a93754140247b5dbd1c9638b90116042f699c4fecfb678224101a92d",
+      "bytes": 853
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-register.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-register.html",
+      "sha256": "855396de1ef3ddde95c43881440affc1dded5126be28c4bf57088084a2ebb3b6",
+      "bytes": 1225
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S02-reset.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S02-reset.html",
+      "sha256": "d70303c2cccd43aba4ffd0cde41546357c12991359f56c8eb4e4234bdd344e51",
+      "bytes": 636
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S03-first-visit.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S03-first-visit.html",
+      "sha256": "1fda9a57184ca71d051b486fb4a8e3044b44b6be74c7d49703415bb2f374fdea",
+      "bytes": 251
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-date-calendar.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-date-calendar.html",
+      "sha256": "77d1af586d8dc4a9e11bb8b5142c05922c71ad786bdf8291c20e091aeec3fc2a",
+      "bytes": 4349
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-date-year.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-date-year.html",
+      "sha256": "dfd1a454d748277314129297d6f55cfef28f854809212036f6ae939a13f03d22",
+      "bytes": 12784
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-date.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-date.html",
+      "sha256": "77d1af586d8dc4a9e11bb8b5142c05922c71ad786bdf8291c20e091aeec3fc2a",
+      "bytes": 4349
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-name.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-name.html",
+      "sha256": "a231305080bff55f222c3969d247719142db0f57f65a8f1efa56f6686d05aeb7",
+      "bytes": 648
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-place-confirmed.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-place-confirmed.html",
+      "sha256": "fda0ce27f52264169f3dac682c4b327fa509a72182c6774ffb62929a0e65b7c1",
+      "bytes": 806
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-place-suggestions.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-place-suggestions.html",
+      "sha256": "62789f4de1f4f81a8bcf221d807066a91b2b5de2683ca5078dd7eda67d351e9a",
+      "bytes": 1079
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-place.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-place.html",
+      "sha256": "0163d2879830c8fb71042f542ebae2e52f68d4ff700bd945c8cc9d6c39d06872",
+      "bytes": 842
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-time-unknown.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-time-unknown.html",
+      "sha256": "3fb06bb826342ef36fdfb353fd250a43eccb19dacc95f2d0d4782704b3b401c3",
+      "bytes": 784
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S04-time.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S04-time.html",
+      "sha256": "ce9aa1c1121a7bb2b87707ccf0a85dff0bbf5c495e081a5337925e19cd196c7d",
+      "bytes": 931
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S05-casting.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S05-casting.html",
+      "sha256": "91dd12859b50124e252f8c72befdbea9031409dcba936157c843a71080235d63",
+      "bytes": 182
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S05-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S05-error.html",
+      "sha256": "75d48dc8ddcf905586b7516ee73b0e04d24514bc894de5bc88fa046d1a455111",
+      "bytes": 499
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S06-chart-focus.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S06-chart-focus.html",
+      "sha256": "00659836ecf1478407fab2a2134d5e3489659dca0f219425471b8093ee3470b3",
+      "bytes": 809
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S06-reading.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S06-reading.html",
+      "sha256": "00659836ecf1478407fab2a2134d5e3489659dca0f219425471b8093ee3470b3",
+      "bytes": 809
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S07-account.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S07-account.html",
+      "sha256": "ef8b53086b1b5b6736d4516c82be67158a82bd94182a3cbeb27b0d644242ffa5",
+      "bytes": 674
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S07-menu.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S07-menu.html",
+      "sha256": "f8136038c09f3c16d266df86e680d0325938e69fff5d5d2287ce9fa1ab1555b9",
+      "bytes": 847
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S08-cancelled.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S08-cancelled.html",
+      "sha256": "46e2e0707eed217ab877618f9466d24658d0fb7f34f2452fc2b8bf4868820ac4",
+      "bytes": 364
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S08-checkout.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S08-checkout.html",
+      "sha256": "14d46dbaa561f6fc6a3a8e14bd7779feed8872af3304b4d788a4444c7b956cb5",
+      "bytes": 161
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S08-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S08-error.html",
+      "sha256": "630d572b457a4f7d0151a0250e2285583565f50b7fb0cf5c948158ff03d66a55",
+      "bytes": 380
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S08-redeem-result.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S08-redeem-result.html",
+      "sha256": "eb0712ba8f3be89edbe5a0c734cf2fcc50a64f6f12f2dc9d5690c2eafd3b5ff2",
+      "bytes": 390
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S08-topup.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S08-topup.html",
+      "sha256": "bdfe8e5cf4dba92dbca3e73e00521feb28a30117d6b156c5ace1dfd4691e5a88",
+      "bytes": 1418
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S09-done.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S09-done.html",
+      "sha256": "9d95e0991a26f20b48e25c35bdc277f42bbc99c263543c5eef460d3b43ad49f0",
+      "bytes": 456
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S09-offer.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S09-offer.html",
+      "sha256": "e7751fa3f714360d917ac9c93b39ab5789e0658c37f56382e18de44f92e9bc8e",
+      "bytes": 439
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S09-preparing.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S09-preparing.html",
+      "sha256": "ad50cd5c7eff7d9f0d33356ceb6605dc80f85b1004b5c3c2f46696d54397b710",
+      "bytes": 171
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S09-retained.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S09-retained.html",
+      "sha256": "5d5c1568c1ccd4180d9e579bb320a1235504de1531c05a78070e66b89ebd640b",
+      "bytes": 92467
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S10-code.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S10-code.html",
+      "sha256": "00b90493d292bddf2a5b3772f0d6b69faf07a2a1f25b55229fba708e5f811467",
+      "bytes": 924
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S10-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S10-error.html",
+      "sha256": "3f2a1db446d5f3e38bac4a287f4c9c38ae5df30b5c7e89041a661d7919baf73f",
+      "bytes": 168
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S10-google.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S10-google.html",
+      "sha256": "e3b9348284a9c33548b0cd0da856ff00eb4c20c4a7e3eae82c68b09ccaa686fe",
+      "bytes": 259
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S10-phone.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S10-phone.html",
+      "sha256": "06e871e7687ae8ed530a205473ea550cf9b31421b5bc79cfcd78a92490038f8f",
+      "bytes": 840
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S10-return.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S10-return.html",
+      "sha256": "24c4ee4a3d6bd2e80f6d2490c1170602e51916d4ffa2846e3450eaeefcb859ca",
+      "bytes": 229
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-art-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-art-error.html",
+      "sha256": "8a07b860e246938017bb2b1296254613b27881f29aac18d37071bddc08b776ac",
+      "bytes": 295
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-network-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-network-error.html",
+      "sha256": "0c83cf37c29760353032a9c90b57cc73939cd5c2e8f60d0c57a1bd3f1617fb80",
+      "bytes": 461
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-no-allowance.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-no-allowance.html",
+      "sha256": "e7ebcf4f2d6f074e017485d6c7a9b6e7b1c4ccaa2292a126f8da5cfd0e6b5cf6",
+      "bytes": 455
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-privacy.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-privacy.html",
+      "sha256": "f8b0588928df402d2ab8289770f3076fc97580a5cf525d36f8964a86deab00ee",
+      "bytes": 266
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-rate-limited.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-rate-limited.html",
+      "sha256": "7c21aa27e093a9eaaa142b5852149ca54aa53bea48b7509ebad3ea59f892699c",
+      "bytes": 427
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-signing-in.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-signing-in.html",
+      "sha256": "7169daab5ae898d8e883bf2f336d01b7fc8b2ab87a87ca1ced03e3786b695abb",
+      "bytes": 155
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-terms.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-terms.html",
+      "sha256": "f8bf0c193cee4e46a473e24334e484f7975e186ec1fea0f6a7a9591620a24618",
+      "bytes": 260
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-voice-error.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-voice-error.html",
+      "sha256": "18aee43724ececcf9788dfb0df1119e0a2e33dac0175e6c94e5b7883eb7ce595",
+      "bytes": 384
+    },
+    {
+      "path": "LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S11-voice-loading.html",
+      "sourcePath": "DOCS/STITCH/2026-11-13/revised/templates/S11-voice-loading.html",
+      "sha256": "232dd37426868f51ad751c758f59ab4385796f9f6c5c252273a3404167c21606",
+      "bytes": 297
+    }
+  ]
+}

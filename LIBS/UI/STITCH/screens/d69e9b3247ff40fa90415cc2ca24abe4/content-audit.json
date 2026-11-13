@@ -1,0 +1,8 @@
+{
+  "templateCount": 52,
+  "remoteAssets": 0,
+  "forbiddenVisibleExamples": 0,
+  "recaptchaSlots": 2,
+  "sourceBytes": 1435810,
+  "geographicAndReportFixtures": "Actual existing Toronto gazetteer record and public EXAMPLE_BIRTH computed report, documented demonstration-only; production binds actual input/retained record."
+}

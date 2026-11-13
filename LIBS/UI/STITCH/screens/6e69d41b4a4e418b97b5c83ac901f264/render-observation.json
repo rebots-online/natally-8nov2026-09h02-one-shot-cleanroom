@@ -1,0 +1,40 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "images": [
+    {
+      "alt": "Candlelit fortune-teller atelier with Natally",
+      "naturalWidth": 1586,
+      "naturalHeight": 992,
+      "complete": true,
+      "rect": {
+        "x": 0,
+        "y": 76,
+        "width": 390,
+        "height": 768
+      }
+    },
+    {
+      "alt": "Natally Mascot Portrait",
+      "naturalWidth": 400,
+      "naturalHeight": 400,
+      "complete": true,
+      "rect": {
+        "x": 317,
+        "y": 204,
+        "width": 106,
+        "height": 106
+      }
+    }
+  ],
+  "screen": {
+    "width": 390,
+    "height": 844
+  },
+  "tailwind": {
+    "modalTop": "184px"
+  },
+  "errors": []
+}

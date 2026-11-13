@@ -1,0 +1,12 @@
+{
+  "chart": {
+    "width": 398,
+    "height": 367,
+    "rect": {
+      "width": 398,
+      "height": 367
+    },
+    "context": "WebGL2"
+  },
+  "errors": []
+}
