@@ -1744,3 +1744,87 @@ cache and external chart events must preserve current user work.
 No test, smoke test, compiler run, browser automation, fixture or mock customer
 is authorized for this correction. Retain the separately required merged-product
 demonstration obligation; it is not replaced by tests or added as PR policy work.
+
+## 25. Permanent integration of the existing approved UI — FROZEN 2026-11-13
+
+Authority: Robin explicitly selects the existing first-party Astronatally UI
+and requests normal permanent integration, with all due work merged to master.
+This records the selected implementation; it does not authorize another UI,
+payment provider, hosting design or PHP implementation. The complete structured
+source, styles, templates, fonts, images, original PRD, rubric and adapters are
+already tracked under LIBS/UI/STITCH. UPSTREAM.json pins commit
+1b4b65c8badf6c5e079fc346bc33de789dd8ecf4 and file hashes. Version badges are
+not used to identify input because they collided across earlier builds.
+
+### Integration closure
+
+Preserve the published onboarding merge 5a2b4d2 and subsequent work-record
+commits. Integrate the selected UI's Git ancestry with a normal merge commit;
+only the approved UI and its supporting auth code are selected from that
+lineage. Retain this product's billing server, private configuration, namespace,
+canonical versions and packaging policy. No rebase, squash, new payment/hosting
+provider or duplicate runnable repository is part of this integration.
+
+The incoming source set is: app.html, index.html, landing.html, auth/native.html;
+src/app/AppShell.tsx, SignInPanel.tsx, TopUpSheet.tsx, VersionBadge.tsx,
+VoiceDownloadStatus.tsx, app-shell.css, sign-in.css; src/app/chat/ChatPanel.tsx,
+chat.css, useChat.ts; src/app/landing/LandingCards.tsx, landing.css;
+src/app/prototype/ImmersiveLayout.tsx, atelier-frozen.css;
+src/app/stage/Inset.tsx; src/app/onboarding/FirstLight.tsx, onboarding.css;
+src/onboarding-original/FirstLight.tsx, BirthDateFields.tsx, first-light.css;
+src/landing/main.tsx, src/main.tsx; src/platform/firebase.ts, nativeAuthPage.ts,
+version.ts; src/shared/tokens.css; src/souvenir/SouvenirDialog.tsx,
+SouvenirViewer.tsx. Preserve required existing native authentication support
+when integrating the incoming phone helper, without native packaging.
+All runtime code is normal tracked source in this repository. No sibling
+checkout, temporary workspace or remote source file is a runtime/build input.
+
+The imported state-manifest.json is the exhaustive S01-S11 UI vocabulary:
+its 52 exact state IDs, template files, component names, service bindings and
+data/action hooks are binding. The exact shared.css remains byte-identical as
+src/app/prototype/atelier-frozen.css. ImmersiveLayout owns header, stage,
+caption, rail, status and footer; one real scene survives rail transitions.
+No blocking welcome overlay or duplicate mascot is reintroduced.
+UI styles/markup are selected from the approved source, not recreated.
+
+### Entities and existing contracts
+
+| Entity | Target / frozen interface | Responsibility |
+| --- | --- | --- |
+| ImmersiveLayoutProps, ImmersiveLayout | src/app/prototype/ImmersiveLayout.tsx:6; header,stage,rail:ReactNode; caption?,status?:ReactNode | Exact imported shared frame and slots; real scene/chart bind to stage. |
+| AtelierRailProps, AtelierRail | same file:52; title:string,onClose?,onBack?,children:ReactNode,labelledBy?:string | Exact imported task heading/Back/Close markup; no extra modal or shell. |
+| StageHeader, AccountPanel, App | src/app/AppShell.tsx | Incoming compact header/rail and all real actions, plus this repository's UID/chart/progress ownership and confirmed redo callbacks. Retain the §24 Firebase restoration gate and in-memory draft. |
+| AuthMethod, PhoneSignInSession, isNativeAuth, emailSignIn, emailSignUp, resetEmailPassword, createPhoneSignInSession, startPhoneSignIn, nativePhoneSignIn, cancelNativeSignIn | src/platform/firebase.ts; exact incoming exports/signatures | Preserve existing Google/native auth while integrating the already implemented email/SMS services used by SignInPanel. accountFirestore remains the §24 addition on the same app/UID/database. |
+| SignInPanel | src/app/SignInPanel.tsx | Existing real Google/email/SMS/reset callbacks and actual reCAPTCHA; exact S02 templates, no fake provider results. |
+| OnboardingProps, FirstLightProps, FirstLight, OriginalFirstLight, BirthDateFields, CalendarPicker | §24 paths and signatures plus imported optional onBack callback | Incoming rail markup with the §24 accepted-step persistence contract. Keep current chart and draft; do not restore the incoming unowned sessionStorage stash. |
+| ONBOARDING_STEPS, firstMissingOnboardingStep, intakeDraftFromProgress | src/services/onboardingProgress.ts | Keep the five-value data shape. Initial entry requires only saved valid date/place. Explicit profile redo uses the approved four question pages name/date/place/time; currentPlace remains optional retained data and cannot force another page. This selection supersedes §24's reference to a five-page redo. |
+| useAllowance, ChatPanel, LandingCards, TopUpSheet, SouvenirDialog, SouvenirViewer, Inset, VoiceDownloadStatus | incoming paths above; exact existing exports | Preserve actual conversation/allowance, purchases, reports, voice/renderer events and manual geometry; only approved UI composition changes. |
+| displayVersion | src/platform/version.ts | Imported display projection reads this repository's canonical version data. No copied upstream version.json/version.txt becomes this product's identity. |
+| bootstrapNativeAuth | src/platform/nativeAuthPage.ts | Imported S10 markup; preserve credential/state/origin validation and actual auth protocol. |
+| build_all.sh --web-only --web-domain astronatally.com | build_all.sh | Explicit current operator release lane. Parse before stamping. Retain existing automatic version stamp/commit/push, generate web once, publish only the named domain, exit before native packaging. Default full-matrix behavior remains as previously architected. |
+| scripts/build-environment.mjs existing env/example/resolution | scripts/build-environment.mjs | Inherit missing public VITE settings from tracked .env.example, then .env, then process.env; resolve existing KStore pointers. Web-only mode does not require native signing secrets. No secret or pointer is baked into public JS. |
+| checkoutAvailable, chargebeeSite, buyCredits, buySouvenir, createCheckout, openCheckout | existing src/commerce and platform/env paths | Use the real existing Chargebee connector and configured site/API. VITE_CHARGEBEE_SITE comes from its existing private-authority pointer. No replacement checkout/provider or synthetic success. |
+| VITE_BILLING_API_URL | .env.example / runtime build environment | Must name the actual approved HTTPS billing endpoint; no retired Netlify default or invented deployment. Required deployment configuration is reported as configuration, never silently substituted. |
+
+The normal entry date/place rule is independent of optional values, while
+intentional redo retains all supplied values. OriginalFirstLight must await its
+onAccept checkpoint before updating accepted flags or selecting the next page.
+App must restore Firebase before mounting intake, guard UID/generation races,
+retain in-memory drafts across Return/Resume, and keep a local initial edit from
+being replaced by an external chart. These are §24 implementation requirements,
+not new provider or product behavior.
+
+### Fixed release sequence
+
+Complete and publish the integration commits first. Fix the selected source
+commit for one web-only canonical invocation. No code/configuration/provider
+changes occur between producing that bundle and publishing that same bundle.
+Destination: astronatally.com only, Surge; no asknatally.online publication,
+Netlify deployment or native packaging. Do not identify the source by its badge.
+The separately required final integrated-product demonstration is distinct from
+prohibited unit/smoke/fixture tests. Do not run or introduce such tests.
+
+Key/lore/billing audit is a conformance report against the existing architecture.
+It is not authority to invent PHP endpoints, another provider, placeholder
+fulfillment or a different key/lore design. Any missing end-to-end contract must
+be made explicit before that work can be assigned; no coder fills it in ad hoc.
