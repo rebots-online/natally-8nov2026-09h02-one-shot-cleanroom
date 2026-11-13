@@ -1126,3 +1126,335 @@ stored answer is invalid. Acceptance sets that flag and saves before consulting
 the same filter again. A final flag followed by an interrupted status write
 still takes the all-true branch. Persistence requires successful browser storage;
 a failed write is reported and cannot be represented as a durable completion.
+
+
+## INTEGRATION-2026-11-13 — current approved execution contract
+
+This section supersedes older conflicting onboarding/UI/source-selection tasks.
+Use only this repository and its local tracked UI exports. No sibling checkout,
+outside code path, remote code file or new architecture/provider is an input.
+Root performs the selected-source Git merge; coders then resolve only their owned
+files to the frozen contract below. You are not alone; preserve concurrent work.
+No tests, smoke tests, fixtures, mock services, browser automation, lint/compiler
+verification or native packages. Source re-reading is required. The real
+web-only release is a later explicit operation after all source is complete.
+No coder commits/pushes or mutates the shared Git index; parent publishes each
+completed logical task. No new UI, payment provider, PHP layer or fake result.
+
+- [ ] **UI-FRAME** — integrate approved frame and retain account/onboarding flow.
+  **Own:** src/app/AppShell.tsx, src/app/SignInPanel.tsx, src/app/TopUpSheet.tsx,
+  src/app/VersionBadge.tsx, src/app/VoiceDownloadStatus.tsx,
+  src/app/app-shell.css, src/app/sign-in.css, src/app/chat/ChatPanel.tsx,
+  src/app/chat/chat.css, src/app/chat/useChat.ts,
+  src/app/landing/LandingCards.tsx, src/app/landing/landing.css,
+  src/app/prototype/ImmersiveLayout.tsx, src/app/prototype/atelier-frozen.css,
+  src/app/stage/Inset.tsx, src/landing/main.tsx, src/main.tsx,
+  src/platform/nativeAuthPage.ts, src/platform/version.ts, src/shared/tokens.css,
+  src/souvenir/SouvenirDialog.tsx, src/souvenir/SouvenirViewer.tsx,
+  app.html,index.html,landing.html,auth/native.html.
+  **Read-only support:** LIBS/UI/STITCH/DESIGN.md, PRD.md,
+  IMPLEMENTATION-ADAPTERS-2026-11-13.md and screens/*/state-manifest.json /
+  templates; src/shared/types.ts, src/chart/astrolabeInput.ts,
+  src/services/gazetteer.ts, src/services/onboardingProgress.ts,
+  src/app/onboarding/FirstLight.tsx, src/platform/firebase.ts.
+  **Do:** Preserve the exact imported UI hierarchy/styles/real callbacks. In App,
+  merge back the UID-owned chart/progress and Account redo callbacks from the
+  already merged local commit 5a2b4d26760bc02c7941e88a772170e822aefd0e
+  (git show of this exact local tracked AppShell.tsx is permitted). This keeps
+  previous behavior while applying the approved task rail, never an overlay.
+  Restore Firebase progress using loadFirebaseOnboardingProgress(uid,gazetteer)
+  BEFORE mounting FirstLight when there is no existing chart. Hold a per-UID
+  restore generation and ready/error state. A read failure displays inline
+  restoration error + Retry; it does not instantiate empty onboarding.
+  A successful result populates OnboardingLoadResult and the latest UID-owned
+  in-memory draft. Ignore stale UID/generation completions. A valid cached chart
+  bypasses questions. Do not let storage/pageshow/popstate replace an active
+  initial intake or redo. Same-UID auth refresh retains the local active draft.
+  Pass accountUid,initialProgress,storageError,onSitDown,onStorageError,onProgress,
+  onCancel to FirstLight; exact interface is in UI-DATA below.
+  Keep onProgress snapshots in a UID-owned ref as well as state; Return, Account
+  and Resume use that ref, never overwrite it with a failed/older cache read.
+  Confirmed Start again creates createOnboardingProgress(uid,'redo'), awaits
+  saveFirebaseOnboardingProgress before opening it, with duplicate-submit and
+  UID guards. Failure preserves previous chart and confirmation with error.
+  Resume enters the retained unfinished redo. Existing chart commit synchronously
+  persists same-UID chart, preserves prior chart on failed redo, and returns bool.
+  Keep confirmed Redo/Resume in the imported Account rail with existing labels.
+  No automatic redo. All imports resolve to tracked local code.
+  **Accept:** direct semantic trace: one persistent scene; exported rail owns
+  forms; date/place saved => no intake questions; read error => no false empty
+  account; explicit profile reset only; current UID/attempt and latest draft
+  preserved through Return/Resume/external storage. Read edited regions and
+  report file:line anchors, not pass counts. Do not execute verification.
+
+- [ ] **UI-DATA** — Firebase accepted-page checkpoints in approved intake markup.
+  **Own:** src/platform/firebase.ts, src/services/onboardingProgress.ts,
+  src/app/onboarding/FirstLight.tsx, src/app/onboarding/onboarding.css,
+  src/onboarding-original/FirstLight.tsx,
+  src/onboarding-original/BirthDateFields.tsx,
+  src/onboarding-original/CalendarPicker.tsx,
+  src/onboarding-original/first-light.css.
+  **Read-only support:** src/services/onboarding.ts, src/services/gazetteer.ts,
+  src/services/birthDate.ts, src/services/transits.ts, src/shared/types.ts,
+  src/voice/index.ts, src/services/supertonicTts.ts,
+  LIBS/UI/STITCH/screens/d69e9b3247ff40fa90415cc2ca24abe4/templates/S03* and S04*
+  plus S05*, and src/app/prototype/ImmersiveLayout.tsx.
+  **Do:** Implement exact §24/25 copied below. Keep the imported Firebase Google,
+  email and SMS exports intact; add accountFirestore against requireAuth's
+  same current UID/app/configured named database. Do not import the old Firebase
+  module/connection probe. Implement the named queued Firestore load, reset,
+  accepted-step and completion functions with partial field merge masks.
+  Keep existing pure validation, five-value data shape and cache helpers.
+  Normal initial firstMissingOnboardingStep checks accepted valid date/place
+  only. Confirmed redo checks name/date/place/time only, matching approved four
+  pages; currentPlace is retained optional data, no added page or fabricated
+  consent. Normalize valid stored initial date/place into accepted flags even
+  for older records. Derive legacy values from actual Firebase intake fields.
+  No cloud read failure falls back to a new account. If cloud has neither
+  representation, migrate an existing valid UID local draft through awaited
+  cloud save. Optional absent time maps to null/unknown for initial chart.
+  Preserve this repository's progress-aware wrapper/handlers from local tracked
+  commit 5a2b4d26760bc02c7941e88a772170e822aefd0e while using the incoming exact
+  AtelierRail/question markup. No wrapper-owned scene, duplicate mascot/welcome
+  overlay or unowned sessionStorage draft. Initial completed record casts without
+  questionnaire. Keep onCreate calculation/attempt guards and Retry outside
+  questionnaire. saveFirebaseOnboardingStep is awaited by wrapper onAccept before
+  reporting an accepted snapshot to shell/cache. Child must not set true accepted
+  flags, advance or invoke onCreate before that succeeds. Pending save disables
+  input/Back/submit; error retains answer on same question for retry.
+  FirstLightProps keeps incoming optional onBack and adds optional onAccept:
+  (progress:OnboardingProgress,step:OnboardingStep)=>Promise<void>, plus existing
+  initialProgress and onProgress. Active wrapper always supplies onAccept.
+  OnboardingProps is exactly {accountUid:string,initialProgress:OnboardingProgress|null,
+  storageError:string|null,onSitDown:(chart:NatalChart)=>boolean,onCancel?:()=>void,
+  onStorageError?:(message:string)=>void,onProgress?:(progress:OnboardingProgress)=>void}.
+  Parent onProgress reports ALL local edits to preserve in-memory recovery.
+  Wrapper reportProgress rejects after cancellation/unmount before any write.
+  Guard any remaining async location result, plus all calculation/save callbacks.
+  Match complete sentinel with service ONBOARDING_STEPS.length (not the four
+  visual pages). Complete cloud status merges only status after chart handoff;
+  per-UID queued writes ensure it cannot overwrite a new redo map.
+  **Accept:** direct source trace from cloud read/normalization through required
+  date/place gate and each accepted value+flag backend acknowledgment BEFORE
+  next page; failed save stays put; optional data retained; all-complete bypass;
+  stale callbacks do not write; no local cache is the authority. Read changed
+  regions and report exact anchors/remaining uncertainty. No tests/commands.
+
+- [ ] **WEB-CONFIG** — existing configuration and explicit web-only release lane.
+  **Own:** build_all.sh, scripts/build-environment.mjs, .env.example, README.md.
+  Local ignored .env may only receive the existing VITE_CHARGEBEE_SITE pointer
+  already in .env.example; do not print or commit credential values.
+  **Do:** Implement the §25 existing build entry's explicit --web-only
+  --web-domain astronatally.com lane. Unknown args fail before stamping.
+  Web-only requires one explicit owned domain, uses the existing automatic
+  shared stamp/commit/push and web build, publishes only that domain, and exits
+  before native packaging. Keep default full-matrix behavior. Do not copy
+  upstream versions or manually set version numbers.
+  Build environment order: missing public VITE defaults from .env.example,
+  then .env, then process.env. Resolve the existing KStore pointers, including
+  Chargebee site; web-only does not require native signer values or keystore.
+  Preserve .env pointer-only handling, no private data in browser artifacts.
+  Remove the retired hardcoded Netlify example URL: VITE_BILLING_API_URL must
+  be the operator-configured actual HTTPS existing billing endpoint. In web-only
+  publication mode, reject empty/pointer/unapproved Netlify billing URL or empty
+  Chargebee site before build/publication; don't invent an endpoint, use another
+  provider, implement PHP, make a dummy page or claim billing worked.
+  Document exact env and web-only invocation. Do NOT execute it or publish yet;
+  parent freezes a completed source commit first. No tests/lint/compiler runs.
+  **Accept:** read script argument branches, env precedence/pointer resolution,
+  retained automatic stamp and explicit one-domain publish/native skip. Confirm
+  source has no baked secret and no configured Netlify fallback by inspecting
+  edited regions, not running test/search proxies. Report exact source anchors
+  and missing actual deployment configuration truthfully.
+
+### Exact architecture contract copied for coder execution (§24–25)
+
+## 24. Firebase checkpoints before onboarding navigation — FROZEN 2026-11-13
+
+Authority: Robin's explicit corrections in this session. This amendment
+supersedes §23's browser-only persistence boundary and five-required-field entry
+gate. It changes only onboarding. Key expiry/exhaustion, lore storage/embedding
+and billing are subjects for an architectural audit, not additions to this PR.
+
+### Finished behavior
+
+1. On sign-in, read the current UID's existing Firebase private intake document
+   before mounting any questionnaire. The normal entry requirements are a valid
+   birth date and a resolved birthplace. When both are saved, do not ask any
+   onboarding questions: restore the chart or calculate it from those values.
+   When either is missing, ask only the missing required question, in date then
+   place order. Name, birth time and current location do not force normal
+   onboarding. Retain supplied optional values; absent birth time means unknown,
+   null time with the existing unknown-time chart behavior, never invented time.
+2. Before Next/Begin changes the page, save that page's accepted value and its
+   completion flag together to Firestore and await backend acknowledgment.
+   Disable duplicate submission and editing while that write is pending. A
+   rejected write leaves the same question and entered value visible with an
+   inline error and a retry through the same action. Never advance on a local
+   cache write alone. Cloud reads/writes use the already installed Firebase SDK,
+   active Firebase app/auth UID and configured firestoreDatabaseId.
+3. Reuse the existing users/<uid>/private/intake document, adding only its
+   onboardingProgress map. Existing root intake fields and all unrelated
+   fields/collections are preserved. Read that map first; if absent, derive
+   existing saved values from the legacy intake fields described below. Only
+   when neither cloud representation exists may the existing UID-owned local
+   draft be migrated, awaiting its initial Firestore write before presenting it.
+   A failed cloud read is shown as a restoration error with Retry, not treated
+   as an empty account and not allowed to mount a fresh questionnaire.
+4. All five existing answers/completion flags remain representable. For initial
+   mode only date and place are required by firstMissingOnboardingStep; for an
+   explicitly confirmed redo retain the existing five-step review flow. Cloud
+   restoration treats valid stored date/place values as accepted initial data
+   even for an older record without those two flags. Optional empty values do
+   not force re-entry. Normal history/auth/storage events never initiate redo.
+5. Redo remains only the existing confirmed Account action. Await the new redo
+   snapshot's Firebase write before opening it. Keep the existing chart and
+   latest UID-owned in-memory draft when returning/resuming, including if the
+   browser cache failed. Resume uses that retained draft rather than replacing
+   it with an older cache snapshot. Redo failure retains the old chart.
+6. Ignore location, load, save and calculation continuations after cancellation,
+   unmount or account/attempt change. In particular the questionnaire guards
+   device-location success/error/finally before editing or reporting progress;
+   the wrapper guards reportProgress before any cache/cloud write. Serialize
+   Firebase writes per UID so already queued completion precedes a fresh redo
+   reset. Never enqueue from an invalidated component. Do not adopt an external
+   chart while either initial intake or redo is active locally.
+7. Keep localStorage only as a best-effort cache, with the existing truthful
+   warning. Keep the latest draft in the shell as well as the wrapper so closing
+   the wrapper cannot lose it. Firestore success permits progression even when
+   browser storage fails. Existing valid cached charts still bypass questions;
+   otherwise all entry checks wait for Firebase restoration. Cloud all-complete
+   answers reconstruct a chart without replaying intake if its local cache is
+   absent. Completion updates are queued immediately with the current accepted
+   snapshot; stale completion/UI callbacks do not mutate a newer draft.
+
+### Exact entities — engaged by ONBOARDING-FIREBASE
+
+All source paths are repo-relative. Component-local refs/state/handlers remain
+private to the named component; no other public/module entities are introduced.
+
+| Exact entity | Target and signature | Frozen responsibility |
+| --- | --- | --- |
+| accountFirestore | src/platform/firebase.ts:250; export (accountUid:string):Firestore | Call existing requireAuth(); require currentUser.uid === accountUid; getFirestore(auth.app, configured firestoreDatabaseId), default only if config omits that ID. Never initialize a second app or import the legacy Firebase module and its connection probe. |
+| firebaseOnboardingWrites | src/services/onboardingProgress.ts:1; private Map<string,Promise<void>> | Per-UID ordered write tails; a failed tail does not poison later writes. |
+| enqueueFirebaseOnboardingWrite | same file; private (uid:string,write:()=>Promise<void>):Promise<void> | Chain behind that UID's tail, preserve original rejection for caller, retire only the current tail. Resolve the authenticated account reference when executing the write. |
+| progressFromFirebaseIntake | same file; private (value:unknown,uid:string,gazetteer:readonly GazetteerEntry[]):OnboardingProgress\|null | Derive initial progress from actual legacy name/birthDate/birthTime/birthTimeUnknown/placeName/latitude/longitude/currentLocationName/currentLatitude/currentLongitude/currentTimezoneId. Resolve birthplace against existing gazetteer coordinates/name; retain selected disambiguated label. Set date/place accepted only when valid. Do not fabricate missing fields or customer data. |
+| loadFirebaseOnboardingProgress | same file; export async (uid:string,gazetteer:readonly GazetteerEntry[]):Promise<OnboardingLoadResult> | Wait for that UID's pending writes; getDocFromServer(doc(accountFirestore(uid),'users',uid,'private','intake')); normalize onboardingProgress when present, else derive legacy values, else use/migrate the existing UID local cache. Cloud errors reject. A missing document is an empty account; malformed fields recover independently without deleting bytes. |
+| saveFirebaseOnboardingProgress | same file; export (progress:OnboardingProgress):Promise<void> | Ordered setDoc(...,{onboardingProgress:progress},{mergeFields:['onboardingProgress']}); only explicit redo reset or one-time local migration replaces the whole map. |
+| saveFirebaseOnboardingStep | same file; export (progress:OnboardingProgress,step:OnboardingStep):Promise<void> | Ordered setDoc with mergeFields for onboardingProgress.version/accountUid/mode/status/answers.<step>/completed.<step>. Time also includes unknownTime; currentPlace also includes deviceLocation/skipLocation. Merge only these fields so other accepted pages survive. Payload contains only defined values. |
+| completeFirebaseOnboardingProgress | same file; export (progress:OnboardingProgress):Promise<void> | Ordered merge of onboardingProgress.status='complete' only, after accepted values and successful chart handoff. No whole-draft replacement from a delayed completion. |
+| normalizeOnboardingProgress | same file; existing signature | Preserve all independently valid values; valid saved initial date/place are accepted even if an older cloud snapshot lacks their flags. |
+| firstMissingOnboardingStep | same file; existing signature | Initial mode checks date/place only; explicit redo checks all five. Return original ONBOARDING_STEPS index or its length; only genuinely missing/invalid required fields are selected. |
+| intakeDraftFromProgress | same file; existing signature | Permit initial date/place-only chart reconstruction; preserve supplied name/time/location; missing/invalid optional time yields unknownTime:true,time:null. Redo retains its explicit optional-answer semantics. |
+| FirstLightProps.onAccept | src/onboarding-original/FirstLight.tsx:14; optional (progress:OnboardingProgress,step:OnboardingStep)=>Promise<void> | Required by the active wrapper; advance awaits it before updating accepted refs, changing question or onCreate. Remove synchronous flushSync from post-await transitions. Keep non-owned presentation unchanged. |
+| questionnaire FirstLight | same file:54; existing component | Keep current accepted-step snapshot separate from an unacknowledged candidate; never persist/advertise its true flag locally before backend success. Mounted/location-generation guards reject cancelled location callbacks. Busy save disables field edits, Back and duplicate submits; error keeps answer for retry. |
+| OnboardingProps.onProgress | src/app/onboarding/FirstLight.tsx:30; optional (progress:OnboardingProgress)=>void | Report each local edit and each acknowledged checkpoint to the shell's UID-owned in-memory draft; local cache errors cannot erase it. |
+| wrapper FirstLight | same file:38; existing component | onAccept awaits saveFirebaseOnboardingStep, validates mounted/current attempt before/after awaiting, then reports accepted progress. No unconditional cloud writes per keystroke. Guard reportProgress after unmount; queued completion errors are forwarded only for the active UID/attempt. |
+| App | src/app/AppShell.tsx:414; existing component | Async UID/generation-guarded Firebase restoration gate before FirstLight; visible restoration error/Retry; keep latest UID-owned draft ref; beginRedo awaits cloud reset; return/resume/openAccount preserve that draft; reconcile ignores active initial intake as well as redo. Existing-chart and confirmed-profile-action rules retained. |
+
+Legacy Firebase configuration was mapped through CodeGraph in
+src/platform/firebase.ts and src/landing-original/services/firebase.ts and
+onboarding.ts. VITE_FIREBASE_CONFIG already identifies the existing project and
+named Firestore database. The legacy private intake path is exact source evidence,
+not a newly invented collection. No billing/credit/key/lore schema is changed.
+
+The worktree CodeGraph database could not open (literal error: unable to open
+database file). Its PROJECT_INDEX files are absent. Targeted reads only of
+the named service, questionnaire/wrapper, App auth/reconcile/profile regions and
+this architecture closed that tooling gap; no original/abandoned repo was read.
+
+### Source-level acceptance
+
+Read each changed region. Trace date and place from cloud read through validation,
+entry gate, awaited backend write, accepted flag and next-question selection.
+Trace initial all-required-present to the chart without a questionnaire.
+Trace optional empty time to the existing unknown-time input.
+Trace profile confirmation to awaited reset; cancellation, stale GPS, failed
+cache and external chart events must preserve current user work.
+No test, smoke test, compiler run, browser automation, fixture or mock customer
+is authorized for this correction. Retain the separately required merged-product
+demonstration obligation; it is not replaced by tests or added as PR policy work.
+
+## 25. Permanent integration of the existing approved UI — FROZEN 2026-11-13
+
+Authority: Robin explicitly selects the existing first-party Astronatally UI
+and requests normal permanent integration, with all due work merged to master.
+This records the selected implementation; it does not authorize another UI,
+payment provider, hosting design or PHP implementation. The complete structured
+source, styles, templates, fonts, images, original PRD, rubric and adapters are
+already tracked under LIBS/UI/STITCH. UPSTREAM.json pins commit
+1b4b65c8badf6c5e079fc346bc33de789dd8ecf4 and file hashes. Version badges are
+not used to identify input because they collided across earlier builds.
+
+### Integration closure
+
+Preserve the published onboarding merge 5a2b4d2 and subsequent work-record
+commits. Integrate the selected UI's Git ancestry with a normal merge commit;
+only the approved UI and its supporting auth code are selected from that
+lineage. Retain this product's billing server, private configuration, namespace,
+canonical versions and packaging policy. No rebase, squash, new payment/hosting
+provider or duplicate runnable repository is part of this integration.
+
+The incoming source set is: app.html, index.html, landing.html, auth/native.html;
+src/app/AppShell.tsx, SignInPanel.tsx, TopUpSheet.tsx, VersionBadge.tsx,
+VoiceDownloadStatus.tsx, app-shell.css, sign-in.css; src/app/chat/ChatPanel.tsx,
+chat.css, useChat.ts; src/app/landing/LandingCards.tsx, landing.css;
+src/app/prototype/ImmersiveLayout.tsx, atelier-frozen.css;
+src/app/stage/Inset.tsx; src/app/onboarding/FirstLight.tsx, onboarding.css;
+src/onboarding-original/FirstLight.tsx, BirthDateFields.tsx, first-light.css;
+src/landing/main.tsx, src/main.tsx; src/platform/firebase.ts, nativeAuthPage.ts,
+version.ts; src/shared/tokens.css; src/souvenir/SouvenirDialog.tsx,
+SouvenirViewer.tsx. Preserve required existing native authentication support
+when integrating the incoming phone helper, without native packaging.
+All runtime code is normal tracked source in this repository. No sibling
+checkout, temporary workspace or remote source file is a runtime/build input.
+
+The imported state-manifest.json is the exhaustive S01-S11 UI vocabulary:
+its 52 exact state IDs, template files, component names, service bindings and
+data/action hooks are binding. The exact shared.css remains byte-identical as
+src/app/prototype/atelier-frozen.css. ImmersiveLayout owns header, stage,
+caption, rail, status and footer; one real scene survives rail transitions.
+No blocking welcome overlay or duplicate mascot is reintroduced.
+UI styles/markup are selected from the approved source, not recreated.
+
+### Entities and existing contracts
+
+| Entity | Target / frozen interface | Responsibility |
+| --- | --- | --- |
+| ImmersiveLayoutProps, ImmersiveLayout | src/app/prototype/ImmersiveLayout.tsx:6; header,stage,rail:ReactNode; caption?,status?:ReactNode | Exact imported shared frame and slots; real scene/chart bind to stage. |
+| AtelierRailProps, AtelierRail | same file:52; title:string,onClose?,onBack?,children:ReactNode,labelledBy?:string | Exact imported task heading/Back/Close markup; no extra modal or shell. |
+| StageHeader, AccountPanel, App | src/app/AppShell.tsx | Incoming compact header/rail and all real actions, plus this repository's UID/chart/progress ownership and confirmed redo callbacks. Retain the §24 Firebase restoration gate and in-memory draft. |
+| AuthMethod, PhoneSignInSession, isNativeAuth, emailSignIn, emailSignUp, resetEmailPassword, createPhoneSignInSession, startPhoneSignIn, nativePhoneSignIn, cancelNativeSignIn | src/platform/firebase.ts; exact incoming exports/signatures | Preserve existing Google/native auth while integrating the already implemented email/SMS services used by SignInPanel. accountFirestore remains the §24 addition on the same app/UID/database. |
+| SignInPanel | src/app/SignInPanel.tsx | Existing real Google/email/SMS/reset callbacks and actual reCAPTCHA; exact S02 templates, no fake provider results. |
+| OnboardingProps, FirstLightProps, FirstLight, OriginalFirstLight, BirthDateFields, CalendarPicker | §24 paths and signatures plus imported optional onBack callback | Incoming rail markup with the §24 accepted-step persistence contract. Keep current chart and draft; do not restore the incoming unowned sessionStorage stash. |
+| ONBOARDING_STEPS, firstMissingOnboardingStep, intakeDraftFromProgress | src/services/onboardingProgress.ts | Keep the five-value data shape. Initial entry requires only saved valid date/place. Explicit profile redo uses the approved four question pages name/date/place/time; currentPlace remains optional retained data and cannot force another page. This selection supersedes §24's reference to a five-page redo. |
+| useAllowance, ChatPanel, LandingCards, TopUpSheet, SouvenirDialog, SouvenirViewer, Inset, VoiceDownloadStatus | incoming paths above; exact existing exports | Preserve actual conversation/allowance, purchases, reports, voice/renderer events and manual geometry; only approved UI composition changes. |
+| displayVersion | src/platform/version.ts | Imported display projection reads this repository's canonical version data. No copied upstream version.json/version.txt becomes this product's identity. |
+| bootstrapNativeAuth | src/platform/nativeAuthPage.ts | Imported S10 markup; preserve credential/state/origin validation and actual auth protocol. |
+| build_all.sh --web-only --web-domain astronatally.com | build_all.sh | Explicit current operator release lane. Parse before stamping. Retain existing automatic version stamp/commit/push, generate web once, publish only the named domain, exit before native packaging. Default full-matrix behavior remains as previously architected. |
+| scripts/build-environment.mjs existing env/example/resolution | scripts/build-environment.mjs | Inherit missing public VITE settings from tracked .env.example, then .env, then process.env; resolve existing KStore pointers. Web-only mode does not require native signing secrets. No secret or pointer is baked into public JS. |
+| checkoutAvailable, chargebeeSite, buyCredits, buySouvenir, createCheckout, openCheckout | existing src/commerce and platform/env paths | Use the real existing Chargebee connector and configured site/API. VITE_CHARGEBEE_SITE comes from its existing private-authority pointer. No replacement checkout/provider or synthetic success. |
+| VITE_BILLING_API_URL | .env.example / runtime build environment | Must name the actual approved HTTPS billing endpoint; no retired Netlify default or invented deployment. Required deployment configuration is reported as configuration, never silently substituted. |
+
+The normal entry date/place rule is independent of optional values, while
+intentional redo retains all supplied values. OriginalFirstLight must await its
+onAccept checkpoint before updating accepted flags or selecting the next page.
+App must restore Firebase before mounting intake, guard UID/generation races,
+retain in-memory drafts across Return/Resume, and keep a local initial edit from
+being replaced by an external chart. These are §24 implementation requirements,
+not new provider or product behavior.
+
+### Fixed release sequence
+
+Complete and publish the integration commits first. Fix the selected source
+commit for one web-only canonical invocation. No code/configuration/provider
+changes occur between producing that bundle and publishing that same bundle.
+Destination: astronatally.com only, Surge; no asknatally.online publication,
+Netlify deployment or native packaging. Do not identify the source by its badge.
+The separately required final integrated-product demonstration is distinct from
+prohibited unit/smoke/fixture tests. Do not run or introduce such tests.
+
+Key/lore/billing audit is a conformance report against the existing architecture.
+It is not authority to invent PHP endpoints, another provider, placeholder
+fulfillment or a different key/lore design. Any missing end-to-end contract must
+be made explicit before that work can be assigned; no coder fills it in ad hoc.
