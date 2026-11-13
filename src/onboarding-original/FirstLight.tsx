@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from 'rea
 import { flushSync } from 'react-dom';
 import type { GazetteerEntry } from '../services/gazetteer';
 import type { IntakeDraft } from '../services/onboarding';
+import { firstMissingOnboardingStep, intakeDraftFromProgress, onboardingSectionValid, type OnboardingProgress } from '../services/onboardingProgress';
 import './first-light.css';
 import { scheduleSupertonicPreload } from '../services/supertonicTts';
 import { requestCurrentLocation, type CurrentLocation } from '../services/transits';
@@ -15,6 +16,8 @@ export interface FirstLightProps {
   readonly busy: boolean;
   readonly error: string | null;
   readonly onCreate: (draft: IntakeDraft) => void;
+  readonly initialProgress?: OnboardingProgress;
+  readonly onProgress?: (progress: OnboardingProgress) => void;
 }
 
 export const QUESTION_SEQUENCE = [
@@ -48,16 +51,17 @@ const normalizePlaceLabel = (value: string) =>
   value.trim().normalize('NFC').toLocaleLowerCase('en');
 
 /** U.4-TW: clean-room presentation; the composition still owns persistence. */
-export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps) {
+export function FirstLight({ gazetteer, busy, error, onCreate, initialProgress, onProgress }: FirstLightProps) {
   useEffect(scheduleSupertonicPreload, []);
   const id = useId();
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState({ name: '', date: '', place: '', time: '', currentPlace: '' });
-  const [deviceLocation, setDeviceLocation] = useState<CurrentLocation | null>(null);
-  const [skipLocation, setSkipLocation] = useState(false);
+  const progressRef = useRef(initialProgress);
+  const [step, setStep] = useState(() => initialProgress ? firstMissingOnboardingStep(initialProgress, gazetteer) : 0);
+  const [answers, setAnswers] = useState(initialProgress?.answers ?? { name: '', date: '', place: '', time: '', currentPlace: '' });
+  const [deviceLocation, setDeviceLocation] = useState<CurrentLocation | null>(initialProgress?.deviceLocation ?? null);
+  const [skipLocation, setSkipLocation] = useState(initialProgress?.skipLocation ?? false);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
-  const [unknownTime, setUnknownTime] = useState(false);
+  const [unknownTime, setUnknownTime] = useState(initialProgress?.unknownTime ?? false);
   const [typed, setTyped] = useState({ step: -1, count: 0 });
   const [reducedMotion, setReducedMotion] = useState(
     () =>
@@ -146,6 +150,25 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
     }
   }, [busy, error]);
 
+  // Event handlers save before navigation/React rendering, including the last
+  // keystroke before a tab closes. Updating one field preserves every other one.
+  const editProgress = (patch: Partial<OnboardingProgress>) => {
+    const currentProgress = progressRef.current;
+    if (patch.answers) setAnswers(patch.answers);
+    if (patch.unknownTime !== undefined) setUnknownTime(patch.unknownTime);
+    if (patch.skipLocation !== undefined) setSkipLocation(patch.skipLocation);
+    if (patch.deviceLocation !== undefined) setDeviceLocation(patch.deviceLocation);
+    if (!currentProgress) return undefined;
+    const next = { ...currentProgress, ...patch, status: 'draft' as const };
+    next.completed = { ...next.completed };
+    for (const question of QUESTION_SEQUENCE) {
+      if (!onboardingSectionValid(next, question.kind, gazetteer)) next.completed[question.kind] = false;
+    }
+    progressRef.current = next;
+    onProgress?.(next);
+    return next;
+  };
+
   const syncCaret = (field: HTMLInputElement) => {
     setSelection(field.selectionStart ?? field.value.length);
     setScroll(field.scrollLeft);
@@ -156,6 +179,25 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
     if ((!promptDone && current.kind !== 'date') || !valid || busy || sent.current || composition.current || advancing.current)
       return;
     if (!event.currentTarget.checkValidity()) return;
+    if (progressRef.current) {
+      const accepted = editProgress({ completed: { ...progressRef.current.completed, [current.kind]: true } })!;
+      const next = firstMissingOnboardingStep(accepted, gazetteer);
+      if (next < QUESTION_SEQUENCE.length) {
+        advancing.current = true;
+        if (QUESTION_SEQUENCE[next].kind === 'date') flushSync(() => setStep(next));
+        else setStep(next);
+        return;
+      }
+      const draft = intakeDraftFromProgress(accepted, gazetteer);
+      if (!draft) return;
+      sent.current = true;
+      setSubmitted(true);
+      const submittedProgress = { ...accepted, status: 'submitted' as const };
+      progressRef.current = submittedProgress;
+      onProgress?.(submittedProgress);
+      onCreate(draft);
+      return;
+    }
     if (step < QUESTION_SEQUENCE.length - 1) {
       advancing.current = true;
       if (QUESTION_SEQUENCE[step + 1].kind === 'date') flushSync(() => setStep(step + 1));
@@ -178,6 +220,8 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
       } : undefined),
     });
   };
+
+  if (step === QUESTION_SEQUENCE.length) return null;
 
   return (
     <section className="first-light" aria-label="First light">
@@ -243,7 +287,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
               {current.kind === 'date' && (
                 <BirthDateFields
                   value={answers.date}
-                  onChange={date => setAnswers(previous => ({ ...previous, date }))}
+                  onChange={date => editProgress({ answers: { ...answers, date } })}
                   disabled={!enabled}
                   describedBy={`${id}-birth-date-hint`}
                   invalid={birthDate.invalid}
@@ -269,7 +313,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
                       const digits = event.currentTarget.value.replace(/\D/g, '').slice(0, 4);
                       const masked =
                         digits.length > 2 ? digits.slice(0, 2) + ':' + digits.slice(2) : digits;
-                      setAnswers({ ...answers, time: masked });
+                      editProgress({ answers: { ...answers, time: masked } });
                     }}
                   />
                   <button
@@ -294,7 +338,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
                     min="00:00"
                     max="23:59"
                     disabled={!enabled || unknownTime}
-                    onChange={(event) => setAnswers({ ...answers, time: event.currentTarget.value })}
+                    onChange={(event) => editProgress({ answers: { ...answers, time: event.currentTarget.value } })}
                   />
                 </div>
               )}
@@ -324,8 +368,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
                 disabled={!enabled}
                 onChange={(event) => {
                   const field = event.currentTarget;
-                  setAnswers({ ...answers, [current.kind]: field.value });
-                  if (current.kind === 'currentPlace') { setDeviceLocation(null); setSkipLocation(false); }
+                  editProgress({ answers: { ...answers, [current.kind]: field.value }, ...(current.kind === 'currentPlace' ? { deviceLocation: null, skipLocation: false } : {}) });
                   syncCaret(field);
                 }}
                 onSelect={(event) => syncCaret(event.currentTarget)}
@@ -431,7 +474,7 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
                   type="checkbox"
                   checked={unknownTime}
                   disabled={busy || submitted}
-                  onChange={(event) => setUnknownTime(event.target.checked)}
+                  onChange={(event) => editProgress({ unknownTime: event.target.checked })}
                 />
                 I don’t know my birth time
               </label>
@@ -448,13 +491,12 @@ export function FirstLight({ gazetteer, busy, error, onCreate }: FirstLightProps
                     setLocating(true); setLocationError('');
                     try {
                       const location = await requestCurrentLocation();
-                      setDeviceLocation(location); setSkipLocation(false);
-                      setAnswers(previous => ({ ...previous, currentPlace: location.name }));
+                      editProgress({ deviceLocation: location, skipLocation: false, answers: { ...(progressRef.current?.answers ?? answers), currentPlace: location.name } });
                     } catch (failure) { setLocationError(failure instanceof Error ? failure.message : 'Choose a city or skip.'); }
                     finally { setLocating(false); }
                   }}>{locating ? 'Finding your location…' : 'Use device location'}</button>
                 <button type="button" className="first-light__back" disabled={locating || busy || submitted}
-                  onClick={() => { setSkipLocation(true); setDeviceLocation(null); setAnswers(previous => ({ ...previous, currentPlace: '' })); }}>
+                  onClick={() => editProgress({ skipLocation: true, deviceLocation: null, answers: { ...answers, currentPlace: '' } })}>
                   Skip location
                 </button>
                 <p role="status">{locationError || (skipLocation ? 'Location skipped; the reading uses the global planetary sky.' : deviceLocation || currentMatch ? 'Current location selected.' : 'Select a city from the list.')}</p>
