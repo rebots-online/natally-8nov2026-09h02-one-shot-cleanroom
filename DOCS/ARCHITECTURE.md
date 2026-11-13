@@ -1638,3 +1638,109 @@ stored answer is invalid. Acceptance sets that flag and saves before consulting
 the same filter again. A final flag followed by an interrupted status write
 still takes the all-true branch. Persistence requires successful browser storage;
 a failed write is reported and cannot be represented as a durable completion.
+
+## 24. Firebase checkpoints before onboarding navigation — FROZEN 2026-11-13
+
+Authority: Robin's explicit corrections in this session. This amendment
+supersedes §23's browser-only persistence boundary and five-required-field entry
+gate. It changes only onboarding. Key expiry/exhaustion, lore storage/embedding
+and billing are subjects for an architectural audit, not additions to this PR.
+
+### Finished behavior
+
+1. On sign-in, read the current UID's existing Firebase private intake document
+   before mounting any questionnaire. The normal entry requirements are a valid
+   birth date and a resolved birthplace. When both are saved, do not ask any
+   onboarding questions: restore the chart or calculate it from those values.
+   When either is missing, ask only the missing required question, in date then
+   place order. Name, birth time and current location do not force normal
+   onboarding. Retain supplied optional values; absent birth time means unknown,
+   null time with the existing unknown-time chart behavior, never invented time.
+2. Before Next/Begin changes the page, save that page's accepted value and its
+   completion flag together to Firestore and await backend acknowledgment.
+   Disable duplicate submission and editing while that write is pending. A
+   rejected write leaves the same question and entered value visible with an
+   inline error and a retry through the same action. Never advance on a local
+   cache write alone. Cloud reads/writes use the already installed Firebase SDK,
+   active Firebase app/auth UID and configured firestoreDatabaseId.
+3. Reuse the existing users/<uid>/private/intake document, adding only its
+   onboardingProgress map. Existing root intake fields and all unrelated
+   fields/collections are preserved. Read that map first; if absent, derive
+   existing saved values from the legacy intake fields described below. Only
+   when neither cloud representation exists may the existing UID-owned local
+   draft be migrated, awaiting its initial Firestore write before presenting it.
+   A failed cloud read is shown as a restoration error with Retry, not treated
+   as an empty account and not allowed to mount a fresh questionnaire.
+4. All five existing answers/completion flags remain representable. For initial
+   mode only date and place are required by firstMissingOnboardingStep; for an
+   explicitly confirmed redo retain the existing five-step review flow. Cloud
+   restoration treats valid stored date/place values as accepted initial data
+   even for an older record without those two flags. Optional empty values do
+   not force re-entry. Normal history/auth/storage events never initiate redo.
+5. Redo remains only the existing confirmed Account action. Await the new redo
+   snapshot's Firebase write before opening it. Keep the existing chart and
+   latest UID-owned in-memory draft when returning/resuming, including if the
+   browser cache failed. Resume uses that retained draft rather than replacing
+   it with an older cache snapshot. Redo failure retains the old chart.
+6. Ignore location, load, save and calculation continuations after cancellation,
+   unmount or account/attempt change. In particular the questionnaire guards
+   device-location success/error/finally before editing or reporting progress;
+   the wrapper guards reportProgress before any cache/cloud write. Serialize
+   Firebase writes per UID so already queued completion precedes a fresh redo
+   reset. Never enqueue from an invalidated component. Do not adopt an external
+   chart while either initial intake or redo is active locally.
+7. Keep localStorage only as a best-effort cache, with the existing truthful
+   warning. Keep the latest draft in the shell as well as the wrapper so closing
+   the wrapper cannot lose it. Firestore success permits progression even when
+   browser storage fails. Existing valid cached charts still bypass questions;
+   otherwise all entry checks wait for Firebase restoration. Cloud all-complete
+   answers reconstruct a chart without replaying intake if its local cache is
+   absent. Completion updates are queued immediately with the current accepted
+   snapshot; stale completion/UI callbacks do not mutate a newer draft.
+
+### Exact entities — engaged by ONBOARDING-FIREBASE
+
+All source paths are repo-relative. Component-local refs/state/handlers remain
+private to the named component; no other public/module entities are introduced.
+
+| Exact entity | Target and signature | Frozen responsibility |
+| --- | --- | --- |
+| accountFirestore | src/platform/firebase.ts:250; export (accountUid:string):Firestore | Call existing requireAuth(); require currentUser.uid === accountUid; getFirestore(auth.app, configured firestoreDatabaseId), default only if config omits that ID. Never initialize a second app or import the legacy Firebase module and its connection probe. |
+| firebaseOnboardingWrites | src/services/onboardingProgress.ts:1; private Map<string,Promise<void>> | Per-UID ordered write tails; a failed tail does not poison later writes. |
+| enqueueFirebaseOnboardingWrite | same file; private (uid:string,write:()=>Promise<void>):Promise<void> | Chain behind that UID's tail, preserve original rejection for caller, retire only the current tail. Resolve the authenticated account reference when executing the write. |
+| progressFromFirebaseIntake | same file; private (value:unknown,uid:string,gazetteer:readonly GazetteerEntry[]):OnboardingProgress\|null | Derive initial progress from actual legacy name/birthDate/birthTime/birthTimeUnknown/placeName/latitude/longitude/currentLocationName/currentLatitude/currentLongitude/currentTimezoneId. Resolve birthplace against existing gazetteer coordinates/name; retain selected disambiguated label. Set date/place accepted only when valid. Do not fabricate missing fields or customer data. |
+| loadFirebaseOnboardingProgress | same file; export async (uid:string,gazetteer:readonly GazetteerEntry[]):Promise<OnboardingLoadResult> | Wait for that UID's pending writes; getDocFromServer(doc(accountFirestore(uid),'users',uid,'private','intake')); normalize onboardingProgress when present, else derive legacy values, else use/migrate the existing UID local cache. Cloud errors reject. A missing document is an empty account; malformed fields recover independently without deleting bytes. |
+| saveFirebaseOnboardingProgress | same file; export (progress:OnboardingProgress):Promise<void> | Ordered setDoc(...,{onboardingProgress:progress},{mergeFields:['onboardingProgress']}); only explicit redo reset or one-time local migration replaces the whole map. |
+| saveFirebaseOnboardingStep | same file; export (progress:OnboardingProgress,step:OnboardingStep):Promise<void> | Ordered setDoc with mergeFields for onboardingProgress.version/accountUid/mode/status/answers.<step>/completed.<step>. Time also includes unknownTime; currentPlace also includes deviceLocation/skipLocation. Merge only these fields so other accepted pages survive. Payload contains only defined values. |
+| completeFirebaseOnboardingProgress | same file; export (progress:OnboardingProgress):Promise<void> | Ordered merge of onboardingProgress.status='complete' only, after accepted values and successful chart handoff. No whole-draft replacement from a delayed completion. |
+| normalizeOnboardingProgress | same file; existing signature | Preserve all independently valid values; valid saved initial date/place are accepted even if an older cloud snapshot lacks their flags. |
+| firstMissingOnboardingStep | same file; existing signature | Initial mode checks date/place only; explicit redo checks all five. Return original ONBOARDING_STEPS index or its length; only genuinely missing/invalid required fields are selected. |
+| intakeDraftFromProgress | same file; existing signature | Permit initial date/place-only chart reconstruction; preserve supplied name/time/location; missing/invalid optional time yields unknownTime:true,time:null. Redo retains its explicit optional-answer semantics. |
+| FirstLightProps.onAccept | src/onboarding-original/FirstLight.tsx:14; optional (progress:OnboardingProgress,step:OnboardingStep)=>Promise<void> | Required by the active wrapper; advance awaits it before updating accepted refs, changing question or onCreate. Remove synchronous flushSync from post-await transitions. Keep non-owned presentation unchanged. |
+| questionnaire FirstLight | same file:54; existing component | Keep current accepted-step snapshot separate from an unacknowledged candidate; never persist/advertise its true flag locally before backend success. Mounted/location-generation guards reject cancelled location callbacks. Busy save disables field edits, Back and duplicate submits; error keeps answer for retry. |
+| OnboardingProps.onProgress | src/app/onboarding/FirstLight.tsx:30; optional (progress:OnboardingProgress)=>void | Report each local edit and each acknowledged checkpoint to the shell's UID-owned in-memory draft; local cache errors cannot erase it. |
+| wrapper FirstLight | same file:38; existing component | onAccept awaits saveFirebaseOnboardingStep, validates mounted/current attempt before/after awaiting, then reports accepted progress. No unconditional cloud writes per keystroke. Guard reportProgress after unmount; queued completion errors are forwarded only for the active UID/attempt. |
+| App | src/app/AppShell.tsx:414; existing component | Async UID/generation-guarded Firebase restoration gate before FirstLight; visible restoration error/Retry; keep latest UID-owned draft ref; beginRedo awaits cloud reset; return/resume/openAccount preserve that draft; reconcile ignores active initial intake as well as redo. Existing-chart and confirmed-profile-action rules retained. |
+
+Legacy Firebase configuration was mapped through CodeGraph in
+src/platform/firebase.ts and src/landing-original/services/firebase.ts and
+onboarding.ts. VITE_FIREBASE_CONFIG already identifies the existing project and
+named Firestore database. The legacy private intake path is exact source evidence,
+not a newly invented collection. No billing/credit/key/lore schema is changed.
+
+The worktree CodeGraph database could not open (literal error: unable to open
+database file). Its PROJECT_INDEX files are absent. Targeted reads only of
+the named service, questionnaire/wrapper, App auth/reconcile/profile regions and
+this architecture closed that tooling gap; no original/abandoned repo was read.
+
+### Source-level acceptance
+
+Read each changed region. Trace date and place from cloud read through validation,
+entry gate, awaited backend write, accepted flag and next-question selection.
+Trace initial all-required-present to the chart without a questionnaire.
+Trace optional empty time to the existing unknown-time input.
+Trace profile confirmation to awaited reset; cancellation, stale GPS, failed
+cache and external chart events must preserve current user work.
+No test, smoke test, compiler run, browser automation, fixture or mock customer
+is authorized for this correction. Retain the separately required merged-product
+demonstration obligation; it is not replaced by tests or added as PR policy work.
