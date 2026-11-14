@@ -1458,3 +1458,120 @@ Key/lore/billing audit is a conformance report against the existing architecture
 It is not authority to invent PHP endpoints, another provider, placeholder
 fulfillment or a different key/lore design. Any missing end-to-end contract must
 be made explicit before that work can be assigned; no coder fills it in ad hoc.
+
+## PROMPT-CANON — DRAFT, NOT ASSIGNED IN THIS EXECUTION
+
+- [ ] **PROMPT-CANON** — wire the tracked authored persona and reading rubric.
+  **Own:** src/content/persona.ts and src/app/chat/context.ts only.
+  **Inputs:** tracked root SOUL.md and READING_RUBRIC.md; no src/ duplicates.
+  **Do:** Execute the frozen contract below. Import the two root Markdown files
+  with Vite ?raw as NATALLY_SOUL and NATALLY_READING_RUBRIC. Replace the manually
+  maintained NATALLY_SYSTEM_PROMPT summary with their trimmed texts joined by
+  two newlines. Preserve NATALLY_PARAMETERS, NATALLY_EXAMPLES, PersonaExample,
+  the existing exports and buildMessages' measured-context/backstory/history
+  construction. In existing chartFacts and chartTargets, guard all angle/house
+  facts and targets on chart.input.timeIso !== null. Unknown time omits angle
+  coordinates, houses, and natal/current-to-natal aspects involving Ascendant
+  or Midheaven. Preserve body sign/longitude and non-angle aspect facts/targets.
+  No provider, inference transport, lore persistence, new source module or
+  alternate authored copy changes. No new module-scope symbols beyond the two
+  named raw imports; component/function local variables stay local.
+  **Accept:** direct source reading traces both root raw imports through
+  NATALLY_SYSTEM_PROMPT into buildMessages; the null-time branch cannot emit
+  angle/house facts or target names in any enumeration. Known-time behavior is
+  retained. No tests, syntax/type checks, scripts, build or browser execution.
+  **Handback:** reread edited source; return written file:line anchors and any
+  source mismatch. Root owns checklist markers, Git commit/push and integration.
+  You are not alone in this checkout; preserve every other agent's edits.
+
+### Exact frozen contract — ARCHITECTURE.md §26
+
+## 26. Existing authored prompt wiring — DRAFT, NOT ASSIGNED
+
+Authority: Robin requires Natally's prompting to be final before publication and
+forbids replacing the settled design. This is an exact wiring correction for
+the already tracked SOUL.md and READING_RUBRIC.md, not new persona wording,
+lore infrastructure, provider selection or inference hosting. Those root files
+remain the sole authored texts; their untracked src/ duplicates are not inputs.
+The existing observation rubrics' spoken-reading and actual-calculation clauses
+remain applicable to the final merged product.
+
+| Exact entity | Target and signature / source | Frozen responsibility |
+| --- | --- | --- |
+| NATALLY_SOUL | src/content/persona.ts:1; private default raw import from ../../SOUL.md?raw | Include the tracked root character document, without a separately maintained summary. |
+| NATALLY_READING_RUBRIC | same file:2; private default raw import from ../../READING_RUBRIC.md?raw | Include the tracked root reading requirements in every model system prompt. |
+| NATALLY_SYSTEM_PROMPT | same file:19; existing exported string | Join NATALLY_SOUL.trim() and NATALLY_READING_RUBRIC.trim() with two newlines. Preserve the existing public export, parameters, examples and PersonaExample interface. |
+| buildMessages | src/app/chat/context.ts:206; existing (history:ChatMessage[],chart:NatalChart,sky?:SkyPlacement[]\|null):ContextMessage[] | Continue including NATALLY_SYSTEM_PROMPT, measured chart facts, actual stage target inventory, authored backstory and last 20 messages. No lore-persistence or key-lifecycle claim is added. |
+| chartFacts | src/app/chat/context.ts:66; existing (chart:NatalChart):string | When input.timeIso is null, state birth time unknown, omit Ascendant/Midheaven coordinates and every house assertion. Keep calculated body sign/longitude and supplied aspects between non-angle bodies; omit aspects involving Ascendant/Midheaven as well. Known birth time retains the existing facts. |
+| chartTargets | same file:142; existing (chart:NatalChart,sky?:SkyPlacement[]\|null):Set<string> | Unknown birth time excludes angle bodies Ascendant/Midheaven, House targets and aspect targets involving those angles. Apply the same exclusion to current-to-natal target enumeration; retain existing measured body/aspect targets and known-time behavior. |
+
+Only src/content/persona.ts and src/app/chat/context.ts change. No new source
+module or alternate authored document is introduced. A reliable birth time is
+required for angle/house claims by the existing reading rubric; a noon fallback
+used to compute other chart positions is not evidence of the visitor's birth
+time. The same exclusion is used by chartFacts and chartTargets so the prompt
+cannot invite an unsupported angle/house explanation.
+
+Source acceptance is direct semantic tracing from the two tracked raw imports
+to NATALLY_SYSTEM_PROMPT to buildMessages, then tracing the null-time branch in
+chartFacts and all three target enumeration loops. No test, compiler check,
+fixture, fake reading, browser automation or detached demonstration is run.
+The separately mandated final product recording remains unobserved until it is
+actually made.
+
+## Current execution amendment — ARCHITECTURE.md §27
+
+The three UI-FRAME/UI-DATA/WEB-CONFIG tasks above are resumed. PROMPT-CANON
+and later proposals remain unassigned drafts. For WEB-CONFIG, replace the
+prior purchased-domain destination with natally.robin.mba only in existing
+argument validation, default web destinations and documentation. Keep explicit
+web-only native skip and default web-deploy-before-native ordering. Do not
+execute either lane. Root commits/pushes each implementation before semantic
+evaluation and commits/pushes the evaluated result; root merges/pushes master,
+then the other session PR, then deploys web before starting native builds.
+
+Exact operator architecture contract:
+
+## 27. Operator-directed completion and release — FROZEN 2026-11-13
+
+Authority: Robin explicitly resumes coding the three tasks already published in
+b5259dd, selects ACP-controlled GLM-4.7-Flash through zclaude with the explicit
+--model glm-4.7-flash selection, requires task commits/pushes before and after
+semantic evaluation, and directs all completed work to master. The other session
+is waiting for this master integration before its own branch/PR can be merged.
+This is the current execution authority; earlier architecture-only restrictions
+remain applicable to later proposals, not these three already selected tasks.
+
+1. Execute UI-FRAME, UI-DATA and WEB-CONFIG from the committed checklist. Each
+   coder receives only that exact task, its copied contract and named local
+   tracked inputs. No 5.x substitution, historical context recovery, broad source
+   survey, test/smoke/fixture/browser/compiler/lint execution, Git mutations,
+   builds or deployment by coders. Parent owns Git and semantic evaluation.
+2. Commit and push each implementation before semantic evaluation. Read its
+   actual changed source against the contract; return corrections to the same
+   bounded ACP session. Commit and push the evaluated result and checklist
+   progress. Do not substitute test counts for this source evaluation.
+3. Merge this completed integration to master and push master, then merge the
+   other session's completed PR in chronological order. Preserve concurrent
+   edits and Git ancestry. Source completion includes master publication.
+4. The current public destination is natally.robin.mba ONLY. It supersedes the
+   astronatally.com/asknatally.online destinations for this release. WEB-CONFIG's
+   existing --web-only --web-domain interface accepts natally.robin.mba; the
+   existing default web destination list contains only that domain. Change only
+   existing argument/domain branches and their documented invocation. Do not
+   invent a new deployment transport or billing endpoint during that edit.
+5. After completed checklist work is on master, generate and deploy the web
+   bundle first, then begin native builds. The deployed web app is available
+   while Robin can still stop the expensive native build. Keep explicit
+   web-only native skip as an available lane. No source/configuration/provider
+   changes are introduced between generating a bundle and publishing it.
+6. §26's prompt proposal and later private-key/lore/hosting proposals are not
+   implementation assignments in this three-task run. Preserve them as drafts;
+   do not silently implement them. The physical hosting facts and actual
+   publication route are established before deployment; a domain string does
+   not authorize guessing a server, replacing a provider or configuring Netlify.
+
+Exact changed existing entity: build_all.sh's --web-domain argument validation
+and existing web destination list; target natally.robin.mba. Existing automatic
+version stamping, same-bundle publication and web-before-native ordering are
+retained. No new public source entity is introduced by this amendment.
