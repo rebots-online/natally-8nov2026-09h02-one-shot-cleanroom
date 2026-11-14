@@ -62,7 +62,6 @@ export function FirstLight({
  const current = QUESTION_SEQUENCE[step] ?? QUESTION_SEQUENCE[0];
  const answers = snapshot?.answers ?? { name: '', date: '', place: '', time: '', currentPlace: '' };
  const unknownTime = snapshot?.unknownTime ?? false;
- const answer = answers[current.kind];
  const enabled = !busy && !submitted && !saving && !(current.kind === 'time' && unknownTime);
  const placeOptions = useMemo(() => {
   const counts = new Map<string, number>();
@@ -107,7 +106,7 @@ export function FirstLight({
   onProgress?.(next);
  };
  const updateAnswer = (kind: OnboardingStep, value: string) => {
-  if (!progress.current || busy || saving || submitted) return;
+  if (!progress.current || busy || saving || submitted || advancing.current) return;
   report({
    ...progress.current, status: 'draft',
    answers: { ...progress.current.answers, [kind]: value },
@@ -115,7 +114,7 @@ export function FirstLight({
   });
  };
  const updateUnknownTime = (value: boolean) => {
-  if (!progress.current || busy || saving || submitted) return;
+  if (!progress.current || busy || saving || submitted || advancing.current) return;
   report({ ...progress.current, status: 'draft', unknownTime: value,
    completed: { ...progress.current.completed, time: false } });
  };
@@ -159,7 +158,7 @@ export function FirstLight({
   }
  };
  const back = () => {
-  if (busy || submitted || saving) return;
+  if (busy || submitted || saving || advancing.current) return;
   if (questionIndex <= 0) { onBack?.(); return; }
   const previous = questions.current[questionIndex - 1]!;
   setStep(QUESTION_SEQUENCE.findIndex(question => question.kind === previous.kind));

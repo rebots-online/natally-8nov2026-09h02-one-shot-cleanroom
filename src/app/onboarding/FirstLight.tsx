@@ -42,6 +42,7 @@ export default function FirstLight({
  const alive = useRef(true);
  const attempt = useRef(0);
  const castInFlight = useRef(false);
+ const saveInFlight = useRef(false);
  const currentLine = useRef(GREETING);
  const voiceRef = useRef<Voice | null>(null);
  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
@@ -95,15 +96,19 @@ export default function FirstLight({
  };
 
  const accept = async (next: OnboardingProgress, step: OnboardingStep) => {
-  if (!alive.current || next.accountUid !== accountUid) throw new Error('Onboarding was closed.');
+  if (!alive.current || saveInFlight.current || next.accountUid !== accountUid) throw new Error('Onboarding was closed or is already saving.');
   const generation = attempt.current;
+  saveInFlight.current = true;
   setSaving(true);
   try {
    await saveFirebaseOnboardingStep(next, step);
    if (!alive.current || generation !== attempt.current) throw new Error('Onboarding was closed.');
    reportProgress(next);
   } finally {
-   if (alive.current && generation === attempt.current) setSaving(false);
+   if (alive.current && generation === attempt.current) {
+    saveInFlight.current = false;
+    setSaving(false);
+   }
   }
  };
 
@@ -168,7 +173,7 @@ export default function FirstLight({
  }, [accountUid]);
 
  const leave = () => {
-  if (saving) return;
+  if (saveInFlight.current) return;
   alive.current = false;
   attempt.current += 1;
   voice.stop();

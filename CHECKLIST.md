@@ -1187,7 +1187,7 @@ completed logical task. No new UI, payment provider, PHP layer or fake result.
   preserved through Return/Resume/external storage. Read edited regions and
   report file:line anchors, not pass counts. Do not execute verification.
 
-- [ ] **UI-DATA** — Firebase accepted-page checkpoints in approved intake markup.
+- [X] **UI-DATA** — Firebase accepted-page checkpoints in approved intake markup.
   **Own:** src/platform/firebase.ts, src/services/onboardingProgress.ts,
   src/app/onboarding/FirstLight.tsx, src/app/onboarding/onboarding.css,
   src/onboarding-original/FirstLight.tsx,
@@ -1239,6 +1239,16 @@ completed logical task. No new UI, payment provider, PHP layer or fake result.
   next page; failed save stays put; optional data retained; all-complete bypass;
   stale callbacks do not write; no local cache is the authority. Read changed
   regions and report exact anchors/remaining uncertainty. No tests/commands.
+
+  **Source evaluation — 2026-11-14:** implementation e658fcb was committed
+  and pushed before evaluation. Read accountFirestore's current-UID/named-app
+  binding; the service's date/place versus four-page-redo required sets,
+  per-UID write queue, legacy recovery, migration and partial merge masks;
+  the questionnaire's awaited acceptance and wrapper cancellation guards.
+  Added synchronous in-flight guards against edits/Back before React rerenders.
+  Cloud read rejection is preserved; all-required-present bypasses questions.
+  This is source conformance, not observed runtime behavior. Shell entry and
+  profile integration remain UI-FRAME's separate task. No tests/checks ran.
 
 - [ ] **WEB-CONFIG** — existing configuration and explicit web-only release lane.
   **Own:** build_all.sh, scripts/build-environment.mjs, .env.example, README.md.
