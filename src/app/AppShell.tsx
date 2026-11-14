@@ -970,6 +970,8 @@ export default function App() {
      setAccountOpen(false);
      setTopUpOpen(false);
      setSouvenirOpen(false);
+     setMenuOpen(false);
+     setInfoSection(null);
      entryGeneration.current += 1;
      setOnboardingEntry(entryGeneration.current);
      const restored = uid ? loadStoredChart(uid) : null;
@@ -1061,6 +1063,7 @@ export default function App() {
    intakeActive.current = true;
    setRedoRequested(true);
    setAccountOpen(false);
+   setInfoSection(null);
    railHistoryRef.current = [];
   } catch (failure) {
    if (activeUid.current === uid && generation === redoGeneration.current) {
@@ -1086,6 +1089,7 @@ export default function App() {
   intakeActive.current = true;
   setRedoRequested(true);
   setAccountOpen(false);
+  setInfoSection(null);
   railHistoryRef.current = [];
  };
 
@@ -1210,6 +1214,7 @@ export default function App() {
   setSouvenirOpen(next === 'souvenir'); setMenuOpen(next === 'menu');
  };
  const openRail = (next: 'account' | 'topup' | 'souvenir' | 'signin' | 'menu') => {
+  if (redoPending.current) return;
   if (currentTask === next) return;
   if (!currentTask) railOpenerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   else railHistoryRef.current.push(currentTask);
@@ -1222,6 +1227,7 @@ export default function App() {
   if (previous === null) window.requestAnimationFrame(() => railOpenerRef.current?.focus());
  };
  const showSection = (id: string, chartView: boolean) => {
+  if (redoPending.current) return;
   voice.stop();
   railHistoryRef.current = []; applyTask(null); setInfoSection(id);
   dispatchLanding({ type: 'view', view: chartView ? 'chart' : 'atelier', manual: true });
@@ -1294,7 +1300,7 @@ export default function App() {
    header={<StageHeader auth={auth} balanceCr={allowance.balanceCr} balanceLoading={allowance.loading} balanceError={allowance.error}
     onAccount={openAccount}
     onTopUp={() => openRail('topup')} onMenu={() => openRail('menu')} onNavigate={showSection}
-    onHome={() => { railHistoryRef.current = []; applyTask(null); closeInformation(); }} />}
+    onHome={() => { if (redoPending.current) return; railHistoryRef.current = []; applyTask(null); closeInformation(); }} />}
    stage={
     <div className="atelier-room-container stage-inset-root" ref={stageRootRef} data-chart-focused={chartFocused}
      onPointerDownCapture={() => { pressSeqRef.current += 1; }}>

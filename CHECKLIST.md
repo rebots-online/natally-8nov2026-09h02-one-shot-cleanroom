@@ -1141,7 +1141,7 @@ web-only release is a later explicit operation after all source is complete.
 No coder commits/pushes or mutates the shared Git index; parent publishes each
 completed logical task. No new UI, payment provider, PHP layer or fake result.
 
-- [ ] **UI-FRAME** — integrate approved frame and retain account/onboarding flow.
+- [X] **UI-FRAME** — integrate approved frame and retain account/onboarding flow.
   **Own:** src/app/AppShell.tsx, src/app/SignInPanel.tsx, src/app/TopUpSheet.tsx,
   src/app/VersionBadge.tsx, src/app/VoiceDownloadStatus.tsx,
   src/app/app-shell.css, src/app/sign-in.css, src/app/chat/ChatPanel.tsx,
@@ -1186,6 +1186,15 @@ completed logical task. No new UI, payment provider, PHP layer or fake result.
   account; explicit profile reset only; current UID/attempt and latest draft
   preserved through Return/Resume/external storage. Read edited regions and
   report file:line anchors, not pass counts. Do not execute verification.
+
+  **Source evaluation — 2026-11-14:** implementation e3f0d1e was committed
+  and pushed before source evaluation. Traced UID-tagged chart state, restored
+  full chart validator, cloud-ready/error gate before FirstLight, same-UID auth
+  preservation, per-entry callback guards, awaited confirmed redo reset, and
+  latest-draft Return/Resume without cache reload. External chart events cannot
+  replace active initial intake or redo. Corrected rail navigation while reset
+  is pending and cleared an information rail when intake is entered, retaining
+  the single imported scene. No test/compiler/browser execution was used.
 
 - [X] **UI-DATA** — Firebase accepted-page checkpoints in approved intake markup.
   **Own:** src/platform/firebase.ts, src/services/onboardingProgress.ts,
