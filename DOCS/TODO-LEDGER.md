@@ -12,6 +12,22 @@ Codebase state while exploring: commit `3f00f98`; last deployed build `v1.27.765
 (does not include `444e1bc`, `ebf1ed9`, `3f00f98`). Work dynamic: items are
 recorded, not acted on, until Robin says go (global-agent-rules "How we work").
 
+## Current colour-coded additions — 2026-11-14
+
+Legend: 🔴 requested, awaiting detailed architecture/implementation;
+🟡 implementation in progress; 🟢 demonstrated in the finished product.
+These additions record requested product work; their presence is not a claim
+that it has been implemented.
+
+| State | Task | Required outcome | Completion evidence |
+| --- | --- | --- | --- |
+| 🔴 | ONBOARDING-NARRATIVE — voice, character and product journey | Load Natally's voice model while the user completes onboarding. Weave in her backstory and natural oversharing, the gist of the app's USP, and practical app guidance throughout. Transition smoothly into the natal reading, a relevant upsell, horoscope, and a synastry-report cross-sell. Preserve missing-only onboarding and intentional profile redo; narration must not force completed users to repeat intake or delay an otherwise ready chart. | Final integrated-product demonstration shows actual voice loading, gesture-admitted speech, coherent backstory/product guidance and the full requested journey, with real offers and fulfillment. Detailed rubric/architecture precede implementation. |
+| 🔴 | PURCHASE-CONVERSION-ANALYTICS — per-user purchase path | Identify signed-in users who bought credits; credits and reports; both natal and synastry reports; and additional credit purchases. Retain the purchase sequence and nonexclusive cohort flags/counts. Attribute the number of sales closing attempts required for each verified sale, including subsequent credit purchases; count offer dismissals separately so UI closes are not confused with sales asks. | Per-user records link offer/closing-attempt identifiers, product, session, timestamps, verified purchase identifier, payment outcome and reversals. Cohorts and attempts-to-purchase derive from actual purchases with duplicate delivery handled once. No clicked checkout button is recorded as a sale. |
+
+Authority: Robin's current-session requests on 2026-11-14. These additions do
+not authorize fabricated prices, purchases, reports, analytics or narrative
+claims. Existing task and architecture gates remain in force.
+
 ## Billing purchase flow
 
 | Item | Robin said | Cited | Observed on | Architecture | Tried / landed |
