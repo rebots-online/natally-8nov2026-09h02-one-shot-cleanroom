@@ -73,6 +73,12 @@ import { chartTargets } from './chat/context';
 import { useAllowance, type ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
+import { loadGazetteer } from '../services/gazetteer';
+import {
+ ONBOARDING_PROGRESS_PREFIX, createOnboardingProgress, loadFirebaseOnboardingProgress,
+ saveFirebaseOnboardingProgress, saveOnboardingProgress,
+ type OnboardingLoadResult, type OnboardingProgress,
+} from '../services/onboardingProgress';
 import KaraokeCaption from './karaokeCaption';
 import { nextSpontaneousStory } from '../content/backstory';
 import { LandingCards, LANDING_SECTIONS } from './landing/LandingCards';
@@ -148,7 +154,10 @@ function StageHeader({ auth, balanceCr, balanceLoading, balanceError, onAccount,
 }
 
 /** Actual identity and allowance in the frozen S07 task rail. */
-function AccountPanel({ auth, balanceCr, balanceError, onClose, onTopUp, onKeepsake, onSignOut }: {
+function AccountPanel({
+ auth, balanceCr, balanceError, onClose, onTopUp, onKeepsake, onSignOut,
+ onRedoOnboarding, onResumeOnboarding, canRedoOnboarding, redoBusy, redoError,
+}: {
  auth: Extract<AuthState, { status: 'signedIn' }>;
  balanceCr: string;
  balanceError: string | null;
@@ -156,15 +165,29 @@ function AccountPanel({ auth, balanceCr, balanceError, onClose, onTopUp, onKeeps
  onTopUp: () => void;
  onKeepsake: () => void;
  onSignOut: () => void;
+ onRedoOnboarding: () => void;
+ onResumeOnboarding?: () => void;
+ canRedoOnboarding: boolean;
+ redoBusy: boolean;
+ redoError: string | null;
 }) {
- return <AtelierRail title="Account" onClose={onClose} labelledBy="atelier-account-title">
+ const [confirming, setConfirming] = useState(false);
+ return <AtelierRail title="Account" onClose={redoBusy ? undefined : onClose} labelledBy="atelier-account-title">
   <div className="atelier-account-identity" data-bind="identity">{auth.name}{auth.email && auth.email !== auth.name ? <div>{auth.email}</div> : null}</div>
   <div className="atelier-account-allowance"><span>Conversation allowance</span><div data-bind="allowance">
    {balanceError ? <span role="alert">{balanceError}</span> : balanceCr || 'Checking your balance…'}
   </div></div>
-  <button type="button" className="atelier-btn-primary" onClick={onTopUp}>Top up</button>
-  <button type="button" className="atelier-btn-secondary" onClick={onKeepsake}>My keepsake</button>
-  <button type="button" className="atelier-btn-text" onClick={onSignOut}>Sign out</button>
+  <button type="button" className="atelier-btn-primary" disabled={redoBusy} onClick={onTopUp}>Top up</button>
+  <button type="button" className="atelier-btn-secondary" disabled={redoBusy} onClick={onKeepsake}>My keepsake</button>
+  {onResumeOnboarding && <button type="button" className="atelier-btn-secondary" disabled={redoBusy} onClick={onResumeOnboarding}>Resume onboarding</button>}
+  {canRedoOnboarding && !confirming && <button type="button" className="atelier-btn-secondary" onClick={() => setConfirming(true)}>Redo onboarding</button>}
+  {confirming && <div>
+   <p className="atelier-body-text">Start onboarding again? Your existing chart stays available until the replacement is saved.</p>
+   <button type="button" className="atelier-btn-primary" disabled={redoBusy} onClick={onRedoOnboarding}>{redoBusy ? 'Saving…' : 'Start again'}</button>
+   <button type="button" className="atelier-btn-secondary" disabled={redoBusy} onClick={() => setConfirming(false)}>Cancel</button>
+  </div>}
+  {redoError && <p className="atelier-status-banner error" role="alert">{redoError}</p>}
+  <button type="button" className="atelier-btn-text" disabled={redoBusy} onClick={onSignOut}>Sign out</button>
  </AtelierRail>;
 }
 
@@ -266,15 +289,30 @@ function seedLandingPanePlacements(): void {
 }
 
 function isNatalChart(value: unknown): value is NatalChart {
- if (typeof value !== 'object' || value === null) return false;
- const candidate = value as Record<string, unknown>;
- const input = candidate.input;
- return (
-  typeof input === 'object' &&
-  input !== null &&
-  typeof (input as Record<string, unknown>).dateIso === 'string' &&
-  Array.isArray(candidate.bodies)
- );
+ const record = (candidate: unknown): candidate is Record<string, unknown> => typeof candidate === 'object' && candidate !== null;
+ const finite = (candidate: unknown): candidate is number => typeof candidate === 'number' && Number.isFinite(candidate);
+ const point = (candidate: unknown) => record(candidate) && finite(candidate.longitude) && candidate.longitude >= 0 && candidate.longitude <= 360 &&
+  (candidate.latitude === undefined || finite(candidate.latitude)) && (candidate.speed === undefined || finite(candidate.speed));
+ if (!record(value) || !record(value.input)) return false;
+ const input = value.input;
+ if (typeof input.dateIso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.dateIso)) return false;
+ const date = new Date(input.dateIso + 'T00:00:00Z');
+ if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== input.dateIso ||
+  (input.name !== undefined && typeof input.name !== 'string') ||
+  !(input.timeIso === null || typeof input.timeIso === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(input.timeIso)) || !record(input.place)) return false;
+ const place = input.place;
+ if (typeof place.label !== 'string' || !place.label.trim() || !finite(place.latitude) || Math.abs(place.latitude) > 90 ||
+  !finite(place.longitude) || Math.abs(place.longitude) > 180 || typeof place.timezoneIana !== 'string' || !place.timezoneIana) return false;
+ try { new Intl.DateTimeFormat('en', { timeZone: place.timezoneIana }); } catch { return false; }
+ const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron', 'TrueNode', 'Ascendant', 'Midheaven'];
+ const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+ return Array.isArray(value.bodies) && value.bodies.length > 0 && value.bodies.every(body => record(body) &&
+  keys.includes(String(body.key)) && signs.includes(String(body.sign)) && point(body.position) &&
+  Number.isInteger(body.house) && Number(body.house) >= 1 && Number(body.house) <= 12) &&
+  Array.isArray(value.houses) && value.houses.length === 12 && value.houses.every((cusp, index) => record(cusp) && cusp.house === index + 1 && point(cusp.position)) &&
+  point(value.ascendant) && point(value.midheaven) && Array.isArray(value.aspects) && value.aspects.every(aspect => record(aspect) &&
+   keys.includes(String(aspect.a)) && keys.includes(String(aspect.b)) &&
+   ['conjunction', 'opposition', 'square', 'trine', 'sextile'].includes(String(aspect.kind)) && finite(aspect.orb));
 }
 
 function loadStoredChart(uid: string): NatalChart | null {
@@ -291,7 +329,25 @@ function loadStoredChart(uid: string): NatalChart | null {
 
 export default function App() {
  const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
- const [chart, setChart] = useState<NatalChart | null>(null);
+ const [chartSession, setChartSession] = useState<{ uid: string | null; chart: NatalChart | null }>({ uid: null, chart: null });
+ const chartSessionRef = useRef(chartSession);
+ const activeUid = useRef<string | null>(null);
+ const chart = auth.status === 'signedIn' && chartSession.uid === auth.uid ? chartSession.chart : null;
+ const [onboardingLoad, setOnboardingLoad] = useState<OnboardingLoadResult>({ progress: null, error: null });
+ const latestDraft = useRef<{ uid: string | null; progress: OnboardingProgress | null }>({ uid: null, progress: null });
+ const [onboardingReady, setOnboardingReady] = useState<string | null>(null);
+ const [restorationError, setRestorationError] = useState<string | null>(null);
+ const restorationGeneration = useRef(0);
+ const [redoRequested, setRedoRequested] = useState(false);
+ const redoActive = useRef(false);
+ const intakeActive = useRef(false);
+ const [onboardingEntry, setOnboardingEntry] = useState(0);
+ const entryGeneration = useRef(0);
+ const [chartSaveError, setChartSaveError] = useState<string | null>(null);
+ const [redoBusy, setRedoBusy] = useState(false);
+ const [redoError, setRedoError] = useState<string | null>(null);
+ const redoPending = useRef(false);
+ const redoGeneration = useRef(0);
  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
  const interactionEpochRef = useRef(0);
  const stageRootRef = useRef<HTMLDivElement | null>(null);
@@ -869,6 +925,22 @@ export default function App() {
   if (!landingPresentation.follow) return;
   dispatchLanding({ type: 'view', view: invert ? 'chart' : 'atelier' });
  };
+ const restoreOnboarding = async (uid: string) => {
+  const generation = ++restorationGeneration.current;
+  setOnboardingReady(null);
+  setRestorationError(null);
+  try {
+   const loaded = await loadFirebaseOnboardingProgress(uid, loadGazetteer());
+   if (activeUid.current !== uid || generation !== restorationGeneration.current) return;
+   latestDraft.current = { uid, progress: loaded.progress };
+   setOnboardingLoad(loaded);
+   setOnboardingReady(uid);
+  } catch (failure) {
+   if (activeUid.current !== uid || generation !== restorationGeneration.current) return;
+   setRestorationError(failure instanceof Error ? failure.message : 'Your saved birth details could not be restored.');
+  }
+ };
+
  useEffect(() => {
   if (authUnavailable) {
    seedLandingPanePlacements();
@@ -876,52 +948,158 @@ export default function App() {
    return;
   }
   try {
-   return onAuthChange((user: User | null) => {
+   const unsubscribe = onAuthChange((user: User | null) => {
     setSignInError(null);
     setSigningIn(false);
     setGidHandoffSigningIn(false);
     if (user) { setSignInOpen(false); railHistoryRef.current = []; }
-    if (user === null) {
-     // While the page is still on the splash: the landing's panes restore
-     // their placement as they mount (§12.1 4c), so the seed is written
-     // before the landing tree first renders.
-     seedLandingPanePlacements();
+    else seedLandingPanePlacements();
+    const uid = user?.uid ?? null;
+    if (uid !== activeUid.current) {
+     activeUid.current = uid;
+     restorationGeneration.current += 1;
+     redoGeneration.current += 1;
+     redoPending.current = false;
+     redoActive.current = false;
+     setRedoRequested(false);
+     setRedoBusy(false);
+     setRedoError(null);
+     setChartSaveError(null);
+     setRestorationError(null);
+     setOnboardingReady(null);
+     setAccountOpen(false);
+     setTopUpOpen(false);
+     setSouvenirOpen(false);
+     entryGeneration.current += 1;
+     setOnboardingEntry(entryGeneration.current);
+     const restored = uid ? loadStoredChart(uid) : null;
+     chartSessionRef.current = { uid, chart: restored };
+     setChartSession(chartSessionRef.current);
+     intakeActive.current = uid !== null && restored === null;
+     latestDraft.current = { uid, progress: null };
+     setOnboardingLoad({ progress: null, error: null });
+     if (uid) void restoreOnboarding(uid);
     }
-    setAuth(
-     user
-      ? {
-       status: 'signedIn',
-       uid: user.uid,
-       name: user.displayName ?? user.email ?? user.phoneNumber ?? 'stargazer',
-       email: user.email ?? null,
-       photoUrl: user.photoURL ?? null,
-      }
-      : { status: 'signedOut', unavailable: false },
-    );
+    setAuth(user ? {
+     status: 'signedIn', uid: user.uid,
+     name: user.displayName ?? user.email ?? user.phoneNumber ?? 'stargazer',
+     email: user.email ?? null, photoUrl: user.photoURL ?? null,
+    } : { status: 'signedOut', unavailable: false });
    });
+   return () => {
+    activeUid.current = null;
+    restorationGeneration.current += 1;
+    redoGeneration.current += 1;
+    entryGeneration.current += 1;
+    unsubscribe();
+   };
   } catch {
    setAuth({ status: 'signedOut', unavailable: true });
   }
  }, []);
 
- // Load the stored chart on sign-in; drop it from memory on sign-out.
  useEffect(() => {
-  if (auth.status !== 'signedIn') {
-   setChart(null);
-   return;
-  }
-  setChart(loadStoredChart(auth.uid));
- }, [auth]);
+  if (auth.status !== 'signedIn') return;
+  const uid = auth.uid;
+  const reconcile = () => {
+   if (activeUid.current !== uid || redoActive.current || intakeActive.current || redoPending.current) return;
+   const restored = loadStoredChart(uid);
+   if (!restored) return;
+   chartSessionRef.current = { uid, chart: restored };
+   setChartSession(chartSessionRef.current);
+  };
+  const onStorage = (event: StorageEvent) => {
+   if (event.key === CHART_STORE_PREFIX + uid || event.key === ONBOARDING_PROGRESS_PREFIX + encodeURIComponent(uid)) reconcile();
+  };
+  window.addEventListener('pageshow', reconcile);
+  window.addEventListener('popstate', reconcile);
+  window.addEventListener('storage', onStorage);
+  return () => {
+   window.removeEventListener('pageshow', reconcile);
+   window.removeEventListener('popstate', reconcile);
+   window.removeEventListener('storage', onStorage);
+  };
+ }, [auth.status, auth.status === 'signedIn' ? auth.uid : null]);
 
- // Persist the chart for the signed-in customer.
- useEffect(() => {
-  if (auth.status !== 'signedIn' || chart === null) return;
+ const commitChart = (computed: NatalChart): boolean => {
+  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid || !isNatalChart(computed)) return false;
+  let saved = false;
   try {
-   localStorage.setItem(CHART_STORE_PREFIX + auth.uid, JSON.stringify(chart));
+   localStorage.setItem(CHART_STORE_PREFIX + auth.uid, JSON.stringify(computed));
+   saved = true;
+   setChartSaveError(null);
   } catch {
-   // Storage unavailable (private mode/quota): the chart lives in memory.
+   setChartSaveError('Your chart is available on this page, but its browser copy could not be saved. Your accepted birth details remain in your account.');
   }
- }, [auth, chart]);
+  if (!saved && redoActive.current) return false;
+  chartSessionRef.current = { uid: auth.uid, chart: computed };
+  setChartSession(chartSessionRef.current);
+  redoActive.current = false;
+  intakeActive.current = false;
+  setRedoRequested(false);
+  return saved;
+ };
+
+ const beginRedo = async () => {
+  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid || chart === null ||
+      onboardingReady !== auth.uid || redoPending.current) return;
+  const uid = auth.uid;
+  const generation = ++redoGeneration.current;
+  const progress = createOnboardingProgress(uid, 'redo');
+  redoPending.current = true;
+  setRedoBusy(true);
+  setRedoError(null);
+  try {
+   await saveFirebaseOnboardingProgress(progress);
+   if (activeUid.current !== uid || generation !== redoGeneration.current) return;
+   const warning = saveOnboardingProgress(progress);
+   latestDraft.current = { uid, progress };
+   setOnboardingLoad({ progress, error: warning });
+   entryGeneration.current += 1;
+   setOnboardingEntry(entryGeneration.current);
+   redoActive.current = true;
+   intakeActive.current = true;
+   setRedoRequested(true);
+   setAccountOpen(false);
+   railHistoryRef.current = [];
+  } catch (failure) {
+   if (activeUid.current === uid && generation === redoGeneration.current) {
+    setRedoError(failure instanceof Error ? failure.message : 'Your onboarding could not be restarted. Your existing chart has been kept.');
+   }
+  } finally {
+   if (activeUid.current === uid && generation === redoGeneration.current) {
+    redoPending.current = false;
+    setRedoBusy(false);
+   }
+  }
+ };
+
+ const resumeRedo = () => {
+  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid || chart === null ||
+      redoPending.current || latestDraft.current.uid !== auth.uid) return;
+  const progress = latestDraft.current.progress;
+  if (progress?.mode !== 'redo' || progress.status === 'complete') return;
+  setOnboardingLoad({ progress, error: onboardingLoad.error });
+  entryGeneration.current += 1;
+  setOnboardingEntry(entryGeneration.current);
+  redoActive.current = true;
+  intakeActive.current = true;
+  setRedoRequested(true);
+  setAccountOpen(false);
+  railHistoryRef.current = [];
+ };
+
+ const returnToChart = () => {
+  if (redoPending.current) return;
+  entryGeneration.current += 1;
+  setOnboardingEntry(entryGeneration.current);
+  redoActive.current = false;
+  intakeActive.current = false;
+  setRedoRequested(false);
+ };
+
+ const openAccount = () => openRail(auth.status === 'signedIn' ? 'account' : 'signin');
+ const hasRedoDraft = chart !== null && onboardingLoad.progress?.mode === 'redo' && onboardingLoad.progress.status !== 'complete';
 
  async function signIn() {
   setSigningIn(true);
@@ -1038,6 +1216,7 @@ export default function App() {
   applyTask(next);
  };
  const closeRail = () => {
+  if (redoPending.current) return;
   const previous = railHistoryRef.current.pop() ?? null;
   applyTask(previous);
   if (previous === null) window.requestAnimationFrame(() => railOpenerRef.current?.focus());
@@ -1113,7 +1292,7 @@ export default function App() {
  return (
   <ImmersiveLayout
    header={<StageHeader auth={auth} balanceCr={allowance.balanceCr} balanceLoading={allowance.loading} balanceError={allowance.error}
-    onAccount={() => openRail(auth.status === 'signedIn' ? 'account' : 'signin')}
+    onAccount={openAccount}
     onTopUp={() => openRail('topup')} onMenu={() => openRail('menu')} onNavigate={showSection}
     onHome={() => { railHistoryRef.current = []; applyTask(null); closeInformation(); }} />}
    stage={
@@ -1154,16 +1333,38 @@ export default function App() {
     </div>
    }
    caption={<KaraokeCaption />}
-   status={<>{soundError && <div className="atelier-status-banner error" role="alert">{soundError}</div>}<VoiceDownloadStatus /></>}
+   status={<>{chartSaveError && <div className="atelier-status-banner error" role="alert">{chartSaveError}</div>}
+    {chart !== null && restorationError && <div className="atelier-status-banner error" role="alert">{restorationError}
+     {auth.status === 'signedIn' && <button type="button" className="atelier-btn-text" onClick={() => void restoreOnboarding(auth.uid)}>Try again</button>}</div>}
+    {soundError && <div className="atelier-status-banner error" role="alert">{soundError}</div>}<VoiceDownloadStatus /></>}
    rail={
     <>
      <div hidden={baseHidden} className="atelier-base-task">
       {auth.status === 'unknown' || gidHandoffSigningIn ? <AtelierRail title="Signing you in…"><div role="status" /></AtelierRail>
        : auth.status === 'signedOut' ? <LandingCards onSection={showSection} onSignIn={() => openRail('signin')} signingIn={signingIn} />
-       : chart === null ? <FirstLight onSitDown={computed => {
-        setChart(computed);
-        if (keepsakeIntentRef.current) { keepsakeIntentRef.current = false; openRail('souvenir'); }
-       }} />
+       : chart === null && onboardingReady !== auth.uid ? <AtelierRail title="Restoring your birth details…">
+        {restorationError ? <><div className="atelier-status-banner error" role="alert">{restorationError}</div>
+         <button type="button" className="atelier-btn-primary" onClick={() => void restoreOnboarding(auth.uid)}>Try again</button></>
+         : <p className="atelier-secondary-text" role="status">Reading your saved answers…</p>}
+       </AtelierRail>
+       : chart === null || redoRequested ? <FirstLight
+        key={auth.uid + ':' + onboardingEntry} accountUid={auth.uid}
+        initialProgress={onboardingLoad.progress} storageError={onboardingLoad.error}
+        onProgress={progress => {
+         if (activeUid.current !== auth.uid || entryGeneration.current !== onboardingEntry || progress.accountUid !== auth.uid) return;
+         latestDraft.current = { uid: auth.uid, progress };
+         setOnboardingLoad(previous => ({ ...previous, progress }));
+        }}
+        onStorageError={message => {
+         if (activeUid.current === auth.uid && entryGeneration.current === onboardingEntry) setChartSaveError(message);
+        }}
+        onCancel={chart !== null ? returnToChart : undefined}
+        onSitDown={computed => {
+         if (activeUid.current !== auth.uid || entryGeneration.current !== onboardingEntry) return false;
+         const saved = commitChart(computed);
+         if (saved && keepsakeIntentRef.current) { keepsakeIntentRef.current = false; openRail('souvenir'); }
+         return saved;
+        }} />
        : <ChatPanel chart={chart} stage={chatStage} onTopUp={() => openRail('topup')} onMenu={() => openRail('menu')} />}
      </div>
      {visibleInformation !== null && currentTask === null && <LandingCards sectionId={visibleInformation} onSection={showSection} onClose={closeInformation}
@@ -1177,7 +1378,9 @@ export default function App() {
       initialMethod={initialAuthMethod} googleError={signInError}
       continueOnApp={PRODUCT_LANDING_HOSTS.includes(window.location.hostname) && !isNativeAuth()} />}
      {auth.status === 'signedIn' && accountOpen && <AccountPanel auth={auth} balanceCr={allowance.balanceCr} balanceError={allowance.error}
-      onClose={closeRail} onTopUp={() => openRail('topup')} onKeepsake={requestKeepsake} onSignOut={() => void handleSignOut()} />}
+      onClose={closeRail} onTopUp={() => openRail('topup')} onKeepsake={requestKeepsake} onSignOut={() => void handleSignOut()}
+      onRedoOnboarding={() => void beginRedo()} onResumeOnboarding={hasRedoDraft ? resumeRedo : undefined}
+      canRedoOnboarding={chart !== null && onboardingReady === auth.uid} redoBusy={redoBusy} redoError={redoError} />}
      {auth.status === 'signedIn' && topUpOpen && <TopUpSheet onClose={closeRail} />}
      {auth.status === 'signedIn' && chart !== null && souvenirOpen && <Suspense fallback={null}>
       <SouvenirDialog chart={chart} onClose={closeRail} />
