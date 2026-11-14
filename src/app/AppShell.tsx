@@ -37,6 +37,7 @@ import {
  describeSignInFailure,
  googleSignIn,
  googleSignInForIdToken,
+ isNativeAuth,
  onAuthChange,
  redirectSignInFailure,
  signInWithGoogleIdToken,
@@ -50,7 +51,10 @@ import { computeAstrolabeChart, type NatalChartResult } from '../chart/astrolabe
 import { natalChart } from '../astro/chart';
 import { Astrolabe3D } from '../atelier-original/components/Astrolabe3D';
 import { getLesson } from '../content/lessons';
-import { ReadingStage } from '../atelier-original/components/ReadingStage';
+import { AtelierAmbience } from '../atelier-original/components/atelier/AtelierAmbience';
+import { unlockAtelierSound } from '../atelier-original/services/atelierSound';
+import { ImmersiveLayout, AtelierRail } from './prototype/ImmersiveLayout';
+import { VoiceDownloadStatus } from './VoiceDownloadStatus';
 import { Inset } from './stage/Inset';
 import { useStageVisualHeight } from './stage/stageMetrics';
 import { AtelierScene } from '../atelier-original/components/atelier/AtelierScene';
@@ -69,14 +73,13 @@ import { chartTargets } from './chat/context';
 import { useAllowance, type ReplyEvent } from './chat/useChat';
 import { ChatPanel } from './chat/ChatPanel';
 import FirstLight from './onboarding/FirstLight';
-import { loadGazetteer } from '../services/gazetteer';
-import { createOnboardingProgress, loadOnboardingProgress, saveOnboardingProgress, ONBOARDING_PROGRESS_PREFIX, type OnboardingLoadResult } from '../services/onboardingProgress';
 import KaraokeCaption from './karaokeCaption';
 import { nextSpontaneousStory } from '../content/backstory';
 import { LandingCards, LANDING_SECTIONS } from './landing/LandingCards';
 import VersionBadge from './VersionBadge';
 import TopUpSheet from './TopUpSheet';
 import './app-shell.css';
+import { SignInPanel } from './SignInPanel';
 
 // The keepsake tree (report authoring + PDF export) is heavy; the dynamic
 // import keeps it out of the app entry chunk and is the seam shared with the
@@ -101,178 +104,68 @@ function closeMenuDetails(event: ReactMouseEvent<HTMLElement>): void {
  event.currentTarget.closest('details')?.removeAttribute('open');
 }
 
-/** The one signed-in top bar (NAV-1): wordmark home left, credit balance
- *  and the account avatar right — Account / Top up / Keepsake report /
- *  Sign out — folding into a standard menu button on narrow screens. */
-function StageHeader({
- auth,
- balanceCr,
- onAccount,
- onTopUp,
- onKeepsake,
- onSignOut,
- front = false,
-}: {
- auth: Extract<AuthState, { status: 'signedIn' }>;
+/** Exact frozen shared header: text identity, six destinations, bounded account. */
+function StageHeader({ auth, balanceCr, balanceLoading, balanceError, onAccount,
+ onTopUp, onMenu, onNavigate, onHome }: {
+ auth: AuthState;
  balanceCr: string;
+ balanceLoading: boolean;
+ balanceError: string | null;
  onAccount: () => void;
  onTopUp: () => void;
- onKeepsake: () => void;
- onSignOut: () => void;
- front?: boolean;
+ onMenu: () => void;
+ onNavigate: (id: string, chart: boolean) => void;
+ onHome: () => void;
 }) {
- const avatar = auth.photoUrl !== null
-  ? <img className="app-avatar" src={auth.photoUrl} alt="" referrerPolicy="no-referrer" />
-  : <span className="app-avatar app-avatar--initial" aria-hidden="true">
-   {auth.name.slice(0, 1).toUpperCase()}
-  </span>;
- const menuItems = [
-  { label: 'Account', run: onAccount },
-  { label: 'Top up', run: onTopUp },
-  { label: 'Keepsake report', run: onKeepsake },
-  { label: 'Sign out', run: onSignOut },
- ];
  return (
-  <header className={front ? 'app-header app-header--front' : 'app-header'}>
-   <a className="app-brand" href="/">
-    Natally <span className="app-brand-sub">· the atelier</span>
-   </a>
-   <div className="app-header-actions">
-    {balanceCr !== '' && (
-     <button
-      type="button"
-      className="app-balance"
-      onClick={onTopUp}
-      aria-label={`Credit balance ${balanceCr}. Open Top up.`}
-     >
-      {balanceCr}
-     </button>
-    )}
-    <details className="app-account">
-     <summary aria-label={`Account — ${auth.name}`}>{avatar}</summary>
-     <div className="app-account__menu">
-      <span className="app-account__name">{auth.name}</span>
-      {menuItems.map(item => (
-       <button
-        key={item.label}
-        type="button"
-        className="app-menuitem"
-        onClick={event => {
-         closeMenuDetails(event);
-         item.run();
-        }}
-       >
-        {item.label}
-       </button>
-      ))}
-     </div>
-    </details>
-    <details className="app-burger">
-     <summary aria-haspopup="menu" aria-label="Menu">☰</summary>
-     <div className="app-burger__panel">
-      {balanceCr !== '' && <span className="app-burger__balance">{balanceCr}</span>}
-      <span className="app-account__name">{auth.name}</span>
-      {menuItems.map(item => (
-       <button
-        key={item.label}
-        type="button"
-        className="app-menuitem"
-        onClick={event => {
-         closeMenuDetails(event);
-         item.run();
-        }}
-       >
-        {item.label}
-       </button>
-      ))}
-     </div>
-    </details>
+  <header className="atelier-header" data-slot="header">
+   <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+    <button type="button" className="atelier-brand-wordmark" aria-label="Natally home" onClick={onHome}>Natally</button>
+    <nav className="atelier-header-nav" aria-label="Sections">
+     {LANDING_SECTIONS.map(section => <button type="button" key={section.id} className="atelier-nav-link"
+      onClick={() => onNavigate(section.id, section.chart)}>{section.menuLabel}</button>)}
+    </nav>
+   </div>
+   <div className="atelier-header-actions">
+    {auth.status === 'signedIn' && <button type="button" className="atelier-allowance-badge" onClick={onTopUp}
+     aria-label={balanceError ? 'Balance unavailable. Open credits.' : `Conversation allowance ${balanceCr || 'checking'}. Open credits.`}
+     title={balanceError ?? undefined}>{balanceError ? 'Balance unavailable' : balanceCr || (balanceLoading ? 'Checking…' : 'Balance unavailable')}</button>}
+    <button type="button" className="atelier-account-btn" onClick={onAccount}
+     aria-label={auth.status === 'signedIn' ? 'Account details' : 'Sign in'}>
+     {auth.status === 'signedIn' && auth.photoUrl ? <img className="atelier-account-avatar" src={auth.photoUrl} alt="" referrerPolicy="no-referrer" /> :
+      <span className="atelier-account-avatar"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+      </svg></span>}
+    </button>
+    <button type="button" className="atelier-menu-mobile-btn" aria-label="Open menu" onClick={onMenu}>
+     <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 6h18M3 12h18M3 18h18" />
+     </svg>
+    </button>
    </div>
   </header>
  );
 }
 
-/** Account panel opened from the avatar menu: who is signed in, their live
- *  credit balance, and the account actions. Every action is wired. */
-function AccountPanel({
- auth,
- balanceCr,
- onClose,
- onTopUp,
- onKeepsake,
- onSignOut,
- onRedoOnboarding,
- onResumeOnboarding,
- canRedoOnboarding,
-}: {
+/** Actual identity and allowance in the frozen S07 task rail. */
+function AccountPanel({ auth, balanceCr, balanceError, onClose, onTopUp, onKeepsake, onSignOut }: {
  auth: Extract<AuthState, { status: 'signedIn' }>;
  balanceCr: string;
+ balanceError: string | null;
  onClose: () => void;
  onTopUp: () => void;
  onKeepsake: () => void;
  onSignOut: () => void;
- onRedoOnboarding: () => void;
- onResumeOnboarding?: () => void;
- canRedoOnboarding: boolean;
 }) {
- const [confirmRedo, setConfirmRedo] = useState(false);
- useEffect(() => {
-  const onKey = (event: KeyboardEvent) => {
-   if (event.key === 'Escape') onClose();
-  };
-  window.addEventListener('keydown', onKey);
-  return () => window.removeEventListener('keydown', onKey);
- }, [onClose]);
- return (
-  <div className="sheet-backdrop" onClick={onClose}>
-   <section
-    className="sheet account-panel"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Your account"
-    onClick={event => event.stopPropagation()}
-   >
-    <header className="sheet-head">
-     <h2>Your account</h2>
-     <button type="button" className="btn ghost small" onClick={onClose}>
-      Close
-     </button>
-    </header>
-    <dl className="account-panel__facts">
-     <dt>Signed in as</dt>
-     <dd>{auth.name}</dd>
-     {auth.email !== null && (
-      <>
-       <dt>Email</dt>
-       <dd>{auth.email}</dd>
-      </>
-     )}
-     <dt>Credit balance</dt>
-     <dd>{balanceCr === '' ? 'Reading your balance…' : balanceCr}</dd>
-    </dl>
-    {confirmRedo && (
-     <div role="group" aria-label="Confirm redo onboarding">
-      <p>Start onboarding again? Your current chart stays available until your replacement chart is ready.</p>
-      <button type="button" className="btn primary" autoFocus onClick={onRedoOnboarding}>Start again</button>
-      <button type="button" className="btn ghost" onClick={() => setConfirmRedo(false)}>Cancel</button>
-     </div>
-    )}
-    <div className="account-panel__actions">
-     {onResumeOnboarding && <button type="button" className="btn ghost" onClick={onResumeOnboarding}>Resume onboarding</button>}
-     {canRedoOnboarding && !confirmRedo && <button type="button" className="btn ghost" onClick={() => setConfirmRedo(true)}>Redo onboarding</button>}
-     <button type="button" className="btn primary" onClick={onTopUp}>
-      Top up
-     </button>
-     <button type="button" className="btn ghost" onClick={onKeepsake}>
-      Keepsake report
-     </button>
-     <button type="button" className="btn ghost" onClick={onSignOut}>
-      Sign out
-     </button>
-    </div>
-   </section>
-  </div>
- );
+ return <AtelierRail title="Account" onClose={onClose} labelledBy="atelier-account-title">
+  <div className="atelier-account-identity" data-bind="identity">{auth.name}{auth.email && auth.email !== auth.name ? <div>{auth.email}</div> : null}</div>
+  <div className="atelier-account-allowance"><span>Conversation allowance</span><div data-bind="allowance">
+   {balanceError ? <span role="alert">{balanceError}</span> : balanceCr || 'Checking your balance…'}
+  </div></div>
+  <button type="button" className="atelier-btn-primary" onClick={onTopUp}>Top up</button>
+  <button type="button" className="atelier-btn-secondary" onClick={onKeepsake}>My keepsake</button>
+  <button type="button" className="atelier-btn-text" onClick={onSignOut}>Sign out</button>
+ </AtelierRail>;
 }
 
 const CHART_STORE_PREFIX = 'natally.chart.v1:';
@@ -312,9 +205,10 @@ const LANDING_STORY_IDLE_MS = 60_000;
 const LANDING_STORY_BLOCKLIST = /\b(shel(f|ves)|trinkets?|grab(bed|bing)?|broke(n)?|break(ing|s)?|rehears\w*)\b/i;
 const LANDING_STORY_MAX_PICKS = 12;
 /* The narrow-screen media query landing.css keys its in-flow stage band to. */
-const LANDING_NARROW_QUERY = '(max-width: 760px)';
+const LANDING_NARROW_QUERY = '(max-width: 768px)';
 const PRODUCT_LANDING_HOSTS: readonly string[] = ['astronatally.com', 'www.astronatally.com'];
 const GID_FRAGMENT = 'gid';
+const AUTH_METHOD_QUERY = 'auth';
 const EXAMPLE_BIRTH: BirthInput = {
  dateIso: '1988-08-31',
  timeIso: '14:30',
@@ -372,30 +266,15 @@ function seedLandingPanePlacements(): void {
 }
 
 function isNatalChart(value: unknown): value is NatalChart {
- const record = (candidate: unknown): candidate is Record<string, unknown> => typeof candidate === 'object' && candidate !== null;
- const finite = (candidate: unknown): candidate is number => typeof candidate === 'number' && Number.isFinite(candidate);
- const point = (candidate: unknown) => record(candidate) && finite(candidate.longitude) && candidate.longitude >= 0 && candidate.longitude <= 360 &&
-  (candidate.latitude === undefined || finite(candidate.latitude)) && (candidate.speed === undefined || finite(candidate.speed));
- if (!record(value) || !record(value.input)) return false;
- const input = value.input;
- if (typeof input.dateIso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(input.dateIso)) return false;
- const date = new Date(input.dateIso + 'T00:00:00Z');
- if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== input.dateIso ||
-  (input.name !== undefined && typeof input.name !== 'string') ||
-  !(input.timeIso === null || typeof input.timeIso === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(input.timeIso)) || !record(input.place)) return false;
- const place = input.place;
- if (typeof place.label !== 'string' || !place.label.trim() || !finite(place.latitude) || Math.abs(place.latitude) > 90 ||
-  !finite(place.longitude) || Math.abs(place.longitude) > 180 || typeof place.timezoneIana !== 'string' || !place.timezoneIana) return false;
- try { new Intl.DateTimeFormat('en', { timeZone: place.timezoneIana }); } catch { return false; }
- const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron', 'TrueNode', 'Ascendant', 'Midheaven'];
- const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
- return Array.isArray(value.bodies) && value.bodies.length > 0 && value.bodies.every(body => record(body) &&
-  keys.includes(String(body.key)) && signs.includes(String(body.sign)) && point(body.position) &&
-  Number.isInteger(body.house) && Number(body.house) >= 1 && Number(body.house) <= 12) &&
-  Array.isArray(value.houses) && value.houses.length === 12 && value.houses.every((cusp, index) => record(cusp) && cusp.house === index + 1 && point(cusp.position)) &&
-  point(value.ascendant) && point(value.midheaven) && Array.isArray(value.aspects) && value.aspects.every(aspect => record(aspect) &&
-   keys.includes(String(aspect.a)) && keys.includes(String(aspect.b)) &&
-   ['conjunction', 'opposition', 'square', 'trine', 'sextile'].includes(String(aspect.kind)) && finite(aspect.orb));
+ if (typeof value !== 'object' || value === null) return false;
+ const candidate = value as Record<string, unknown>;
+ const input = candidate.input;
+ return (
+  typeof input === 'object' &&
+  input !== null &&
+  typeof (input as Record<string, unknown>).dateIso === 'string' &&
+  Array.isArray(candidate.bodies)
+ );
 }
 
 function loadStoredChart(uid: string): NatalChart | null {
@@ -412,15 +291,7 @@ function loadStoredChart(uid: string): NatalChart | null {
 
 export default function App() {
  const [auth, setAuth] = useState<AuthState>({ status: 'unknown' });
- const [chartSession, setChartSession] = useState<{ uid: string | null; chart: NatalChart | null }>({ uid: null, chart: null });
- const activeUid = useRef<string | null>(null);
- const chart = auth.status === 'signedIn' && chartSession.uid === auth.uid ? chartSession.chart : null;
- const [onboardingLoad, setOnboardingLoad] = useState<OnboardingLoadResult>({ progress: null, error: null });
- const [redoRequested, setRedoRequested] = useState(false);
- const [onboardingEntry, setOnboardingEntry] = useState(0);
- const [chartSaveError, setChartSaveError] = useState<string | null>(null);
- const redoActive = useRef(false);
- redoActive.current = redoRequested;
+ const [chart, setChart] = useState<NatalChart | null>(null);
  const [presentation, dispatch] = useReducer(presentationReducer, initialPresentation);
  const interactionEpochRef = useRef(0);
  const stageRootRef = useRef<HTMLDivElement | null>(null);
@@ -434,6 +305,17 @@ export default function App() {
  const [souvenirOpen, setSouvenirOpen] = useState(false);
  const [signingIn, setSigningIn] = useState(false);
  const [signInError, setSignInError] = useState<string | null>(null);
+ const [initialAuthMethod, setInitialAuthMethod] = useState<'email' | 'phone' | undefined>(() => {
+  const method = new URLSearchParams(window.location.search).get(AUTH_METHOD_QUERY);
+  return method === 'email' || method === 'phone' ? method : undefined;
+ });
+ const [signInOpen, setSignInOpen] = useState(() => initialAuthMethod !== undefined);
+ useEffect(() => {
+  if (!initialAuthMethod) return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete(AUTH_METHOD_QUERY);
+  window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+ }, [initialAuthMethod]);
  // The landing (§12.1): its own presentation state drives the same stage
  // arrangement the signed-in page uses — ReadingStage's two panes plus the
  // clean-room inset — plus the #gid= handoff status, the renderer's chart
@@ -449,6 +331,16 @@ export default function App() {
  const [exampleChart, setExampleChart] = useState<NatalChartResult | null>(null);
  const [exampleNatal, setExampleNatal] = useState<NatalChart | null>(null);
  const [accountOpen, setAccountOpen] = useState(false);
+ const [menuOpen, setMenuOpen] = useState(false);
+ const [infoSection, setInfoSection] = useState<string | null>(null);
+ const railHistoryRef = useRef<('account' | 'topup' | 'souvenir' | 'signin' | 'menu')[]>([]);
+ const railOpenerRef = useRef<HTMLElement | null>(null);
+ const keepsakeIntentRef = useRef(false);
+ const [interactionMuted, setInteractionMuted] = useState(() => {
+  try { return localStorage.getItem('natally.atelier.sound-muted') === 'true'; } catch { return false; }
+ });
+ const [soundError, setSoundError] = useState<string | null>(null);
+
  // Header credit balance (NAV-1): the same ledger the chat reads.
  const allowance = useAllowance();
  // The original renderer's view of the same sky: computed with its own
@@ -988,27 +880,19 @@ export default function App() {
     setSignInError(null);
     setSigningIn(false);
     setGidHandoffSigningIn(false);
+    if (user) { setSignInOpen(false); railHistoryRef.current = []; }
     if (user === null) {
      // While the page is still on the splash: the landing's panes restore
      // their placement as they mount (§12.1 4c), so the seed is written
      // before the landing tree first renders.
      seedLandingPanePlacements();
     }
-    const nextUid = user?.uid ?? null;
-    if (nextUid !== activeUid.current) {
-     activeUid.current = nextUid;
-     setAccountOpen(false);
-     setRedoRequested(false);
-     setChartSaveError(null);
-     setChartSession({ uid: nextUid, chart: nextUid ? loadStoredChart(nextUid) : null });
-     setOnboardingLoad(nextUid ? loadOnboardingProgress(nextUid, loadGazetteer()) : { progress: null, error: null });
-    }
     setAuth(
      user
       ? {
        status: 'signedIn',
        uid: user.uid,
-       name: user.displayName ?? user.email ?? 'stargazer',
+       name: user.displayName ?? user.email ?? user.phoneNumber ?? 'stargazer',
        email: user.email ?? null,
        photoUrl: user.photoURL ?? null,
       }
@@ -1020,72 +904,24 @@ export default function App() {
   }
  }, []);
 
- // Navigation and other tabs can reveal a saved completion; they never
- // authorize a redo or replace an in-flight local questionnaire's answers.
+ // Load the stored chart on sign-in; drop it from memory on sign-out.
  useEffect(() => {
-  if (auth.status !== 'signedIn') return;
-  const uid = auth.uid;
-  const reconcile = () => {
-   if (activeUid.current !== uid || redoActive.current) return;
-   const restored = loadStoredChart(uid);
-   if (restored) setChartSession({ uid, chart: restored });
-  };
-  const onStorage = (event: StorageEvent) => {
-   if (event.key === CHART_STORE_PREFIX + uid || event.key === ONBOARDING_PROGRESS_PREFIX + encodeURIComponent(uid)) reconcile();
-  };
-  window.addEventListener('pageshow', reconcile);
-  window.addEventListener('popstate', reconcile);
-  window.addEventListener('storage', onStorage);
-  return () => {
-   window.removeEventListener('pageshow', reconcile);
-   window.removeEventListener('popstate', reconcile);
-   window.removeEventListener('storage', onStorage);
-  };
- }, [auth.status, auth.status === 'signedIn' ? auth.uid : null]);
-
- const commitChart = (computed: NatalChart): boolean => {
-  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid) return false;
-  let saved = false;
-  try {
-   localStorage.setItem(CHART_STORE_PREFIX + auth.uid, JSON.stringify(computed));
-   saved = true;
-   setChartSaveError(null);
-  } catch {
-   setChartSaveError('Your chart is available on this page, but could not be saved. Your submitted answers have been kept for recovery where storage is available.');
+  if (auth.status !== 'signedIn') {
+   setChart(null);
+   return;
   }
-  if (!saved && redoActive.current) return false;
-  setChartSession({ uid: auth.uid, chart: computed });
-  setRedoRequested(false);
-  setOnboardingLoad({ progress: null, error: null });
-  return saved;
- };
- const openAccount = () => {
-  if (auth.status !== 'signedIn') return;
-  setOnboardingLoad(loadOnboardingProgress(auth.uid, loadGazetteer()));
-  setAccountOpen(true);
- };
- const beginRedo = () => {
-  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid || chart === null) return;
-  const progress = createOnboardingProgress(auth.uid, 'redo');
-  setOnboardingLoad({ progress, error: saveOnboardingProgress(progress) });
-  setOnboardingEntry(value => value + 1);
-  setRedoRequested(true);
-  setAccountOpen(false);
- };
- const resumeRedo = () => {
-  if (auth.status !== 'signedIn' || activeUid.current !== auth.uid || chart === null) return;
-  const loaded = loadOnboardingProgress(auth.uid, loadGazetteer());
-  setOnboardingLoad(loaded);
-  if (loaded.progress?.mode !== 'redo' || loaded.progress.status === 'complete') return;
-  setOnboardingEntry(value => value + 1);
-  setRedoRequested(true);
-  setAccountOpen(false);
- };
- const returnToChart = () => {
-  setRedoRequested(false);
-  if (auth.status === 'signedIn') setOnboardingLoad(loadOnboardingProgress(auth.uid, loadGazetteer()));
- };
- const hasRedoDraft = chart !== null && onboardingLoad.progress?.mode === 'redo' && onboardingLoad.progress.status !== 'complete';
+  setChart(loadStoredChart(auth.uid));
+ }, [auth]);
+
+ // Persist the chart for the signed-in customer.
+ useEffect(() => {
+  if (auth.status !== 'signedIn' || chart === null) return;
+  try {
+   localStorage.setItem(CHART_STORE_PREFIX + auth.uid, JSON.stringify(chart));
+  } catch {
+   // Storage unavailable (private mode/quota): the chart lives in memory.
+  }
+ }, [auth, chart]);
 
  async function signIn() {
   setSigningIn(true);
@@ -1112,7 +948,8 @@ export default function App() {
  // NAV-1 account menu: sign out returns to the sign-in screen; the auth
  // observer clears the chart and identity state.
  const handleSignOut = async () => {
-  setAccountOpen(false);
+  setAccountOpen(false); setTopUpOpen(false); setSouvenirOpen(false); setMenuOpen(false);
+  railHistoryRef.current = []; keepsakeIntentRef.current = false;
   try {
    await signOutNow();
   } catch {
@@ -1140,7 +977,6 @@ export default function App() {
  // component has real passages and highlights. Until the wheel lands the
  // inset keeps its honest loading line.
  useEffect(() => {
-  if (auth.status !== 'signedOut') return;
   let live = true;
   setExampleChart(null);
   setExampleNatal(null);
@@ -1164,7 +1000,7 @@ export default function App() {
   return () => {
    live = false;
   };
- }, [auth.status]);
+ }, []);
 
  // The #gid= sign-in handoff (§12.1 item 7): a signed-out load carrying a
  // Google ID token in the fragment strips it before anything else — the
@@ -1189,459 +1025,165 @@ export default function App() {
   });
  }, [auth.status]);
 
- // Entering the chart sections swaps the stage to the wheel; leaving them
- // swaps back to the atelier (§12.1 items 4–5) — by scrolling or a menu
- // jump, in either direction. Stable identity: LandingCards' section
- // tracking re-subscribes when this prop changes, and the shell re-renders
- // often (the credit ledger polls even signed out).
- // On the narrow layout this report stands down: the sticky stage band
- // (landing.css) covers the viewport's top, so the band tracker below —
- // the same greatest-overlap rule measured against what is actually
- // visible below the band — is the swap's sole authority there.
- const landingNarrowRef = useRef(landingNarrow);
- landingNarrowRef.current = landingNarrow;
- const handleLandingSection = useCallback((_id: string, chart: boolean) => {
-  if (landingNarrowRef.current) return;
-  dispatchLanding({ type: 'view', view: chart ? 'chart' : 'atelier', manual: true });
- }, []);
- // §12.1 items 4–5 on narrow screens: LandingCards' tracker votes with
- // the whole viewport, which is right beside the stage on wide screens —
- // but on narrow the cards hidden under the sticky band still win that
- // vote (a menu jump to #your-chart lands with the section filling the
- // visible band while the covered cards above it outvote it), so the
- // chart never takes focus. While the narrow layout is active, this
- // tracker applies the same greatest-overlap rule to the band below the
- // stage alone; nothing is reported while no section reaches the band
- // (the first viewport belongs to the atelier, not to a section).
- const landingBandChartRef = useRef<boolean | null>(null);
- useEffect(() => {
-  if (auth.status !== 'signedOut' || !landingNarrow) return;
-  landingBandChartRef.current = null;
-  const sections = LANDING_SECTIONS.flatMap(entry => {
-   const el = document.getElementById(entry.id);
-   return el === null ? [] : [{ chart: entry.chart, el }];
-  });
-  const report = () => {
-   const stage = landingStageRootRef.current;
-   if (stage === null || sections.length === 0) return;
-   const bandTop = stage.getBoundingClientRect().bottom;
-   let bestChart: boolean | null = null;
-   let bestVisible = 0;
-   for (const { chart, el } of sections) {
-    const rect = el.getBoundingClientRect();
-    const visible = Math.max(
-     0,
-     Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, bandTop),
-    );
-    if (visible > bestVisible) {
-     bestVisible = visible;
-     bestChart = chart;
-    }
-   }
-   if (bestChart === null || bestChart === landingBandChartRef.current) return;
-   landingBandChartRef.current = bestChart;
-   dispatchLanding({ type: 'view', view: bestChart ? 'chart' : 'atelier', manual: true });
-  };
-  window.addEventListener('scroll', report, { passive: true });
-  window.addEventListener('resize', report);
-  report();
-  return () => {
-   window.removeEventListener('scroll', report);
-   window.removeEventListener('resize', report);
-  };
- }, [auth.status, landingNarrow]);
 
- if (auth.status === 'unknown') {
-  return (
-   <div className="app-splash" role="status">
-    Opening the atelier…
-    <VersionBadge />
-   </div>
-  );
- }
-
- if (auth.status === 'signedOut') {
-  // The room pane's corner size follows the layout: the desktop formula
-  // shrinks to an ~86 px sliver on a phone, so narrow screens keep her
-  // whole and readable at a floored width instead (§12.1 4c).
-  const roomPaneWidth = landingNarrow
-   ? LANDING_ROOM_PANE_WIDTH_NARROW
-   : LANDING_ROOM_PANE_WIDTH;
-  if (gidHandoffSigningIn) {
-   // The #gid= handoff is signing the visitor in (§12.1 item 7): only a
-   // status line while it runs — no sign-in click is ever asked for again.
-   return (
-    <div className="app-splash" role="status">
-     Signing you in…
-     <VersionBadge />
-    </div>
-   );
+ const currentTask = signInOpen ? 'signin' : accountOpen ? 'account' : topUpOpen ? 'topup' : souvenirOpen ? 'souvenir' : menuOpen ? 'menu' : null;
+ const applyTask = (next: 'account' | 'topup' | 'souvenir' | 'signin' | 'menu' | null) => {
+  setSignInOpen(next === 'signin'); setAccountOpen(next === 'account'); setTopUpOpen(next === 'topup');
+  setSouvenirOpen(next === 'souvenir'); setMenuOpen(next === 'menu');
+ };
+ const openRail = (next: 'account' | 'topup' | 'souvenir' | 'signin' | 'menu') => {
+  if (currentTask === next) return;
+  if (!currentTask) railOpenerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  else railHistoryRef.current.push(currentTask);
+  applyTask(next);
+ };
+ const closeRail = () => {
+  const previous = railHistoryRef.current.pop() ?? null;
+  applyTask(previous);
+  if (previous === null) window.requestAnimationFrame(() => railOpenerRef.current?.focus());
+ };
+ const showSection = (id: string, chartView: boolean) => {
+  voice.stop();
+  railHistoryRef.current = []; applyTask(null); setInfoSection(id);
+  dispatchLanding({ type: 'view', view: chartView ? 'chart' : 'atelier', manual: true });
+ };
+ const closeInformation = () => {
+  setInfoSection(null);
+  dispatchLanding({ type: 'view', view: 'atelier', manual: true });
+ };
+ const requestKeepsake = () => {
+  if (auth.status !== 'signedIn') { openRail('signin'); return; }
+  if (chart === null) {
+   keepsakeIntentRef.current = true; railHistoryRef.current = []; applyTask(null); setInfoSection(null);
+   return;
   }
-  return (
-   <>
-    {/* This file is the landing stage's only styling surface, so the two
-            pane-swap rules live here with the markup they dress. The landing
-            stage is a full-bleed backdrop, not a reading stage: there is no
-            scene column to re-zoom beside a docked wheel, so a dock (which
-            the inset chooses on any stage wide enough) would only stretch
-            the card across the whole viewport behind its acrylic. The wheel
-            instead stays a floating card in the bottom-left corner —
-            opposite the right-docked copy cards and clear of Natally
-            (§12.1 5a) — in the same corner the room pane takes when the
-            chart fills the stage. Scoped to this stage; a drag still lifts
-            the card out of the dock into a truly floating placement. */}
-    <style>{`
-     .scene-mount .stage-inset-layer[data-inset-dock='side'],
-     .scene-mount .stage-inset-layer[data-inset-dock='stack'] {
-      display: block;
-     }
-     .scene-mount[data-inset-dock='side'] .stage-inset-layer .chart-inset--docked,
-     .scene-mount[data-inset-dock='stack'] .stage-inset-layer .chart-inset--docked {
-      position: absolute;
-      left: max(16px, 4vw);
-      top: auto;
-      bottom: max(16px, 4vh);
-      width: min(32vw, 52vh);
-      height: min(32vw, 52vh);
-      margin: 0;
-     }
-    `}</style>
-    {/* The landing's stage (§12.1 items 1, 4–5a): the atelier with the
-            natal chart in the existing inset — the fixed mount is the inset
-            layer's stage. Entering the chart sections (scroll, menu jump or
-            a tap on the floating chart, item 4a) swaps the two panes: the
-            chart fills the stage and the room becomes the floating pane,
-            bottom-left and off the wheel's middle; leaving them swaps back.
-            Both states are a re-layout of the same scene — never a remount —
-            and the geometry stays on left/top/width/height in either state
-            so the swap glides like the inset's own moves. */}
-    <div
-     className="scene-mount"
-     ref={landingStageRootRef}
-     onPointerDownCapture={() => {
-      pressSeqRef.current += 1;
-     }}
-    >
-     <div
-      title={landingChartFocused ? 'Back to the atelier' : undefined}
-      onClick={() => {
-       // §12.1 4a, the way back: while the chart fills the stage, a tap on
-       // Natally's corner card returns the atelier to the stage — the same
-       // press-claimed swap a tap on the floating chart uses to focus it.
-       if (landingChartFocused) landingSwapInsetView();
-      }}
-      style={{
-       position: 'absolute',
-       zIndex: 1,
-       display: 'flex',
-       alignItems: 'center',
-       overflow: 'hidden',
-       cursor: landingChartFocused ? 'pointer' : undefined,
-       transition: `left ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, top ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, width ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, height ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, border-radius ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}, box-shadow ${LANDING_SWAP_MS}ms ${LANDING_SWAP_EASE}`,
-       ...(landingChartFocused
-        ? {
-           left: 'max(16px, 4vw)',
-           top: `calc(100% - max(16px, 4vh) - ${roomPaneWidth} / ${LANDING_ROOM_PANE_ASPECT})`,
-           width: roomPaneWidth,
-           height: `calc(${roomPaneWidth} / ${LANDING_ROOM_PANE_ASPECT})`,
-           borderRadius: '12px',
-           boxShadow:
-            'inset 0 0 0 1px rgba(215, 182, 119, 0.28), 0 14px 38px rgba(3, 2, 8, 0.55)',
-          }
-        : {
-           left: '0',
-           top: '0',
-           width: '100%',
-           height: '100%',
-           borderRadius: '0',
-           boxShadow: 'none',
-          })}}
-     >
-      <AtelierScene phase="idle" motionEnabled accountUid={null} />
-     </div>
-     {/* The chart's stage (§12.1 5a): the scene's area left of the card
-             column — the Inset measures its stage from this element — so the
-             cards never cover the focused wheel or the floating chart. */}
-     <div className="landing-chart-stage">
-     <div
-      className="stage-inset-layer"
-      data-mode={landingChartFocused ? 'fill' : 'float'}
-     >
-      <Inset
-       storageKey="natally.inset.v1:landing:compact-v1"
-       compact
-       label="Natal chart"
-       focused={landingChartFocused}
-       fillHeight={landingStageVisualHeight}
-       targets={landingPresentation.focusTargets}
-       bodyCount={exampleChart?.natalBodies.length}
-       onAutoInvert={handleLandingAutoInvert}
-       onSwap={landingSwapInsetView}
-       onComponentTap={landingExplainTap}
-      >
-       {exampleChart !== null ? (
-        <Astrolabe3D
-         chart={exampleChart}
-         isSpinning
-         resetTrigger={0}
-         highlightedComponents={landingPresentation.focusTargets}
-         focusSequence={landingPresentation.sequence}
-         onComponentTap={landingExplainTap}
-        />
-       ) : (
-        <div className="chart-loading" role="status">
-         Casting the wheel…
-        </div>
-       )}
-      </Inset>
-     </div>
-     </div>
-    </div>
+  openRail('souvenir');
+ };
+ const toggleInteractionSounds = () => {
+  try {
+   const muted = !interactionMuted;
+   localStorage.setItem('natally.atelier.sound-muted', String(muted));
+   setInteractionMuted(muted); setSoundError(null);
+   if (!muted) unlockAtelierSound();
+  } catch { setSoundError('Interaction sounds could not be changed in this browser.'); }
+ };
+ useEffect(() => {
+  if (auth.status === 'signedIn') allowance.refresh();
+ }, [auth.status, auth.status === 'signedIn' ? auth.uid : '']);
+ useEffect(() => {
+  const visibleTask = currentTask ?? infoSection;
+  if (!visibleTask) return;
+  const heading = Array.from(document.querySelectorAll<HTMLElement>('#atelier-rail-mount .atelier-rail-title'))
+   .find(element => element.getClientRects().length > 0);
+  heading?.focus();
+ }, [currentTask, infoSection]);
+ useEffect(() => {
+  if (!(menuOpen || accountOpen || (infoSection && !signInOpen && !topUpOpen && !souvenirOpen))) return;
+  const onKey = (event: KeyboardEvent) => {
+   if (event.key !== 'Escape' || event.defaultPrevented) return;
+   event.preventDefault();
+   if (currentTask) closeRail(); else closeInformation();
+  };
+  window.addEventListener('keydown', onKey);
+  return () => window.removeEventListener('keydown', onKey);
+ }, [menuOpen, accountOpen, infoSection, signInOpen, topUpOpen, souvenirOpen]);
 
-    {/* NAV-1: one top bar — wordmark home at the left, the Menu and the
-            sign-in action at the right. The menu items are the landing's
-            sections (every item lands on a real section, rubric 3); each
-            Sign In control is one click (§12.1 item 2). */}
-    <header className="app-header app-header--front">
-     <a className="app-brand" href="/">
-      Natally <span className="app-brand-sub">· the atelier</span>
-     </a>
-     <div className="app-header-actions">
-      {!auth.unavailable && (
-       <button
-        type="button"
-        className="btn primary small app-header__signin"
-        disabled={signingIn}
-        onClick={() => void signIn()}
-       >
-        {signingIn ? 'Signing in…' : 'Sign in'}
-       </button>
-      )}
-      <details className="app-burger">
-       <summary aria-haspopup="menu" aria-label="Menu">☰</summary>
-       <div className="app-burger__panel">
-        {LANDING_SECTIONS.map(section => (
-         <a
-          key={section.id}
-          className="app-menuitem"
-          href={`#${section.id}`}
-          onClick={closeMenuDetails}
-         >
-          {section.menuLabel}
-         </a>
-        ))}
-        {!auth.unavailable && (
-         <button
-          type="button"
-          className="btn primary"
-          disabled={signingIn}
-          onClick={() => void signIn()}
-         >
-          {signingIn ? 'Signing in…' : 'Sign in'}
-         </button>
-        )}
-        {signInError && (
-         <p className="app-burger__error" role="alert">{signInError}</p>
-        )}
-       </div>
-      </details>
-     </div>
-    </header>
-
-    {/* Deployment and sign-in truths, right where the click happened —
-            normally nothing shows here (fail-visible, never silent). */}
-    {auth.unavailable && (
-     <p className="note warn">
-      Sign-in isn’t available on this deployment — Firebase isn’t configured.
-     </p>
-    )}
-    {signInError && (
-     <p className="note error" role="alert">
-      {signInError}
-     </p>
-    )}
-
-    {/* The landing copy (§12.1 item 3): every piece of it paginated onto
-            cards that scroll by over the atelier. */}
-    <LandingCards
-     onSection={handleLandingSection}
-     onSignIn={() => void signIn()}
-     signingIn={signingIn}
-    />
-    {/* Her words shown as she speaks them (§12.1 5b): welcome, a tapped
-            passage, a quiet story — karaoke-paced, above the bottom bar. */}
-    <div className="landing-caption">
-     <KaraokeCaption />
-    </div>
-    <VersionBadge />
-   </>
-  );
- }
-
- if (chartSession.uid !== auth.uid) return <div className="app-splash" role="status">Restoring your chart…</div>;
-
- if (chart === null || redoRequested) {
-  return (
-   <>
-    {/* The same one top bar stays over first light (NAV-1): overlay, so
-            the verbatim intake layout below is untouched. */}
-    <StageHeader
-     auth={auth}
-     balanceCr={allowance.balanceCr}
-     onAccount={openAccount}
-     onTopUp={() => setTopUpOpen(true)}
-     onKeepsake={() => setSouvenirOpen(true)}
-     onSignOut={() => void handleSignOut()}
-     front
-    />
-    <FirstLight
-     key={`${auth.uid}:${onboardingEntry}`}
-     accountUid={auth.uid}
-     initialProgress={onboardingLoad.progress}
-     storageError={onboardingLoad.error}
-     onSitDown={commitChart}
-     onStorageError={message => {
-      if (activeUid.current === auth.uid) setChartSaveError(message);
-     }}
-     onCancel={chart !== null ? returnToChart : undefined}
-    />
-    {accountOpen && (
-     <AccountPanel
-      auth={auth}
-      balanceCr={allowance.balanceCr}
-      canRedoOnboarding={chart !== null}
-      onRedoOnboarding={beginRedo}
-      onResumeOnboarding={hasRedoDraft ? resumeRedo : undefined}
-      onClose={() => setAccountOpen(false)}
-      onTopUp={() => {
-       setAccountOpen(false);
-       setTopUpOpen(true);
-      }}
-      onKeepsake={() => {
-       setAccountOpen(false);
-       setSouvenirOpen(true);
-      }}
-      onSignOut={() => void handleSignOut()}
-     />
-    )}
-    <VersionBadge />
-   </>
-  );
- }
-
- const lesson = getLesson('general');
- const view = presentation.view;
- // The body she is highlighting (if any) lights up in the wheel itself;
- // every target also rides the inset's bar as brass chips.
- const focusBody =
-  chart.bodies.find(body => presentation.focusTargets.includes(body.key))?.key ?? null;
+ const personalStage = auth.status === 'signedIn' && chart !== null && infoSection === null;
+ const activePresentation = personalStage ? presentation : landingPresentation;
+ const chartFocused = activePresentation.view === 'chart';
+ const activeChart = personalStage ? astrolabe : exampleChart;
+ const activeTargets = activePresentation.focusTargets;
+ const foregroundBody = personalStage ? chart.bodies.find(body => activeTargets.includes(body.key))?.key ?? null : null;
+ const returnToRoom = () => {
+  if (personalStage) { handleStageView('atelier'); return; }
+  if (infoSection === 'your-chart' || infoSection === 'reading-aloud') setInfoSection(null);
+  handleLandingStageView('atelier');
+ };
+ const toggleView = () => {
+  if (chartFocused) returnToRoom();
+  else if (personalStage) handleStageView('chart');
+  else handleLandingStageView('chart');
+ };
+ // The frozen demonstration template follows the existing view state,
+ // without a second effect or a competing automatic view dispatch.
+ const visibleInformation = !personalStage && chartFocused && infoSection !== 'your-chart' && infoSection !== 'reading-aloud'
+  ? 'your-chart' : infoSection;
+ const baseHidden = currentTask !== null || visibleInformation !== null;
 
  return (
-  <div className="app-main">
-   {chartSaveError && <p className="note error" role="alert" style={{ position: 'fixed', top: '5rem', left: '1rem', right: '1rem', zIndex: 60 }}>{chartSaveError}</p>}
-   <div className="app-frame">
-    <StageHeader
-     auth={auth}
-     balanceCr={allowance.balanceCr}
-     onAccount={openAccount}
-     onTopUp={() => setTopUpOpen(true)}
-     onKeepsake={() => setSouvenirOpen(true)}
-     onSignOut={() => void handleSignOut()}
-    />
-
-    <div className="app-stage stage-inset-root" ref={stageRootRef}>
-     <ReadingStage
-      accountUid={auth.uid}
-      presentation={presentation}
-      phase="idle"
-      paused={paused}
-      onPause={setPaused}
-      onView={handleStageView}
-      chart={null}
-      conversation={
-       <>
-        <ChatPanel chart={chart} onTopUp={() => setTopUpOpen(true)} stage={chatStage} />
-        <section className="lesson-card" aria-live="polite">
-         <p className="lesson-kicker">From Natally’s notebook</p>
-         <h3>{lesson.title}</h3>
-         <p className="lesson-body">{lesson.what}</p>
-         <p className="lesson-question">{lesson.question}</p>
-        </section>
-       </>
-      }
-     />
-     {/* The clean-room inset (ARCHITECTURE §Chart inset): the chart
-              floats over the stage here, in place of the verbatim stage's
-              own chart pane; when the chart is focused the wheel fills the
-              visual area and Natally becomes the floating pane. A tap on a
-              hovered chart component brings it forward and she explains it;
-              a tap on empty inset chrome swaps the panes. */}
-     <div
-      className="stage-inset-layer"
-      data-mode={view === 'chart' ? 'fill' : 'float'}
-      onPointerDownCapture={() => {
-       pressSeqRef.current += 1;
-      }}
-     >
-      <Inset
-       storageKey={`natally.inset.v1:${auth.uid}`}
-       label="Your wheel"
-       focused={view === 'chart'}
-       fillHeight={stageVisualHeight}
-       targets={presentation.focusTargets}
-       bodyCount={chart.bodies.length}
-       onAutoInvert={handleAutoInvert}
-       onSwap={swapInsetView}
-       onComponentTap={explainTap}
-      >
-       {astrolabe ? (
-        <Astrolabe3D
-         chart={astrolabe}
-         isSpinning={false}
-         resetTrigger={0}
-         selectedPlanetName={focusBody}
-         highlightedComponents={presentation.focusTargets}
-         focusSequence={presentation.sequence}
-         onComponentTap={explainTap}
-        />
-       ) : (
-        <div className="chart-loading" role="status">
-         Casting the wheel…
-        </div>
-       )}
+  <ImmersiveLayout
+   header={<StageHeader auth={auth} balanceCr={allowance.balanceCr} balanceLoading={allowance.loading} balanceError={allowance.error}
+    onAccount={() => openRail(auth.status === 'signedIn' ? 'account' : 'signin')}
+    onTopUp={() => openRail('topup')} onMenu={() => openRail('menu')} onNavigate={showSection}
+    onHome={() => { railHistoryRef.current = []; applyTask(null); closeInformation(); }} />}
+   stage={
+    <div className="atelier-room-container stage-inset-root" ref={stageRootRef} data-chart-focused={chartFocused}
+     onPointerDownCapture={() => { pressSeqRef.current += 1; }}>
+     <div className="atelier-stage-controls">
+      <button type="button" className="atelier-stage-ctrl-btn" aria-label={`${interactionMuted ? 'Unmute' : 'Mute'} interaction sounds`}
+       title="Interaction sounds" aria-pressed={!interactionMuted} onClick={toggleInteractionSounds}>
+       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5m5 3a6 6 0 0 1 0 8" /></svg>
+      </button>
+      <button type="button" className="atelier-stage-ctrl-btn" aria-label={paused ? 'Resume motion' : 'Pause motion'}
+       title={paused ? 'Resume motion' : 'Pause motion'} aria-pressed={paused} onClick={() => setPaused(current => !current)}>
+       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d={paused ? 'M7 4v16l13-8z' : 'M6 4h4v16H6zm8 0h4v16h-4z'} /></svg>
+      </button>
+      <button type="button" className="atelier-stage-ctrl-btn" onClick={toggleView}>{chartFocused ? 'Reading room' : personalStage ? 'Your chart' : 'Chart'}</button>
+     </div>
+     <div className={chartFocused ? 'atelier-live-room atelier-natally-inset-dock' : 'atelier-live-room'}
+      role={chartFocused ? 'button' : undefined} tabIndex={chartFocused ? 0 : undefined}
+      aria-label={chartFocused ? 'Bring Natally into focus' : undefined}
+      onClick={chartFocused ? returnToRoom : undefined}
+      onKeyDown={chartFocused ? event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); returnToRoom(); } } : undefined}>
+      <div className="atelier-live-room-content" inert={chartFocused}><AtelierScene phase="idle" motionEnabled={!paused} accountUid={auth.status === 'signedIn' ? auth.uid : null} /></div>
+     </div>
+     {personalStage && <AtelierAmbience view={activePresentation.view} phase="idle" />}
+     <div className="stage-inset-layer" data-mode={chartFocused ? 'fill' : 'float'}>
+      <Inset key={auth.status === 'signedIn' ? auth.uid : 'landing'}
+       storageKey={auth.status === 'signedIn' ? `natally.inset.v1:${auth.uid}` : 'natally.inset.v1:landing:compact-v1'}
+       label={personalStage ? 'Your chart' : 'Demonstration chart'} compact focused={chartFocused}
+       targets={activeTargets} bodyCount={activeChart?.natalBodies.length}
+       onAutoInvert={personalStage ? handleAutoInvert : handleLandingAutoInvert}
+       onSwap={personalStage ? swapInsetView : landingSwapInsetView}
+       onComponentTap={personalStage ? explainTap : landingExplainTap}>
+       {activeChart ? <Astrolabe3D chart={activeChart} isSpinning={!personalStage} resetTrigger={0}
+        selectedPlanetName={foregroundBody} highlightedComponents={activeTargets} focusSequence={activePresentation.sequence}
+        onComponentTap={personalStage ? explainTap : landingExplainTap} /> : <div className="chart-loading" role="status">Casting the wheel…</div>}
       </Inset>
      </div>
     </div>
-   </div>
-
-   {topUpOpen && <TopUpSheet onClose={() => setTopUpOpen(false)} />}
-
-   {accountOpen && (
-    <AccountPanel
-     auth={auth}
-     balanceCr={allowance.balanceCr}
-     canRedoOnboarding={chart !== null}
-     onRedoOnboarding={beginRedo}
-     onResumeOnboarding={hasRedoDraft ? resumeRedo : undefined}
-     onClose={() => setAccountOpen(false)}
-     onTopUp={() => {
-      setAccountOpen(false);
-      setTopUpOpen(true);
-     }}
-     onKeepsake={() => {
-      setAccountOpen(false);
-      setSouvenirOpen(true);
-     }}
-     onSignOut={() => void handleSignOut()}
-    />
-   )}
-
-   {souvenirOpen && (
-    <Suspense fallback={null}>
-     <SouvenirDialog chart={chart} onClose={() => setSouvenirOpen(false)} />
-    </Suspense>
-   )}
-   <VersionBadge />
-  </div>
+   }
+   caption={<KaraokeCaption />}
+   status={<>{soundError && <div className="atelier-status-banner error" role="alert">{soundError}</div>}<VoiceDownloadStatus /></>}
+   rail={
+    <>
+     <div hidden={baseHidden} className="atelier-base-task">
+      {auth.status === 'unknown' || gidHandoffSigningIn ? <AtelierRail title="Signing you in…"><div role="status" /></AtelierRail>
+       : auth.status === 'signedOut' ? <LandingCards onSection={showSection} onSignIn={() => openRail('signin')} signingIn={signingIn} />
+       : chart === null ? <FirstLight onSitDown={computed => {
+        setChart(computed);
+        if (keepsakeIntentRef.current) { keepsakeIntentRef.current = false; openRail('souvenir'); }
+       }} />
+       : <ChatPanel chart={chart} stage={chatStage} onTopUp={() => openRail('topup')} onMenu={() => openRail('menu')} />}
+     </div>
+     {visibleInformation !== null && currentTask === null && <LandingCards sectionId={visibleInformation} onSection={showSection} onClose={closeInformation}
+      onSignIn={() => openRail('signin')} signingIn={signingIn} />}
+     {menuOpen && <AtelierRail title="Menu" onClose={closeRail}>
+      {LANDING_SECTIONS.map(section => <button type="button" className="atelier-btn-secondary" key={section.id}
+       onClick={() => showSection(section.id, section.chart)}>{section.menuLabel}</button>)}
+      <button type="button" className="atelier-btn-secondary" onClick={() => openRail(auth.status === 'signedIn' ? 'account' : 'signin')}>{auth.status === 'signedIn' ? 'Account' : 'Sign in'}</button>
+     </AtelierRail>}
+     {signInOpen && <SignInPanel onClose={() => { closeRail(); setInitialAuthMethod(undefined); }} onGoogle={signIn}
+      initialMethod={initialAuthMethod} googleError={signInError}
+      continueOnApp={PRODUCT_LANDING_HOSTS.includes(window.location.hostname) && !isNativeAuth()} />}
+     {auth.status === 'signedIn' && accountOpen && <AccountPanel auth={auth} balanceCr={allowance.balanceCr} balanceError={allowance.error}
+      onClose={closeRail} onTopUp={() => openRail('topup')} onKeepsake={requestKeepsake} onSignOut={() => void handleSignOut()} />}
+     {auth.status === 'signedIn' && topUpOpen && <TopUpSheet onClose={closeRail} />}
+     {auth.status === 'signedIn' && chart !== null && souvenirOpen && <Suspense fallback={null}>
+      <SouvenirDialog chart={chart} onClose={closeRail} />
+     </Suspense>}
+    </>
+   }
+  />
  );
 }

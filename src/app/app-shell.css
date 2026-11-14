@@ -1,3 +1,52 @@
+/* Implementation adapters only. The frozen UI stylesheet is unmodified.
+   Live registered artwork/canvas replaces the prototype's image slots. */
+@import '../shared/tokens.css';
+
+.atelier-base-task:not([hidden]) { display: contents; }
+.atelier-room-container.stage-inset-root { container-type: size; isolation: isolate; }
+.atelier-live-room { position: absolute; z-index: 1; display: flex; align-items: flex-end; overflow: hidden; }
+.atelier-live-room:not(.atelier-natally-inset-dock) { inset: 0; }
+.atelier-live-room.atelier-natally-inset-dock { right: auto; bottom: auto; cursor: pointer; }
+.atelier-live-room-content { width: 100%; height: 100%; }
+.atelier-live-room .atelier-scene { width: 100%; height: 100%; align-items: flex-end; background: var(--atelier-ink); }
+.atelier-live-room .atelier-scene__composition { width: min(100%, 160cqh); aspect-ratio: 1.6; }
+.atelier-live-room.atelier-natally-inset-dock .atelier-scene__composition { width: 100%; }
+.atelier-room-container[data-chart-focused='true'] .atelier-stage-controls { left: auto; right: 16px; }
+.atelier-stage-controls { z-index: 60; }
+.atelier-account-avatar { flex-shrink: 0; object-fit: cover; }
+.atelier-allowance-badge { cursor: pointer; }
+.atelier-caption-band .karaoke-caption { margin: 0; padding: 0; width: 100%; font: 400 16px/1.4 var(--font-body); }
+.atelier-caption-band .karaoke-caption span { font-weight: 400; }
+.atelier-caption-band .karaoke-caption .is-glowing { color: var(--spoken-light); font-weight: 600; }
+
+/* The existing inset keeps its actual pointer/dock/resize logic and square
+   aspect. These map its renderer-owned chrome onto the frozen chart slot. */
+.atelier-room-container .chart-inset {
+  background: var(--atelier-ink); border-color: var(--brass-edge); border-radius: 12px;
+  box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.atelier-room-container .chart-inset__bar { height: 30px; padding: 0 10px; border-color: var(--brass-edge); background: var(--plum-glass); }
+.atelier-room-container .chart-inset__gripdots { background-image: radial-gradient(var(--quiet-linen) 1.1px, transparent 1.3px); opacity: .75; }
+.atelier-room-container .chart-inset__label { display: none; }
+.atelier-room-container .chart-inset-fill { background: var(--atelier-ink); border: 0; border-radius: 0; }
+.atelier-room-container .chart-inset-fill .chart-inset__content {
+  top: 112px; bottom: 16px; left: 50%; right: auto;
+  width: min(calc(100% - 32px), 560px); transform: translateX(-50%);
+  background: var(--atelier-ink);
+}
+.atelier-room-container .chart-inset-fill .chart-inset__content::before,
+.atelier-room-container .chart-inset-fill .chart-inset__content::after { display: none; }
+.atelier-room-container[data-inset-dock='side']:not([data-chart-focused='true']) > .atelier-live-room { right: calc(var(--inset-dock-size) + 16px); }
+.atelier-room-container[data-inset-dock='side'] > .stage-inset-layer:not([data-mode='fill']) { left: auto; width: var(--inset-dock-size); }
+.atelier-room-container[data-inset-dock='stack']:not([data-chart-focused='true']) > .atelier-live-room { bottom: calc(var(--inset-dock-size) + 16px); }
+.atelier-room-container[data-inset-dock='stack'] > .stage-inset-layer:not([data-mode='fill']) { top: auto; height: var(--inset-dock-size); }
+.chart-loading { display: grid; place-items: center; width: 100%; height: 100%; min-height: 0; padding: 8px; font: 12px/1.5 var(--font-mono); color: var(--quiet-linen); }
+div[id^='threejs-container'] { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+@media(max-width:768px) {
+  .atelier-room-container[data-chart-focused='true'] .atelier-stage-controls { right: 12px; }
+  .atelier-room-container .chart-inset-fill .chart-inset__content { top: 96px; }
+}
 /* App-shell layout over the atelier scene (palette: src/shared/tokens.css). */
 .karaoke-caption {
   box-sizing: border-box;
@@ -84,632 +133,18 @@
   animation-duration: 6.4s !important;
 }
 
-/* ---------- Splash ---------- */
 
-/* Full-viewport mount for the verbatim atelier scene (sign-in backdrop). */
-.scene-mount {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background: var(--plum-deep);
-  display: flex;
-  align-items: center;
-}
-
-.scene-mount .atelier-scene {
-  width: 100%;
-}
-
-.app-splash {
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  font-family: var(--font-display);
-  font-size: 18px;
-  color: var(--parchment-muted);
-}
-
-/* ---------- Centered cards (sign-in, birth intake) ---------- */
-
-/* The sign-in card sits to the side of the room so Natally — center of the
-   artwork — stays the visible presence while signing in. */
-.app-intake {
-  position: relative;
-  z-index: 1;
-  min-height: 100dvh;
-  display: grid;
-  justify-items: end;
-  align-items: center;
-  padding: 24px clamp(16px, 6vw, 96px);
-}
-
-@media (max-width: 56rem) {
-  .app-intake {
-    justify-items: center;
-    align-items: end;
-    padding-bottom: clamp(24px, 10vh, 96px);
-  }
-}
-
-.card {
-  width: min(480px, 100%);
-  background: rgba(54, 33, 65, 0.92);
-  border: 1px solid var(--plum-line);
-  border-radius: 18px;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.5);
-}
-
-.card h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 34px;
-  line-height: 1.15;
-  text-align: center;
-  color: var(--parchment);
-}
-
-.card-intro {
-  margin: 0;
-  text-align: center;
-  color: var(--parchment-muted);
-}
-
-.sign-in-portrait {
-  width: 110px;
-  height: 110px;
-  border-radius: 14px;
-  object-fit: cover;
-  align-self: center;
-  border: 1px solid var(--brass-dim);
-}
-
-/* ---------- Form fields ---------- */
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field label {
-  font-size: 12px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--brass);
-}
-
-.field input {
-  font-family: var(--font-body);
-  font-size: 16px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--plum-line);
-  background: var(--plum-deep);
-  color: var(--parchment);
-}
-
-.field input:focus-visible {
-  outline: 2px solid var(--brass);
-  outline-offset: 1px;
-  border-color: var(--brass);
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 12px;
-}
-
-@media (max-width: 480px) {
-  .field-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.hint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--parchment-muted);
-}
-
-.note {
-  margin: 0;
-  font-size: 14px;
-}
-
-.note.status {
-  color: var(--parchment-muted);
-  font-style: italic;
-}
-
-.note.warn {
-  color: var(--brass-bright);
-}
-
-.note.error {
-  color: #e5957f;
-}
-
-/* Resolved-place chip (the confirm step for the place search). */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  max-width: 100%;
-  padding: 6px 8px 6px 13px;
-  border: 1px solid var(--brass);
-  border-radius: 999px;
-  background: rgba(201, 164, 92, 0.14);
-  font-size: 14px;
-}
-
-.chip-main {
-  color: var(--parchment);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chip-tz {
-  color: var(--parchment-muted);
-  white-space: nowrap;
-}
-
-.chip-tz::before {
-  content: '·';
-  margin-right: 8px;
-  color: var(--brass);
-}
-
-.chip-x {
-  border: none;
-  background: transparent;
-  color: var(--parchment-muted);
-  cursor: pointer;
-  font-size: 15px;
-  line-height: 1;
-  padding: 3px 7px;
-  border-radius: 999px;
-}
-
-.chip-x:hover {
-  color: var(--parchment);
-  background: rgba(0, 0, 0, 0.28);
-}
-
-/* Gazetteer suggestions under the place field (searchPlace results). */
-.suggestions {
-  list-style: none;
-  margin: 0;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-height: 216px;
-  overflow-y: auto;
-  border: 1px solid var(--plum-line);
-  border-radius: 10px;
-  background: var(--plum-deep);
-}
-
-.suggest-option {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--parchment);
-  font-family: var(--font-body);
-  font-size: 14px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.suggest-option:hover,
-.suggest-option:focus-visible,
-li[aria-selected='true'] > .suggest-option {
-  background: rgba(201, 164, 92, 0.16);
-  outline: none;
-}
-
-.suggest-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.suggest-tz {
-  color: var(--parchment-muted);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-
-/* ---------- Buttons ---------- */
-
-.btn {
-  font-family: var(--font-body);
-  font-size: 15px;
-  padding: 9px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--brass-dim);
-  background: transparent;
-  color: var(--parchment);
-  cursor: pointer;
-}
-
-.btn:hover:not(:disabled) {
-  border-color: var(--brass);
-  color: var(--brass-bright);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.btn.primary {
-  background: var(--brass);
-  border-color: var(--brass);
-  color: var(--plum-deep);
-  font-weight: 600;
-}
-
-.btn.primary:hover:not(:disabled) {
-  background: var(--brass-bright);
-  border-color: var(--brass-bright);
-  color: var(--plum-deep);
-}
-
-.chart-loading {
-  min-height: 320px;
-  display: grid;
-  place-items: center;
-  color: var(--parchment-muted);
-  font-family: var(--font-display);
-}
-
-/* Version stamp: always bottom-right of the window, above every layer
-   (scene, overlays, sheets, dialogs), legible on any background. */
-.version-badge {
-  position: fixed;
-  right: max(10px, env(safe-area-inset-right));
-  bottom: max(10px, env(safe-area-inset-bottom));
-  z-index: 2147483647;
-  margin: 0;
-  padding: 3px 8px;
-  border: 1px solid rgba(212, 175, 55, 0.45);
-  border-radius: 6px;
-  background: rgba(20, 13, 33, 0.88);
-  color: #f5e6c8;
-  font: 11px/1.4 Consolas, 'Courier New', monospace;
-  letter-spacing: 0.04em;
-  pointer-events: none;
-}
-
-.btn.small {
-  font-size: 13px;
-  padding: 5px 11px;
-}
-
-.btn.ghost {
-  border-color: var(--plum-line);
-}
-
-.btn.wide {
-  width: 100%;
-}
-
-/* ---------- Main layout (with chart) ---------- */
-
-.app-main {
-  position: relative;
-  min-height: 100dvh;
-}
-
-.app-frame {
-  position: relative;
-  z-index: 1;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 18px clamp(14px, 3.5vw, 32px) 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  min-height: 100dvh;
-}
-
-.app-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.app-brand {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 28px;
-  color: var(--parchment);
-}
-
-.app-brand-sub {
-  font-size: 16px;
-  color: var(--parchment-muted);
-}
-
-.app-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.app-greeting {
-  color: var(--parchment-muted);
-  font-style: italic;
-}
-
-.app-stage {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Lesson card under the conversation. */
-.lesson-card {
-  background: rgba(54, 33, 65, 0.88);
-  border: 1px solid var(--plum-line);
-  border-radius: 14px;
-  padding: 16px;
-  backdrop-filter: blur(4px);
-  margin-top: 16px;
-}
-
-
-/* Lesson card under the chart. */
-.lesson-kicker {
-  margin: 0 0 5px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--brass);
-}
-
-.lesson-card h3 {
-  margin: 0 0 8px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 19px;
-}
-
-.lesson-body {
-  margin: 0;
-  color: var(--parchment-muted);
-}
-
-.lesson-question {
-  margin: 10px 0 0;
-  font-style: italic;
-  color: var(--brass-bright);
-}
-
-/* ---------- Top-up sheet ---------- */
-
-.sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  background: rgba(18, 10, 24, 0.68);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
-
-.sheet {
-  width: min(460px, 100%);
-  background: var(--plum-raised);
-  border: 1px solid var(--plum-line);
-  border-radius: 18px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
-}
-
-.sheet-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.sheet-head h2 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 24px;
-}
-
-.balance {
-  margin: 0;
-  color: var(--parchment-muted);
-}
-
-.balance strong {
-  font-family: var(--font-display);
-  font-size: 22px;
-  color: var(--brass-bright);
-}
-
-.packs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.pack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 13px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--brass-dim);
-  background: transparent;
-  color: var(--parchment);
-  cursor: pointer;
-  font-family: var(--font-body);
-}
-
-.pack:hover:not(:disabled) {
-  border-color: var(--brass);
-}
-
-.pack:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.pack .usd {
-  font-family: var(--font-display);
-  font-size: 19px;
-  color: var(--brass-bright);
-}
-
-.pack .what {
-  font-size: 13px;
-  color: var(--parchment-muted);
-}
-
-.pack.wide {
-  grid-column: 1 / -1;
-  flex-direction: row;
-  justify-content: center;
-  gap: 10px;
-}
-
-/* The verbatim Astrolabe3D root uses the original's Tailwind-style utility
-   classes (absolute inset-0 w-full h-full); those utilities don't exist in
-   this repo, so the same fill behavior is provided here. Without it the
-   renderer's container measures zero and falls back to window.innerHeight. */
-div[id^='threejs-container'] {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Header presence on the front (sign-in) screen, over the scene. */
-.app-header--front {
-  position: relative;
-  z-index: 2;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: 1.1rem clamp(1.2rem, 4vw, 3rem) 0;
-}
-
-.topbar-link {
-  font-size: 0.95rem;
-  color: var(--brass-bright);
-  background: rgb(28 17 34 / 0.72);
-  border: 1px solid var(--plum-line);
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  backdrop-filter: blur(6px);
-}
-
-.app-brand {
-  font-size: clamp(1.7rem, 3.4vw, 2.1rem);
-}
-
-/* ---------- Docked-beside layout (ARCHITECTURE §Chart inset) ---------- */
-
-/* When the stage is large enough the chart takes its own slot and the
-   verbatim stage — Natally's scene — re-zooms into the remaining space;
-   the inset sets data-inset-dock and --inset-dock-size on this element. */
-.app-stage[data-inset-dock='side'] {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--inset-dock-size);
-  gap: 14px;
-}
-.app-stage[data-inset-dock='side'] > .reading-stage {
-  min-width: 0;
-}
-.app-stage[data-inset-dock='side'] > .stage-inset-layer {
-  position: static;
-  grid-column: 2;
-}
-.app-stage[data-inset-dock='stack'] {
-  display: grid;
-  grid-template-rows: auto auto;
-  justify-items: center;
-}
-.app-stage[data-inset-dock='stack'] > .stage-inset-layer {
-  position: static;
-  grid-row: 2;
-  width: var(--inset-dock-size);
-  height: var(--inset-dock-size);
-}
-
-/* ---------- Composition and presence (ARCHITECTURE) ---------- */
-
-/* One compact header line: brand, greeting, actions — no wrapping rows. */
-.app-header {
-  flex-wrap: nowrap;
-  gap: 12px;
-  padding-block: 6px;
-}
-.app-brand {
-  font-size: 24px;
-}
-.app-greeting {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 30vw;
-}
-
-/* The stage gets the screen: no dead band below it, and the stage is
-   capped so the conversation — her words and the ready input — is on
-   screen from her first spoken word, not below the fold. */
-.app-frame {
-  padding-bottom: 12px;
-}
-.app-stage .reading-stage {
-  max-width: min(100%, max(420px, calc((100dvh - 310px) * 1.6)));
-  margin-inline: auto;
-}
-
-/* Account panel (avatar menu → Account). */
-.account-panel__facts {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
-  margin: 12px 0 18px;
-}
-.account-panel__facts dt {
-  color: var(--parchment-muted);
-}
-.account-panel__facts dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.account-panel__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+/* The source room's old sound badge duplicates the exported44px control.
+   That same existing foley gate is bound by the new interaction-sounds button. */
+.atelier-live-room .atelier-sound-toggle { display: none; }
+
+/* A focused-room inset scales the complete registered scene as one unit.
+   Keeping its2048×1280 internal coordinates also scales HTML prop labels,
+   whose ordinary minimum sizes would otherwise cover Natally in the thumbnail. */
+.atelier-live-room.atelier-natally-inset-dock .atelier-live-room-content {
+  position: absolute; left: 0; bottom: 0; width: 2048px; height: 1280px;
+  transform-origin: bottom left; transform: scale(0.068359375);
+}
+@media(max-width:767px) {
+  .atelier-live-room.atelier-natally-inset-dock .atelier-live-room-content { transform: scale(0.056640625); }
 }

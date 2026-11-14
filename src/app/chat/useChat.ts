@@ -49,6 +49,8 @@ const SPONTANEOUS_IDLE_MS = 60_000;
 export interface AllowanceView {
   envelope: AllowanceEnvelope | null;
   balanceCr: string;
+  loading: boolean;
+  error: string | null;
   refresh: () => void;
 }
 
@@ -296,26 +298,39 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
 /** Poll the billing ledger and expose the envelope plus its Cr balance. */
 export function useAllowance(): AllowanceView {
   const [envelope, setEnvelope] = useState<AllowanceEnvelope | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       setEnvelope(await getAccess(await idToken()));
-    } catch {
-      // Banner state is owned by the failing turn, not the poll.
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Your balance could not be reached.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void refresh();
     const timer = window.setInterval(() => void refresh(), ALLOWANCE_POLL_MS);
-    return () => window.clearInterval(timer);
+    const onAllowanceChanged = () => void refresh();
+    window.addEventListener('natally-allowance-changed', onAllowanceChanged);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('natally-allowance-changed', onAllowanceChanged);
+    };
   }, [refresh]);
 
   return {
     envelope,
-    balanceCr: envelope === null || envelope.state === 'none'
+    balanceCr: envelope === null
       ? ''
-      : formatCr(envelope.allowanceUsdMicros * creditDisplayPerUsd() * 1e-6),
+      : formatCr(envelope.allowanceUsdMicros, creditDisplayPerUsd()),
+    loading,
+    error,
     refresh: () => void refresh(),
   };
 }

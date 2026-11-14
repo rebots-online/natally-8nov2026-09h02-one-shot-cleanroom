@@ -1,44 +1,39 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Natally</title>
-    <link rel="icon" href="/favicon-32.png" />
-    <link rel="preload" as="image" href="/natally-mascot.webp" fetchpriority="high">
-    <style>
-      /* First paint (ARCHITECTURE §Composition and presence): the atelier
-         poster is on screen immediately; React replaces it when the shell
-         mounts. */
-      html, body { margin: 0; min-height: 100%; background: #171128; }
-      #root { min-height: 100dvh; }
-      .app-first-paint {
-        display: grid;
-        place-items: center;
-        gap: 14px;
-        min-height: 100dvh;
-        padding: 24px;
-        background: radial-gradient(120% 100% at 50% 0%, #171128 0%, #0d0a17 70%);
-        color: #b9a996;
-        font: 15px/1.55 'Segoe UI', Helvetica, Arial, sans-serif;
-      }
-      .app-first-paint img {
-        width: min(52dvh, 320px);
-        aspect-ratio: 1;
-        border-radius: 50%;
-        border: 1px solid #6f5a35;
-        box-shadow: 0 22px 64px #0007;
-      }
-      .app-first-paint p { margin: 0; font-style: italic; }
-    </style>
-  </head>
-  <body>
-    <div id="root">
-      <div class="app-first-paint" aria-hidden="true">
-        <img src="/natally-mascot.webp" alt="" width="512" height="512" fetchpriority="high">
-        <p>Opening the atelier…</p>
-      </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#130f18">
+  <meta name="natally-version" content="">
+  <title>Natally — the live atelier</title>
+  <meta name="description" content="Explore Natally’s atelier and your birth chart.">
+  <link rel="icon" href="/favicon-32.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preload" as="image" href="/atelier/room.webp" fetchpriority="high">
+  <link rel="stylesheet" href="/src/app/prototype/atelier-frozen.css">
+  <style>html,body{margin:0;min-height:100%;background:#130f18}#root{min-height:100dvh}</style>
+</head>
+<body>
+  <div id="root">
+    <div class="atelier-viewport" aria-busy="true">
+      <header class="atelier-header" data-slot="header"><span class="atelier-brand-wordmark">Natally</span></header>
+      <main class="atelier-main-layout">
+        <div class="atelier-stage-col">
+          <div class="atelier-stage-box" data-slot="stage">
+            <div class="atelier-room-container"><img class="atelier-room-img" src="/atelier/room.webp" alt="Natally in her atelier" fetchpriority="high"></div>
+            <div class="atelier-stage-status-overlay" data-slot="status"></div>
+          </div>
+          <div class="atelier-caption-band" data-slot="caption"></div>
+        </div>
+        <div class="atelier-rail-col" data-slot="rail">
+          <div class="atelier-rail-surface"><div class="atelier-rail-header"><h1 class="atelier-rail-title">Signing you in…</h1></div></div>
+          <footer class="atelier-rail-footer"><div><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div><span class="atelier-version-tag"></span></footer>
+        </div>
+      </main>
     </div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  </div>
+  <noscript><p>Enable JavaScript to explore Natally’s interactive atelier.</p></noscript>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
 </html>

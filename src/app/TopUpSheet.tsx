@@ -1,31 +1,20 @@
-// Top-up sheet: server-signed balance via getAccess(), formatted with
-// formatCr at the deployment's credit display rate. A zero balance is never
-// shown as a number — the sheet simply reads "Top up". Credit packs and the
-// souvenir are wired to the real purchase calls (Chargebee checkout runs
-// inside them). The offers always render; when configuration is missing the
-// sheet fails visibly and specifically instead — naming the missing setting,
-// whether client-side (VITE_CHARGEBEE_SITE) or from the server's
-// billing_not_configured detail — and never charges anything. A completed
-// purchase refreshes the access envelope.
-
-import { useCallback, useEffect, useState } from 'react';
-import { BillingNotConfiguredError, getAccess } from '../commerce/billingApi';
+// Frozen Stitch S08 rail. Existing billing functions supply every result.
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BillingNotConfiguredError, getAccess, redeem } from '../commerce/billingApi';
 import { CheckoutClosedError } from '../commerce/chargebee';
-import { PACKS, SOUVENIR, buyCredits, buySouvenir } from '../commerce/purchases';
+import { PACKS, buyCredits } from '../commerce/purchases';
 import { chargebeeSite, creditDisplayPerUsd } from '../platform/env';
 import { idToken } from '../platform/firebase';
 import { formatCr } from '../shared/credits';
 import type { AllowanceEnvelope } from '../shared/types';
+import { AtelierRail } from './prototype/ImmersiveLayout';
 
-interface TopUpSheetProps {
-  onClose: () => void;
-}
+interface TopUpSheetProps { onClose: () => void; }
 
-/** Human sentence for a failed access load, naming what is missing. */
 function describeLoadError(error: unknown): string {
   if (error instanceof BillingNotConfiguredError) {
     return error.detail
-      ? `The billing service is not configured — ${error.detail}. Balance and purchases are unavailable.`
+      ? 'The billing service is not configured — ' + error.detail + '. Balance and purchases are unavailable.'
       : 'The billing service is not configured. Balance and purchases are unavailable.';
   }
   if (error instanceof Error && error.message) return error.message;
@@ -35,143 +24,135 @@ function describeLoadError(error: unknown): string {
 export default function TopUpSheet({ onClose }: TopUpSheetProps) {
   const [access, setAccess] = useState<AllowanceEnvelope | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<'checkout' | 'redeem' | null>(null);
+  const [view, setView] = useState<'topup' | 'checkout' | 'cancelled' | 'error' | 'result'>('topup');
+  const [selectedPack, setSelectedPack] = useState<number>(PACKS[0]);
   const [notice, setNotice] = useState<string | null>(null);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const redemption = useRef<{ code: string; requestId: string } | null>(null);
   const billingConfigured = chargebeeSite() !== '';
 
   const refreshAccess = useCallback(async () => {
     setAccess(null);
     setLoadError(null);
     try {
-      setAccess(await getAccess(await idToken()));
+      const envelope = await getAccess(await idToken());
+      setAccess(envelope);
+      return envelope;
     } catch (error) {
       setLoadError(describeLoadError(error));
+      return null;
     }
   }, []);
 
-  useEffect(() => {
-    void refreshAccess();
-  }, [refreshAccess]);
-
+  useEffect(() => { void refreshAccess(); }, [refreshAccess]);
+  useEffect(() => { document.getElementById('conversation-credits-title')?.focus(); }, [view]);
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape' && busy === null) onClose();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, busy]);
 
-  async function purchase(kind: 'credits' | 'souvenir', usd: number) {
+  async function purchase() {
     if (busy !== null) return;
     setNotice(null);
-    setBusy(`${kind}:${usd}`);
+    setPurchaseError(null);
+    setBusy('checkout');
+    setView('checkout');
     try {
-      const token = await idToken();
-      // Both calls resolve with the fresh, server-signed envelope.
-      const envelope =
-        kind === 'credits' ? await buyCredits(token, usd) : await buySouvenir(token);
-      setAccess(envelope);
-      setNotice(
-        kind === 'credits'
-          ? 'Purchase complete — balance refreshed above.'
-          : 'Souvenir purchase complete — thank you.',
-      );
-      await refreshAccess();
+      setAccess(await buyCredits(await idToken(), selectedPack));
+      const refreshed = await refreshAccess();
+      setNotice(refreshed ? 'Purchase complete — balance refreshed.' : 'Purchase complete. Your balance could not be refreshed.');
+      window.dispatchEvent(new Event('natally-allowance-changed'));
+      setView('result');
     } catch (error) {
-      if (error instanceof CheckoutClosedError) {
-        setNotice('Checkout closed before payment — nothing was charged.');
-      } else if (error instanceof BillingNotConfiguredError) {
-        setNotice(
-          error.detail
-            ? `Checkout is not configured — ${error.detail}. Nothing was charged.`
-            : 'Checkout is not configured on this deployment — nothing was charged.',
-        );
-      } else {
-        setNotice(
-          error instanceof Error
-            ? error.message
-            : 'The purchase could not be completed. Please try again.',
-        );
+      if (error instanceof CheckoutClosedError) setView('cancelled');
+      else {
+        setPurchaseError(error instanceof BillingNotConfiguredError
+          ? error.detail
+            ? 'Checkout is not configured — ' + error.detail + '. Nothing was charged.'
+            : 'Checkout is not configured on this deployment — nothing was charged.'
+          : error instanceof Error ? error.message : 'The purchase could not be completed. Please try again.');
+        setView('error');
       }
-    } finally {
-      setBusy(null);
-    }
+    } finally { setBusy(null); }
   }
 
-  const displayPerUsd = creditDisplayPerUsd();
-  const balanceUsdMicros = access?.allowanceUsdMicros ?? 0;
+  async function redeemCode() {
+    if (busy !== null) return;
+    setCodeError(null);
+    if (!code.trim()) { setCodeError('Enter your code.'); return; }
+    if (!redemption.current || redemption.current.code !== code) {
+      redemption.current = { code, requestId: crypto.randomUUID() };
+    }
+    setBusy('redeem');
+    try {
+      await redeem(await idToken(), code, redemption.current.requestId);
+      const refreshed = await refreshAccess();
+      setCode('');
+      redemption.current = null;
+      setNotice(refreshed ? 'Code redeemed. Balance refreshed.' : 'Code redeemed. Your balance could not be refreshed.');
+      window.dispatchEvent(new Event('natally-allowance-changed'));
+      setView('result');
+    } catch (error) { setCodeError(describeLoadError(error)); }
+    finally { setBusy(null); }
+  }
 
+  if (view === 'checkout') return (
+    <AtelierRail title="Opening checkout…" labelledBy="conversation-credits-title">
+      <div data-bind="checkout-status" role="status" />
+    </AtelierRail>
+  );
+  if (view === 'cancelled') return (
+    <AtelierRail title="Checkout closed" onClose={() => setView('topup')} labelledBy="conversation-credits-title">
+      <p className="atelier-body-text">Checkout closed before payment.</p>
+      <button type="button" className="atelier-btn-primary" onClick={() => setView('topup')}>Back to credits</button>
+    </AtelierRail>
+  );
+  if (view === 'error') return (
+    <AtelierRail title="Checkout unavailable" onClose={() => setView('topup')} labelledBy="conversation-credits-title">
+      <div className="atelier-status-banner error" data-bind="error" role="alert">{purchaseError}</div>
+      <button type="button" className="atelier-btn-primary" onClick={() => void purchase()}>Try again</button>
+    </AtelierRail>
+  );
+  if (view === 'result') return (
+    <AtelierRail title="Conversation credits" onBack={() => setView('topup')} labelledBy="conversation-credits-title">
+      <div className="atelier-status-banner" data-bind="redemption-result" role="status">{notice}</div>
+      <button type="button" className="atelier-btn-primary" onClick={() => setView('topup')}>Back to credits</button>
+    </AtelierRail>
+  );
   return (
-    <div className="sheet-backdrop" onClick={onClose}>
-      <div
-        className="sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Top up"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="sheet-head">
-          <h2>Top up</h2>
-          <button type="button" className="btn ghost small" onClick={onClose} autoFocus>
-            Close
-          </button>
-        </div>
-
-        {balanceUsdMicros > 0 && (
-          <p className="balance">
-            Balance <strong>{formatCr(balanceUsdMicros, displayPerUsd)}</strong>
-          </p>
-        )}
-
-        {!billingConfigured && (
-          <p className="note warn">
-            Checkout is not configured on this build — VITE_CHARGEBEE_SITE is not set,
-            so the Chargebee payment window cannot open. Nothing will be charged.
-          </p>
-        )}
-
-        {loadError ? (
-          <p className="note error" role="alert">
-            {loadError}
-          </p>
-        ) : !access ? (
-          <p className="note status" role="status">
-            Checking your balance…
-          </p>
-        ) : null}
-
-        <div className="packs">
-          {PACKS.map(usd => (
-            <button
-              key={usd}
-              type="button"
-              className="pack"
-              disabled={!billingConfigured || busy !== null}
-              onClick={() => void purchase('credits', usd)}
-            >
-              <span className="usd">US${usd}</span>
-              <span className="what">{formatCr(Math.round(usd * 1_000_000), displayPerUsd)}</span>
-              {busy === `credits:${usd}` ? '…' : ''}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="pack wide"
-            disabled={!billingConfigured || busy !== null}
-            onClick={() => void purchase('souvenir', SOUVENIR)}
-          >
-            <span className="usd">US${SOUVENIR}</span>
-            <span className="what">Natal report keepsake</span>
-            {busy === `souvenir:${SOUVENIR}` ? '…' : ''}
-          </button>
-        </div>
-
-        {notice && (
-          <p className="note status" role="status">
-            {notice}
-          </p>
-        )}
-      </div>
-    </div>
+    <AtelierRail title="Conversation credits" onBack={onClose} labelledBy="conversation-credits-title">
+      <p className="atelier-secondary-text" data-bind="allowance" role="status">
+        {loadError ?? (access ? 'Balance ' + formatCr(access.allowanceUsdMicros, creditDisplayPerUsd()) : 'Checking your balance…')}
+        {!billingConfigured && ' Checkout is not configured — VITE_CHARGEBEE_SITE is not set.'}
+      </p>
+      <fieldset className="atelier-choice-group" disabled={busy !== null}>
+        <legend className="atelier-sr-only">Choose a credit pack</legend>
+        {PACKS.map(usd => (
+          <label className="atelier-choice-label" key={usd}>
+            <input type="radio" name="credit_pack" value={usd} checked={selectedPack === usd} onChange={() => setSelectedPack(usd)} />
+            <span className="atelier-choice-price">US{'$'}{usd}</span>
+          </label>
+        ))}
+      </fieldset>
+      <button type="button" className="atelier-btn-primary" disabled={!billingConfigured || busy !== null} onClick={() => void purchase()}>Continue</button>
+      <details className="atelier-redeem">
+        <summary>Redeem admin code</summary>
+        <form onSubmit={event => { event.preventDefault(); void redeemCode(); }}>
+          <div className="atelier-field-group">
+            <label className="atelier-label" htmlFor="redeem-code">Code</label>
+            <input className="atelier-input" id="redeem-code" type="text" autoComplete="off" value={code} disabled={busy !== null} onChange={event => setCode(event.target.value)} aria-describedby={codeError ? 'redeem-code-error' : undefined} />
+            <div className="atelier-inline-error" id="redeem-code-error" data-bind="field-error" role="alert" hidden={!codeError}>{codeError}</div>
+          </div>
+          <button type="submit" className="atelier-btn-secondary" disabled={busy !== null}>{busy === 'redeem' ? 'Redeeming…' : 'Redeem'}</button>
+          <div data-bind="redemption-result" aria-live="polite" />
+        </form>
+      </details>
+    </AtelierRail>
   );
 }

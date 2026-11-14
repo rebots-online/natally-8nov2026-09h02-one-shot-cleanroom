@@ -1,106 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-<link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#c9aa60">
-<link rel="preload" as="image" href="/marketing-assets/natally-still.webp" fetchpriority="high">
-<title>Natally — your birth chart, read aloud</title>
-<meta name="description" content="Natally calculates your natal chart with Swiss Ephemeris, reads it aloud and shows each placement on the wheel as she speaks.">
-<style>
-/* Document chrome verbatim from the original landing page (site header,
-   base tokens, version badge). Marketing sections are intentionally not
-   part of this one-screen port. */
-:root{
-  --bg:oklch(0.17 0.022 294);
-  --surface:oklch(0.205 0.027 294);
-  --surface-2:oklch(0.235 0.03 294);
-  --fg:oklch(0.94 0.014 79);
-  --muted:oklch(0.74 0.025 294);
-  --border:oklch(0.35 0.035 294);
-  --accent:oklch(0.81 0.105 80);
-  --accent-hover:oklch(0.89 0.09 82);
-  --accent-ink:oklch(0.17 0.022 294);
-  --violet:oklch(0.65 0.16 309);
-  --violet-light:oklch(0.79 0.105 309);
-  --deep:oklch(0.12 0.023 294);
-  --success:oklch(0.8 0.065 158);
-  --error:oklch(0.83 0.10 30);
-  --font-display:Georgia,'Times New Roman',serif;
-  --font-body:'Segoe UI',Helvetica,Arial,sans-serif;
-  --r:8px; --r-lg:16px;
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
-img,svg{display:block;max-width:100%}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-.wrap{width:min(100% - 48px,1160px);margin-inline:auto}
-h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance}
-p{margin:0}
-.site-head{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in oklch,var(--border) 60%,transparent)}
-.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--font-display);font-size:22px;letter-spacing:.01em;min-height:44px}
-.brand img{width:30px;height:30px;border-radius:50%;border:1px solid var(--border)}
-.head-side{display:flex;align-items:center;gap:8px;min-width:0}
-.head-menu{position:relative}
-.head-menu summary{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r);cursor:pointer;list-style:none;font-size:14px;color:var(--fg)}
-.head-menu summary::-webkit-details-marker{display:none}
-.head-menu summary:hover{background:var(--surface-2)}
-.head-menu[open] summary{background:var(--surface-2)}
-.head-menu nav{position:absolute;right:0;top:100%;z-index:30;display:flex;flex-direction:column;min-width:200px;padding:6px;border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:0 12px 32px #0008}
-.head-menu nav a{display:flex;align-items:center;min-height:44px;padding:8px 12px;border-radius:var(--r);text-decoration:none;color:var(--fg);font-size:14px;white-space:nowrap}
-.head-menu nav a:hover{background:var(--surface-2)}
-.version-badge{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));z-index:2147483647;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--deep);color:var(--accent);font:11px/1.4 Consolas,'Courier New',monospace;pointer-events:none}
-/* First paint (ARCHITECTURE §Composition and presence): the atelier poster
-   is on screen immediately; React replaces it when the stage mounts. */
-.first-paint{display:grid;place-items:center;gap:14px;min-height:calc(100dvh - 52px);padding:24px;background:radial-gradient(120% 100% at 50% 0%, #171128 0%, #090711 70%)}
-.first-paint img{width:min(52dvh,340px);aspect-ratio:1;border-radius:50%;border:1px solid var(--border);box-shadow:0 22px 64px #0007}
-.first-paint p{color:var(--muted);font-style:italic}
-.site-foot{border-top:1px solid color-mix(in oklch,var(--border) 60%,transparent);padding:12px 0 16px;color:var(--muted);font-size:12px}
-.site-foot a{color:var(--fg)}
-@media (max-width:760px){
-  .wrap{width:min(100% - 40px,1160px)}
-}
-@media (max-width:380px){.brand{font-size:20px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#130f18">
+  <meta name="natally-version" content="">
+  <title>Natally — the live atelier</title>
+  <meta name="description" content="Explore Natally’s atelier and your birth chart.">
+  <link rel="icon" href="/favicon-32.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preload" as="image" href="/atelier/room.webp" fetchpriority="high">
+  <link rel="stylesheet" href="/src/app/prototype/atelier-frozen.css">
+  <style>html,body{margin:0;min-height:100%;background:#130f18}#root{min-height:100dvh}</style>
 </head>
 <body>
-<header class="site-head" data-od-id="site-header">
-  <div class="wrap">
-    <a class="brand" href="#top" data-od-id="brand-home"><img src="/marketing-assets/natally-still.webp" width="400" height="400" alt="">Natally</a>
-    <div class="head-side">
-      <details class="head-menu">
-        <summary aria-haspopup="menu">Menu</summary>
-        <nav aria-label="Primary" data-od-id="primary-nav">
-          <a href="#your-chart">Your chart</a>
-          <a href="#reading-aloud">Your chart, explained aloud</a>
-          <a href="#talk-with-natally">Personal readings</a>
-          <a href="#prices">Prices</a>
-          <a href="#education">Learn astrology</a>
-        </nav>
-      </details>
-      <div id="marketing-account-root"></div>
+  <div id="root">
+    <div class="atelier-viewport" aria-busy="true">
+      <header class="atelier-header" data-slot="header"><span class="atelier-brand-wordmark">Natally</span></header>
+      <main class="atelier-main-layout">
+        <div class="atelier-stage-col">
+          <div class="atelier-stage-box" data-slot="stage">
+            <div class="atelier-room-container"><img class="atelier-room-img" src="/atelier/room.webp" alt="Natally in her atelier" fetchpriority="high"></div>
+            <div class="atelier-stage-status-overlay" data-slot="status"></div>
+          </div>
+          <div class="atelier-caption-band" data-slot="caption"></div>
+        </div>
+        <div class="atelier-rail-col" data-slot="rail">
+          <div class="atelier-rail-surface"><div class="atelier-rail-header"><h1 class="atelier-rail-title">Signing you in…</h1></div></div>
+          <footer class="atelier-rail-footer"><div><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div><span class="atelier-version-tag"></span></footer>
+        </div>
+      </main>
     </div>
   </div>
-</header>
-<main id="top">
-  <div id="marketing-experience-root">
-    <div class="first-paint" aria-hidden="true">
-      <img src="/marketing-assets/natally-still.webp" alt="" width="400" height="400" fetchpriority="high">
-      <p>Lighting the atelier…</p>
-    </div>
-  </div>
-  <noscript><p>Enable JavaScript to explore the interactive room and your own chart.</p></noscript>
-</main>
-<footer class="site-foot">
-  <div class="wrap"><p>Natally is provided for entertainment and edutainment purposes. <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a></p></div>
-</footer>
-<div class="version-badge" data-natally-version-badge aria-label="Build version" hidden></div>
-<script type="module" src="/src/landing/main.tsx"></script>
+  <noscript><p>Enable JavaScript to explore Natally’s interactive atelier.</p></noscript>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

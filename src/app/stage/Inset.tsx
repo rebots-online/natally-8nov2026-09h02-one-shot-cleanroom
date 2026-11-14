@@ -81,7 +81,7 @@ export const BODY_TARGET_PX = 44;
 /** Inset width cap as a fraction of stage width (the architecture's 60%). */
 export const INSET_MAX_W = 0.6;
 const COMPACT_INSET_MIN_PX = 96;
-const COMPACT_INSET_DEFAULT_PX = 400;
+const COMPACT_INSET_DEFAULT_PX = 260;
 /** Height = width × aspect; the wheel is square. */
 const ASPECT = 1;
 /** Inset chrome that is not wheel: the drag bar plus both borders, px. */
@@ -553,47 +553,29 @@ export function Inset({
     }
     if (compact) {
       const width = Math.min(
-        window.innerWidth <= 760 ? 180 : COMPACT_INSET_DEFAULT_PX,
+        window.innerWidth <= 768 ? 132 : COMPACT_INSET_DEFAULT_PX,
         allowedWidthPx(stage),
       );
-      const header = document.querySelector('.app-header--front')?.getBoundingClientRect();
-      const host = stageElement()?.getBoundingClientRect();
-      const top = Math.max(DOCK_MARGIN, (header?.bottom ?? 0) - (host?.top ?? 0) - stage.top + DOCK_MARGIN);
+      // Frozen stage-local defaults; header is outside this bounded stage.
+      const narrow = window.innerWidth <= 768;
+      const left = narrow ? 12 : 16;
+      const top = narrow ? 12 : 76;
       reportInvert(false);
       setMode('floating');
-      setGeometry(clampGeometry({ x: DOCK_MARGIN / stage.width, y: top / stage.height, w: width / stage.width }, stage, floorPx));
+      setGeometry(clampGeometry({ x: left / stage.width, y: top / stage.height, w: width / stage.width }, stage, floorPx));
       return;
     }
-    if (!compact && (sideFits(stage, floorPx) || stackFits(stage, floorPx))) {
-      // Large enough to dock beside the scene: neither obscures the other,
-      // the scene re-zooms into the remaining space.
-      reportInvert(false);
-      setMode(sideFits(stage, floorPx) ? 'side' : 'stack');
-      setGeometry(current =>
-        clampGeometry(
-          current ?? { x: 0.5, y: 0.5, w: dockedWidthPx(stage, floorPx) / stage.width },
-          stage,
-          floorPx,
-        ),
-      );
-      return;
-    }
+    // The initial composition is deliberately layered, not docked beside
+    // the scene. Keep customer-saved side/stack layouts available above.
+    // A complete wheel and Natally's inset share the same stage.
+    reportInvert(false);
     setMode('floating');
-    // Her face is measured in stage coordinates; the placement works in the
-    // visible box's coordinates, so shift it before comparing.
-    const face = faceRectInStage(stageElement());
-    const faceInBox =
-      face === null
-        ? null
-        : {
-            x1: face.x1 - stage.left,
-            y1: face.y1 - stage.top,
-            x2: face.x2 - stage.left,
-            y2: face.y2 - stage.top,
-          };
-    const placement = computeAutoPlacement(stage, faceInBox, floorPx);
-    reportInvert(placement.kind === 'invert');
-    if (placement.kind === 'dock') setGeometry(placement.geometry);
+    const width = Math.min(allowedWidthPx(stage), Math.max(floorPx, stage.width * 0.36));
+    setGeometry(clampGeometry({
+      x: DOCK_MARGIN / stage.width,
+      y: DOCK_MARGIN / stage.height,
+      w: width / stage.width,
+    }, stage, floorPx));
   }, [stage, mode, floorPx, compact, stageElement, reportInvert]);
 
   // Lay out the host stage and layer for the current mode. While the chart

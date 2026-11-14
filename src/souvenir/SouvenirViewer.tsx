@@ -1,136 +1,61 @@
-// W12 SOUVENIR — the retained keepsake viewer (DOCS/ARCHITECTURE.md §Surfaces,
-// Souvenir). Reads the souvenir retained at purchase time for the signed-in
-// account and re-renders its report sections with the natal chart beside the
-// text. Renders nothing while signed out or before a purchase, so a shell can
-// mount it unconditionally.
-
+// Frozen Stitch S09 retained report. All facts and sections come from the
+// signed-in account's existing local record; no prototype fixture is copied.
 import { useEffect, useState } from 'react';
 import { authUnavailable, onAuthChange } from '../platform/firebase';
 import { AstroChart } from '../chart/AstroChart';
 import { downloadPdf } from './pdf';
 import { loadSouvenir, type RetainedSouvenir } from './retain';
 
-const wrapStyle = {
-  padding: '28px 0 8px',
-} as const;
-
-const headerStyle = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 16,
-  alignItems: 'baseline',
-  justifyContent: 'space-between',
-  borderBottom: '1px solid var(--plum-line)',
-  paddingBottom: 14,
-  marginBottom: 22,
-} as const;
-
-const titleStyle = {
-  margin: 0,
-  fontFamily: 'var(--font-display)',
-  fontSize: 22,
-  fontWeight: 400,
-  color: 'var(--parchment)',
-} as const;
-
-const metaStyle = {
-  margin: '4px 0 0',
-  fontSize: 13,
-  color: 'var(--parchment-muted)',
-} as const;
-
-const buttonStyle = {
-  padding: '9px 18px',
-  background: 'var(--brass)',
-  color: 'var(--plum-deep)',
-  border: 'none',
-  borderRadius: 8,
-  fontFamily: 'inherit',
-  fontSize: 14,
-  cursor: 'pointer',
-} as const;
-
-const columnsStyle = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 28,
-  alignItems: 'flex-start',
-} as const;
-
-const chartPaneStyle = {
-  flex: '0 1 360px',
-  minWidth: 280,
-  position: 'sticky',
-  top: 16,
-} as const;
-
-const textPaneStyle = {
-  flex: '1 1 340px',
-  minWidth: 300,
-} as const;
-
-const articleStyle = {
-  maxWidth: 560,
-} as const;
-
-const headingStyle = {
-  margin: '0 0 8px',
-  fontFamily: 'var(--font-display)',
-  fontSize: 19,
-  fontWeight: 400,
-  color: 'var(--brass)',
-} as const;
-
-const paragraphStyle = {
-  margin: '0 0 10px',
-  fontSize: 15,
-  lineHeight: 1.75,
-  color: 'var(--parchment)',
-  whiteSpace: 'pre-line',
-} as const;
-
 export function SouvenirViewer() {
   const [keepsake, setKeepsake] = useState<RetainedSouvenir | null>(null);
 
   useEffect(() => {
     if (authUnavailable) return;
-    return onAuthChange((user) => {
+    return onAuthChange(user => {
       setKeepsake(user ? loadSouvenir(user.uid) : null);
     });
   }, []);
 
   if (!keepsake) return null;
-
   const { report, chart } = keepsake;
+  const cover = report.sections[0];
+
   return (
-    <section aria-labelledby="souvenir-viewer-title" style={wrapStyle}>
-      <header style={headerStyle}>
-        <div>
-          <h2 id="souvenir-viewer-title" style={titleStyle}>
-            {report.title}
-          </h2>
-          <p style={metaStyle}>Keepsake report, retained in your account</p>
-        </div>
-        <button type="button" style={buttonStyle} onClick={() => downloadPdf(report)}>
-          Download PDF again
-        </button>
+    <section className="atelier-report" data-bind="report">
+      <header className="atelier-report-head">
+        <h2 data-bind="report-title">{report.title}</h2>
       </header>
-      <div style={columnsStyle}>
-        <div style={chartPaneStyle}>
-          <AstroChart chart={chart} />
-        </div>
-        <div style={textPaneStyle}>
-          {report.sections.map((section) => (
-            <article key={section.heading} style={articleStyle}>
-              <h3 style={headingStyle}>{section.heading}</h3>
-              {section.body.split('\n\n').map((paragraph, index) => (
-                <p key={index} style={paragraphStyle}>
-                  {paragraph}
-                </p>
-              ))}
-            </article>
-          ))}
-        </div>
+      {cover && (
+        <section className="atelier-report-cover">
+          <h3>{cover.heading}</h3>
+          <dl className="atelier-report-facts" data-bind="report-birth-facts">
+            {cover.body.split('\n').map((line, index) => {
+              const colon = line.indexOf(':');
+              return (
+                <div className="atelier-report-fact" key={index}>
+                  <dt className={colon < 0 ? 'atelier-sr-only' : undefined}>{colon >= 0 ? line.slice(0, colon) : 'Prepared'}</dt>
+                  <dd>{colon >= 0 ? line.slice(colon + 1).trimStart() : line}</dd>
+                </div>
+              );
+            })}
+          </dl>
+        </section>
+      )}
+      <div className="atelier-report-chart" data-bind="report-chart">
+        <AstroChart chart={chart} />
+      </div>
+      <div className="atelier-report-sections">
+        {report.sections.slice(1).map(section => (
+          <article className="atelier-report-section" key={section.heading}>
+            <h3 data-bind="section-heading">{section.heading}</h3>
+            <div data-bind="section-body">
+              {section.body.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="atelier-report-actions">
+        <button type="button" className="atelier-btn-primary" onClick={() => downloadPdf(report)}>Download PDF</button>
       </div>
     </section>
   );

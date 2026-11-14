@@ -1,44 +1,19 @@
-/* Natally shared design tokens and base styles.
-   Palette: deep plum background, brass accent, parchment text.
-   Playfair Display ships from /public/fonts (OFL licensed). */
-
-@font-face {
-  font-family: 'Playfair Display';
-  src: url('/fonts/playfair-display-latin.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* Existing renderer/content token aliases to the frozen Stitch palette.
+   Fonts and the actual base design rules are in atelier-frozen.css. */
 :root {
   color-scheme: dark;
-
-  /* Deep plum background family */
-  --plum-deep: #1c1122; /* below everything: page wash, recessed wells */
-  --plum: #2a1a33; /* primary background */
-  --plum-raised: #362141; /* raised panels and cards */
-  --plum-line: #422a50; /* hairlines and borders */
-
-  /* Brass accent family */
-  --brass: #c9a45c; /* primary accent */
-  --brass-bright: #d9b878; /* highlights, focus, hover */
-  --brass-dim: #6f5a35; /* quiet rules and disabled chrome */
-
-  /* Parchment text family */
-  --parchment: #f3ead8; /* primary text */
-  --parchment-muted: #b9a996; /* secondary text */
-
-  /* Type */
-  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --font-body: Georgia, 'Times New Roman', serif;
-}
-
-body {
-  margin: 0;
-  background: var(--plum);
-  color: var(--parchment);
-  font-family: var(--font-body);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  --plum-deep: #130f18;
+  --plum: #130f18;
+  --plum-raised: #211824;
+  --plum-line: rgba(207,173,112,.26);
+  --brass: #cfad70;
+  --brass-bright: #dfbe82;
+  --brass-dim: rgba(207,173,112,.45);
+  --parchment: #f5ead7;
+  --parchment-muted: #c5b7a7;
+  --natally-acrylic-bg: rgba(27,19,32,.78);
+  --natally-acrylic-border: rgba(207,173,112,.26);
+  --natally-acrylic-filter: blur(16px) saturate(125%);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

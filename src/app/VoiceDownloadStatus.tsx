@@ -23,7 +23,7 @@ const VOICE_STATUS_CSS = `
   position: fixed;
   bottom: calc(12px + env(safe-area-inset-bottom));
   right: 12px;
-  width: min(360px, calc(100vw - 24px));
+  width: min(320px, calc(100vw - 24px));
   max-height: calc(100dvh - 24px);
   box-sizing: border-box;
   overflow: auto;
@@ -37,7 +37,7 @@ const VOICE_STATUS_CSS = `
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color: var(--parchment, #f3ead8);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   pointer-events: none;
 }
@@ -76,12 +76,14 @@ const VOICE_STATUS_CSS = `
 .nv-retry {
   flex: 0 0 auto;
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--brass-bright, #d9b878);
   background: transparent;
   border: 1px solid var(--brass-dim, #6f5a35);
   border-radius: 999px;
   padding: 1px 10px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
 }
 .nv-retry:hover {
@@ -162,7 +164,7 @@ export function VoiceProgress({ status }: { status: VoiceStatus }) {
       const maxX = Math.max(12, window.innerWidth - width - 12);
       const maxY = Math.max(12, window.innerHeight - height - 12);
       const occupied = Array.from(document.querySelectorAll<HTMLElement>(
-        'button, input, select, textarea, summary, .app-header, .karaoke-caption, .chart-inset[data-chart-inset="true"], .chart-inset__resizer',
+        'button, input, select, textarea, summary, .app-header, .atelier-header, .atelier-scene__composition, .karaoke-caption, .chart-inset[data-chart-inset="true"], .chart-inset__resizer',
       )).filter(element => !overlay.contains(element)).map(element => element.getBoundingClientRect())
         .filter(rect => rect.width > 0 && rect.height > 0 && rect.right > 0 && rect.bottom > 0 && rect.left < window.innerWidth && rect.top < window.innerHeight);
       const ys = [maxY, 12, ...occupied.flatMap(rect => [rect.top - height - 8, rect.bottom + 8])];

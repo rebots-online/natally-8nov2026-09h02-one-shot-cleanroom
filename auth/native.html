@@ -7,31 +7,56 @@
     <meta http-equiv="Cache-Control" content="no-store" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Sign in to Natally</title>
+    <link rel="stylesheet" href="/src/app/prototype/atelier-frozen.css" />
     <style>
-      :root { color-scheme: dark; font-family: Georgia, 'Times New Roman', serif; color: #fff3d2; background: #120c1c; }
-      * { box-sizing: border-box; }
-      body { min-height: 100dvh; margin: 0; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at top, #382044, #120c1c 70%); }
-      main { width: min(100%, 440px); padding: clamp(24px, 6vw, 40px); border: 1px solid #9e7a35; border-radius: 20px; background: #21132d; box-shadow: 0 20px 70px #0006; }
-      h1 { margin-top: 0; color: #ffe084; font-size: 2rem; }
-      p { line-height: 1.6; }
-      #native-auth-status { min-height: 5em; }
-      .actions { display: grid; gap: 14px; margin-top: 24px; }
-      button { min-height: 48px; border: 1px solid #e6bd58; border-radius: 10px; padding: 12px 18px; font: inherit; font-size: 1rem; cursor: pointer; background: #ffe084; color: #21132d; }
-      button.secondary { background: transparent; color: #ffe084; }
-      button:focus-visible { outline: 3px solid #fff3d2; outline-offset: 4px; }
-      button:disabled { cursor: default; opacity: .55; }
+      #native-auth-continue:disabled, #native-auth-cancel:disabled { display: none; }
+      #native-auth-status:empty { display: none; }
     </style>
   </head>
-  <body>
-    <main aria-labelledby="native-auth-title">
-      <h1 id="native-auth-title">Sign in to Natally</h1>
-      <p>Your Google sign-in takes place in this browser, then returns to the Natally app.</p>
-      <p id="native-auth-status" role="status" aria-live="polite">Preparing your sign-in…</p>
-      <div class="actions">
-        <button id="native-auth-continue" type="button" disabled>Continue with Google</button>
-        <button id="native-auth-cancel" class="secondary" type="button" disabled>Cancel sign-in</button>
-      </div>
-    </main>
+  <body data-native="true">
+    <div class="atelier-viewport">
+      <header class="atelier-header">
+        <div class="atelier-brand-wordmark">Natally</div>
+      </header>
+      <main class="atelier-main-layout" aria-label="Sign in to Natally">
+        <div class="atelier-rail-col">
+          <div class="atelier-rail-surface">
+            <div class="atelier-rail-header">
+              <h1 id="native-auth-title" class="atelier-rail-title" tabindex="-1">Continue in your browser</h1>
+              <button type="button" aria-label="Back" class="atelier-rail-btn-icon" data-native-back hidden>←</button>
+            </div>
+            <p id="native-auth-description" class="atelier-sr-only">Your Google sign-in takes place in this browser, then returns to the Natally app.</p>
+            <p class="atelier-body-text" data-native-error hidden>Start again in Natally.</p>
+            <p class="atelier-body-text" data-native-return hidden>Return to Natally to finish signing in.</p>
+            <div id="native-auth-status" data-bind="native-status" role="status" aria-live="polite">Preparing your sign-in…</div>
+            <form id="native-auth-phone-form" hidden>
+              <div class="atelier-field-group">
+                <label class="atelier-label" for="native-auth-phone">Phone number</label>
+                <input class="atelier-input" id="native-auth-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="[+][1-9][0-9 .\(\)\-]{7,25}" title="Start with + and your country code, using 8–15 digits." />
+                <div class="atelier-inline-error" data-bind="field-error" role="alert" hidden></div>
+              </div>
+              <div id="native-auth-recaptcha" class="atelier-recaptcha-region" data-bind="recaptcha" aria-label="SMS reCAPTCHA verification"></div>
+              <p class="atelier-body-text">By choosing Send code, you consent to receive an SMS for sign-in. Message and data rates may apply. Google uses phone numbers to help prevent spam and abuse.</p>
+              <button type="submit" class="atelier-btn-primary">Send code</button>
+            </form>
+            <form id="native-auth-code-form" hidden>
+              <div class="atelier-field-group">
+                <label class="atelier-label" for="native-auth-code">Code</label>
+                <input class="atelier-input" id="native-auth-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required />
+                <div class="atelier-inline-error" data-bind="field-error" role="alert" hidden></div>
+              </div>
+              <button type="submit" class="atelier-btn-primary">Return to Natally</button>
+              <button id="native-auth-resend" class="atelier-btn-secondary" type="button">Resend code</button>
+              <button id="native-auth-change-number" class="atelier-btn-text" type="button">Change number</button>
+            </form>
+            <div class="actions">
+              <button id="native-auth-continue" class="atelier-btn-primary" type="button" disabled>Continue with Google</button>
+              <button id="native-auth-cancel" class="atelier-btn-secondary" type="button" disabled>Cancel</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
     <script type="module" src="/src/platform/nativeAuthPage.ts"></script>
   </body>
 </html>

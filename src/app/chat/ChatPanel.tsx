@@ -1,67 +1,41 @@
-// Chat surface for /app.html (DOCS/ARCHITECTURE.md §Surfaces): parchment-
-// on-plum conversation with Natally, Playfair header, live streaming caret,
-// truthful error banner, top-up hand-off to the app shell. A no-allowance
-// turn gets her in-world ask and opens the shell's top-up sheet at once;
-// while audio has not been admitted, a truthful note says so.
-
+// Existing conversation hooks bound to frozen S06 and S11 rail structures.
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import {
-  AuthUnavailableError,
-  NotSignedInError,
-} from '../../platform/firebase';
+import { AuthUnavailableError, NotSignedInError } from '../../platform/firebase';
 import type { NatalChart } from '../../shared/types';
-import {
-  BillingNotConfiguredError,
-  ChatNetworkError,
-  NoAllowanceError,
-} from './inference';
+import { getLesson } from '../../content/lessons';
+import { BillingNotConfiguredError, ChatNetworkError, NoAllowanceError } from './inference';
 import { useChat, type ChatError, type ChatStage } from './useChat';
 import './chat.css';
 
 export interface ChatPanelProps {
-  /** Chart whose facts anchor the conversation. */
   chart: NatalChart;
-  /** Opens the shell's top-up (credit packs) flow. */
   onTopUp: () => void;
-  /** Voice + opening reading + presentation progress of replies. */
   stage: ChatStage;
+  onMenu?: () => void;
 }
 
-/** Truthful, one-line banner copy per typed failure. */
 function errorText(error: ChatError): string {
-  if (error instanceof NoAllowanceError) {
-    // Her in-world ask, not a system apology.
-    return 'I’ve read all the pages your credits cover, love — bring me a top-up and I’ll keep going.';
-  }
-  if (error instanceof BillingNotConfiguredError) {
-    return 'The atelier’s till isn’t configured on this deployment.';
-  }
-  if (error instanceof NotSignedInError) {
-    return 'Sign in to talk with Natally.';
-  }
-  if (error instanceof AuthUnavailableError) {
-    return 'Sign-in is unavailable right now.';
-  }
-  if (error instanceof ChatNetworkError) {
-    return `Connection problem — try again. ${error.message}`;
-  }
-  return 'Something went wrong — try again.';
+  if (error instanceof NoAllowanceError) return 'Top up to keep talking.';
+  if (error instanceof BillingNotConfiguredError) return error.message;
+  if (error instanceof NotSignedInError) return 'Sign in to talk with Natally.';
+  if (error instanceof AuthUnavailableError) return 'Sign-in is unavailable right now.';
+  if (error instanceof ChatNetworkError) return `The connection was interrupted. ${error.message}`;
+  return 'The conversation could not continue. Try again.';
 }
 
-export function ChatPanel({ chart, onTopUp, stage }: ChatPanelProps) {
-  const { messages, send, streaming, openingLive, error, allowance } = useChat(chart, stage);
+export function ChatPanel({ chart, onTopUp, stage, onMenu }: ChatPanelProps) {
+  const { messages, send, streaming, openingLive, error } = useChat(chart, stage);
   const [draft, setDraft] = useState('');
+  const [submitted, setSubmitted] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
-  const [voiceAdmitted, setVoiceAdmitted] = useState(stage.voice.admitted);
+  const askedRef = useRef<ChatError | null>(null);
+  const lesson = getLesson('general');
 
-  // Keep the newest streamed text in view.
   useEffect(() => {
     const log = logRef.current;
     if (log !== null) log.scrollTop = log.scrollHeight;
   }, [messages]);
 
-  // A no-allowance turn opens the shell's top-up sheet at once.
-  const askedRef = useRef<ChatError | null>(null);
   useEffect(() => {
     if (error instanceof NoAllowanceError && askedRef.current !== error) {
       askedRef.current = error;
@@ -70,95 +44,58 @@ export function ChatPanel({ chart, onTopUp, stage }: ChatPanelProps) {
     if (error === null) askedRef.current = null;
   }, [error, onTopUp]);
 
-  // Truthful audio state: the note stays until a gesture admits her.
-  useEffect(() => stage.voice.onState(state => setVoiceAdmitted(state.admitted)), [stage.voice]);
+  // The existing send hook owns the result. Keep an unanswered question in
+  // the composer on failure instead of clearing the only retryable copy.
+  useEffect(() => {
+    if (submitted === null || streaming) return;
+    if (error === null) setDraft(current => current === submitted ? '' : current);
+    setSubmitted(null);
+  }, [submitted, streaming, error]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (streaming || draft.trim() === '') return;
-    const text = draft;
-    setDraft('');
-    void send(text);
+    setSubmitted(draft);
+    void send(draft);
   }
 
   return (
-    <section className="chat-panel" aria-label="Conversation with Natally">
-      <header className="chat-head">
-        <h2 className="chat-title">Natally</h2>
-        {allowance.balanceCr !== '' && (
-          <span className="chat-balance" data-state={allowance.envelope?.state}>
-            {allowance.balanceCr}
-          </span>
-        )}
-      </header>
-
-      <div className="chat-log" role="log" aria-live="polite" ref={logRef}>
-        {messages.length === 0 && (
-          <p className="chat-empty">
-            Your chart is on the table — ask Natally anything about it.
-          </p>
-        )}
+    <section aria-label="Conversation with Natally">
+      <div className="atelier-rail-header">
+        <h1 className="atelier-rail-title" tabIndex={-1}>Your reading</h1>
+        {onMenu && <button type="button" className="atelier-rail-btn-icon" aria-label="Menu" onClick={onMenu}>←</button>}
+      </div>
+      <div className="atelier-transcript-scroll" data-bind="transcript" role="log" aria-live="polite" ref={logRef}>
         {messages.map((message, index) => {
-          const isStreamingReply =
-            streaming && index === messages.length - 1 && message.role === 'natally';
-          // Her opening reading carries the same live caret while its
-          // words appear as she speaks them.
-          const isLiveOpening =
-            openingLive && index === messages.length - 1 && message.role === 'natally';
-          const live = isStreamingReply || isLiveOpening;
+          const live = (streaming || openingLive) && index === messages.length - 1 && message.role === 'natally';
           return (
-            <div
-              key={message.id}
-              className={
-                message.role === 'user'
-                  ? 'chat-msg chat-msg-user'
-                  : 'chat-msg chat-msg-natally'
-              }
-            >
+            <div key={message.id} className={message.role === 'user' ? 'atelier-msg-bubble-user' : 'atelier-msg-bubble-natally'}>
               {message.text}
               {live && <span className="chat-caret" aria-hidden="true" />}
             </div>
           );
         })}
       </div>
-
-      {error !== null && (
-        <div className="chat-error" role="alert">
-          <span className="chat-error-text">{errorText(error)}</span>
-          {error instanceof NoAllowanceError && (
-            <button type="button" className="chat-topup" onClick={onTopUp}>
-              Top up
-            </button>
-          )}
+      <form onSubmit={handleSubmit}>
+        <div className="atelier-field-group">
+          <label className="atelier-label" htmlFor="ask-natally">Ask Natally</label>
+          <input
+            className="atelier-input" id="ask-natally" type="text" autoComplete="off"
+            placeholder="Ask about your chart…" value={draft}
+            onChange={event => setDraft(event.target.value)} disabled={streaming}
+          />
+          {error !== null && <div className="atelier-inline-error" data-bind="field-error" role="alert">{errorText(error)}</div>}
         </div>
-      )}
-
-      {!voiceAdmitted && (
-        <p className="chat-voicenote" role="status">
-          Tap anywhere and I’ll read this aloud — the browser keeps my voice
-          silent until you do.
-        </p>
-      )}
-
-      <form className="chat-input" onSubmit={handleSubmit}>
-        <input
-          className="chat-draft"
-          type="text"
-          value={draft}
-          onChange={event => setDraft(event.target.value)}
-          placeholder={streaming ? 'Natally is writing…' : 'Ask about your chart…'}
-          disabled={streaming}
-          aria-label="Message for Natally"
-          autoComplete="off"
-        />
-        <button
-          className="chat-send"
-          type="submit"
-          disabled={streaming || draft.trim() === ''}
-        >
-          Send
-        </button>
+        <button className="atelier-btn-primary" type="submit" disabled={streaming || draft.trim() === ''}>Send</button>
       </form>
+      <details className="atelier-chart-notes">
+        <summary>Chart notes</summary>
+        <div data-bind="chart-notes">
+          <h2>{lesson.title}</h2>
+          <p>{lesson.what}</p>
+          <p>{lesson.question}</p>
+        </div>
+      </details>
     </section>
   );
 }
