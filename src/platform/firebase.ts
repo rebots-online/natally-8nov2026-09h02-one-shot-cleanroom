@@ -23,6 +23,7 @@ import {
   type Auth,
   type User,
 } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 import { firebaseConfig } from './env';
 
 export type AuthMethod = 'google' | 'email' | 'phone';
@@ -88,6 +89,17 @@ function requireAuth(): Auth {
   const app = getApps().length > 0 ? getApp() : initializeApp(options);
   auth = getAuth(app);
   return auth;
+}
+
+export function accountFirestore(accountUid: string): Firestore {
+  const owner = requireAuth();
+  if (!accountUid || owner.currentUser?.uid !== accountUid) {
+    throw new NotSignedInError();
+  }
+  const database = (options as (FirebaseOptions & { firestoreDatabaseId?: unknown }) | null)?.firestoreDatabaseId;
+  return typeof database === 'string' && database.length > 0
+    ? getFirestore(owner.app, database)
+    : getFirestore(owner.app);
 }
 
 export async function emailSignIn(email: string, password: string): Promise<void> {
