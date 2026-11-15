@@ -1905,3 +1905,24 @@ Exact changed existing entity: build_all.sh's --web-domain argument validation
 and existing web destination list; target natally.robin.mba. Existing automatic
 version stamping, same-bundle publication and web-before-native ordering are
 retained. No new public source entity is introduced by this amendment.
+
+
+## 28. Build-script compliance repair — FROZEN 2026-11-15
+
+Authority: current operator correction: finish build scripts now; also build once
+scripts are ready and configuration permits. Global epoch-minute convention is
+binding; this explicitly supersedes the epoch-day exception and earlier custom
+version JSON authority. No product UI/provider work is included.
+
+| Exact entity | Target | Contract |
+| --- | --- | --- |
+| canonical version stamper | scripts/update-version.sh:1 | Copy Admin-Manual/versioning/update-version.sh, specialize PRODUCT_NAME=Natally, INTERNAL_NAME=natally-ai-studio, PACKAGE_NAME=mba.robin.astronatally. version.txt is canonical, version.json derived. Preserve unconditional MINOR +1, epoch minutes modulo100000 padded five digits, Android code MAJOR*100000+MINOR and release.lock frozen values. No invented counters. Add truthful builtAt timestamp mirror for existing consumers. Reject malformed canonical version instead of resetting it. Numeric manifest projections strip display padding to meet SemVer; display stays full padded version. |
+| canonical build entry | build_all.sh:1 | Parse --web-only --web-domain natally.robin.mba and --help before writes/secrets/stamp; reject all other arguments and domains. Default publication target natally.robin.mba only; one web build and publication before native packages. Sole public build entry. Stamp once with canonical stamper before packaging; prepare same identity then commit and push immediately, stop on Git error. Every generated commit prefixed vVERSION: with [skip ci]. Stage only identity files; no suppressed failures. After complete selected pipeline success invoke the same stamper for next source state, retain builtAt=null, commit/push; artifact version remains original stamp. Frozen release.lock does not advance next-source identity. Do not run unrelated test/lint suites; actual build is verification when authorized. |
+| native identity preparation | scripts/build-native.mjs:prepare | Read version.json generated from canonical version.txt, use numeric unpadded SemVer for Cargo/npm/Tauri, padded version for display and artifact names; Android versionCode=MAJOR*100000+MINOR. MSI four fields preserve major/minor and split BUILD into quotient/remainder by1000, each legal; use same mapping both preparation and wixl command. Preserve package identifier, upgrade code, signer and complete matrix. Do not alter history/artifacts. |
+| build environment | scripts/build-environment.mjs:1 | Public VITE precedence .env.example then .env then process.env; resolve existing pointers in memory. Web-only skips native secrets/keystore. Validate configured actual HTTPS billing endpoint (not retired Netlify) and Chargebee site before publication. No fabricated defaults, credentials or endpoint. Preserve existing signer resolution for full build. Never print secret values. |
+| operator usage | README.md | Document current domain, sole entry, web-only interface, canonical stamp and next-source distinction, required configuration and platform version projections. No successful-build claim without actual evidence. |
+
+Architecture exit: exact paths and existing entities above; no new product
+entities. The initial authority commit retains the current historical version
+prefix because the stamper repair is not yet implemented; subsequent repair
+commit uses automatic canonical stamping, not a hand-chosen version.
