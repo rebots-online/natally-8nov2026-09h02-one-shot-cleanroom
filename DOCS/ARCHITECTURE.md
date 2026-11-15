@@ -1926,3 +1926,88 @@ Architecture exit: exact paths and existing entities above; no new product
 entities. The initial authority commit retains the current historical version
 prefix because the stamper repair is not yet implemented; subsequent repair
 commit uses automatic canonical stamping, not a hand-chosen version.
+
+
+## 29. Canonical framework and source-identity lifecycle — FROZEN 2026-11-15
+
+Authority: current explicit operator directions. This supersedes §28's dispatch
+procedure and conflicting historical epoch-day/version-authority instructions.
+The implementation from a920c9c was reversed by083cd21 without rewriting
+history. Work continues on build-scripts/compliant-2026-11-15; cdfd7cc restores
+the tracked canonical stamper. Existing artifacts/history are preserved.
+
+### Finished lifecycle and publication chain
+
+Each task has six separately committed and immediately pushed, version-prefixed
+records in order: architecture; checklist; ACP assignment; implementation;
+semantic evaluation; completion. These are meaningful stage outputs, not empty
+count-padding commits. A missing stage makes the task unsuccessful. Recovery
+preserves the entire original history and creates a branch from the chosen
+state; it does not untrack required build inputs or reset/force-push history.
+
+Before a coder edits tracked executable source, run the repository's canonical
+stamper in source-only mode and commit/push that identity. A canonical build
+invocation also performs its unconditional stamp before build prerequisites,
+then commits/pushes immediately. One release invocation computes BUILD once
+from epoch minutes modulo100000 and shares that identity across web, Linux,
+Windows and Android. Helpers project it; they never generate counters. A fresh
+build recalculates BUILD; if its epoch-minute equals the last stamped release,
+wait to the next minute before release stamping rather than fabricate a clock.
+After the complete selected pipeline succeeds, invoke the same stamper to
+advance MINOR for next source state, builtAt=null, commit and push. Never label
+that next-source version as an artifact. Failures never reach success advance.
+
+The source commit and build inputs identify the snapshot. Existing dirty
+tracked source prevents a new build; existing staged changes prevent automatic
+Git commits. Once stamped, source and public configuration may not change
+between web generation/publication/native targets. Detect tracked-source drift
+before each target and before success; record incomplete/fail rather than label
+changed source as the same build. Build output/secret values are not source.
+Preserve existing identity, namespace, keystore, WXS upgrade code and outputs.
+
+### Reusable framework and exact entities (engaged by BUILD-FRAMEWORK-20261115)
+
+| Exact entity | Target and signature | Finished behavior |
+| --- | --- | --- |
+| canonical stamper | scripts/update-version.sh:1 | Retain tracked canonical lineage already restored in cdfd7cc. version.txt authority; JSON mirror with builtAt; unconditional MINOR increment and epoch-minute five-digit BUILD. Android ordering MAJOR*100000+MINOR. Source-only mode has builtAt=null. Numeric SemVer consumers omit leading padding. No manually chosen counters. |
+| canonical entry | build_all.sh:1 | Reapply the local a920c9c entry implementation, then move credential resolution AFTER a new stamp/commit/push while retaining first-pass argument validation before writes. Avoid restamp on environment re-exec through internal NATALLY_BUILD_STAMPED=1, BUILT_VERSION and preserved build lock. Explicit --web-only --web-domain natally.robin.mba skips native secrets/preparation/packages; default same-bundle web publication then native. Use existing Surge CLI, no transport/DNS invention. Do not invoke lint/tests. Retain source-only post-success advance through canonical stamper. |
+| release snapshot | build_all.sh existing shell control flow; NATALLY_BUILD_SOURCE_COMMIT environment | Record actual committed source after identity push; reject tracked drift before web publication, native packaging, and final success. Export commit for native helper; native helper confirms before/after each target. Build outputs remain in declared disposable roots or durable dist. No working-tree hash is an acceptance proxy for product behavior. |
+| credential | scripts/build-environment.mjs:credential(path,fragment):Promise<string> | Replace external Python/module driver with repository-contained Node GET of existing /doc?id=PATH&source_type=admin-manual only when KSTORE_URL is configured. Existing KSTORE_HTTP_BEARER_TOKEN remains process-only; require exact=true and validate SHA256 content if served. No write/capture/search/migration calls. If unavailable, report real transport error then use existing explicit private Admin-Manual credential-document fallback. Neither Python library, venv nor sibling checkout is a build dependency. Credentials remain private runtime inputs. |
+| resolveValue | same file:resolveValue(name,value):Promise<string> | Accept existing kstore://admin-manual/PATH#KEY and document-only kstore://admin-manual/PATH, whose key is the environment-variable name. No dummy value. Await resolution in public/signing loops. Public precedence .env.example then .env then process.env. Web-only needs no signer. |
+| public billing configuration | .env.example and scripts/build-environment.mjs | Clear retired Netlify default in committed example. Actual current local .env points to retired natally-hosted-chat.netlify.app; reject truthfully, do not replace/invent an endpoint. Resolve actual Chargebee site pointer using existing document/key. Required private configuration may remain unavailable; that is a failed actual invocation, not a successful build or authority to invent hosting. |
+| native identity | scripts/build-native.mjs:prepare() | Reapply a920c9c projections: canonical padded display/artifact identity; numeric Cargo/npm/Tauri version; Android MAJOR*100000+MINOR. MSI MAJOR.MINOR.floor(BUILD/1000).BUILD%1000 in both config/wixl. Package matching numeric producer strings, exact padded staged names. Existing Gradle already reads version.txt for display/archive names and app/tauri.properties for code; retain that tracked build input. |
+| durable web archive | build_all.sh existing shell pipeline | Before publication, archive actual dist-web bytes as dist/natally-vVERSION/natally-vVERSION-web.tar.gz and write its version/source/bytes/SHA256 into a web-inventory.json in same directory. Retain on failure. Native manifest records same source/version and web archive hash; preserve native partial results. |
+| artifact tracking | .gitignore, .gitattributes | Remove root dist/ ignore; binary suffixes under dist use LFS attributes. No GitHub LFS, no Forgejo network during outage; preserve actual artifact bytes locally and record pending transport honestly. Do not add historical/unrelated untracked files automatically. No successful release/public pointer claim based only on packaging. |
+| README | README.md | Commands, current domain, canonical identity boundaries, runtime private configuration, exact source dependencies shipped inside repo, global template lineage, actual build gaps. Do not claim deployed/accepted without evidence. |
+
+No UI/provider/auth changes. No static/smoke/unit/fixture/test/syntax checks.
+Actual operator-requested full build is the runtime observation; preauthored
+DOCS/RUBRIC-build-scripts-2026-11-15.md remains the observation contract, with
+new source-identity clauses above supplementing it. No code is assigned until
+this architecture is committed/pushed, then its checklist committed/pushed.
+
+### Global template promotion (engaged by GLOBAL-TEMPLATE-20261115)
+
+Global homes: /home/robin/Admin-Manual/versioning/build_all.template.sh,
+versioning/build-environment.template.mjs, versioning/build-native.template.mjs,
+versioning/update-version.sh, DOCS/CICD_CONVENTIONS.md and
+DOCS/TOOLING_CONVENTIONS/global-agent-rules.md. Physically copy the complete
+implemented local framework into the templates, substituting only explicit
+product fields (__PRODUCT_NAME__, __INTERNAL_NAME__, __PACKAGE_NAME__,
+__PRODUCT_SLUG__, __WEB_DOMAIN__) and generic BUILD_* environment prefixes.
+Update the existing canonical stamper from this same implementation with those
+product fields; do not invent a second stamper. Templates are not runnable
+product substitutes until their explicit fields and existing native adapters
+are specialized. README declares WXS/Gradle/signing/toolchain contracts and
+source lineage. Every project copies the entire needed source closure into its
+repo; no symlink/import into Admin-Manual or another project at build time.
+Runtime private credentials, provider URLs and system toolchains remain explicit
+configuration, never committed secrets or cross-checkout source dependencies.
+
+Global rules route to this exact framework and state pre-edit source increment,
+shared release identity, post-success increment, six-stage publication and
+history-preserving branching. This is a mandatory reusable starting framework,
+not a claim that unobserved target packaging or product journeys pass. Admin
+changes preserve unrelated logs and branch off master before modifications;
+publish only through already-authorized GitHub remote while Forgejo contact is
+prohibited. Six-stage task records apply separately to template promotion.
