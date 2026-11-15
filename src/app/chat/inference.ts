@@ -43,6 +43,8 @@ export interface StreamChatInput {
   history: ChatMessage[];
   chart: NatalChart;
   maxTokens?: number;
+  context?: { lore?: string; directive?: string; personal?: boolean };
+  signal?: AbortSignal;
 }
 
 type Frame =
@@ -54,7 +56,7 @@ function chatUrl(): string {
   return `${billingApiUrl()}/billing/chat`;
 }
 
-async function post(body: string, token: string): Promise<Response> {
+async function post(body: string, token: string, signal?: AbortSignal): Promise<Response> {
   try {
     return await fetch(chatUrl(), {
       method: 'POST',
@@ -64,6 +66,7 @@ async function post(body: string, token: string): Promise<Response> {
         Accept: 'text/event-stream',
       },
       body,
+      signal,
     });
   } catch (cause) {
     throw new ChatNetworkError(
@@ -76,13 +79,16 @@ async function post(body: string, token: string): Promise<Response> {
 async function postConversation(
   messages: ContextMessage[],
   maxTokens: number | undefined,
+  signal?: AbortSignal,
 ): Promise<Response> {
   const body = JSON.stringify(
     maxTokens === undefined ? { messages } : { messages, maxTokens },
   );
-  let response = await post(body, await idToken());
+  signal?.throwIfAborted();
+  let response = await post(body, await idToken(), signal);
   if (response.status === 401) {
-    response = await post(body, await idToken());
+    signal?.throwIfAborted();
+    response = await post(body, await idToken(), signal);
   }
   return response;
 }
@@ -173,8 +179,9 @@ function parseFrame(frame: string): Frame {
 export async function* streamChat(
   input: StreamChatInput,
 ): AsyncGenerator<string, void, unknown> {
-  const messages = buildMessages(input.history, input.chart);
-  const response = await postConversation(messages, input.maxTokens);
+  input.signal?.throwIfAborted();
+  const messages = buildMessages(input.history, input.chart, null, input.context);
+  const response = await postConversation(messages, input.maxTokens, input.signal);
 
   if (!response.ok) {
     const detail = await errorDetail(response);
@@ -196,6 +203,7 @@ export async function* streamChat(
 
   try {
     while (true) {
+      input.signal?.throwIfAborted();
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder
