@@ -2011,3 +2011,23 @@ not a claim that unobserved target packaging or product journeys pass. Admin
 changes preserve unrelated logs and branch off master before modifications;
 publish only through already-authorized GitHub remote while Forgejo contact is
 prohibited. Six-stage task records apply separately to template promotion.
+
+
+## 30. Exact host matrix and build-flow documentation — FROZEN 2026-11-15
+
+Current operator clarification, engaged by BUILD-MATRIX-20261115. Root personally
+implements. Only build scripts, required helpers, and their matching document.
+
+| Entity | File:entry | Exact responsibility |
+| --- | --- | --- |
+| canonical order | scripts/build-native.mjs:target calls | Android production APK/AAB/debug-symbol ZIP first; Linux AppImage/RPM/DEB next; Windows cross EXE/NSIS last. Remove Linux MSI invocation. Continue recording failed target states; no debug builds or alternate keystore. |
+| native Windows launcher | build_all.ps1:1 | Detect Windows11 BuildNumber>=22000. Normal entry invokes the same build_all.sh through WSL with NATALLY_WINDOWS_NATIVE_BUILD=1 and arguments forwarded. WSL's Linux tools produce the same Android/Linux/cross-Windows set. No second stamp. Internal NativeStoreOnly continuation requires exact ReleaseVersion/SourceCommit matching canonical files/Git; calls native Windows Tauri build --target x86_64-pc-windows-msvc --bundles nsis,msi -- --locked using existing dist-web. Stage native EXE/NSIS/MSI and write version/source/bytes/SHA256 to windows-native-inventory.json. Missing Store key does not halt; record unsigned Store package, never claim Store acceptance. |
+| Windows continuation | scripts/build-native.mjs:windows-store target | Only when NATALLY_WINDOWS_NATIVE_BUILD=1, use wslpath -w on tracked build_all.ps1 and powershell.exe -NoProfile -File with internal NativeStoreOnly, ReleaseVersion and SourceCommit. Inherit same source/version and dist-web. Read exact native inventory and merge records; required target set includes windows-store only in this mode. No native Windows machine/runtime acceptance is claimed by Linux execution. |
+| visible version stamp | build_all.sh:web output stage | Before copying app.html to index.html and before archiving, inject the same padded vMAJOR.MINOR.BUILD into every generated HTML entry as an always-visible fixed bottom-right build-release-version label. Label exists in initial HTML during loading and remains over app/About surfaces, including native webview outputs. No product flow, model or storage changes. |
+| one-to-one flow document | DOCS/BUILD-ALL-FLOW.md:1 | Mermaid for argument/lock/stamp/Git/environment/web/publish/native/success/error flow; stamper branches/projections; environment credential/public/signing branches; native run/files/stage/stageBundles/target helpers and exact target order; native Windows wrapper/continuation. Map nodes to exact script/entry and version boundaries. Explain pre-edit source increment, new-build epoch recomputation/shared identity and post-success next source; skipped versions allowed, duplicate identities across different source snapshots forbidden. |
+
+Organization keystore is an external private credential, not a source dependency.
+All executable build source and wrapper are tracked in this repository. Existing
+shared large-asset device-storage requirements remain in force; this build task
+does not alter app storage. Required operator global amendments are recorded for
+authority update after completing build scripts; no migration work is implied.
