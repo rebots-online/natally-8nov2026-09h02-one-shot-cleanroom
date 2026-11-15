@@ -2162,3 +2162,29 @@ are not exposed as unnamed release artifacts. No post-build rescue rename is
 used to identify an unversioned standalone EXE. The collector retains copies of
 already version-identifiable producer outputs with public semantic suffixes.
 Update DOCS/BUILD-ALL-FLOW.md one-to-one with these concrete source changes.
+
+### Explicit speech-ownership seam — frozen clarification
+
+CodeGraph did not return AppShell's requested wiring; targeted reads of its
+existing chatStage, opening effects and explainTap closed that specific gap.
+Add src/app/AppShell.tsx to CHARACTER-READING-20261115 owned files and allowed
+reads. No Voice engine change. Exact existing/new entities:
+
+| Entity | File:anchor/signature | Responsibility |
+| --- | --- | --- |
+| ChatStage.subscribeReadingInterruption | useChat.ts:ChatStage; optional `(listener:()=>void)=>()=>void` | Hook registers pause/abort synchronously; shell broadcasts before a chart selection takes speech ownership, even during network or embedding waits. |
+| ChatStage.claimReading | same interface; optional `()=>void` | Marks openingSpokenRef true before any guided/user utterance. Prevent a pending first-gesture opening from replaying over text-only guidance. |
+| ChatStage.openingSettled | same interface; optional boolean | True when opening completed, or immediately for text-only mode. Guidance waits when false. |
+| readingInterruptListeners | AppShell.tsx:voice composition; useRef Set of callbacks | subscribeReadingInterruption adds/removes callbacks. explainTap broadcasts synchronously before stopping voice or awaiting sky. No synthetic user turn or global event namespace. |
+| openingSettled | AppShell.tsx:opening speech effects; boolean state | Reset false for chartKey; true after opening's actual completion or a cancelled opening settles. Include in memo dependencies. chatStage.openingSettled is !voice.admitted or this state. Wrap both existing opening onComplete callbacks to settle it while preserving captureSpeechCompletion. |
+| UseChat.guidanceState | useChat.ts:UseChat; 'waiting'|'running'|'paused'|'complete' | Exact state vocabulary for rail controls. |
+| UseChat.pauseReading, UseChat.resumeReading | same interface; ()=>void | Pause aborts request/audio and preserves unfinished cursor; Resume retries cursor or starts paid pass after free completion. |
+| UseChat.memoryNotice | same interface; string or null | Show actual lore errors without claiming save success. |
+
+Voice cancellation never fires onComplete. A waiting speech operation subscribes
+to onState and resolves cancellation when speaking becomes false without a
+successful completion callback, after a microtask lets successful completion
+win. Propagate cancellation as paused, never as completed section. No elapsed-time
+assumption. Every async wait must settle on generation abort/unmount. Clear
+obsolete opening-gesture listeners normally via existing shell effect cleanup;
+claimReading's ref guard prevents an already-registered callback replay.
