@@ -50,7 +50,9 @@ assert_source() {
 assert_source
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
-npx --no-install vite build --outDir dist-web
+RELEASE_DIR="dist/natally-v${BUILT_VERSION}"
+export NATALLY_WEB_DIR="$RELEASE_DIR/web"
+npx --no-install vite build --outDir "$NATALLY_WEB_DIR"
 # Stamp initial loading HTML as well as the mounted app/About surfaces.
 node --input-type=module <<'JS'
 import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
@@ -68,12 +70,12 @@ function stampHtml(dir) {
     }
   }
 }
-stampHtml('dist-web');
+stampHtml(process.env.NATALLY_WEB_DIR);
 JS
-cp dist-web/app.html dist-web/index.html
+cp "$NATALLY_WEB_DIR/app.html" "$NATALLY_WEB_DIR/index.html"
 RELEASE_DIR="dist/natally-v${BUILT_VERSION}"
 mkdir -p "$RELEASE_DIR"
-tar -czf "$RELEASE_DIR/natally-v${BUILT_VERSION}-web.tar.gz" -C dist-web .
+tar -czf "$RELEASE_DIR/natally-v${BUILT_VERSION}-web.tar.gz" -C "$NATALLY_WEB_DIR" .
 node --input-type=module - "$RELEASE_DIR" <<'JS'
 import {readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -82,7 +84,7 @@ const path=`${dir}/natally-v${version}-web.tar.gz`, bytes=readFileSync(path);
 writeFileSync(`${dir}/web-inventory.json`,JSON.stringify({version,sourceCommit:process.env.NATALLY_BUILD_SOURCE_COMMIT,publication:'pending',artifacts:[{kind:'web-archive',path,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')}]},null,2)+'\n');
 JS
 assert_source
-npx --yes surge@0.56.0 dist-web "$WEB_DOMAIN" --force https
+npx --yes surge@0.56.0 "$NATALLY_WEB_DIR" "$WEB_DOMAIN" --force https
 node --input-type=module - "$RELEASE_DIR/web-inventory.json" "$WEB_DOMAIN" <<'JS'
 import {readFileSync,writeFileSync} from 'node:fs';
 const path=process.argv[2];let manifest;

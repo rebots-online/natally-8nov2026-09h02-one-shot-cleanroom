@@ -20,6 +20,8 @@ if ((Get-Content version.txt -Raw).Trim() -ne $ReleaseVersion) { throw 'Native c
 if ((& git rev-parse HEAD).Trim() -ne $SourceCommit) { throw 'Native continuation source mismatch' }
 & git diff --quiet
 if ($LASTEXITCODE -ne 0) { throw 'Tracked source changed before native continuation' }
+$nativeExecutable = (Get-Content version.json -Raw | ConvertFrom-Json).nativeExecutable
+if (-not $nativeExecutable) { throw 'Missing stamped native executable name' }
 $numeric = (($ReleaseVersion.Split('.') | ForEach-Object { [int]$_ }) -join '.')
 $env:CARGO_TARGET_DIR = Join-Path $PSScriptRoot 'build/windows-native-target'
 # Store signing is optional. Existing configured signing is honored by Tauri.
@@ -34,7 +36,7 @@ $nsis = @(Get-ChildItem (Join-Path $base 'bundle/nsis') -Filter '*.exe' | Where-
 $msi = @(Get-ChildItem (Join-Path $base 'bundle/msi') -Filter '*.msi' | Where-Object { $_.Name.Contains($numeric) })
 if ($nsis.Count -ne 1 -or $msi.Count -ne 1) { throw 'Native current-version NSIS/MSI outputs are not unique' }
 $inputs = @(
-    @{ source=(Join-Path $base 'natally-ai-studio.exe'); suffix='windows-x64-native.exe'; kind='windows-native-executable' },
+    @{ source=(Join-Path $base "$nativeExecutable.exe"); suffix='windows-x64-native.exe'; kind='windows-native-executable' },
     @{ source=$nsis[0].FullName; suffix='windows-x64-native-installer.exe'; kind='windows-native-nsis' },
     @{ source=$msi[0].FullName; suffix='windows-x64.msi'; kind='windows-msi' }
 )

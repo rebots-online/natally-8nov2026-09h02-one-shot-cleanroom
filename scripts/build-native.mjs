@@ -42,7 +42,7 @@ function prepare() {
   config.identifier = 'mba.robin.astronatally';
   config.version = numericVersion;
   config.build.beforeBuildCommand = '';
-  config.build.frontendDist = '../dist-web';
+  config.build.frontendDist = `../dist/natally-v${version}/web`;
   config.build.devUrl = 'http://localhost:37841';
   for (const window of config.app.windows) {
     window.title = `Natally v${version}`;
@@ -177,7 +177,7 @@ if (process.argv[2] === 'prepare') {
     stageBundles(join(targets, 'release/bundle'), ['.AppImage', '.deb', '.rpm'], 'linux-x64');
   });
   await target('windows', () => run('windows', 'npx', ['--no-install', 'tauri', 'build', '--runner', 'cargo-xwin', '--target', 'x86_64-pc-windows-msvc', '--bundles', 'nsis', '--', '--locked']), () => {
-    stage(join(targets, 'x86_64-pc-windows-msvc/release/natally-ai-studio.exe'), 'windows-x64.exe', 'windows-executable');
+    stage(join(targets, 'x86_64-pc-windows-msvc/release', identity.nativeExecutable + '.exe'), 'windows-x64.exe', 'windows-executable');
     stageBundles(join(targets, 'x86_64-pc-windows-msvc/release/bundle/nsis'), ['.exe'], 'windows-x64-installer');
   });
   if (process.env.NATALLY_WINDOWS_NATIVE_BUILD === '1') {

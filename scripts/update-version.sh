@@ -75,6 +75,7 @@ fi
 
 BUILD_PADDED="$(printf '%05d' "${BUILD_NUM}")"
 DISPLAY_VERSION="${MAJOR}.${MINOR}.${BUILD_PADDED}"
+NATIVE_EXECUTABLE="natally-v${DISPLAY_VERSION//./_}"
 VERSION_CODE=$(( MAJOR * 100000 + MINOR ))
 NUMERIC_VERSION="${MAJOR}.${MINOR}.${BUILD_NUM}"
 BUILD_DATE="$(date -Iseconds)"
@@ -90,6 +91,7 @@ cat > version.json << EOF
   "versionBase": "${MAJOR}.${MINOR}",
   "buildNumber": "${BUILD_PADDED}",
   "versionCode": ${VERSION_CODE},
+  "nativeExecutable": "${NATIVE_EXECUTABLE}",
   "buildDate": "${BUILD_DATE}",
   "builtAt": ${BUILT_AT},
   "productName": "${PRODUCT_NAME}",
@@ -117,6 +119,14 @@ node --input-type=module - "$DISPLAY_VERSION" "$NUMERIC_VERSION" "$VERSION_CODE"
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 const [displayVersion, numericVersion, versionCode] = process.argv.slice(2);
 const [major, minor, build] = numericVersion.split('.').map(Number);
+const nativeExecutable = 'natally-v' + displayVersion.replaceAll('.', '_');
+if (existsSync('src-tauri/Cargo.toml')) {
+  const file = 'src-tauri/Cargo.toml';
+  let cargo = readFileSync(file, 'utf8').replace(/^default-run\s*=.*\n/m, '').replace(/\n# CANONICAL_VERSIONED_EXECUTABLE[\s\S]*?# END_CANONICAL_VERSIONED_EXECUTABLE\n?/, '\n');
+  cargo = cargo.replace(/^name\s*=\s*"[^"]+"/m, line => line + '\ndefault-run = "' + nativeExecutable + '"');
+  cargo += '\n# CANONICAL_VERSIONED_EXECUTABLE\n[[bin]]\nname = "' + nativeExecutable + '"\npath = "src/main.rs"\n# END_CANONICAL_VERSIONED_EXECUTABLE\n';
+  writeFileSync(file, cargo);
+}
 const msiVersion = `${major}.${minor}.${Math.floor(build / 1000)}.${build % 1000}`;
 const read = file => {
   try { return JSON.parse(readFileSync(file, 'utf8')); }
@@ -138,6 +148,8 @@ if (existsSync('src-tauri/Cargo.lock')) {
 if (existsSync('src-tauri/tauri.conf.json')) {
   const file = 'src-tauri/tauri.conf.json', config = read(file);
   config.version = numericVersion;
+  config.mainBinaryName = nativeExecutable;
+  config.build.frontendDist = '../dist/natally-v' + displayVersion + '/web';
   for (const window of config.app?.windows || []) window.title = `Natally v${displayVersion}`;
   config.bundle.android.versionCode = Number(versionCode);
   config.bundle.windows.wix.version = msiVersion;
