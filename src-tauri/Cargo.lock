@@ -2127,7 +2127,7 @@ dependencies = [
 
 [[package]]
 name = "natally-ai-studio"
-version = "1.49.12901"
+version = "1.50.12904"
 dependencies = [
  "getrandom 0.3.4",
  "log",

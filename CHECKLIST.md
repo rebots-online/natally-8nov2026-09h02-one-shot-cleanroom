@@ -1963,3 +1963,18 @@ win. Propagate cancellation as paused, never as completed section. No elapsed-ti
 assumption. Every async wait must settle on generation abort/unmount. Clear
 obsolete opening-gesture listeners normally via existing shell effect cleanup;
 claimReading's ref guard prevents an already-registered callback replay.
+
+
+### Source-review precision — CHARACTER-READING-20261115
+
+Exact additional private entity READING_SIGN_ORDER, in guidedReading.ts:1,
+readonly ZodiacSign[] = Aries,Taurus,Gemini,Cancer,Leo,Virgo,Libra,Scorpio,
+Sagittarius,Capricorn,Aquarius,Pisces. Cusp longitude indexes this array,
+never Object.keys of an editorial meaning record.
+chartFacts includes every reliable house cusp's measured longitude/sign so
+whole-chart synthesis has the same facts as the authored house sections.
+AppShell openingSettled state is chart-scoped `{chartKey:string,settled:boolean}`,
+refining the preceding boolean-state row: callbacks capture their opening's key;
+chatStage.openingSettled remains boolean and is true for text mode or for a
+matching settled key only. Include chartKey in chatStage memo dependencies.
+A previous chart's completed opening can never authorize a new chart's tour.
