@@ -7,10 +7,7 @@ import { parseEnv } from 'node:util';
 const root = process.cwd();
 const document = file => existsSync(file) ? parseEnv(readFileSync(file, 'utf8')) : {};
 const example = document(join(root, '.env.example'));
-const env = { ...Object.fromEntries(Object.entries(example).filter(([name]) => name.startsWith('VITE_'))), ...document(join(root, '.env')), ...process.env };
-const [command, ...args] = process.argv.slice(2);
-if (!command) throw Error('A canonical build command is required');
-const webOnly = args.includes('--web-only');
+const env = { ...document(join(root, '.env')), ...process.env };
 const admin = env.NATALLY_ADMIN_MANUAL || join(homedir(), 'Admin-Manual');
 const signing = ['ANDROID_KEYSTORE_PATH', 'ANDROID_KEY_ALIAS', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_PASSWORD', 'ANDROID_SIGNING_CERT_SHA256'];
 const cache = new Map();
@@ -43,30 +40,18 @@ function resolveValue(name, value) {
   if (!match) throw Error(`Invalid credential pointer: ${name}`);
   return credential(match[1], match[2]);
 }
-if (!webOnly) for (const name of signing) {
+for (const name of signing) {
   env[name] = resolveValue(name, env[name] || example[name]);
   if (!env[name]) throw Error(`Required native signing setting missing: ${name}`);
 }
 for (const [name, value] of Object.entries(env)) {
   if (name.startsWith('VITE_') && value?.startsWith('kstore://')) env[name] = resolveValue(name, value);
 }
-let billingUrl;
-try { billingUrl = new URL(env.VITE_BILLING_API_URL); }
-catch { throw Error('Configure VITE_BILLING_API_URL with the actual approved HTTPS billing endpoint'); }
-if (billingUrl.protocol !== 'https:' || billingUrl.username || billingUrl.password || /(^|\.)netlify\.(app|com)$/i.test(billingUrl.hostname)) {
-  throw Error('VITE_BILLING_API_URL must be the approved HTTPS billing endpoint, not a retired Netlify endpoint');
-}
-if (!env.VITE_CHARGEBEE_SITE?.trim() || env.VITE_CHARGEBEE_SITE.startsWith('kstore:')) {
-  throw Error('Configure the existing VITE_CHARGEBEE_SITE before publication');
-}
-for (const [name, value] of Object.entries(env)) {
-  if (name.startsWith('VITE_') && value?.startsWith('kstore:')) throw Error(`Unresolved public configuration pointer: ${name}`);
-}
-if (!webOnly) {
-  if (!isAbsolute(env.ANDROID_KEYSTORE_PATH)) env.ANDROID_KEYSTORE_PATH = resolve(admin, env.ANDROID_KEYSTORE_PATH);
-  if (!existsSync(env.ANDROID_KEYSTORE_PATH)) throw Error('Configured Android keystore file is unavailable');
-}
+if (!isAbsolute(env.ANDROID_KEYSTORE_PATH)) env.ANDROID_KEYSTORE_PATH = resolve(admin, env.ANDROID_KEYSTORE_PATH);
+if (!existsSync(env.ANDROID_KEYSTORE_PATH)) throw Error('Configured Android keystore file is unavailable');
 env.NATALLY_BUILD_ENV_RESOLVED = '1';
+const [command, ...args] = process.argv.slice(2);
+if (!command) throw Error('A canonical build command is required');
 const child = spawnSync(command, args, { env, stdio: 'inherit' });
 if (child.error) throw Error(`Canonical build could not start: ${child.error.code}`);
 process.exitCode = child.status ?? 1;

@@ -1,7 +1,7 @@
 {
   "name": "natally-cleanroom",
   "private": true,
-  "version": "1.36.12851",
+  "version": "1.37.12854",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
