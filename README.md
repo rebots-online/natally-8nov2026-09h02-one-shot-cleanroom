@@ -87,48 +87,75 @@ needs: `VITE_BILLING_API_URL`, `VITE_CHARGEBEE_SITE`, `VITE_FIREBASE_CONFIG`,
 
 ## Build and deploy
 
-From the repository root, run the single supported build-and-deploy command:
+Use the sole build entry from the repository root:
 
 ```bash
 ./build_all.sh
 ```
 
-The script performs the whole pipeline: resolves the configured credentials,
-automatically increments the shared `MAJOR.MINOR.BUILD` version, commits and
-pushes that stamp, validates the source, builds the web assets, publishes both
-purchased domains with HTTPS forced, then packages Linux, Windows and Android.
-Use this entry for every attempt, including a retry after a fix. Version numbers
-are assigned by the script. The native application namespace is
-`mba.robin.astronatally`.
+The default pipeline resolves configured values, stamps and immediately commits
+and pushes one identity, builds the web bundle once, publishes it to
+`natally.robin.mba` through the existing Surge CLI with HTTPS forced, then
+packages Linux, Windows and Android. Web publication must succeed before native
+packaging begins. The release destination is `natally.robin.mba` only; its DNS,
+TLS and the authorized Surge account must already be configured. The script
+never changes DNS, provisions another host, or substitutes a billing service.
 
-### Surge deployment account and domains
+For an explicit web-only release:
 
-The existing Surge deployment account is **`robinsai.world@gmail.com`**
-(Free plan; ownership of both domains verified on 2026-11-11). Run the pipeline
-with that account's authorized Surge CLI context. Keep its token/password in
-private credential configuration, outside this repository.
+```bash
+./build_all.sh --web-only --web-domain natally.robin.mba
+```
 
-| Public destination | Purpose | Expected DNS target |
-| --- | --- | --- |
-| `astronatally.com` / `www.astronatally.com` | Landing and atelier introduction | `geo.surge.world` |
-| `asknatally.online` / `www.asknatally.online` | Web app | `geo.surge.world` |
+Web-only skips native signer resolution, keystore checks, native preparation and
+native builds. `--help` prints usage without loading credentials or stamping.
+Unknown arguments, duplicate options, missing domains and other destinations
+fail before any credential resolution or version write.
 
-Wildcard CNAME records, where configured, use that same target. The spelling is
-`geo.surge.world`, with one `geo`. The pipeline publishes the named purchased
-domains directly. Surge manages their custom-domain certificates; correct DNS
-routing and valid certificates are both required for HTTPS.
+### Version identity
+
+`scripts/update-version.sh` is copied from the canonical Admin-Manual stamper.
+`version.txt` is the single source; `version.json` and package manifests are
+derived. MAJOR stays operator-controlled. Each unfrozen stamp increments MINOR
+unconditionally and computes BUILD as UTC epoch minutes modulo 100000, displayed
+with five digits. Android's ordering code is `MAJOR * 100000 + MINOR`.
+
+Cargo, npm and Tauri numeric package versions omit display padding; the version
+badge, window title and archived artifact names retain it. MSI uses
+`MAJOR.MINOR.floor(BUILD / 1000).(BUILD % 1000)` to fit Windows version fields.
+The native application identifier remains `mba.robin.astronatally`.
+
+After the whole selected pipeline succeeds, the same stamper advances the next
+source identity, commits it and pushes it. That next `version.json` has
+`builtAt: null`: it is not the identity of the artifacts just produced. Failures
+never reach the success advance. A trusted `release.lock` containing `MAJOR`,
+`MINOR` and `BUILD_NUM` freezes one identity for multi-host packaging; a frozen
+release skips the next-source advance. Git failures stop the pipeline.
+
+### Configuration
+
+Public `VITE_*` settings inherit defaults from `.env.example`, then `.env`, then
+the invoking environment. `.env` remains pointer-only; existing `kstore://`
+pointers resolve in memory through the configured KStore interface, with an
+explicitly reported Admin-Manual checkout fallback if retrieval fails. Secret
+values are never printed or written to public configuration.
+
+Publication requires an actual configured HTTPS `VITE_BILLING_API_URL` and the
+existing `VITE_CHARGEBEE_SITE`. Empty values, unresolved pointers and retired
+Netlify billing endpoints fail before build/publication. This validates
+configuration; it does not assert a purchase succeeds. Full native builds also
+require the configured production Android keystore, alias/password settings and
+expected signer SHA-256. Keep Surge authentication in private configuration.
 
 ### Outputs and verification
 
-The web bundle includes the app, preserved landing entry and
-`/auth/native.html` browser handoff. Web publication must succeed before native
-packaging starts. Native outputs are staged under `dist/natally-v<version>/`
-with a SHA-256 inventory and per-target logs: Linux AppImage/deb/rpm, Windows
-x64 executable/NSIS/MSI, and signed Android arm64 APK/AAB plus native symbols.
-A failed or incomplete target remains recorded in the inventory; it is not a
-complete platform set. Verify the actual version badge on both deployed sites
-and report the produced artifacts and any failed targets. Build success and
-functional sign-in/reading acceptance are recorded separately in CHECKLIST.md.
+The web bundle in `dist-web/` includes the app, preserved landing entry and
+`/auth/native.html` browser handoff. Native outputs are staged under
+`dist/natally-v<version>/` with a SHA-256 inventory and per-target logs: Linux
+AppImage/deb/rpm, Windows x64 executable/NSIS/MSI, and signed Android arm64
+APK/AAB plus native symbols. Failed targets remain recorded; the native helper
+returns failure for an incomplete matrix. Source conformance, an actual build,
+and functional sign-in/reading acceptance are separate claims in CHECKLIST.md.
 
 ## Billing and inference (server)
 
@@ -159,10 +186,18 @@ voice and the top-up sheet opens. A second function,
 ## Process
 
 `DOCS/ARCHITECTURE.md` (snapshot + registry allow-list) → `CHECKLIST.md` →
-coder agents → `build_all.sh` → version badge verified on both hosts. Coders
+coder agents → `build_all.sh` → version badge verified on the configured release host. Coders
 read the architecture, the checklist, the TODO ledger and the files they edit.
 Work is recorded in the ledger and acted on only when Robin says go.
 
 ## License
 
 AGPL-3.0-only.
+
+The exact shell/helper sequence, failure branches and version lifecycle are
+documented in [DOCS/BUILD-ALL-FLOW.md](DOCS/BUILD-ALL-FLOW.md). Build source is
+tracked inside this repository; the credential reader uses Node's built-in
+HTTP client and a configurable KSTORE_URL, with no Python module or external
+source checkout dependency. Private credentials/toolchains remain configured
+inputs. No KStore write or migration is part of the build. Release binary
+transport remains subject to the existing Forgejo outage restriction.
