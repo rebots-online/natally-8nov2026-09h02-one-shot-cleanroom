@@ -1,0 +1,16 @@
+Stamping version: 1.43.12880  (versionCode: 100043)
+Done: 1.43.12880 (versionCode 100043)
+Native identity prepared: mba.robin.astronatally, v1.43.12880, Android versionCode 100043
+[build-scripts/compliant-2026-11-15 68ecd6c] v1.43.12880: Stamp shared release identity [skip ci]
+ 8 files changed, 29 insertions(+), 20 deletions(-)
+To https://github.com/rebots-online/natally-8nov2026-09h02-one-shot-cleanroom.git
+   5f07f2e..68ecd6c  HEAD -> build-scripts/compliant-2026-11-15
+Using private Admin-Manual credential document CREDENTIALS/Chargebee/Natally/credentials.env; no KStore write is performed
+file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/scripts/build-environment.mjs:56
+if (billing.protocol !== 'https:' || billing.username || billing.password || /(^|\.)netlify\.(app|com)$/i.test(billing.hostname)) throw Error('Configure the actual approved HTTPS billing endpoint; retired Netlify endpoints cannot be published');
+                                                                                                                                        ^
+
+Error: Configure the actual approved HTTPS billing endpoint; retired Netlify endpoints cannot be published
+    at file:///home/robin/github/natally-8nov2026-09h02-yetanothercleanroomrestart/scripts/build-environment.mjs:56:137
+
+Node.js v24.18.0

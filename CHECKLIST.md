@@ -1656,7 +1656,7 @@ commit uses automatic canonical stamping, not a hand-chosen version.
 
 ## BUILD-FRAMEWORK-20261115 — direct operator execution
 
-- [ ] BUILD-FRAMEWORK-20261115
+- [X] BUILD-FRAMEWORK-20261115 — implementation recorded; full build failed on retired billing configuration
   Own: build_all.sh, scripts/update-version.sh, scripts/build-environment.mjs,
   scripts/build-native.mjs, .env.example, .gitignore, .gitattributes, README.md.
   Do: implement the exact frozen §29 contract below. Existing a920c9c source
