@@ -425,7 +425,7 @@ export default function App() {
  if (voiceRef.current === null) voiceRef.current = getPreloadedVoice();
  const voice = voiceRef.current;
  const readingInterruptListeners = useRef(new Set<() => void>());
- const [openingSettled, setOpeningSettled] = useState(false);
+ const [openingSettled, setOpeningSettled] = useState({ chartKey: '', settled: false });
 
  // ---- Her living room on the landing (§12.1 5b) ----
  // Once voice is admitted she welcomes the visitor (once); after that,
@@ -651,7 +651,6 @@ export default function App() {
    voice.onState(state => {
     if (speakingRef.current && !state.speaking) {
      endOpeningReveal();
-     setOpeningSettled(true);
     }
     speakingRef.current = state.speaking;
    }),
@@ -663,34 +662,64 @@ export default function App() {
  const openingSpokenRef = useRef(false);
  useEffect(() => {
   openingSpokenRef.current = false;
-  setOpeningSettled(false);
+  setOpeningSettled({ chartKey, settled: false });
   sawCueViewRef.current = false;
  }, [chartKey]);
  useEffect(() => {
   if (openingClean === null || voice.admitted || openingSpokenRef.current) return;
+  const openingKey = chartKey;
+  let unsubscribeOpening = () => {};
   const admit = () => {
    if (openingSpokenRef.current) return;
    openingSpokenRef.current = true;
    voice.admit();
    beginOpeningReveal();
    const complete = captureSpeechCompletion();
-   voice.speakStream(openingClean, { flush: true, onComplete: () => { complete(); setOpeningSettled(true); } });
+   let started = false, settled = false;
+   const finish = () => {
+    if (settled) return;
+    settled = true; unsubscribeOpening();
+    setOpeningSettled({ chartKey: openingKey, settled: true });
+   };
+   unsubscribeOpening = voice.onState(state => {
+    if (state.speaking) started = true;
+    else if (started) finish();
+   });
+   started = false;
+   if (settled) unsubscribeOpening();
+   voice.speakStream(openingClean, { flush: true, onComplete: () => { complete(); finish(); } });
   };
   window.addEventListener('pointerdown', admit, { once: true });
   window.addEventListener('keydown', admit, { once: true });
   return () => {
+   unsubscribeOpening();
    window.removeEventListener('pointerdown', admit);
    window.removeEventListener('keydown', admit);
   };
- }, [openingClean, voice]);
+ }, [openingClean, voice, chartKey]);
  useEffect(() => {
   if (openingClean !== null && voice.admitted && !openingSpokenRef.current) {
    openingSpokenRef.current = true;
    beginOpeningReveal();
    const complete = captureSpeechCompletion();
-   voice.speakStream(openingClean, { flush: true, onComplete: () => { complete(); setOpeningSettled(true); } });
+   const openingKey = chartKey;
+   let started = false, settled = false;
+   let unsubscribeOpening = () => {};
+   const finish = () => {
+    if (settled) return;
+    settled = true; unsubscribeOpening();
+    setOpeningSettled({ chartKey: openingKey, settled: true });
+   };
+   unsubscribeOpening = voice.onState(state => {
+    if (state.speaking) started = true;
+    else if (started) finish();
+   });
+   started = false;
+   if (settled) unsubscribeOpening();
+   voice.speakStream(openingClean, { flush: true, onComplete: () => { complete(); finish(); } });
+   return unsubscribeOpening;
   }
- }, [openingClean, voice]);
+ }, [openingClean, voice, chartKey]);
 
  // First-load inversion (a stage too small for both panes): the chart
  // takes focus and Natally becomes the inset, until she or the customer
@@ -714,7 +743,7 @@ export default function App() {
    opening,
    onReply: handleReplyEvent,
    captureSpeechCompletion,
-   openingSettled: !voice.admitted || openingSettled,
+   openingSettled: !voice.admitted || (openingSettled.chartKey === chartKey && openingSettled.settled),
    claimReading: () => { openingSpokenRef.current = true; },
    subscribeReadingInterruption: (listener: () => void) => {
     readingInterruptListeners.current.add(listener);
@@ -723,7 +752,7 @@ export default function App() {
    revealedOpening:
     openingReveal === null || openingClean === null ? null : openingClean.slice(0, openingReveal),
   }),
-  [voice, opening, openingReveal, openingClean, openingSettled],
+  [voice, opening, openingReveal, openingClean, openingSettled, chartKey],
  );
 
  // Today's sky for the click readings: the same verbatim pipeline cast for

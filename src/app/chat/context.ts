@@ -78,6 +78,9 @@ export function chartFacts(chart: NatalChart): string {
  if (input.timeIso !== null) lines.push(
   `Midheaven: ${signOf(chart.midheaven.longitude)} ${degreeInSign(chart.midheaven.longitude)}`,
  );
+ if (input.timeIso !== null) for (const cusp of chart.houses) {
+  lines.push(`House ${cusp.house} cusp: ${signOf(cusp.position.longitude)} ${degreeInSign(cusp.position.longitude)} (ecliptic longitude ${cusp.position.longitude.toFixed(4)}°)`);
+ }
 
  // Ascendant/Midheaven already have their own lines above.
  for (const body of chart.bodies) {

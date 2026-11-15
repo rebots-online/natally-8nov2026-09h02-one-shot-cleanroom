@@ -8,6 +8,10 @@ export interface ReadingSection {
   directive: string;
 }
 
+const READING_SIGN_ORDER: readonly ZodiacSign[] = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
+];
 const READING_SIGNS: Readonly<Record<ZodiacSign, string>> = {
   Aries: 'Aries opens the tropical zodiac. Cardinal fire is the spark that starts a thing, sometimes before the plan has caught up. Very first-tab-already-open energy.',
   Taurus: 'Taurus is fixed earth: sustaining something practical and tangible. Its symbolism is patience, steadiness and sensory comfort. A little texture, a little staying power.',
@@ -78,7 +82,7 @@ export function buildReadingSections(chart: NatalChart): ReadingSection[] {
     });
   }
   if (timed) for (const cusp of chart.houses) {
-    const sign = (Object.keys(READING_SIGNS) as ZodiacSign[])[Math.floor((((cusp.position.longitude % 360) + 360) % 360) / 30)]!;
+    const sign = READING_SIGN_ORDER[Math.floor((((cusp.position.longitude % 360) + 360) % 360) / 30)]!;
     const occupants = bodies.filter(body => body.house === cusp.house).map(body => body.key);
     sections.push({
       id: `house-${cusp.house}`, title: `House ${cusp.house}`, targets: [`House ${cusp.house}`, sign],
