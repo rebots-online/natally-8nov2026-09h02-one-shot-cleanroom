@@ -1757,7 +1757,7 @@ prohibited. Six-stage task records apply separately to template promotion.
 
 ## BUILD-MATRIX-20261115
 
-- [ ] BUILD-MATRIX-20261115
+- [X] BUILD-MATRIX-20261115 — written; native host execution unobserved
   Own: build_all.sh, build_all.ps1, scripts/build-native.mjs,
   DOCS/BUILD-ALL-FLOW.md; metadata from canonical stamper.
   Do: implement copied frozen contract below personally (operator override).

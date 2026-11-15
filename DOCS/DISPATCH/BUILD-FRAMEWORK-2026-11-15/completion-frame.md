@@ -1,8 +1,7 @@
 # BUILD-FRAMEWORK-20261115 implementation handback
 
 Six published stages: architecturef4aa505; checklist453a9d1;
-assignment31c69d9; implementation8771029; semantic traced5d8a1065
-(the exact flow-document commit is d8a1065); this completion record.
+assignment31c69d9; implementation8771029; semantic evaluationd8a1065; this completion record.
 
 [X] source implementation complete. No full-build verification mark is awarded.
 Actual ./build_all.sh invocation stamped/pushed1.43.12880 in68ecd6c,
