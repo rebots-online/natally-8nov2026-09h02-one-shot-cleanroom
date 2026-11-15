@@ -5,31 +5,42 @@ import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
 const root = process.cwd();
-const identity = JSON.parse(readFileSync('version.json', 'utf8'));
+let identity;
+try { identity = JSON.parse(readFileSync('version.json', 'utf8')); }
+catch (cause) { throw Error('Invalid generated version.json', { cause }); }
 const version = identity.version;
+if (!/^[1-9]\d*\.\d+\.\d{5}$/.test(version) || readFileSync('version.txt', 'utf8').trim() !== version) {
+  throw Error('Canonical version.txt and generated version.json must agree on the padded release identity');
+}
+const numericVersion = version.split('.').map(Number).join('.');
+const [major, minor, build] = version.split('.').map(Number);
+const msiVersion = `${major}.${minor}.${Math.floor(build / 1000)}.${build % 1000}`;
 const prefix = `natally-v${version}`;
 const destination = resolve('dist', prefix);
 const targets = resolve(process.env.CARGO_TARGET_DIR || 'build/native-target');
 const androidHome = process.env.ANDROID_HOME || join(homedir(), 'Android/Sdk');
-const readJson = file => JSON.parse(readFileSync(file, 'utf8'));
+const readJson = file => {
+  try { return JSON.parse(readFileSync(file, 'utf8')); }
+  catch (cause) { throw Error(`Invalid identity JSON: ${file}`, { cause }); }
+};
 const json = (file, value) => writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
 
 function prepare() {
   const pkg = readJson('package.json');
-  pkg.version = version;
+  pkg.version = numericVersion;
   json('package.json', pkg);
   const lock = readJson('package-lock.json');
-  lock.version = version;
-  if (lock.packages?.['']) lock.packages[''].version = version;
+  lock.version = numericVersion;
+  if (lock.packages?.['']) lock.packages[''].version = numericVersion;
   json('package-lock.json', lock);
   const cargoFile = 'src-tauri/Cargo.toml';
-  const cargo = readFileSync(cargoFile, 'utf8').replace(/^version\s*=\s*"[^"]+"/m, `version = "${version}"`);
+  const cargo = readFileSync(cargoFile, 'utf8').replace(/^version\s*=\s*"[^"]+"/m, `version = "${numericVersion}"`);
   writeFileSync(cargoFile, cargo);
   const cargoLock = 'src-tauri/Cargo.lock';
-  writeFileSync(cargoLock, readFileSync(cargoLock, 'utf8').replace(/(name = "natally-ai-studio"\nversion = ")[^"]+/, `$1${version}`));
+  writeFileSync(cargoLock, readFileSync(cargoLock, 'utf8').replace(/(name = "natally-ai-studio"\nversion = ")[^"]+/, `$1${numericVersion}`));
   const config = readJson('src-tauri/tauri.conf.json');
   config.identifier = 'mba.robin.astronatally';
-  config.version = version;
+  config.version = numericVersion;
   config.build.beforeBuildCommand = '';
   config.build.frontendDist = '../dist-web';
   config.build.devUrl = 'http://localhost:37841';
@@ -37,11 +48,11 @@ function prepare() {
     window.title = `Natally v${version}`;
     window.url = 'app.html';
   }
-  const [major, minor, build] = version.split('.').map(Number);
-  const code = major * 100000000 + minor * 10000 + build;
+  const code = major * 100000 + minor;
+  if (major > 255 || minor > 255) throw Error('MSI MAJOR and MINOR must each fit its 8-bit version fields');
   if (!Number.isSafeInteger(code) || code >= 2100000000) throw Error('Android versionCode exceeds platform range');
   config.bundle.android.versionCode = code;
-  config.bundle.windows.wix.version = `${major}.${minor}.${build}.0`;
+  config.bundle.windows.wix.version = msiVersion;
   json('src-tauri/tauri.conf.json', config);
   mkdirSync(destination, { recursive: true });
   console.log(`Native identity prepared: ${config.identifier}, v${version}, Android versionCode ${code}`);
@@ -92,7 +103,7 @@ if (process.argv[2] === 'prepare') {
   }
   function stageBundles(dir, extensions, label) {
     for (const ext of extensions) {
-      const matches = files(dir).filter(file => file.endsWith(ext) && basename(file).includes(version));
+      const matches = files(dir).filter(file => file.endsWith(ext) && basename(file).includes(numericVersion));
       if (matches.length !== 1) throw Error(`${label}: expected one current-version ${ext}, found ${matches.length}`);
       stage(matches[0], `${label}${ext}`, label + ext);
     }
@@ -132,7 +143,6 @@ if (process.argv[2] === 'prepare') {
     if (!upgradeCode) throw Error('tauri.conf.json bundle.windows.wix.upgradeCode missing for MSI');
     const manufacturer = /authors\s*=\s*\[\s*"([^"]+)"/.exec(readFileSync('src-tauri/Cargo.toml', 'utf8'))?.[1];
     if (!manufacturer) throw Error('src-tauri/Cargo.toml authors missing for MSI manufacturer');
-    const [major, minor, build] = version.split('.').map(Number);
     const output = join(targets, 'msi', `${prefix}-windows-x64.msi`);
     mkdirSync(join(targets, 'msi'), { recursive: true });
     // wixl can exit 0 without writing its output (e.g. missing parent dir);
@@ -140,7 +150,7 @@ if (process.argv[2] === 'prepare') {
     rmSync(output, { force: true });
     return run('windows-msi', 'wixl', ['-a', 'x64', '-o', output,
       '-D', `ProductName=${config.productName}`,
-      '-D', `ProductVersion=${major}.${minor}.${build}.0`,
+      '-D', `ProductVersion=${msiVersion}`,
       '-D', `UpgradeCode=${upgradeCode}`,
       '-D', `Manufacturer=${manufacturer}`,
       '-D', `ExeSource=${join(destination, `${prefix}-windows-x64.exe`)}`,

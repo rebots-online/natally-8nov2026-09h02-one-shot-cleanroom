@@ -1,4 +1,11 @@
 {
-  "version": "1.33.769",
-  "builtAt": null
+  "version": "1.34.12848",
+  "versionBase": "1.34",
+  "buildNumber": "12848",
+  "versionCode": 100034,
+  "buildDate": "2026-11-15T14:28:52-05:00",
+  "builtAt": null,
+  "productName": "Natally",
+  "internalName": "natally-ai-studio",
+  "packageName": "mba.robin.astronatally"
 }
