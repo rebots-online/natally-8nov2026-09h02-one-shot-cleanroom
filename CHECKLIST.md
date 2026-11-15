@@ -1788,7 +1788,7 @@ authority update after completing build scripts; no migration work is implied.
 
 ## ARTIFACT-PRODUCER-20261115
 
-- [ ] ARTIFACT-PRODUCER-20261115
+- [X] ARTIFACT-PRODUCER-20261115 — written; actual stamp/preparation observed, packaging unobserved
   Own: scripts/update-version.sh, build_all.sh, scripts/build-native.mjs,
   build_all.ps1, DOCS/BUILD-ALL-FLOW.md; stamped identity projections only.
   Do: exact copied §31; root personally per operator override. No tests/lint.
