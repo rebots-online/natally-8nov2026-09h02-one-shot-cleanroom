@@ -1784,3 +1784,37 @@ All executable build source and wrapper are tracked in this repository. Existing
 shared large-asset device-storage requirements remain in force; this build task
 does not alter app storage. Required operator global amendments are recorded for
 authority update after completing build scripts; no migration work is implied.
+
+
+## ARTIFACT-PRODUCER-20261115
+
+- [ ] ARTIFACT-PRODUCER-20261115
+  Own: scripts/update-version.sh, build_all.sh, scripts/build-native.mjs,
+  build_all.ps1, DOCS/BUILD-ALL-FLOW.md; stamped identity projections only.
+  Do: exact copied §31; root personally per operator override. No tests/lint.
+  Accept: producer EXE already version-identifiable, versioned web production,
+  matching consumers/document. No historical artifact deletion or app logic.
+
+## 31. Artifact producer identity — FROZEN 2026-11-15
+
+Engaged by ARTIFACT-PRODUCER-20261115; root personally implements.
+The canonical stamper's generated version.json adds nativeExecutable:string,
+`natally-v` plus displayVersion with dots represented as underscores for the
+Rust target identifier. It writes matching Cargo [package].default-run and one
+[[bin]] target at src/main.rs, and Tauri mainBinaryName. These are toolchain
+projections of the same version, never another counter. The standalone producer
+EXE is thus already product/version named if interrupted before collection.
+Public artifact filenames retain dotted MAJOR.MINOR.BUILD. Native collection
+and native PowerShell continuation read nativeExecutable from the same mirror.
+Existing library/package identity stays unchanged; no app logic changes.
+
+build_all.sh builds web directly into dist/natally-vVERSION/web, not a temporary
+web build. Canonical stamp sets Tauri frontendDist to that exact versioned
+folder before source publication. stampHtml, index copy, archive and Surge read
+that directory. build-native.prepare preserves the exact same frontendDist.
+Every old version directory is preserved. Toolchain-internal object/dependency
+files and archive-internal ABI library names remain toolchain components; they
+are not exposed as unnamed release artifacts. No post-build rescue rename is
+used to identify an unversioned standalone EXE. The collector retains copies of
+already version-identifiable producer outputs with public semantic suffixes.
+Update DOCS/BUILD-ALL-FLOW.md one-to-one with these concrete source changes.
