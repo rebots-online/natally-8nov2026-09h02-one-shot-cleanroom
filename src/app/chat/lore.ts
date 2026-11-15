@@ -106,7 +106,7 @@ export async function retrieveLore(uid: string, queryText: string, current: () =
       notice: entries.some(entry => entry.model !== LORE_MODEL) ? 'Some older memory vectors use another model; their text is preserved, but semantic retrieval cannot rank them.' : null,
     };
   } catch (cause) {
-    return { prompt: 'Saved lore is unavailable. Do not invent or claim to recall shared history.',
+    return { prompt: 'Saved lore is unavailable. Keep your usual warm Gen Z character, but do not invent new autobiographical episodes, emit new lore, or claim to recall shared history while the established canon cannot be checked. Discuss the chart and the present conversation normally.',
       notice: cause instanceof Error ? `Memory could not be loaded: ${cause.message}` : 'Memory could not be loaded. Please try again.' };
   }
 }

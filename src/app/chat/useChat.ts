@@ -195,6 +195,7 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
         if (state.error) { settle(true); active.voice.stop(); }
         else if (heard && !state.speaking) queueMicrotask(() => settle(false));
       });
+      if (finished) { unsubscribe(); return; }
       if (signal.aborted || !current()) { settle(false); return; }
       active.voice.speakStream('', { flush: true, onComplete: () => settle(true) });
     });
@@ -232,16 +233,18 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
       stageRef.current?.onReply({ phase: 'delta', text: parsed.text, cues: parsed.cues });
     }
     stageRef.current?.onReply({ phase: 'final' });
+    if (spoken > 0) await finishSpeech(signal, current);
+    else throw new ChatNetworkError('The reading returned no visible text. Please retry this section.');
+    if (!current()) throw new DOMException('Interrupted', 'AbortError');
     const developments = extractLore(raw).developments;
     const session = operation.current.session;
     const memoryCurrent = () => operation.current.owner === uid && operation.current.chart === chart && operation.current.session === session;
     for (let index = 0; index < developments.length; index++) {
+      if (!current()) throw new DOMException('Interrupted', 'AbortError');
       try { await saveLoreEntry(uid, { id: `${id}-lore-${index}`, kind: 'character', text: developments[index]! }, memoryCurrent); }
       catch (cause) { if (memoryCurrent()) setMemoryNotice(`This character detail could not be saved: ${cause instanceof Error ? cause.message : 'Please try again.'}`); }
       if (!current()) throw new DOMException('Interrupted', 'AbortError');
     }
-    if (spoken > 0) await finishSpeech(signal, current);
-    else throw new ChatNetworkError('The reading returned no visible text. Please retry this section.');
   };
   const resumeReading = useCallback(() => {
     pauseReading();
@@ -258,6 +261,15 @@ export function useChat(chart: NatalChart, stage?: ChatStage): UseChat {
     const current = () => operation.current.epoch === epoch && operation.current.owner === uid && operation.current.chart === chart && !controller.signal.aborted;
     setGuidanceState('running'); setStreaming(true);
     void (async () => {
+      // Child passive effects can run before the shell resets its opening
+      // refs. Yield one microtask, then claim speech only after that reset.
+      await Promise.resolve();
+      if (!current()) return;
+      if (stageRef.current?.openingSettled === false || stageRef.current?.revealedOpening != null) {
+        setGuidanceState('waiting');
+        return;
+      }
+      stageRef.current?.claimReading?.();
       const sections = buildReadingSections(chart);
       let free = false;
       for (; operation.current.cursor < sections.length && current();) {
