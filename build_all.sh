@@ -51,6 +51,25 @@ assert_source
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 npx --no-install vite build --outDir dist-web
+# Stamp initial loading HTML as well as the mounted app/About surfaces.
+node --input-type=module <<'JS'
+import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
+import {join} from 'node:path';
+const version=process.env.BUILT_VERSION;
+if (!/^[1-9]\d*\.\d+\.\d{5}$/.test(version)) throw new Error('Invalid visible release identity');
+const label=`<span id="build-release-version" aria-label="Application version" style="position:fixed;right:12px;bottom:10px;z-index:2147483647;padding:3px 7px;border-radius:4px;background:#120c1ce6;color:#f4e7c8;font:12px system-ui;pointer-events:none">v${version}</span>`;
+function stampHtml(dir) {
+  for (const entry of readdirSync(dir,{withFileTypes:true})) {
+    const path=join(dir,entry.name);
+    if(entry.isDirectory()) stampHtml(path);
+    else if(entry.name.endsWith('.html')) {
+      const html=readFileSync(path,'utf8');
+      writeFileSync(path,html.replace(/<body([^>]*)>/i,`<body$1>${label}`));
+    }
+  }
+}
+stampHtml('dist-web');
+JS
 cp dist-web/app.html dist-web/index.html
 RELEASE_DIR="dist/natally-v${BUILT_VERSION}"
 mkdir -p "$RELEASE_DIR"

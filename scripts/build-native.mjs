@@ -133,43 +133,6 @@ if (process.argv[2] === 'prepare') {
     }
     save();
   }
-  await target('linux', () => run('linux', 'npx', ['--no-install', 'tauri', 'build', '--bundles', 'appimage,deb,rpm', '--', '--locked']), () => {
-    stageBundles(join(targets, 'release/bundle'), ['.AppImage', '.deb', '.rpm'], 'linux-x64');
-  });
-  await target('windows', () => run('windows', 'npx', ['--no-install', 'tauri', 'build', '--runner', 'cargo-xwin', '--target', 'x86_64-pc-windows-msvc', '--bundles', 'nsis', '--', '--locked']), () => {
-    stage(join(targets, 'x86_64-pc-windows-msvc/release/natally-ai-studio.exe'), 'windows-x64.exe', 'windows-executable');
-    stageBundles(join(targets, 'x86_64-pc-windows-msvc/release/bundle/nsis'), ['.exe'], 'windows-x64-installer');
-  });
-  await target('windows-msi', async () => {
-    // wixl packages the staged Windows executable into a per-machine MSI on
-    // Linux (ARCHITECTURE.md "Windows MSI (Store)"). Ubuntu ships wixl as its
-    // own package, Debian inside msitools, so request both and fall back.
-    if (spawnSync('wixl', ['--version']).error) {
-      let install = await run('msitools', 'sudo', ['apt-get', 'install', '-y', 'msitools', 'wixl']);
-      if (install.code !== 0) install = await run('msitools', 'sudo', ['apt-get', 'install', '-y', 'msitools']);
-      if (install.code !== 0) throw Error(`msitools/wixl install failed (${install.code}); see ${install.log || install.message}`);
-    }
-    const config = readJson('src-tauri/tauri.conf.json');
-    const upgradeCode = config.bundle?.windows?.wix?.upgradeCode;
-    if (!upgradeCode) throw Error('tauri.conf.json bundle.windows.wix.upgradeCode missing for MSI');
-    const manufacturer = /authors\s*=\s*\[\s*"([^"]+)"/.exec(readFileSync('src-tauri/Cargo.toml', 'utf8'))?.[1];
-    if (!manufacturer) throw Error('src-tauri/Cargo.toml authors missing for MSI manufacturer');
-    const output = join(targets, 'msi', `${prefix}-windows-x64.msi`);
-    mkdirSync(join(targets, 'msi'), { recursive: true });
-    // wixl can exit 0 without writing its output (e.g. missing parent dir);
-    // drop any stale file so stage() can only ever see this run's product.
-    rmSync(output, { force: true });
-    return run('windows-msi', 'wixl', ['-a', 'x64', '-o', output,
-      '-D', `ProductName=${config.productName}`,
-      '-D', `ProductVersion=${msiVersion}`,
-      '-D', `UpgradeCode=${upgradeCode}`,
-      '-D', `Manufacturer=${manufacturer}`,
-      '-D', `ExeSource=${join(destination, `${prefix}-windows-x64.exe`)}`,
-      '-D', `IconSource=${resolve('src-tauri/icons/icon.ico')}`,
-      'src-tauri/msi/natally.wxs']);
-  }, () => {
-    stage(join(targets, 'msi', `${prefix}-windows-x64.msi`), 'windows-x64.msi', 'windows-msi');
-  });
   await target('android', () => run('android', 'npx', ['--no-install', 'tauri', 'android', 'build', '--target', 'aarch64', '--apk', '--aab']), async () => {
     const output = 'src-tauri/gen/android/app/build/outputs';
     // Gradle stamps the current version into artifact names (build.gradle.kts
@@ -210,8 +173,30 @@ if (process.argv[2] === 'prepare') {
       manifest.artifacts.push({ kind: 'android-symbols', path: archive.slice(root.length + 1), bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') });
     }
   });
+  await target('linux', () => run('linux', 'npx', ['--no-install', 'tauri', 'build', '--bundles', 'appimage,deb,rpm', '--', '--locked']), () => {
+    stageBundles(join(targets, 'release/bundle'), ['.AppImage', '.deb', '.rpm'], 'linux-x64');
+  });
+  await target('windows', () => run('windows', 'npx', ['--no-install', 'tauri', 'build', '--runner', 'cargo-xwin', '--target', 'x86_64-pc-windows-msvc', '--bundles', 'nsis', '--', '--locked']), () => {
+    stage(join(targets, 'x86_64-pc-windows-msvc/release/natally-ai-studio.exe'), 'windows-x64.exe', 'windows-executable');
+    stageBundles(join(targets, 'x86_64-pc-windows-msvc/release/bundle/nsis'), ['.exe'], 'windows-x64-installer');
+  });
+  if (process.env.NATALLY_WINDOWS_NATIVE_BUILD === '1') {
+    await target('windows-store', () => {
+      const wrapper = execFileSync('wslpath', ['-w', resolve('build_all.ps1')], { encoding: 'utf8' }).trim();
+      return run('windows-native', 'powershell.exe', ['-NoProfile', '-File', wrapper, '-NativeStoreOnly', '-ReleaseVersion', version, '-SourceCommit', sourceCommit]);
+    }, () => {
+      const native = readJson(join(destination, 'windows-native-inventory.json'));
+      if (native.version !== version || native.sourceCommit !== sourceCommit || native.artifacts.length !== 3) throw Error('Native Windows inventory does not match this release');
+      for (const artifact of native.artifacts) {
+        const data = readFileSync(resolve(artifact.path));
+        if (createHash('sha256').update(data).digest('hex') !== artifact.sha256) throw Error('Native Windows artifact hash mismatch');
+      }
+      manifest.artifacts.push(...native.artifacts);
+      manifest.storeSigning = native.storeSigning;
+    });
+  }
   manifest.finishedAt = new Date().toISOString();
-  manifest.complete = ['linux', 'windows', 'windows-msi', 'android'].every(name => manifest.targets[name]?.state === 'packaged');
+  manifest.complete = ['android', 'linux', 'windows', ...(process.env.NATALLY_WINDOWS_NATIVE_BUILD === '1' ? ['windows-store'] : [])].every(name => manifest.targets[name]?.state === 'packaged');
   save();
   console.log(JSON.stringify({ version, complete: manifest.complete, targets: manifest.targets, inventory: inventoryPath }, null, 2));
   process.exitCode = manifest.complete ? 0 : 1;
