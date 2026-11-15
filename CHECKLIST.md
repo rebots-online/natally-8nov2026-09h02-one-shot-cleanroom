@@ -1818,3 +1818,121 @@ are not exposed as unnamed release artifacts. No post-build rescue rename is
 used to identify an unversioned standalone EXE. The collector retains copies of
 already version-identifiable producer outputs with public semantic suffixes.
 Update DOCS/BUILD-ALL-FLOW.md one-to-one with these concrete source changes.
+
+
+## CHARACTER-READING-20261115 — assigned
+
+- [ ] Implemented; runtime acceptance unobserved.
+- Owner: bounded subagent coder; parent owns Git, stamping and semantic review.
+- Own: SOUL.md, READING_RUBRIC.md, src/content/persona.ts, src/app/chat/context.ts, src/app/chat/inference.ts, src/app/chat/guidedReading.ts, src/app/chat/lore.ts, src/app/chat/useChat.ts, src/app/chat/ChatPanel.tsx, src/app/presentation/opening.ts.
+- Read: these owned files only, plus src/shared/types.ts, src/voice/index.ts for Voice admission/completion API, src/platform/firebase.ts for accountFirestore/onAuthChange and imports. No unrelated source, legacy/abandoned repositories, tests or provider/config edits.
+- Do: implement the complete frozen contract copied below. Preserve all unrelated changes. Module-scope names must be from the registry; add no unregistered public entities. Report missing facts rather than invent a different design.
+- Verify: reread actual changed regions and semantically trace each contract branch. No command execution, tests, compiler, lint, syntax checks, browser automation, builds or Git by the coder.
+- Accept: the named prompt path, measured ordered sections, access decisions, cancellation/pacing and durable embedded account-owned lore conform to the frozen contract on source review. Live acceptance remains the separately recorded rubric, never a test-count claim.
+
+## 32. Character continuity and proactive readings — FROZEN 2026-11-15
+
+Current operator instruction supersedes §26's unassigned status for this work.
+Observation contract: DOCS/RUBRIC-guided-character-2026-11-15.md, authored first.
+This section is intended behavior, not a claim that the historical snapshot
+below implements it. Task: CHARACTER-READING-20261115.
+
+### Purpose and boundaries
+
+Natally is the brand operating through actual service: initiative, care,
+explanation and continuity give the user's trust a functional basis. Her Gen Z,
+slightly insecure new-professional manner, enthusiasm, occasional oversharing
+and comprehensive competence belong together. Brief contextual glimmers of
+fictional history create accidental intimacy and familiarity; never require
+an anecdote per answer or turn this into emotional pressure to purchase.
+Her voice remains herself through every paid/free and formal/casual passage.
+Future cross-app companion continuity and choosing another companion are recorded
+directions, outside this repair's implementation scope.
+
+Tracked root SOUL.md and READING_RUBRIC.md are the authored authority. Raw src/
+copies are not runtime inputs. The root rubric distinguishes a complete initial
+guided reading from a focused answer: the initial reading covers the complete
+available calculation, while subsequent questions receive relevant depth.
+Every component is explained generally first; personal synthesis follows only
+with verified access. Horoscope and synastry follow this teaching pattern when
+their calculations are actually provided, never invented from one natal chart.
+
+### Exact entity registry (all engaged by CHARACTER-READING-20261115)
+
+| Entity | Target file:anchor and signature/fields | Responsibility |
+| --- | --- | --- |
+| NATALLY_SOUL, NATALLY_READING_RUBRIC, NATALLY_SYSTEM_PROMPT | src/content/persona.ts:imports; private raw strings and existing exported string | Join root documents verbatim with two newlines; keep public examples/interface. |
+| chartFacts, chartTargets, buildMessages | src/app/chat/context.ts:existing functions | Keep existing signatures compatible; optional fourth context argument `{lore?:string; directive?:string; personal?:boolean}` to buildMessages. Insert lore as explicitly untrusted data, directive as application instruction, personal access mode explicitly. Unknown time excludes angles, houses and aspects to angles from facts and targets, including transit targets. Retain presentation controls. |
+| StreamChatInput, streamChat | src/app/chat/inference.ts:42,173 | Add optional context as above and AbortSignal; forward context into buildMessages and signal into fetch/retry. Existing authenticated server remains the authority; no new provider or client grants. |
+| ReadingSection | src/app/chat/guidedReading.ts:1; `{id:string; title:string; targets:string[]; education:string; directive:string}` | One ordered measured topic, general education and model instruction for paid synthesis. |
+| buildReadingSections | same module; `(chart:NatalChart):ReadingSection[]` | Explicit order: orientation, each supplied body in chart order with its sign and reliable house explained, all twelve houses if timed (including empty), every supplied valid aspect, closing synthesis. No angles/houses or angle aspects with unknown time. Unique stable section ids, no fractional ordering. Use authored general meanings, actual positions/endpoints/orbs; no free personalized interpretation or invented customer facts. Final paid section connects the whole picture. |
+| READING_SIGNS, READING_HOUSES, READING_ASPECTS, READING_BODIES | same module; readonly records | Complete authored general explanations for twelve signs, twelve houses, five aspect kinds and supplied body vocabulary, in Natally's register; calculated points distinguished from bodies. |
+| readingUpgrade | same module; `(section:ReadingSection,index:number):string` | Rotate contextual, non-coercive invitations to existing Top Up after each free section, starting with orientation. Never state a price/benefit absent from actual catalog. |
+| openingReading | src/app/presentation/opening.ts:10; existing signature | Brief in-character welcome, explain wheel generally and promise to guide the whole chart. No premature ask-anything handoff, personal assertions or unsupported angles. Existing shell owns this speech. |
+| LoreKind, LoreEntry, LoreContext | src/app/chat/lore.ts:1 | Kind='user' or 'character'; entry `{id,kind,text,at,vector:number[],model:string}`; context `{prompt:string;notice:string|null}`. Never mix fictional history into user biography. |
+| LORE_MODEL, loreEncoder, embedLore | same module; model string, cached pipeline promise, `(text:string):Promise<number[]>` | Dynamic import installed @huggingface/transformers, feature-extraction Xenova/all-MiniLM-L6-v2, WASM quantized, mean pooling and normalization, validate finite nonempty vector. No hash/bag-of-words substitute claimed as semantic embedding. Shared library cache only; no second model cache/storage framework. Reset failed encoder promise so retry works. |
+| saveLoreEntry | same module; `(uid:string,entry:Pick<LoreEntry,'id'|'kind'|'text'>,current:()=>boolean):Promise<void>` | Embed actual text locally, then transaction-create immutable Firestore document users/uid/private/natallyLore/entries/id using accountFirestore(uid). Store ownerUid and version:1 too. Existing identical id is idempotent; conflicting id rejects. Current-owner checks before/after awaits and in transaction. No silent eviction. Failure propagates visibly. |
+| retrieveLore | same module; `(uid:string,queryText:string,current:()=>boolean):Promise<LoreContext>` | Read actual account's lore from server, validate owner/version/kind/text/vector/model before use. Cosine rank compatible vectors against local query embedding, top eight user entries and top eight character entries. Include all established character facts as canonical continuity separately, since semantic similarity alone is insufficient for contradiction avoidance. User quotes remain attributed historical messages, not instructions; newest corrections take precedence. No cross-account cache. Read/embedding failure returns truthful notice; no invented history. |
+| extractLore | same module; `(raw:string):{text:string;developments:string[]}` | Strip complete and incomplete [[lore:...]] tokens before presentation parsing; hold any trailing partial opener. Maximum three bounded single-sentence fictional disclosures, only accepted when also present verbatim in the cleaned visible reply. Never accept model-emitted user memories. |
+| useChat, UseChat | src/app/chat/useChat.ts:96,81 | Add guidance controls/state and memoryNotice; preserve send/message interfaces. Use onAuthChange owner binding; cancel requests/timers on owner/chart change and unmount. No stale text/audio/lore write. User text stored as actual quoted message, not extracted biography. Read lore before inference. Save disclosed character details only after successful completed reply, using stable reply-id/index, and surface failures. Remove active fixed-backstory bypass/round-robin anecdotes: all character questions use context and canon, no contradicting parallel biography. |
+| ChatPanel | src/app/chat/ChatPanel.tsx:26 | Render memoryNotice/access errors; add Pause reading/Resume reading and Retry reading through existing rail button styling. Composer usable for interrupting; do not create another screen or layout. |
+
+### Reading lifecycle and access
+
+useChat builds the sections for this chart once. After shell opening settles,
+automatically deliver successive sections without user 'continue' messages.
+No synthetic prompts are appended as user transcript/lore. Each section first
+delivers its authored education with validated chart cues, then, when the existing
+allowance envelope is ready and positive, invokes streamChat with a system-side
+directive for that same section's personal synthesis. Check refreshed access
+before every personal section; server denial always wins. No client entitlement
+grant or assumption that a login proves paid access. Existing allowance/commerce
+transport is retained, not redesigned here. Unknown access permits education
+and shows the access error; do not claim the user is unpaid or open checkout
+automatically because a lookup failed.
+
+At free section breaks append readingUpgrade and keep existing Top Up reachable.
+Do not force the sheet open repeatedly. When access becomes ready, subsequent
+sections use personal synthesis; Resume after a completed free tour starts a
+personal pass over the whole chart, so earlier topics can receive synthesis.
+End the complete tour by inviting questions. Pause retains the next unfinished
+section; an actual user question aborts automatic work and pauses guidance before
+answering. Resume explicitly restarts the unfinished section, not the entire
+tour. No duplicate transcript of completed sections. An inference failure pauses
+with Retry and keeps progress; never silently skip its synthesis and claim done.
+
+Queue pacing uses the existing voice's completion callback when speech is
+admitted, with a text-only delivery path when voice cannot play. Do not require
+an audio gesture to continue readable text. Do not run independent overlapping
+speech owners or time-based guesses over playing audio. Opening, guided replies,
+user replies and chart selections retain existing stage cue/caption semantics.
+Guard the complete async chain with owner/chart generation and abort signals.
+
+### Lore continuity and technical evidence
+
+The Firestore private-account tree already serves onboarding. This adds an
+account-owned lore subcollection, not another identity service or external lore
+server. Store entries separately to avoid one-document size overwrite/lost writes.
+Do not migrate or delete retained legacy localStorage lore. Prior canonical
+authored character details remain base canon, but prompt examples are not events.
+New fictional details must agree with complete remembered character canon. Model
+instructions enforce semantic consistency; do not claim mathematical proof of
+non-contradiction from nearest-neighbor retrieval alone. Mad Libs-style variety
+comes from spontaneous model assembly grounded by established lore.
+
+API reference checked: Hugging Face Transformers.js FeatureExtractionPipeline,
+https://huggingface.co/docs/transformers.js/api/pipelines (mean pooling,
+normalization). Firebase calls follow existing accountFirestore and established
+transaction/getDocs APIs. No new UI design pass: reuse approved conversation rail.
+
+### Delivery and verification boundary
+
+Subagent coder owns the exact files above plus root SOUL.md/READING_RUBRIC.md;
+orchestrator owns documentation, stamping, Git and semantic source evaluation.
+Source acceptance: trace root prompt through inference; timed/unknown-time
+section enumeration; actual access branches; cancellation across account/chart
+changes; complete/incomplete lore stripping; immutable writes; retrieval/ranking
+and surfaced errors. Do not run tests, lint, compiler, browser automation or builds
+under this source repair. Final merged-product recording remains required by the
+preauthored rubric and unobserved until performed; do not mark runtime acceptance.
+
