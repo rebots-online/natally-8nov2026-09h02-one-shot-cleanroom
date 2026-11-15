@@ -49,6 +49,7 @@ foreach ($inputArtifact in $inputs) {
     }
 }
 $signature = Get-AuthenticodeSignature $msi[0].FullName
-@{ version=$ReleaseVersion; sourceCommit=$SourceCommit; artifacts=$artifacts
+$inventory = @{ version=$ReleaseVersion; sourceCommit=$SourceCommit; artifacts=$artifacts
    storeSigning=$signature.Status.ToString(); storeAcceptance='unverified' } |
-   ConvertTo-Json -Depth 8 | Set-Content (Join-Path $release 'windows-native-inventory.json') -Encoding utf8
+   ConvertTo-Json -Depth 8
+[System.IO.File]::WriteAllText((Join-Path $release 'windows-native-inventory.json'), $inventory, [System.Text.UTF8Encoding]::new($false))
