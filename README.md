@@ -149,7 +149,7 @@ expected signer SHA-256. Keep Surge authentication in private configuration.
 
 ### Outputs and verification
 
-The web bundle in `dist-web/` includes the app, preserved landing entry and
+The web bundle in `dist/natally-v<version>/web/` includes the app, preserved landing entry and
 `/auth/native.html` browser handoff. Native outputs are staged under
 `dist/natally-v<version>/` with a SHA-256 inventory and per-target logs: Linux
 AppImage/deb/rpm, Windows x64 executable/NSIS/MSI, and signed Android arm64

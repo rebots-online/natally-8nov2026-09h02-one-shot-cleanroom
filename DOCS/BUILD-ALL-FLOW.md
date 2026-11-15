@@ -34,7 +34,7 @@ flowchart TD
   R --> S[Parent waits while retaining fd9 lock; propagate child exit]
   C -->|yes| T[Require resolved environment and source/version context]
   T --> U[assert_source]
-  U --> V[Vite production build into dist-web]
+  U --> V[Vite production build into versioned release web directory]
   V --> W[stampHtml injects canonical bottom-right label into generated HTML]
   W --> X[Copy app.html to index.html]
   X --> Y[Create versioned web archive in dist/natally-vVERSION]
@@ -97,7 +97,8 @@ stamper. `version.txt` is authoritative; `version.json` is a generated mirror.
 The product fields are Natally / natally-ai-studio / mba.robin.astronatally.
 The Node projection block's `read` function parses JSON with explicit failure;
 `write` writes the generated JSON. Existing package files are guarded for
-presence. Cargo/native numeric versions omit display padding for valid SemVer.
+presence. The projection block also writes `nativeExecutable`, Cargo
+`default-run` plus its src/main.rs target, and Tauri mainBinaryName/frontendDist. Cargo/native numeric versions omit display padding for valid SemVer.
 MSI projects BUILD into quotient/remainder by1000 to fit Windows fields:
 `MAJOR.MINOR.floor(BUILD/1000).(BUILD%1000)`. MSI requires MAJOR/MINOR<=255.
 
@@ -238,11 +239,20 @@ flowchart TD
 | Windows native continuation | `wslpath -w` locates tracked PowerShell wrapper; `powershell.exe -NoProfile -File ... -NativeStoreOnly -ReleaseVersion ... -SourceCommit ...`; run logs actual result. |
 | Native inventory collect | Require same version/source and exactly three native artifacts; validate each SHA256, append records and retain Store-signing status. |
 
-Current producer outputs use their native toolchain names; `stage` currently
-copies to the canonical public artifact names. That behavior is explicitly
-shown here rather than represented as direct-to-final-name production. The
-operator's subsequent requirement to remove that naming window is a remaining
-producer change; no claim of complete naming compliance is made by this document.
+Producer outputs already identify their version. The stamper creates the
+Cargo executable target `natally-vMAJOR_MINOR_BUILD` and matching Tauri
+`mainBinaryName`; underscores are the Rust target identifier projection of the
+same dotted identity. The application EXE is thus never an unversioned
+standalone producer output. Public artifact names use dotted MAJOR.MINOR.BUILD.
+Gradle producer archives and desktop packages also carry their version. `stage`
+retains already identifiable producer outputs under the canonical public names;
+it does not recover an unknown EXE by renaming it after a build. Toolchain
+object/dependency files and ABI entries inside archives remain internal.
+
+Web output is built directly at `dist/natally-vVERSION/web/`. The canonical
+stamper and `prepare` set Tauri frontendDist to that exact same path.
+`NATALLY_WEB_DIR` is consumed by Vite, stampHtml, app/index copy, tar and Surge.
+Older release directories are preserved; there is no temporary web build swap.
 
 ## Native Windows wrapper: build_all.ps1
 
@@ -256,7 +266,7 @@ flowchart TD
   E --> F[Propagate canonical release exit]
   C -->|yes| G[Require ReleaseVersion and SourceCommit]
   G --> H[Require version.txt/HEAD match; clean tracked source]
-  H --> I[Native Windows Tauri2.11.4 builds EXE/NSIS/MSI from existing dist-web]
+  H --> I[Native Windows Tauri2.11.4 builds EXE/NSIS/MSI from existing versioned web output]
   I --> J[Require successful exit and unchanged tracked source/HEAD]
   J --> K[Select exactly one current-version NSIS and MSI]
   K --> L[Copy native EXE/NSIS/MSI into shared versioned release home]
