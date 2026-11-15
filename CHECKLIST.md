@@ -1634,3 +1634,21 @@ Architecture exit: exact paths and existing entities above; no new product
 entities. The initial authority commit retains the current historical version
 prefix because the stamper repair is not yet implemented; subsequent repair
 commit uses automatic canonical stamping, not a hand-chosen version.
+
+
+## BUILD-RUN-20261115 — operator-authorized full build
+
+- [ ] **BUILD-RUN-20261115**
+  **Own:** execution of ./build_all.sh only, generated identity files,
+  build/natally-full-build-20261115.log and automatically generated dist outputs.
+  **Do:** From this exact physical checkout on asrock, invoke ./build_all.sh
+  with no arguments, retain actual stdout/stderr in the named build log, and
+  report its real exit, stamp and produced target states. Do not edit sources,
+  credentials, DNS or Git configuration; do not run any tests/checks, secondary
+  build entry, KStore writes or Forgejo network operations. Do not print secrets.
+  Do not launch if another canonical build owns build/build-all.lock; the entry
+  enforces the lock. Current public domain is natally.robin.mba, sole existing
+  Surge transport; no DNS/provider improvisation.
+  **Accept:** actual full pipeline exits0 and recorded native inventory has all
+  declared targets packaged. Failure is reported as failure, never checked off.
+  Existing rubrics remain operator demonstration protocols.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Natally",
-  "version": "1.34.12848",
+  "version": "1.35.12850",
   "identifier": "mba.robin.astronatally",
   "build": {
     "beforeBuildCommand": "",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Natally v1.34.12848",
+        "title": "Natally v1.35.12850",
         "width": 1280,
         "height": 800,
         "resizable": true,
@@ -35,11 +35,11 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug",
-      "versionCode": 100034
+      "versionCode": 100035
     },
     "windows": {
       "wix": {
-        "version": "1.34.12.848",
+        "version": "1.35.12.850",
         "upgradeCode": "3e5cab2c-d121-4e0a-a428-9a81141827f9"
       }
     },
