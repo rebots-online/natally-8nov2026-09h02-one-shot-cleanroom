@@ -1822,7 +1822,7 @@ Update DOCS/BUILD-ALL-FLOW.md one-to-one with these concrete source changes.
 
 ## CHARACTER-READING-20261115 — assigned
 
-- [ ] Implemented; runtime acceptance unobserved.
+- [X] Implemented and semantically reviewed; runtime acceptance unobserved.
 - Owner: bounded subagent coder; parent owns Git, stamping and semantic review.
 - Own: SOUL.md, READING_RUBRIC.md, src/content/persona.ts, src/app/chat/context.ts, src/app/chat/inference.ts, src/app/chat/guidedReading.ts, src/app/chat/lore.ts, src/app/chat/useChat.ts, src/app/chat/ChatPanel.tsx, src/app/presentation/opening.ts.
 - Read: these owned files only, plus src/shared/types.ts, src/voice/index.ts for Voice admission/completion API, src/platform/firebase.ts for accountFirestore/onAuthChange and imports. No unrelated source, legacy/abandoned repositories, tests or provider/config edits.
@@ -1978,3 +1978,25 @@ refining the preceding boolean-state row: callbacks capture their opening's key;
 chatStage.openingSettled remains boolean and is true for text mode or for a
 matching settled key only. Include chartKey in chatStage memo dependencies.
 A previous chart's completed opening can never authorize a new chart's tour.
+
+### CHARACTER-READING-20261115 source evaluation
+
+Implementation 6656072, refinements fd227a9 and 6226025 are published.
+Direct source review traced root authored prompt imports through context and
+streamChat; every body/sign, timed house cusp and supplied aspect through the
+ordered tour; fresh access before synthesis; paused cursor and aborted questions;
+chart-scoped opening completion and chart-click interruption; partial metadata
+stripping before captions/speech; local finite 384-vector embedding, immutable
+owner-checked Firestore writes, retrieval ranking and surfaced memory errors.
+Corrections moved final speech flush ahead of memory writes, prevented new
+backstory during failed canon retrieval, made general narration conversational,
+closed an immediate-listener cleanup leak, fixed exact zodiac ordering and
+provided complete cusp facts outside trimmed conversation history.
+
+No tests, compiler/lint/syntax checks, browser automation or build/deploy ran.
+The separately preauthored rubric is not accepted: actual Firestore permissions,
+model delivery, live speech/controls and the recorded merged-product journey
+remain unobserved. Existing API supplies one natal chart; this work does not
+claim a new horoscope/synastry calculation service. Their prompt coverage asks
+for missing actual calculations. Canonical character facts guide model semantic
+consistency; vector similarity is not a deterministic contradiction proof.
