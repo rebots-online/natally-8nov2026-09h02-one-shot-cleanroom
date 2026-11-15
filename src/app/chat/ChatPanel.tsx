@@ -24,25 +24,16 @@ function errorText(error: ChatError): string {
 }
 
 export function ChatPanel({ chart, onTopUp, stage, onMenu }: ChatPanelProps) {
-  const { messages, send, streaming, openingLive, error } = useChat(chart, stage);
+  const { messages, send, streaming, openingLive, error, allowance, guidanceState, pauseReading, resumeReading, memoryNotice } = useChat(chart, stage);
   const [draft, setDraft] = useState('');
   const [submitted, setSubmitted] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
-  const askedRef = useRef<ChatError | null>(null);
   const lesson = getLesson('general');
 
   useEffect(() => {
     const log = logRef.current;
     if (log !== null) log.scrollTop = log.scrollHeight;
   }, [messages]);
-
-  useEffect(() => {
-    if (error instanceof NoAllowanceError && askedRef.current !== error) {
-      askedRef.current = error;
-      onTopUp();
-    }
-    if (error === null) askedRef.current = null;
-  }, [error, onTopUp]);
 
   // The existing send hook owns the result. Keep an unanswered question in
   // the composer on failure instead of clearing the only retryable copy.
@@ -54,7 +45,7 @@ export function ChatPanel({ chart, onTopUp, stage, onMenu }: ChatPanelProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (streaming || draft.trim() === '') return;
+    if (draft.trim() === '') return;
     setSubmitted(draft);
     void send(draft);
   }
@@ -65,6 +56,14 @@ export function ChatPanel({ chart, onTopUp, stage, onMenu }: ChatPanelProps) {
         <h1 className="atelier-rail-title" tabIndex={-1}>Your reading</h1>
         {onMenu && <button type="button" className="atelier-rail-btn-icon" aria-label="Menu" onClick={onMenu}>←</button>}
       </div>
+      <div role="group" aria-label="Guided reading">
+        {guidanceState === 'running' || guidanceState === 'waiting'
+          ? <button className="atelier-btn-secondary" type="button" onClick={pauseReading}>Pause reading</button>
+          : <button className="atelier-btn-secondary" type="button" onClick={resumeReading}>{error ? 'Retry reading' : guidanceState === 'complete' ? 'Revisit reading' : 'Resume reading'}</button>}
+        <button className="atelier-btn-text" type="button" onClick={onTopUp}>Top Up</button>
+      </div>
+      {memoryNotice && <p className="atelier-inline-error" role="status">{memoryNotice}</p>}
+      {allowance.error && <p className="atelier-inline-error" role="status">Reading access could not be checked. {allowance.error}</p>}
       <div className="atelier-transcript-scroll" data-bind="transcript" role="log" aria-live="polite" ref={logRef}>
         {messages.map((message, index) => {
           const live = (streaming || openingLive) && index === messages.length - 1 && message.role === 'natally';
@@ -82,11 +81,11 @@ export function ChatPanel({ chart, onTopUp, stage, onMenu }: ChatPanelProps) {
           <input
             className="atelier-input" id="ask-natally" type="text" autoComplete="off"
             placeholder="Ask about your chart…" value={draft}
-            onChange={event => setDraft(event.target.value)} disabled={streaming}
+            onChange={event => setDraft(event.target.value)}
           />
           {error !== null && <div className="atelier-inline-error" data-bind="field-error" role="alert">{errorText(error)}</div>}
         </div>
-        <button className="atelier-btn-primary" type="submit" disabled={streaming || draft.trim() === ''}>Send</button>
+        <button className="atelier-btn-primary" type="submit" disabled={draft.trim() === ''}>{streaming ? 'Interrupt and ask' : 'Send'}</button>
       </form>
       <details className="atelier-chart-notes">
         <summary>Chart notes</summary>
