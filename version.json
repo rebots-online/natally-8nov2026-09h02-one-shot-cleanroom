@@ -1,11 +1,11 @@
 {
-  "version": "1.53.12961",
-  "versionBase": "1.53",
-  "buildNumber": "12961",
-  "versionCode": 100053,
-  "nativeExecutable": "natally-v1_53_12961",
-  "buildDate": "2026-11-15T16:21:58-05:00",
-  "builtAt": "2026-11-15T16:21:58-05:00",
+  "version": "1.54.13274",
+  "versionBase": "1.54",
+  "buildNumber": "13274",
+  "versionCode": 100054,
+  "nativeExecutable": "natally-v1_54_13274",
+  "buildDate": "2026-11-15T21:34:02-05:00",
+  "builtAt": "2026-11-15T21:34:02-05:00",
   "productName": "Natally",
   "internalName": "natally-ai-studio",
   "packageName": "mba.robin.astronatally"
