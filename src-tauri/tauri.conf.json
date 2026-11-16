@@ -1,17 +1,17 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Natally",
-  "version": "1.55.13274",
+  "version": "1.56.13280",
   "identifier": "mba.robin.astronatally",
   "build": {
     "beforeBuildCommand": "",
-    "frontendDist": "../dist/natally-v1.55.13274/web",
+    "frontendDist": "../dist/natally-v1.56.13280/web",
     "devUrl": "http://localhost:37841"
   },
   "app": {
     "windows": [
       {
-        "title": "Natally v1.55.13274",
+        "title": "Natally v1.56.13280",
         "width": 1280,
         "height": 800,
         "resizable": true,
@@ -35,16 +35,16 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug",
-      "versionCode": 100055
+      "versionCode": 100056
     },
     "windows": {
       "wix": {
-        "version": "1.55.13.274",
+        "version": "1.56.13.280",
         "upgradeCode": "3e5cab2c-d121-4e0a-a428-9a81141827f9"
       }
     },
     "shortDescription": "Natally personal astrology and exploration",
     "category": "Education"
   },
-  "mainBinaryName": "natally-v1_55_13274"
+  "mainBinaryName": "natally-v1_56_13280"
 }

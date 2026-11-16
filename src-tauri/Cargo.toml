@@ -1,7 +1,7 @@
 [package]
 name = "natally-ai-studio"
-default-run = "natally-v1_55_13274"
-version = "1.55.13274"
+default-run = "natally-v1_56_13280"
+version = "1.56.13280"
 description = "Natally personal astrology and exploration"
 authors = ["rebots-online"]
 repository = "https://github.com/rebots-online/natally-ai-studio"
@@ -44,8 +44,9 @@ strip = false
 
 
 
+
 # CANONICAL_VERSIONED_EXECUTABLE
 [[bin]]
-name = "natally-v1_55_13274"
+name = "natally-v1_56_13280"
 path = "src/main.rs"
 # END_CANONICAL_VERSIONED_EXECUTABLE
