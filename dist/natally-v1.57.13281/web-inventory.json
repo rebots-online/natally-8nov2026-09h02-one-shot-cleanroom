@@ -1,0 +1,15 @@
+{
+  "version": "1.57.13281",
+  "sourceCommit": "10f49ba11fa16cb1fe474b68fa2cd0a4670be19a",
+  "publication": "published",
+  "artifacts": [
+    {
+      "kind": "web-archive",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-web.tar.gz",
+      "bytes": 20894465,
+      "sha256": "f7907fa8f4c5ba65f6272b282fb468eadbb24afa27c5ed456d7a51cb05a1af40"
+    }
+  ],
+  "domain": "natally.robin.mba",
+  "publishedAt": "2026-11-16T02:42:08.354Z"
+}

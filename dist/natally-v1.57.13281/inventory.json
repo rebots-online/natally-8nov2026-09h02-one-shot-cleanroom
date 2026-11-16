@@ -1,0 +1,84 @@
+{
+  "version": "1.57.13281",
+  "builtAt": "2026-11-15T21:41:41-05:00",
+  "sourceCommit": "10f49ba11fa16cb1fe474b68fa2cd0a4670be19a",
+  "artifacts": [
+    {
+      "kind": "web-archive",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-web.tar.gz",
+      "bytes": 20894465,
+      "sha256": "f7907fa8f4c5ba65f6272b282fb468eadbb24afa27c5ed456d7a51cb05a1af40"
+    },
+    {
+      "kind": "android-apk",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-android-arm64.apk",
+      "bytes": 103285627,
+      "sha256": "8b6f9ca49d9d36d392a7640624f39743b13ffd597657db4c5a7e360a16c87071"
+    },
+    {
+      "kind": "android-aab",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-android-arm64.aab",
+      "bytes": 41177529,
+      "sha256": "efe4bd5536c701d822df54e69ed01828d2ad8e89aa6c5565a5ea2f0cdc78ddf1"
+    },
+    {
+      "kind": "android-symbols",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-android-arm64-native-debug-symbols.zip",
+      "bytes": 13592608,
+      "sha256": "55c6f205492153ddf62c7113e4d330b057e587be7c63c824ff834812904afb9e"
+    },
+    {
+      "kind": "linux-x64.AppImage",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-linux-x64.AppImage",
+      "bytes": 117676536,
+      "sha256": "f16c9e99ea9bb1777c19c1781e67ab1574d54ffadc9440a00f6707d4b7c05989"
+    },
+    {
+      "kind": "linux-x64.deb",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-linux-x64.deb",
+      "bytes": 44333570,
+      "sha256": "a0168cdd4c2c6bf2b3ba9cc4082004c9102f1ed2e028c0e3209a386f0be559b2"
+    },
+    {
+      "kind": "linux-x64.rpm",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-linux-x64.rpm",
+      "bytes": 44326986,
+      "sha256": "56075c00b83dd396254cf6da650fee25bcd9d0ad21e78d6f4bea4190a70b63c0"
+    },
+    {
+      "kind": "windows-executable",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-windows-x64.exe",
+      "bytes": 27473920,
+      "sha256": "873bc59ceaeae0f952e75125cef8979b6be8dde25857cacf9244c2c4b93e83b8"
+    },
+    {
+      "kind": "windows-x64-installer.exe",
+      "path": "dist/natally-v1.57.13281/natally-v1.57.13281-windows-x64-installer.exe",
+      "bytes": 20502770,
+      "sha256": "cc01a4262b23cd3a8edb945670a67d1817385ff008e8dd0c78df673c5ca41f7e"
+    }
+  ],
+  "targets": {
+    "web": {
+      "state": "published",
+      "domain": "natally.robin.mba"
+    },
+    "android": {
+      "state": "packaged",
+      "startedAt": "2026-11-16T02:42:09.713Z",
+      "finishedAt": "2026-11-16T02:46:08.483Z"
+    },
+    "linux": {
+      "state": "packaged",
+      "startedAt": "2026-11-16T02:46:08.483Z",
+      "finishedAt": "2026-11-16T02:55:33.361Z"
+    },
+    "windows": {
+      "state": "packaged",
+      "startedAt": "2026-11-16T02:55:33.362Z",
+      "finishedAt": "2026-11-16T02:56:50.892Z"
+    }
+  },
+  "finishedAt": "2026-11-16T02:56:50.892Z",
+  "complete": true
+}
